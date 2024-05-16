@@ -65,17 +65,23 @@ MainWindow::MainWindow(QWidget* parent)
     //
     //  绑定信号和槽函数
     //
+    //0、更新玻璃结果
     connect(Detectworker, SIGNAL(sig_UpdateResultInfo(ResultINFO*)), m_FlawShowWidget, SLOT(slot_GetGlassResult(ResultINFO*)));
+    //1、更新单个缺陷结果
     connect(Detectworker,SIGNAL(sig_updateSignalFlaw(Qstring)), m_SingleFlawShow,SLOT(slot_RecieveID(Qstring)));
+    //2、更新前一块玻璃结果
     connect(m_FlawShowWidget, SIGNAL(sig_updatePreGlassRes(bool)), this, SLOT(slot_updatePreGlassRes(bool)));
+    //3、更新排列玻璃结果
     connect(Detectworker, SIGNAL(sig_updateSortRes(ResultINFO*)), this, SLOT(slot_updateSortGlassRes(ResultINFO*)));
+    //4、更新玻璃信号
     connect(SigCtrlData, &SignalControlData::sig_updateSortGlassSignal,Detectworker, &Process_Detect::slot_updateSortInfo, Qt::DirectConnection);
+    //5、清除玻璃信号
     connect(m_FlawShowWidget, SIGNAL(sig_ClearDate()), this, SLOT(slot_clearPreSortGlassInfo()));
+    //6、清除玻璃的数据
     connect(m_FlawShowWidget, SIGNAL(sig_ClearDate()), m_GlassStatisticTable, SLOT(slot_clearRowData()));
+    //7、轨迹追踪
     connect(m_SingleFlawShow, SIGNAL(sig_paintFlawPoint(QString x,QString y)), m_FlawShowWidget, SLOT(slot_FlawTrack(QString x, QString y)));
 
-    //slot_ShowSystemSettingForm();
-    //SystemSettings->hide();
 }
 
 MainWindow::~MainWindow()
@@ -114,8 +120,7 @@ void MainWindow::initMenu()
     m_pCameraSettings = new QAction("&相机", this);
     m_pCameraSettings->setToolTip(tr("CameraSet."));
     m_pCameraSettings->setIcon(QIcon(":/toolbar/icons/cameraIcon.png"));
-    connect(m_pCameraSettings, SIGNAL(triggered()), this,
-        SLOT(slot_CameraShow()));
+    connect(m_pCameraSettings, SIGNAL(triggered()), this, SLOT(slot_CameraShow()));
     ui->toolBar->addAction(m_pCameraSettings);
 
     m_pDB = new QAction("&数据查询", this);
@@ -168,18 +173,11 @@ void MainWindow::initMenu()
     lineEdit1->setFont(font1);
     lineEdit1->setAlignment(Qt::AlignCenter);
     lineEdit1->setText("");
-    //  lineEdit1->setText("OK");
-    //  lineEdit1->setStyleSheet(
-    //      "color: black;border: none; background-color: green; border-radius: "
-    //      "20px;");
 
     lineEdit2->setFont(font1);
     lineEdit2->setAlignment(Qt::AlignCenter);
     lineEdit2->setText("");
-    //  lineEdit2->setText("NG");
-    //  lineEdit2->setStyleSheet(
-    //      "color: black;border: none; background-color: red; border-radius: "
-    //      "20px;");
+
 
     // 创建水平布局用于左侧和右侧的控件
     QVBoxLayout* leftLayout = new QVBoxLayout();
@@ -275,7 +273,6 @@ void MainWindow::initThread()
     TileImageThread = new QThread(this);
     DetectImageThread = new QThread(this);
     Detectworker = new Process_Detect();
-    //    connect(Detectworker,SIGNAL(sig_Deliver(QList<FlawPoint>*)),this,SLOT(slot_FromDetect(QList<FlawPoint>*)));
     Tileworker = new ProcessTile(Cameras);
     Detectworker->moveToThread(DetectImageThread);
     Tileworker->moveToThread(TileImageThread);
@@ -285,10 +282,8 @@ void MainWindow::initThread()
     DetectImageThread->start();
     TileImageThread->start();
     connect(Detectworker, SIGNAL(sendData(GLASSINFO*)), m_GlassStatisticTable, SLOT(slot_insertRowData(GLASSINFO*)));
-//    connect(Detectworker, SIGNAL(sendData(GLASSINFO*)), m_FlawShowWidget, SLOT(slot_GetGlassSize(GLASSINFO*)));
     connect(Detectworker, SIGNAL(sig_updateFlaw(GLASSINFO*)), m_FlawShowWidget, SLOT(slot_GetGlassSize(GLASSINFO*)));
     connect(Detectworker, SIGNAL(sig_Deliver(QList<FlawPoint>*)), m_FlawShowWidget, SLOT(slot_GetFlawPoints(QList<FlawPoint>*)));
-//    connect(m_FlawShowWidget, SIGNAL(sig_ClearDate()), Detectworker, SLOT(slot_ClearDate()));
 }
 
 void MainWindow::initDatabase()
@@ -370,6 +365,7 @@ void MainWindow::initCamera()
 
 void MainWindow::slot_CloseSystem()
 {
+    //推出时线程未正确处理
     close();
     qApp->exit(0);
 }
@@ -436,8 +432,8 @@ void MainWindow::slot_RunningInfo()
 void MainWindow::slot_DB()
 {
     //    Database->start_connect();
-    DB = new QProcess(this);
-    DB->start("JianboDB/Glass_DB_Model.exe");
+//    DB = new QProcess(this);
+//    DB->start("JianboDB/Glass_DB_Model.exe");
 }
 
 void MainWindow::stopThread()
@@ -458,7 +454,6 @@ void MainWindow::stopThread()
 void MainWindow::slot_ChangeRecipe(QString RecipeName)
 {
     QString recipelog = "获得新工单名: " + RecipeName;
-
     log_singleton::Write_Log(recipelog, Log_Level::General);
     QString NewFilepath = "Recipes/" + RecipeName + ".json";
     JsonRecipe->ChangeParams(NewFilepath);
@@ -490,14 +485,10 @@ void MainWindow::slot_updateSortGlassRes(ResultINFO* ResInfo)
     bool sortGlass = ResInfo->sort_result;
     if (sortGlass) {
         lineEdit2->setText("OK");
-        lineEdit2->setStyleSheet(
-            "color: black;border: none; background-color: green; border-radius: "
-            "20px;");
+        lineEdit2->setStyleSheet( "color: black;border: none; background-color: green; border-radius: " "20px;");
     } else {
         lineEdit2->setText("NG");
-        lineEdit2->setStyleSheet(
-            "color: black;border: none; background-color: red; border-radius: "
-            "20px;");
+        lineEdit2->setStyleSheet( "color: black;border: none; background-color: red; border-radius: " "20px;");
     }
 }
 
@@ -505,12 +496,8 @@ void MainWindow::slot_clearPreSortGlassInfo()
 {
     lineEdit1->setText("");
     lineEdit2->setText("");
-    lineEdit1->setStyleSheet(
-        "color: black;border: none; background-color: #FFFFFF; border-radius: "
-        "20px;");
-    lineEdit2->setStyleSheet(
-        "color: black;border: none; background-color: #FFFFFF; border-radius: "
-        "20px;");
+    lineEdit1->setStyleSheet("color: black;border: none; background-color: #FFFFFF; border-radius: " "20px;");
+    lineEdit2->setStyleSheet( "color: black;border: none; background-color: #FFFFFF; border-radius: " "20px;");
 }
 
 int OriginNum = 0;
@@ -522,7 +509,6 @@ QList<QRectF>* rectangles = new QList<QRectF>();
 void MainWindow::slot_ShowSingleFlawView(QString)
 {
     Dock_SingleSizeShowView->raise();
- //   Dock_SingleFlawShowView->raise();
 }
 
 void MainWindow::slot_SendPoint(const FlawPoint &flawpoint)

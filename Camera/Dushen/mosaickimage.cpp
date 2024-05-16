@@ -90,7 +90,7 @@ void MosaickImage::DoMosaick(QList<HObject> CameraImageList, int channel, HObjec
         if(overlap<0)
             overlap=0;
 
-       QList<HTuple> PixelDifList;
+       QList<HTuple> PixelDifList;//像素与像素之间的差值
        PixelDifList<<PixelDif12<<PixelDif23<<PixelDif24;
        qDebug()<<"1-2相机像素偏差"<<PixelDif12.ToString().Text()<<PixelDifList[0].ToString().Text();
        HTuple ImageHeight;

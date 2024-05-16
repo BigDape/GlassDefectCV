@@ -70,7 +70,7 @@ void QImageAcquisition::slotGrabFrames()
                 }
                 qDebug() << "FrameCount = " << imageunit.FrameCount;
                 strFrameCount=imageunit.FrameCount;
-                int m_FramesPerTri = int(Global::FramesPerTri);
+                int m_FramesPerTri = int(Global::FramesPerTri);//Global::FramesPerTri这是啥参数
                 //帧计数
     //            dvpGetFrameCount(m_handle, &FrameCount);
     //            strFrameCount = FrameCount.uFrameCount;

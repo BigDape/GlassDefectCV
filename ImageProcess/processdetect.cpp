@@ -88,16 +88,13 @@ void Process_Detect::init_detect()
 
 void Process_Detect::update_result(bool a)
 {
-    if(a)
-    {
+    if(a) {
        result->GlassNum++;
        result->okNum++;
        result->unsorted++;
        result->passRate=result->okNum/result->GlassNum;
        result->pre_result = true;
-    }
-    else
-    {
+    } else {
         result->GlassNum++;
         result->ngNum++;
         result->unsorted++;
@@ -126,7 +123,7 @@ void Process_Detect::VisionProcess()
                     GetDictTuple(Global::RecipeDict,"编码器参数",&Code);
 
                     GetDictTuple(Code,"编码器单位刻度对应距离",&CodePerScale);
-//                    ReadDict("D:/HalconFunction/DuMo3.2.hdict", HTuple(), HTuple(), &RecipeDict);
+//                  ReadDict("D:/HalconFunction/DuMo3.2.hdict", HTuple(), HTuple(), &RecipeDict);
 
 
                     qDebug()<<"编码器单位刻度对应距离:"<<CodePerScale.ToString().Text();
@@ -134,7 +131,7 @@ void Process_Detect::VisionProcess()
                 }
                 break;
             case 10:
-                ProcessStep=ProcessTile::ImageQueue.head().ProcessStep;
+                ProcessStep = ProcessTile::ImageQueue.head().ProcessStep;
                 GlassPosition=ProcessTile::ImageQueue.head().GlassPositionInf;
                 m_FramesPerTri=Global::FramesPerTri;
                 HTuple UserDefinedDict;
@@ -156,8 +153,7 @@ void Process_Detect::VisionProcess()
                 qDebug() << "LastProcessStep :" << LastProcessStep;
                 HTuple EnableDefect;
                 GetDictTuple(UserDefinedDict,"缺陷检测启用",&EnableDefect);
-                 if(EnableDefect==1)
-                   {
+                if(EnableDefect==1) {
                     //图像正常执行算法or输出异常提醒
                     if(ProcessTile::ImageQueue.head().ImageList.CountObj()>0 && ProcessTile::ImageQueue.head().ErrorFlag==false)
                     {
@@ -313,7 +309,7 @@ void Process_Detect::VisionProcess()
                                             Point.FlawType=ErrType.TupleSelect(i).TupleInt();
                                             Points->append(Point);
                                             // 发送数据
-                                    //     emit resultReady(ResultDataJson->ResultData);
+                                            //   emit resultReady(ResultDataJson->ResultData);
                                             //存小图
                                             QDir directory1(folderName + "/" + strErrName);
                                             if (directory1.exists()) {
@@ -377,10 +373,6 @@ void Process_Detect::VisionProcess()
                                     qDebug()<<"ProcessStep"<<ProcessStep;
                                     qDebug()<<"m_FramesPerTri"<<Global::FramesPerTri;
                                     emit sig_updateFlaw(ginfo);
-
-
-
-
                                     QString info="ProcessStep" + QString::number(ProcessStep)  + "算法执行完成！";
                                     log_singleton::Write_Log(info, Log_Level::General);
                                 } catch (HalconCpp::HException& Except) {
@@ -402,7 +394,7 @@ void Process_Detect::VisionProcess()
                     }
                    }
 
-                //尺寸測量+缺陷信息
+                  //尺寸測量+缺陷信息
                   if (GlassPosition==0 || GlassPosition==3 )
                   {
                       HTuple EnableMeasure;
@@ -511,9 +503,7 @@ void Process_Detect::slot_updateSortInfo()
        result->unsorted--;
        emit sig_updateSortRes(result);
        emit sig_UpdateResultInfo(result);
-    }
-    else
-    {
+    } else {
 
     }
 }

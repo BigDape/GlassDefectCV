@@ -3,7 +3,6 @@
 
 SignalControlData::SignalControlData(RegParasComm& sig_comm)
     : m_pSig_comm(sig_comm) {
-//  AlmLightOutThread=new QThread();
   sigctrl = new SignalControl();
   mid1 = 0;
   mid2 = 0;
@@ -12,8 +11,6 @@ SignalControlData::SignalControlData(RegParasComm& sig_comm)
 
   Global::FrameSignal = 0;
   Global::CodeCount = 0;
-//  this->moveToThread(AlmLightOutThread);
-//  connect(AlmLightOutThread,SIGNAL(&QThread::started),this ,SLOT(updateSignalLight));
 }
 
 SignalControlData::~SignalControlData() {}
@@ -397,15 +394,13 @@ void SignalControlData::TimeOut1() {
     m_pSig_comm.SetRegs(ADDR42, ADDR42, &temp2);
     m_pSig_comm.SetRegs(ADDR42, ADDR42, &temp1);
     unsigned int flag = 0; //上升沿
-  while (true) {
+    while (true) {
           //帧信号
           m_pSig_comm.GetRegs(ADDR40, ADDR40, &aaa);
-          qDebug()<<"aaa="<<aaa;
-          qDebug()<<"mid1="<<mid1;
           if (aaa > mid1) {
               Global::FrameSignal = 1;
               mid1 = aaa;
-          }else{
+          } else {
               mid1 = aaa;
           }
           //分拣信号
@@ -417,14 +412,13 @@ void SignalControlData::TimeOut1() {
             mid2 = bbb;
           }
           //ADDR8编码通道选择
-              //ADDR2编码器信号结束标志
+          //ADDR2编码器信号结束标志
           m_pSig_comm.GetRegs(ADDR2, ADDR2, &ccc);
 
-              //ADDR4编码器备用
+          //ADDR4编码器备用
 
-          if (ccc > mid3)
-          {              
-                  //ADDR3编码器信号1当前值
+          if (ccc > mid3) {
+            //ADDR3编码器信号1当前值
             m_pSig_comm.GetRegs(ADDR3, ADDR3, &eee);
             Global::CodeCount = eee;
             m_pSig_comm.GetRegs(ADDR4, ADDR4, &fff);
@@ -436,9 +430,7 @@ void SignalControlData::TimeOut1() {
             m_pSig_comm.SetRegs(ADDR42, ADDR42, &temp2);
             m_pSig_comm.SetRegs(ADDR42, ADDR42, &temp1);
             mid3 = ccc;
-          }
-          else
-          {
+          } else {
               mid3 = ccc;
           }
           //单位时间内编码器脉冲计数
@@ -446,8 +438,7 @@ void SignalControlData::TimeOut1() {
           Global::CodePerCount = ggg;
 
           //报警灯
-          if(Global::AlmLightSignal)
-          {
+          if (Global::AlmLightSignal) {
               Global::AlmLightSignal=false;
               uint lightnum=Global::AlmLightVal;
               m_pSig_comm.SetRegs(ADDR41, ADDR41, &lightnum);

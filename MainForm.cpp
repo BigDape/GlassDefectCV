@@ -33,7 +33,7 @@ MainForm::MainForm(QWidget* parent)
     vbox->addWidget(title_bar);
     vbox->addWidget(main_window);
 
-    QWidget::showFullScreen();
+    //QWidget::showFullScreen();
 }
 
 MainForm::~MainForm()

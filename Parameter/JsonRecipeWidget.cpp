@@ -319,7 +319,6 @@ void JsonRecipeWidget::ReadValue2Tree()
     //读取参数
     ReadParamsFromRecipe();
     //刷新前先清空
- //   int parentCount=TreeWidget->topLevelItemCount();
     int parentCount=ParamsListName.size();
     for(int i=0;i<parentCount;i++){
         QTreeWidgetItem* parentItem = TreeWidget->topLevelItem(i);
@@ -338,11 +337,9 @@ void JsonRecipeWidget::ReadValue2Tree()
        }
     }
     TreeWidget->expandAll();
-
     QDateTime currentDateTime = QDateTime::currentDateTime();
     QString currentDateTimeString = currentDateTime.toString("hh:mm:ss") + " 工单: " + cbx_RecipeSelect->currentText() + " 参数已读取";
     log_singleton::Write_Log(currentDateTimeString, Log_Level::General);
-
     lbl_OperationResult->setText(currentDateTimeString);
     lbl_OperationResult->adjustSize();
 }

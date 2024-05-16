@@ -155,14 +155,9 @@ void SingleSizeShowWidget::slot_showSizeSmallImage(QTableWidgetItem *item)
 void SingleSizeShowWidget::slot_showSizeDiagramImage()
 {
     QString ImageHolesLinePath;
-    JSONRECIPE->getParameter(
-        GlassID + ".ImageHolesLinePath", ImageHolesLinePath);
+    JSONRECIPE->getParameter(GlassID + ".ImageHolesLinePath", ImageHolesLinePath);
     ImageHolesLinePath = ImageHolesLinePath.replace(QChar(0x202A), "");
     qDebug() << "ImageHolesLinePath = " << ImageHolesLinePath;
-//    QPixmap pixmap1(ImageHolesLinePath + "/1.jpg");
-//    ui->label->setPixmap(pixmap1.scaled(630, 310));
-//    ui->label->setScaledContents(true);
-//    ui->label->setFixedSize(640, 320);
     QImage img1(ImageHolesLinePath + "/1.jpg");
     loadedPixmapItem->loadImage(img1);
     int nwidth = ui->graphicsView->width(), nheight = ui->graphicsView->height();
