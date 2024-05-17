@@ -58,42 +58,41 @@ int QImageAcquisition::WIDTH_BYTES(int BitCount, int Width)
 
 void QImageAcquisition::slotGrabFrames()
 {
-    //pBuffer为图片缓存,在此处做多场分离
+    //
+    // pBuffer为图片缓存,在此处做多场分离。pBuffer为线扫相机拍摄的一行透视亮场、一行反射暗场、一行反射亮场的一张图片
+    //
     dvpStatus status = dvpGetFrame(m_handle, &m_pFrame, &pBuffer, GRABTIMEOUT);
     if (status == DVP_STATUS_OK) {
         try {
             if (m_threadMutex.tryLock()) {
-                if(Global::FrameSignal==1) {
-                  imageunit.FrameCount=1;
+                if (Global::FrameSignal == 1) {//拼图完成帧信号会置1，控制器进行拍照也会置1，问题：哪个会影响到判断？？？
+                    imageunit.FrameCount = 1;
                 } else {
-                   imageunit.FrameCount++;
+                    imageunit.FrameCount++;
                 }
                 qDebug() << "FrameCount = " << imageunit.FrameCount;
-                strFrameCount=imageunit.FrameCount;
-                int m_FramesPerTri = int(Global::FramesPerTri);//Global::FramesPerTri这是啥参数
-                //帧计数
-    //            dvpGetFrameCount(m_handle, &FrameCount);
-    //            strFrameCount = FrameCount.uFrameCount;
+                strFrameCount = imageunit.FrameCount;
+                int m_FramesPerTri = int(Global::FramesPerTri);//相机的帧次
 
-
-                if (strFrameCount % m_FramesPerTri == 0) {
+                if (strFrameCount % m_FramesPerTri == 0) { //输出完成的帧次
                     qDebug() << "strFrameCount = " << strFrameCount;
                 }
-                //单通道图像宽度
-                FrameWidth = m_pFrame.iWidth;
+
+                FrameWidth = m_pFrame.iWidth;//单通道图像宽度
                 //单通道图像高度
                 if (strFrameCount % m_FramesPerTri == 1 || m_FramesPerTri==1) {
-                    FrameHeight = m_pFrame.iHeight / m_FieldCount;
+                    FrameHeight = m_pFrame.iHeight / m_FieldCount;//相机为1帧或者第一帧的高度
                 } else {
-                    FrameHeight = m_pFrame.iHeight / m_FieldCount + ImageOffset;
+                    FrameHeight = m_pFrame.iHeight / m_FieldCount + ImageOffset;//ImageOffset为重复部分，为了拼图做准备
                 }
 
-                qDebug() << "strFrameCount " << strFrameCount << pBuffer;
+                qDebug() << "strFrameCount " << strFrameCount;
+                qDebug() << "pBuffer" << pBuffer;
 
-                if (m_pFrame.format == FORMAT_BGR24) {
+                if (m_pFrame.format == FORMAT_BGR24) {//BGR三通道24bit图
                     //其他版本先把BGR数据转成RGB数据，再用RGB数据转QImage
                     int ImageSize = 0;
-                    ImageSize = ImageLineSize * FrameHeight;
+                    ImageSize = ImageLineSize * FrameHeight;        //图像大小
                     byte** Dest_Buffer = new byte*[m_FieldCount];
                     for (int i = 0; i < m_FieldCount; i++) {
                         Dest_Buffer[i] = new byte[ImageSize];
@@ -104,25 +103,36 @@ void QImageAcquisition::slotGrabFrames()
                             memcpy(Dest_Buffer[lightnum1], Last_Buffer[lightnum1], ImageLineSize * ImageOffset);
                         }
                     }
-                    // 图片重组
+                    //
+                    // 图片重组:把线扫相机的三个场给分离出来
+                    //
                     for (int HeightCount = 0; HeightCount < m_pFrame.iHeight / m_FieldCount; HeightCount++) {
                         for (int lightnum2 = 0; lightnum2 < 3; lightnum2++) {
                             if (strFrameCount % m_FramesPerTri == 1 || m_FramesPerTri==1) {
-                                memcpy(Dest_Buffer[lightnum2] + HeightCount * ImageLineSize, (byte*)pBuffer + (m_FieldCount * HeightCount + lightnum2) * ImageLineSize, ImageLineSize);
+                                memcpy(Dest_Buffer[lightnum2] + HeightCount * ImageLineSize,
+                                       (byte*)pBuffer + (m_FieldCount * HeightCount + lightnum2) * ImageLineSize,
+                                       ImageLineSize);
                             } else {
-                                memcpy(Dest_Buffer[lightnum2] + (HeightCount + ImageOffset) * ImageLineSize, (byte*)pBuffer + (m_FieldCount * HeightCount + lightnum2) * ImageLineSize, ImageLineSize);
+                                memcpy(Dest_Buffer[lightnum2] + (HeightCount + ImageOffset) * ImageLineSize,
+                                       (byte*)pBuffer + (m_FieldCount * HeightCount + lightnum2) * ImageLineSize,
+                                       ImageLineSize);
                             }
                         }
-                        //重叠区域获取
+                        //重叠区域获取，重叠区域复制过来
                         if (HeightCount >= m_pFrame.iHeight / m_FieldCount - ImageOffset) {
                             for (int lightnum3 = 0; lightnum3 < m_FieldCount; lightnum3++) {
-                                memcpy(Last_Buffer[lightnum3] + (HeightCount - (m_pFrame.iHeight / m_FieldCount - ImageOffset)) * ImageLineSize, (byte*)pBuffer + (m_FieldCount * HeightCount + lightnum3) * ImageLineSize, ImageLineSize);
+                                memcpy(Last_Buffer[lightnum3] + (HeightCount - (m_pFrame.iHeight / m_FieldCount - ImageOffset)) * ImageLineSize,
+                                       (byte*)pBuffer + (m_FieldCount * HeightCount + lightnum3) * ImageLineSize,
+                                       ImageLineSize);
                             }
                         }
                     }
                     int PicvViewSelect = 0;
                     for (int lightnum4 = 0; lightnum4 < m_FieldCount; lightnum4++) {
-                        if(Global::FieldSelectedView[0]>0 && Global::FieldSelectedView[0]<=Global::FieldNumberSet) {
+                        //
+                        // 相机界面显示小图
+                        //
+                        if(Global::FieldSelectedView[0] > 0 && Global::FieldSelectedView[0] <= Global::FieldNumberSet) {
                             PicvViewSelect = Global::FieldSelectedView[0] - 1;
                         }
                         if (lightnum4 == PicvViewSelect) {
@@ -135,7 +145,7 @@ void QImageAcquisition::slotGrabFrames()
                         intptr_t intPtr = reinterpret_cast<intptr_t>(p);
 
                         GenImage1(&image, "byte", FrameWidth, FrameHeight, intPtr);
-                        imageunit.ImageList.append(image);
+                        imageunit.ImageList.append(image);//把每个场的照片翻入ImageList
 
                         delete[] Dest_Buffer[lightnum4];
                     }
@@ -223,5 +233,5 @@ void QImageAcquisition::slotGrabFrames()
             {
             qDebug()<<"多场分离报错！";
             }
-    }
+    } // if (status == DVP_STATUS_OK)
 }

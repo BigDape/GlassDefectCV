@@ -396,7 +396,7 @@ void SignalControlData::TimeOut1() {
     unsigned int flag = 0; //上升沿
     while (true) {
           //帧信号
-          m_pSig_comm.GetRegs(ADDR40, ADDR40, &aaa);
+          m_pSig_comm.GetRegs(ADDR40, ADDR40, &aaa);//1表示控制器在控制帧信号，随后为0
           if (aaa > mid1) {
               Global::FrameSignal = 1;
               mid1 = aaa;
@@ -452,7 +452,7 @@ void SignalControlData::TimeOut1() {
           unsigned int codecount2 = 0; //脉冲编码值
           unsigned int endSignal = 0; //结束信号，玻璃结束的时候为0
           unsigned int codecountAB4 = 0; //压轮编码器4倍频
-          m_pSig_comm.GetRegs(ADDR61, ADDR61, &endSignal);
+          m_pSig_comm.GetRegs(ADDR61, ADDR61, &endSignal);//玻璃检测结束
           if ( flag == 0 &&  endSignal == 1) {//1
               m_pSig_comm.GetRegs(ADDR57, ADDR57, &codecount1);
               m_pSig_comm.GetRegs(ADDR58, ADDR58, &codecount2);

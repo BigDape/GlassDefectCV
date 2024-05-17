@@ -67,8 +67,6 @@ void MosaickImage::DoMosaick(QList<HObject> CameraImageList, int channel, HObjec
         GetDictTuple(DefectDict,"23相机像素偏差",&PixelDif23);
         GetDictTuple(DefectDict,"24相机像素偏差",&PixelDif24);
         qDebug()<<"1-2相机像素偏差"<<PixelDif12.ToString().Text();
-//        overlapsiyin=(36- 16*siyindistance/5.000000)/2;
-//        overlap=(36-16*thickness/5.000000)/2;
         int Thickness = thickness; //玻璃厚度
         switch (Thickness){
           case 10:

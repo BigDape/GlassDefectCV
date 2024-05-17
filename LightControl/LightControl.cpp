@@ -189,7 +189,7 @@ void LightControl::slot_InitTree()//初始化工单，在进入软件以及切�
     childItem55->setText(1, QString::number(SigCtrlData->sigctrl->temp55));
     childItem56->setText(1, QString::number(SigCtrlData->sigctrl->temp56));
 
-    Global::FieldNumberSet=SigCtrlData->sigctrl->temp55;
+    Global::FieldNumberSet = SigCtrlData->sigctrl->temp55; //选择光场的数量
 
     childItem_rollerACount->setText(1,QString::number(SigCtrlData->sigctrl->tempRollerACount));
     childItem_rollerBCount->setText(1,QString::number(SigCtrlData->sigctrl->tempRollerBCount));

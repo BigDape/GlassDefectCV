@@ -428,71 +428,61 @@ void Process_Detect::VisionProcess()
 }
 void Process_Detect::DetectSiYin()
 {
-        HTuple NumTile;
-        CountObj(ProcessTile::ImageTile1R,&NumTile);
-        if(NumTile>0)
-        {
-           try {
-                procedurecall2->SetInputCtrlParamTuple("Cam1pixs", ProcessTile::Cam1pixs);
-                procedurecall2->SetInputCtrlParamTuple("Cam1Width", ProcessTile::Cam1Width);
-                procedurecall2->SetInputCtrlParamTuple("Tile2Column1", ProcessTile::Tile2Column1);
-                procedurecall2->SetInputCtrlParamTuple("DetectDict", Global::RecipeDict);
-                procedurecall2->SetInputIconicParamObject("Image1", ProcessTile::ImageTile1R);
-                procedurecall2->SetInputIconicParamObject("Image2", ProcessTile::ImageTile2R);
-                procedurecall2->SetInputIconicParamObject("Image3", ProcessTile::ImageTile3R);
-                procedurecall2->SetInputIconicParamObject("Image4", ProcessTile::ImageTile4R);
+    HTuple NumTile;
+    CountObj(ProcessTile::ImageTile1R,&NumTile);
+    if(NumTile>0) {
+        try {
+            procedurecall2->SetInputCtrlParamTuple("Cam1pixs", ProcessTile::Cam1pixs);
+            procedurecall2->SetInputCtrlParamTuple("Cam1Width", ProcessTile::Cam1Width);
+            procedurecall2->SetInputCtrlParamTuple("Tile2Column1", ProcessTile::Tile2Column1);
+            procedurecall2->SetInputCtrlParamTuple("DetectDict", Global::RecipeDict);
+            procedurecall2->SetInputIconicParamObject("Image1", ProcessTile::ImageTile1R);
+            procedurecall2->SetInputIconicParamObject("Image2", ProcessTile::ImageTile2R);
+            procedurecall2->SetInputIconicParamObject("Image3", ProcessTile::ImageTile3R);
+            procedurecall2->SetInputIconicParamObject("Image4", ProcessTile::ImageTile4R);
 
-                procedurecall2->Execute();
-                ProcessTile::ImageTile1R.Clear();
-                ProcessTile::ImageTile2R.Clear();
-                ProcessTile::ImageTile3R.Clear();
-                ProcessTile::ImageTile4R.Clear();
-                GenEmptyObj(&ProcessTile::ImageTile1R);
-                GenEmptyObj(&ProcessTile::ImageTile2R);
-                GenEmptyObj(&ProcessTile::ImageTile3R);
-                GenEmptyObj(&ProcessTile::ImageTile4R);
+            procedurecall2->Execute();
+            ProcessTile::ImageTile1R.Clear();
+            ProcessTile::ImageTile2R.Clear();
+            ProcessTile::ImageTile3R.Clear();
+            ProcessTile::ImageTile4R.Clear();
+            GenEmptyObj(&ProcessTile::ImageTile1R);
+            GenEmptyObj(&ProcessTile::ImageTile2R);
+            GenEmptyObj(&ProcessTile::ImageTile3R);
+            GenEmptyObj(&ProcessTile::ImageTile4R);
 
-                ConcatObj(OutLineImage, procedurecall2->GetOutputIconicParamObject("OutLineImage"), &OutLineImage);
-                ConcatObj(HolesImage, procedurecall2->GetOutputIconicParamObject("HolesImage"), &HolesImage);
-        }catch (HalconCpp::HException& Except) {
-                                                        ErrFlag=true;
-
-                                                    qDebug() << "HalconHalconErr:" << Except.ErrorMessage().Text();
-                                                    QString info= "算法执行异常！";
-                                                    log_singleton::Write_Log(info, Log_Level::General);
-                                                    // 处理异常操作
-            }
-                HTuple CountHoles=0;
-                CountObj(HolesImage,&CountHoles);
-              try{
-                ResultDictHoles = procedurecall2->GetOutputCtrlParamTuple("ResultDictHoles");
-
-                if(CountHoles>0)
-                {
+            ConcatObj(OutLineImage, procedurecall2->GetOutputIconicParamObject("OutLineImage"), &OutLineImage);
+            ConcatObj(HolesImage, procedurecall2->GetOutputIconicParamObject("HolesImage"), &HolesImage);
+        } catch(HalconCpp::HException& Except) {
+            ErrFlag=true;
+            qDebug() << "HalconHalconErr:" << Except.ErrorMessage().Text();
+            QString info= "算法执行异常！";
+            log_singleton::Write_Log(info, Log_Level::General);// 处理异常操作
+        }
+        HTuple CountHoles=0;
+        CountObj(HolesImage,&CountHoles);
+        try{
+            ResultDictHoles = procedurecall2->GetOutputCtrlParamTuple("ResultDictHoles");
+            if (CountHoles>0) {
                 Type = ResultDictHoles.TupleGetDictTuple("Type");
                 HolesOK = ResultDictHoles.TupleGetDictTuple("HolesOK");
                 DistanceHorizontal = ResultDictHoles.TupleGetDictTuple("DistanceHorizontal");
                 DistanceVertical = ResultDictHoles.TupleGetDictTuple("DistanceVertical");
                 HolesWidth = ResultDictHoles.TupleGetDictTuple("HolesWidth");
                 HolesHeight = ResultDictHoles.TupleGetDictTuple("HolesHeight");
-                }
-                GlassWidth = ResultDictHoles.TupleGetDictTuple("GlassWidth");
-                GlassLength = ResultDictHoles.TupleGetDictTuple("GlassHeight");
-                }
-                catch(HalconCpp::HException& Except)
-                {
-                    GlassWidth = 0;
-                    GlassLength = 0;
-                    qDebug() << "HalconHalconErr:" << Except.ErrorMessage().Text();
-                }
-
-                qDebug() << "GlassWidthttttttttttttttt"<<GlassWidth.ToString().Text();
-                qDebug() << "GlassWidthttttttttttttttttt"<<GlassLength.ToString().Text();
+            }
+            GlassWidth = ResultDictHoles.TupleGetDictTuple("GlassWidth");
+            GlassLength = ResultDictHoles.TupleGetDictTuple("GlassHeight");
+        } catch(HalconCpp::HException& Except) {
+            GlassWidth = 0;
+            GlassLength = 0;
+            qDebug() << "HalconHalconErr:" << Except.ErrorMessage().Text();
         }
-        else
-        {
-           //无测量结果
-        }
+        qDebug() << "GlassWidthttttttttttttttt"<<GlassWidth.ToString().Text();
+        qDebug() << "GlassWidthttttttttttttttttt"<<GlassLength.ToString().Text();
+    } else {
+        //无测量结果
+    }
 }
 void Process_Detect::slot_updateSortInfo()
 {
@@ -600,46 +590,44 @@ void Process_Detect::SummaryResults()
 
         log_singleton::Write_Log(info, Log_Level::General);
 }
+
 void Process_Detect::DetectData2Json()
 {
-
 }
+
 void Process_Detect::HolesData2Json()
 {
     HTuple CountSK;
     CountObj(HolesImage, &CountSK);
     qDebug()<<"count2:"<<CountSK.ToString().Text();
     //siyin信息汇总
-       if(CountSK > 0)
-        {
-            QString folderDefectImage = QString("E:/SaveDefectImage");
-            QDir directory(folderDefectImage);
-            // 判断存储小图文件夹是否存在
-            QDir folderDir(folderDefectImage);
-            if (folderDir.exists()) {
-                qDebug() << "Folder" << folderDefectImage << "exists.";
+    if (CountSK > 0) {
+        QString folderDefectImage = QString("E:/SaveDefectImage");
+        QDir directory(folderDefectImage);
+        // 判断存储小图文件夹是否存在
+        QDir folderDir(folderDefectImage);
+        if (folderDir.exists()) {
+            qDebug() << "Folder" << folderDefectImage << "exists.";
+        } else {
+            if (directory.mkpath(folderDefectImage)) {
+                qDebug() << "Directory created.";
             } else {
-                if (directory.mkpath(folderDefectImage)) {
-                    qDebug() << "Directory"
-                             << "created.";
-                } else {
-                    qDebug() << "Failed to create directory";
-                }
+                qDebug() << "Failed to create directory";
             }
-            qDebug() << "P2 :" << QDateTime::currentDateTime().toString("HH:mm:ss.zzz");
+        }
+        qDebug() << "P2 :" << QDateTime::currentDateTime().toString("HH:mm:ss.zzz");
 
+        // Get the current time
+        QDateTime currentDateTime = QDateTime::currentDateTime();
 
-            // Get the current time
-            QDateTime currentDateTime = QDateTime::currentDateTime();
-
-            QString folderName = QString("E:/SaveDefectImage/") + currentDateTime.toString("yyyy-MM-dd");
-            for (int i = 0; i < CountSK; i++) {
-                QDir directory(folderName);
-                // 判断文件夹是否存在
-                QDir folderDir(folderName);
-                if (folderDir.exists()) {
-                    qDebug() << "Folder" << folderName << "exists.";
-                } else {
+        QString folderName = QString("E:/SaveDefectImage/") + currentDateTime.toString("yyyy-MM-dd");
+        for (int i = 0; i < CountSK; i++) {
+            QDir directory(folderName);
+            // 判断文件夹是否存在
+            QDir folderDir(folderName);
+            if (folderDir.exists()) {
+               qDebug() << "Folder" << folderName << "exists.";
+            } else {
                     if (directory.mkpath(folderName)) {
                         qDebug() << "Directory"
                                  << "created.";
@@ -753,7 +741,7 @@ void Process_Detect::HolesData2Json()
 }
 void Process_Detect::Glassinfo()
 {
-    ginfo->isSizeOK=false;
+    ginfo->isSizeOK = false;
     HTuple Count;
     CountObj(ErrImage1, &Count);
     qDebug()<<"count:"<<Count.ToString().Text();
@@ -762,91 +750,63 @@ void Process_Detect::Glassinfo()
         HTuple  hv_Indices,hv_count;
 
         TupleFind(DefectLevel, "NG", &hv_Indices_NG);
-        if (0 != (int(hv_Indices_NG!=-1)))
-        {
+        if (0 != (int(hv_Indices_NG!=-1))) {
           ginfo->isFlawOK=false;
-        }
-        else
-        {
+        } else {
           ginfo->isFlawOK=true;
         }
 
-        if(ginfo->isFlawOK==true && ginfo->isSizeOK==true)
-        {
+        if(ginfo->isFlawOK==true && ginfo->isSizeOK==true) {
             ginfo->isOK=true;
-        }
-        else
-        {
+        } else {
             ginfo->isOK=false;
         }
 
-        if (ResultDataJson->ResultData.DefectType.contains("划伤"))
-            {
-                ginfo->Flaw1 = ResultDataJson->ResultData.DefectType.count("划伤");
-            }
-        else
-            {
-                ginfo->Flaw1 = 0;
-            }
-        if (ResultDataJson->ResultData.DefectType.contains("气泡"))
-        {
-            ginfo->Flaw2 = ResultDataJson->ResultData.DefectType.count("气泡");
+        if (ResultDataJson->ResultData.DefectType.contains("划伤")) {
+            ginfo->Flaw1 = ResultDataJson->ResultData.DefectType.count("划伤");
+        } else {
+            ginfo->Flaw1 = 0;
         }
-        else
-        {
+
+        if (ResultDataJson->ResultData.DefectType.contains("气泡")) {
+            ginfo->Flaw2 = ResultDataJson->ResultData.DefectType.count("气泡");
+        } else {
             ginfo->Flaw2 = 0;
         }
-        if (ResultDataJson->ResultData.DefectType.contains("崩边"))
-        {
+        if (ResultDataJson->ResultData.DefectType.contains("崩边")) {
             ginfo->Flaw3 = ResultDataJson->ResultData.DefectType.count("崩边");
-        }
-        else
-        {
+        } else {
             ginfo->Flaw3 = 0;
         }
 
-        if (ResultDataJson->ResultData.DefectType.contains("脏污"))
-        {
+        if (ResultDataJson->ResultData.DefectType.contains("脏污")) {
             ginfo->Flaw4 =  ResultDataJson->ResultData.DefectType.count("脏污");
-        }
-        else
-        {
+        } else {
             ginfo->Flaw4 = 0;
         }
-        if (ResultDataJson->ResultData.DefectType.contains("裂纹"))
-        {
+
+        if (ResultDataJson->ResultData.DefectType.contains("裂纹")) {
             ginfo->Flaw5 =  ResultDataJson->ResultData.DefectType.count("裂纹");
-        }
-        else
-        {
+        } else {
             ginfo->Flaw5 = 0;
         }
-        if (ResultDataJson->ResultData.DefectType.contains("其它"))
-        {
+
+        if (ResultDataJson->ResultData.DefectType.contains("其它")) {
             ginfo->Flaw6 =  ResultDataJson->ResultData.DefectType.count("其它");
-        }
-        else
-        {
+        } else {
             ginfo->Flaw6 = 0;
         }
-        if (ResultDataJson->ResultData.DefectType.contains("结石"))
-        {
+
+        if (ResultDataJson->ResultData.DefectType.contains("结石")) {
             ginfo->Flaw7 =  ResultDataJson->ResultData.DefectType.count("结石");
-        }
-        else
-        {
+        } else {
             ginfo->Flaw7 = 0;
         }
-//                ginfo->isFlawOK=true;
-//                ginfo->isSizeOK=true;
+
         ginfo->Diagonal1=0;
         ginfo->Diagonal2=0;
         ginfo->FlawCount=ginfo->Flaw1 + ginfo->Flaw2 +ginfo->Flaw3 + ginfo->Flaw4 + ginfo->Flaw5 + ginfo->Flaw6 + ginfo->Flaw7;
-
-    }
-    else
-    {
-
+    } else {
         ginfo->isFlawOK=true;
         ginfo->Diagonal1=0;
         ginfo->Diagonal2=0;
@@ -862,16 +822,12 @@ void Process_Detect::Glassinfo()
         ginfo->Flaw7=0;
     }
 
-
-    if(ginfo->isFlawOK && ginfo->isSizeOK && ErrFlag==0)
-    {ginfo->isOK =true;}
-    else
-    {
+    if(ginfo->isFlawOK && ginfo->isSizeOK && ErrFlag==0) {
+        ginfo->isOK =true;
+    } else {
         ginfo->isOK =false;
-          if(ErrFlag==1)
-          {
+        if(ErrFlag==1) {
             result->exceptNum++;
-          }
+        }
     }
-
 }

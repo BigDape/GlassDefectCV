@@ -380,8 +380,6 @@ void QBasicFunction::InitSpinGain()
         }
 
         // 获取模拟增益并设置模拟增益的初始值
-  //      int a=0;
-  //      status = dvpSetFramesPerTrigger(m_handle, a);
         status = dvpGetAnalogGain(m_handle, &fAnalogGain);
         if (status != DVP_STATUS_OK) {
             QMessageBox::about(NULL, "About", "Get analog gain fail!");
