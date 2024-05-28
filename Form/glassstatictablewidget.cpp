@@ -151,11 +151,11 @@ void GlassStatisticTableWidget::slot_insertRowData(GLASSINFO* info)
     issizeok->setFlags(issizeok->flags() & ~Qt::ItemIsEditable);
     tableWidget->setItem(row, 3, issizeok);
 
-    RECIPE = new JsonParse2Map("Recipes/" + Global::CurrentRecipe + ".json");
+    RECIPE = new JsonParse2Map("Recipes/" + PARAM.getCurrentRecipe() + ".json");
     //长度
     double glassLength_temp = 0;
-    if (qAbs(info->GlassWidth - Global::encodeRollerYLength) <= 100) {
-        glassLength_temp = Global::encodeRollerYLength;
+    if (qAbs(info->GlassWidth - PARAM.getEncodeRollerYLength()) <= 100) {
+        glassLength_temp = PARAM.getEncodeRollerYLength();
     } else {
         glassLength_temp = info->GlassWidth;
     }

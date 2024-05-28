@@ -25,8 +25,8 @@ FlawShowWidget::FlawShowWidget(QWidget* parent, JsonParse2Map* m_recipe)
     : QWidget(parent)
 {
     RECIPE = m_recipe;
-    m_plot = new QwtPlot(this);
-    Global::m_plot = m_plot;
+    m_plot = std::make_shared<QwtPlot>(this);
+    PARAM.setPlot(m_plot);
 
     symbol1 = NULL;
     symbol2 = NULL;
@@ -49,7 +49,7 @@ FlawShowWidget::FlawShowWidget(QWidget* parent, JsonParse2Map* m_recipe)
     QVBoxLayout* layout1 = new QVBoxLayout(this);
     this->setLayout(layout0);
 
-    layout0->addWidget(m_plot);
+    layout0->addWidget(m_plot.get());
     layout0->addLayout(layout1);
     layout1->addWidget(clock);
 
@@ -164,13 +164,13 @@ void FlawShowWidget::drawGlass(double x_length, double y_length)
 
 //    rectangleItem->setRect(rectangleRect);
 //    rectangleItem->attach(m_plot);
-    int count = Global::courtourMapXY.size();
+    int count = PARAM.getCourtourMapXY().size();
     qDebug()<<"Global::courtourMapXY.size() ="<<count;
     for (int i =0; i < count; ++i) {
         QwtPlotMarker* m = new QwtPlotMarker();
         m->setSymbol(new QwtSymbol(QwtSymbol::Rect, QBrush(Qt::green), QPen(Qt::green), QSize(4, 4)));
-        m->setValue(Global::courtourMapXY[i].x.toDouble(), -Global::courtourMapXY[i].y.toDouble());//y值都为负值
-        m->attach(m_plot);
+        m->setValue(PARAM.getCourtourMapXY()[i].x.toDouble(), -PARAM.getCourtourMapXY()[i].y.toDouble());//y值都为负值
+        m->attach(m_plot.get());
     }
     isGetGlassSize = false;
 }
@@ -205,7 +205,7 @@ void FlawShowWidget::drawFlaw(QList<FlawPoint>* m_FlawPointList)
             maker->setSymbol(new QwtSymbol(QwtSymbol::Star2, QBrush(Qt::blue),QPen(Qt::blue), QSize(10, 10)));
             break;
         }
-        maker->attach(m_plot);
+        maker->attach(m_plot.get());
         maker->setValue(QPointF(m_FlawPointList->at(i).x, m_FlawPointList->at(i).y));
     }
     isGetFlawPoints = false;
@@ -352,43 +352,43 @@ void FlawShowWidget::drawLegend()
     symbol1 = new QwtSymbol(QwtSymbol::Cross, QBrush(Qt::blue), QPen(Qt::blue), QSize(5, 5));
     curve1->setSymbol(symbol1);
     curve1->setLegendAttribute(QwtPlotCurve::LegendShowSymbol );
-    curve1->attach(m_plot);
+    curve1->attach(m_plot.get());
     //气结标记
     curve2 = new QwtPlotCurve("气泡");
     symbol2 = new QwtSymbol(QwtSymbol::Rect, QBrush(Qt::red), QPen(Qt::red), QSize(5, 5));
     curve2->setSymbol(symbol2);
     curve2->setLegendAttribute( QwtPlotCurve::LegendShowSymbol );
-    curve2->attach(m_plot);
+    curve2->attach(m_plot.get());
     //崩边标记
     curve3 = new QwtPlotCurve("崩边");
     symbol3 = new QwtSymbol(QwtSymbol::Star1, QBrush(Qt::green), QPen(Qt::darkGreen), QSize(5, 5));
     curve3->setSymbol(symbol3);
     curve3->setLegendAttribute( QwtPlotCurve::LegendShowSymbol );
-    curve3->attach(m_plot);
+    curve3->attach(m_plot.get());
     //脏污标记
     curve4 = new QwtPlotCurve("脏污");
     symbol4 = new QwtSymbol(QwtSymbol::Triangle, QBrush(Qt::blue), QPen(Qt::blue), QSize(5, 5));
     curve4->setSymbol(symbol4);
     curve4->setLegendAttribute( QwtPlotCurve::LegendShowSymbol );
-    curve4->attach(m_plot);
+    curve4->attach(m_plot.get());
     //裂纹标记
     curve5 = new QwtPlotCurve("裂纹");
     symbol5 = new QwtSymbol(QwtSymbol::Diamond, QBrush(Qt::red), QPen(Qt::red), QSize(5, 5));
     curve5->setSymbol(symbol5);
     curve5->setLegendAttribute( QwtPlotCurve::LegendShowSymbol );
-    curve5->attach(m_plot);
+    curve5->attach(m_plot.get());
     //其他标记
     curve6 = new QwtPlotCurve("其他");
     symbol6 = new QwtSymbol(QwtSymbol::XCross, QBrush(Qt::green), QPen(Qt::darkGreen), QSize(5, 5));
     curve6->setSymbol(symbol6);
     curve6->setLegendAttribute( QwtPlotCurve::LegendShowSymbol );
-    curve6->attach(m_plot);
+    curve6->attach(m_plot.get());
     //缺陷7标记
     curve7 = new QwtPlotCurve("结石");
     symbol7 =  new QwtSymbol(QwtSymbol::Star2, QBrush(Qt::blue),QPen(Qt::blue), QSize(5, 5));
     curve7->setSymbol(symbol7);
     curve7->setLegendAttribute( QwtPlotCurve::LegendShowSymbol );
-    curve7->attach(m_plot);
+    curve7->attach(m_plot.get());
 
     QwtPlotItemList items = m_plot->itemList(QwtPlotItem::Rtti_PlotCurve);
     qDebug()<<"items.size() ="<<items.size();
@@ -432,11 +432,11 @@ void FlawShowWidget::reDrawFlaw(QList<FlawPoint>* m_FlawPointList)
     m_plot->detachItems(QwtPlotItem::Rtti_PlotMarker);//清除画布上的所有
     m_plot->replot();
     //画轮廓
-    for (int i =0; i < Global::courtourMapXY.size(); ++i) {
+    for (int i =0; i < PARAM.getCourtourMapXY().size(); ++i) {
         QwtPlotMarker* m = new QwtPlotMarker();
         m->setSymbol(new QwtSymbol(QwtSymbol::Rect, QBrush(Qt::green), QPen(Qt::green), QSize(4, 4)));
-        m->setValue(Global::courtourMapXY[i].x.toDouble(), -Global::courtourMapXY[i].y.toDouble());//y值都为负值
-        m->attach(m_plot);
+        m->setValue(PARAM.getCourtourMapXY()[i].x.toDouble(), -PARAM.getCourtourMapXY()[i].y.toDouble());//y值都为负值
+        m->attach(m_plot.get());
     }
     int ListLength = m_FlawPointList->count();
     for (int i = 0; i < ListLength; i++) {
@@ -466,7 +466,7 @@ void FlawShowWidget::reDrawFlaw(QList<FlawPoint>* m_FlawPointList)
                 maker->setSymbol(new QwtSymbol(QwtSymbol::Star2, QBrush(Qt::blue),QPen(Qt::blue), QSize(10, 10)));
                 break;
             }
-            maker->attach(m_plot);
+            maker->attach(m_plot.get());
             maker->setValue(QPointF(m_FlawPointList->at(i).x, m_FlawPointList->at(i).y));
         }
     }

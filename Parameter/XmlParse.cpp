@@ -65,8 +65,6 @@ int XmlParse::InitParams()
     return ret;
 }
 
-#pragma region "setParameter" {
-
 bool XmlParse::setParameter(QString name, char& value)
 {
     bool b_ret = m_val_hashtable.contains(name);
@@ -198,9 +196,7 @@ bool XmlParse::setParameter(QString name, QString& value)
     }
     return b_ret;
 }
-#pragma endregion }
 
-#pragma region "getParameter" {
 bool XmlParse::getParameter(QString name, char& value)
 {
     bool b_ret = m_val_hashtable.contains(name);
@@ -336,7 +332,6 @@ bool XmlParse::getAddress(QString name, int& Addr)
     }
     return b_ret;
 }
-#pragma endregion }
 
 int XmlParse::parse_app_xml_file(QString FileName)
 {

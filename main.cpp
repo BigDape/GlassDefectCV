@@ -4,7 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
-
+#include "HsListener.h"
 using namespace std;
 
 #pragma execution_character_set("utf-8")
@@ -16,6 +16,7 @@ int main(int argc, char* argv[])
     MainForm AppForm;
     AppForm.show();
     return a.exec();
+
 #else
     qDebug()<<"unit test";
 #endif

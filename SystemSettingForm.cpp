@@ -58,7 +58,6 @@ void SystemSettingForm::InitForm()
 
     //1、修改json配置文件
     connect(this_JsonRecipeWidget, SIGNAL(sig_DeliverName(QString)), this, SLOT(slot_JsonRecipeName_Changed(QString)));
-
     connect(this, SIGNAL(sig_Deliver_NewRecipe(JsonParse2Map*)), this_JsonRecipeWidget, SLOT(slot_RecipeChanged(JsonParse2Map*)));
     connect(this_JsonRecipeWidget, SIGNAL(sig_CameraParamsChangeRecipe()), cameraRecipeWidget, SLOT(ReadValue2Tree()));
     connect(this_JsonRecipeWidget, SIGNAL(sig_LightControlChange()), SigCtrlData, SLOT(slot_DeliverLightData()));

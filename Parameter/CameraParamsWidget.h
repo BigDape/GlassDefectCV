@@ -8,7 +8,6 @@
 #ifndef CAMERAPARAMSWIDGET_H
 #define CAMERAPARAMSWIDGET_H
 
-//#include "Parameter/JsonRecipeParse.h"
 #include "Parameter/JsonParse2Map.h"
 #include <QHBoxLayout>
 #include <QPushButton>

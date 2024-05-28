@@ -41,8 +41,8 @@ class XmlParse {
 public:
     XmlParse(QString FileName);
 
-    int SaveParasToFile(); //只有修改了值的变量保存
-    int InitParams(); //初始化参数
+    int SaveParasToFile();      //只有修改了值的变量保存
+    int InitParams();           //初始化参数
 
     bool setParameter(QString name, char& value);
     bool setParameter(QString name, unsigned char& value);

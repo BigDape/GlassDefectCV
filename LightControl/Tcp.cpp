@@ -3,12 +3,13 @@
 #include <QTimer>
 #pragma execution_character_set("utf-8")
 
-Tcp::Tcp(qint64 bufLength, QObject *parent) : QObject(parent)
-    , MaxBuffLength(bufLength)
-    , m_bManClosed(false)
-    , m_bConnFlag(false)
-    , m_bReconnectFlag(false)
-    , m_bAutoReConnect(true)
+Tcp::Tcp(qint64 bufLength, QObject *parent) :
+    QObject(parent),
+    MaxBuffLength(bufLength),
+    m_bManClosed(false),
+    m_bConnFlag(false),
+    m_bReconnectFlag(false),
+    m_bAutoReConnect(true)
 {
     ConstructorInit();
 }
@@ -23,7 +24,7 @@ void Tcp::ConstructorInit()
     this->moveToThread(m_pThread);
 
     connect(this, SIGNAL(sig_connect()), this, SLOT(slot_connect()), Qt::QueuedConnection);
-    connect( this, SIGNAL(sig_disconnect()), this, SLOT(slot_disconnect()), Qt::QueuedConnection);
+    connect(this, SIGNAL(sig_disconnect()), this, SLOT(slot_disconnect()), Qt::QueuedConnection);
     connect(m_pSock, SIGNAL(readyRead()), this, SLOT(OnReadyRead()));
     connect(m_pSock, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this , SLOT(OnSockStateChanged(QAbstractSocket::SocketState)));
     connect(this, SIGNAL(sig_writeData(QByteArray)), this, SLOT(slot_writeData(QByteArray)));
@@ -157,9 +158,6 @@ void Tcp::slot_writeData( QByteArray data )
 
 void Tcp::OnReadyRead()
 {
-//    QByteArray buffer;
-//    buffer = m_pSock->readAll();
-//    qDebug() << buffer;
     qint64 len = m_pSock->read( ReadBuff, MaxBuffLength );
     if( len <= 0 )
         return;
@@ -170,15 +168,9 @@ void Tcp::OnReadyRead()
 
 void Tcp::OnSockStateChanged(QAbstractSocket::SocketState state)
 {
-    {
-        //qDebug() << "port" << m_nPort << ", state changed" << state;
-    }
-
-    if (QAbstractSocket::UnconnectedState == state)
-    {
+    if (QAbstractSocket::UnconnectedState == state) {
         m_bConnFlag = false;
-        if (m_bAutoReConnect && !m_bManClosed)
-        {
+        if (m_bAutoReConnect && !m_bManClosed) {
             //if (!m_bReConnectFlag)
             {
                 //m_bReConnectFlag = true;
@@ -195,9 +187,7 @@ void Tcp::OnSockStateChanged(QAbstractSocket::SocketState state)
         m_bManClosed = false;
         m_bConnFlag = true;
         m_bReconnectFlag = false;
-        {
-            qDebug() << "port" << m_nPort << ", connected";
-        }
+        qDebug() << "port" << m_nPort << ", connected";
     }
     else
     {

@@ -18,7 +18,7 @@ void MosaickImage::DoMosaick(HObject CameraImage1,
         QElapsedTimer timer;
         timer.start();
         HTuple RecipeDict;
-        HTuple CurrentRecipe = Global::CurrentRecipe.toUtf8().constData();
+        HTuple CurrentRecipe = PARAM.getCurrentRecipe().toUtf8().constData();
         ReadDict("Recipes/"+ CurrentRecipe +".json", HTuple(), HTuple(), &RecipeDict);
         HTuple DefectDict;
         GetDictTuple(RecipeDict,"缺陷检测",&DefectDict);
@@ -59,7 +59,7 @@ void MosaickImage::DoMosaick(QList<HObject> CameraImageList, int channel, HObjec
         QElapsedTimer timer;
         timer.start();
         HTuple DefectDict;
-        GetDictTuple(Global::RecipeDict,"缺陷检测",&DefectDict);
+        GetDictTuple(PARAM.getRecipeDict(),"缺陷检测",&DefectDict);
         HTuple PixelDif12,PixelDif23,PixelDif24,thickness,siyindistance,overlap,overlapsiyin;
         GetDictTuple(DefectDict,"12相机像素偏差",&PixelDif12);
         GetDictTuple(DefectDict,"玻璃厚度",&thickness);
@@ -104,19 +104,19 @@ void MosaickImage::DoMosaick(QList<HObject> CameraImageList, int channel, HObjec
        a3<<ImageWidth-overlap<<ImageWidth-overlap<<ImageWidth-29<<ImageWidth-29<<ImageWidth-overlapsiyin<<ImageWidth-overlapsiyin<<ImageWidth-15<<ImageWidth-15;
        a4<<ImageHeight - 200;
        if(channel==0) {
-            for(int i=0;i<Global::camDefineNum;i++)
+            for(int i=0; i<PARAM.getCamDefineNum();i++)
                 CropPart(CameraImageList[i],&CameraImageList[i],a1[i],a2[i],a3[i],a4[0]);
         } else {
-            for(int i=0;i<Global::camDefineNum;i++)
+            for(int i=0;i<PARAM.getCamDefineNum();i++)
                 CropPart(CameraImageList[i],&CameraImageList[i],a1[i],a2[i+4],a3[i+4],a4[0]);
         }
         GenEmptyObj(&PrepareImage);
-        for (int i = 0; i < Global::camDefineNum; i++) {
+        for (int i = 0; i < PARAM.getCamDefineNum(); i++) {
              ConcatObj(PrepareImage, CameraImageList[i], &PrepareImage);
         }
 
         GenEmptyObj(&FiledImage);
-        TileImages(PrepareImage, &FiledImage, Global::camDefineNum, "horizontal"); //对待拼接对象进行拼接操作，拼接结果放在FiledImage中
+        TileImages(PrepareImage, &FiledImage, PARAM.getCamDefineNum(), "horizontal"); //对待拼接对象进行拼接操作，拼接结果放在FiledImage中
         a1.clear();
         a2.clear();
         a3.clear();

@@ -19,7 +19,7 @@ CamerasWidget::~CamerasWidget() { delete ui; }
 void CamerasWidget::InitCameras(QList<DushenBasicFunc*> ListCamera)
 {
     for(int i=0;i<CameraNum;i++){
-        DushenCameraWidget * camerawid=new DushenCameraWidget(this,Global::camListName[i],i,ListCamera[i]);
+        DushenCameraWidget * camerawid=new DushenCameraWidget(this,PARAM.getCamListName()[i],i,ListCamera[i]);
         connect(this,&CamerasWidget::sig_CameraStart,camerawid,&DushenCameraWidget::slot_StartCamera);
         connect(this,&CamerasWidget::sig_CameraStop,camerawid,&DushenCameraWidget::slot_CameraStop);
         hbox_layout->addWidget(camerawid);

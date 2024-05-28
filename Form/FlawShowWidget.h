@@ -96,7 +96,7 @@ class FlawShowWidget : public QWidget {
 
   QList<FlawPoint> FlawPointList;
 
-  QwtPlot* m_plot;
+  std::shared_ptr<QwtPlot> m_plot;
   QwtPlotPicker* plotpicker;
 
   ResultINFO* runninginfo;

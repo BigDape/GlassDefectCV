@@ -31,8 +31,6 @@ void TcpPackComm::SetHeaderByte(const char* _header, int tag_len, int h_len, int
     memcpy(m_pHeaderTagBuff, _header, tag_len);
     m_nHeaderLen = h_len;
     m_nHeaderTagLen = tag_len;
-
-
     m_dataLenMode = dataLenMode;
 
     ResetStatus();
@@ -48,8 +46,7 @@ void TcpPackComm::ParseData(const char *data, qint64 len)
     const char * l_pRecvData = data;
     qint64 l_recvLength = len;
 
-    while(l_recvLength > 0)
-    {
+    while(l_recvLength > 0) {
         qint64 t_left_buff_len = m_nMaxDataBuffLength - m_nCurDataOffset;
         qint64 t_copy_len = l_recvLength < t_left_buff_len ? l_recvLength : t_left_buff_len;
         memcpy(m_pRecvDataBuff+m_nCurDataOffset, l_pRecvData, t_copy_len);
@@ -57,53 +54,40 @@ void TcpPackComm::ParseData(const char *data, qint64 len)
         l_recvLength -= t_copy_len;
         m_nCurDataOffset += t_copy_len;
 
-        while (m_nCurDataOffset >= m_nHeaderLen)
-        {
+        while (m_nCurDataOffset >= m_nHeaderLen) {
             int pos =  KMPElemMatching(m_pRecvDataBuff, m_nCurDataOffset, m_pHeaderTagBuff, m_nHeaderTagLen);
-            if (pos >= 0)
-            {
-                if (pos > 0)
-                {
+            if (pos >= 0) {
+                if (pos > 0) {
                     memmove(m_pRecvDataBuff, m_pRecvDataBuff+pos, m_nCurDataOffset - pos);
                     m_nCurDataOffset -= pos;
                 }
                 if (m_nCurDataOffset < m_nHeaderLen)
                     break;
-                    //continue;
 
                 unsigned int msg_len = 0;
-                if(m_dataLenMode == 0)
-                {
+                if (m_dataLenMode == 0) {
                     msg_len = *((unsigned int*)(m_pRecvDataBuff + m_nHeaderLen - L_T_DATA_LEN_BYTE));
                     msg_len = qFromBigEndian(msg_len);
-                }
-                else
-                {
+                } else {
                     unsigned short t_len = *((unsigned short*)(m_pRecvDataBuff + m_nHeaderLen - S_T_DATA_LEN_BYTE));
                     t_len = qFromBigEndian(t_len);
                     msg_len = t_len;
                 }
 
                 msg_len += m_nHeaderLen;
-                if (msg_len <= m_nMaxDataBuffLength)
-                {
-                    if (m_nCurDataOffset >= msg_len )
-                    {
+                if (msg_len <= m_nMaxDataBuffLength) {
+                    if (m_nCurDataOffset >= msg_len) {
                         ProcessData(m_pRecvDataBuff, msg_len);
                         memmove(m_pRecvDataBuff, m_pRecvDataBuff+msg_len, m_nCurDataOffset-msg_len);
                         m_nCurDataOffset -= msg_len;
                     }
                     else
                         break;
-                }
-                else
-                {
+                } else {
                     qDebug()<<"Msg Len Exceed Max Size";
                     m_nCurDataOffset = 0;
                 }
-            }
-            else
-            {
+            } else {
                 qDebug()<<"can't find head remove data";
                 memmove(m_pRecvDataBuff, m_pRecvDataBuff+m_nCurDataOffset - m_nHeaderLen +1, m_nHeaderLen -1 );
                 m_nCurDataOffset = m_nHeaderLen -1;

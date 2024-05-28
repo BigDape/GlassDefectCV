@@ -2,7 +2,7 @@
 #include <QDateTime>
 #include <QDir>
 #include<Global.h>
-//#include "log_singleton.h"
+
 #pragma execution_character_set("utf-8")
 
 JsonResultParse::JsonResultParse()
@@ -28,7 +28,6 @@ void JsonResultParse::ini_JsonResult()
     QString filePath = projectFolder + "/DefectInfJson/" + fileName;
     QFile file(filePath);
     if (file.exists()) {
-        //     qDebug() << "File" << fileName << "exists in project folder.";
         // Read the existing JSON file
         file.open(QIODevice::ReadOnly | QIODevice::Text);
         QTextStream in(&file);
@@ -81,7 +80,7 @@ QString JsonResultParse::InterParasToQJson(DetectResult ResultData,
                                            int HolesCount,
                                            bool isDefect)
 {
-    quint64 GlassID_INT=Global::GlassID_INT;
+    quint64 GlassID_INT = PARAM.getGlassID_INT();
     // 获取当前时间
     QDateTime currentDateTime = QDateTime::currentDateTime();
     // 根据当前时间构建文件名
@@ -127,7 +126,7 @@ QString JsonResultParse::InterParasToQJson(DetectResult ResultData,
             qDebug() << "nestedData" <<nestedData.count();
 
         }
-        Global::GlassID_INT=GlassID_INT;
+        PARAM.setGlassID_INT(GlassID_INT);
     //    int jsonlengthFirst=jsonObj.length();
     //    QStringList jsonlist1=jsonObj.keys();
     //    QString currentjsonkey=jsonlist1[jsonlengthFirst-1];

@@ -1,144 +1,143 @@
 ﻿#include "SignalControlData.h"
 #pragma execution_character_set("utf-8")
 
-SignalControlData::SignalControlData(RegParasComm& sig_comm)
-    : m_pSig_comm(sig_comm) {
-  sigctrl = new SignalControl();
-  mid1 = 0;
-  mid2 = 0;
-  mid3 = 0;
-  StopFlag_sig = false;
-
-  Global::FrameSignal = 0;
-  Global::CodeCount = 0;
+SignalControlData::SignalControlData(RegParasComm& sig_comm):
+    m_pSig_comm(sig_comm) {
+    sigctrl = new SignalControl();
+    mid1 = 0;
+    mid2 = 0;
+    mid3 = 0;
+    StopFlag_sig = false;
+    PARAM.setFrameSignal(0);
+    PARAM.setCodeCount(0);
 }
 
 SignalControlData::~SignalControlData() {}
 
 void SignalControlData::InitData() {
-  JSONRECIPE = new JsonParse2Map("Recipes/" + Global::CurrentRecipe + ".json");
-  str[0] = "编码器参数.编码器单位刻度对应距离";
-  str[1] = "编码器参数.编码脉冲滤波";
-  str[2] = "编码器参数.编码器计数结束标志";
-  str[3] = "编码器参数.编码器计数";
-  str[4] = "编码器参数.编码器触发行计数";
-  str[5] = "编码器参数.编码器4倍频计数";
-  str[6] = "编码器参数.编码器单位时间脉冲计数";
-  str[7] = "编码器参数.编码器计数时间";
-  str[8] = "编码器参数.编码通道";
-  str[9] = "编码器参数.编码器转数";
-  str[10] = "编码器参数.辊道周长";
-  str[11] = "编码器参数.期望单个像素精度";
-  str[12] = "编码器参数.辊道最大速度对应行频";
-  str[13] = "编码器参数.每行对应的编码计数";
-  str[14] = "控制器系统参数.像素精度";
-  str[15] = "控制器系统参数.光电信号脉冲滤波";
-  str[16] = "控制器系统参数.相机触发脉冲持续时间";
-  str[17] = "控制器系统参数.光电相机距离";
-  str[18] = "控制器系统参数.相机帧信号触发延时行数";
-  str[19] = "控制器系统参数.帧信号持续时间";
-  str[20] = "控制器系统参数.模块使能信号";
-  str[21] = "控制器系统参数.相机拍照行数";
-  str[22] = "控制器系统参数.内部行频";
-  str[23] = "光源控制器参数.光场1延时时间";
-  str[24] = "光源控制器参数.光场1发光时间";
-  str[25] = "光源控制器参数.光场2延时时间";
-  str[26] = "光源控制器参数.光场2发光时间";
-  str[27] = "光源控制器参数.光场3延时时间";
-  str[28] = "光源控制器参数.光场3发光时间";
-  str[29] = "光源控制器参数.光场4延时时间";
-  str[30] = "光源控制器参数.光场4发光时间";
-  str[31] = "光源控制器参数.光场5延时时间";
-  str[32] = "光源控制器参数.光场5发光时间";
-  str[33] = "光源控制器参数.光场6延时时间";
-  str[34] = "光源控制器参数.光场6发光时间";
-  str[35] = "光源控制器参数.相机与光场控制";
-  str[36] = "光源控制器参数.信号切换";
-  str[37] = "光源控制器参数.行信号源选择";
+//  JSONRECIPE = new JsonParse2Map("Recipes/" + PARAM.getCurrentRecipe() + ".json");
+//  str[0] = "编码器参数.编码器单位刻度对应距离";
+//  str[1] = "编码器参数.编码脉冲滤波";
+//  str[2] = "编码器参数.编码器计数结束标志";
+//  str[3] = "编码器参数.编码器计数";
+//  str[4] = "编码器参数.编码器触发行计数";
+//  str[5] = "编码器参数.编码器4倍频计数";
+//  str[6] = "编码器参数.编码器单位时间脉冲计数";
+//  str[7] = "编码器参数.编码器计数时间";
+//  str[8] = "编码器参数.编码通道";
+//  str[9] = "编码器参数.编码器转数";
+//  str[10] = "编码器参数.辊道周长";
+//  str[11] = "编码器参数.期望单个像素精度";
+//  str[12] = "编码器参数.辊道最大速度对应行频";
+//  str[13] = "编码器参数.每行对应的编码计数";
+//  str[14] = "控制器系统参数.像素精度";
+//  str[15] = "控制器系统参数.光电信号脉冲滤波";
+//  str[16] = "控制器系统参数.相机触发脉冲持续时间";
+//  str[17] = "控制器系统参数.光电相机距离";
+//  str[18] = "控制器系统参数.相机帧信号触发延时行数";
+//  str[19] = "控制器系统参数.帧信号持续时间";
+//  str[20] = "控制器系统参数.模块使能信号";
+//  str[21] = "控制器系统参数.相机拍照行数";
+//  str[22] = "控制器系统参数.内部行频";
+//  str[23] = "光源控制器参数.光场1延时时间";
+//  str[24] = "光源控制器参数.光场1发光时间";
+//  str[25] = "光源控制器参数.光场2延时时间";
+//  str[26] = "光源控制器参数.光场2发光时间";
+//  str[27] = "光源控制器参数.光场3延时时间";
+//  str[28] = "光源控制器参数.光场3发光时间";
+//  str[29] = "光源控制器参数.光场4延时时间";
+//  str[30] = "光源控制器参数.光场4发光时间";
+//  str[31] = "光源控制器参数.光场5延时时间";
+//  str[32] = "光源控制器参数.光场5发光时间";
+//  str[33] = "光源控制器参数.光场6延时时间";
+//  str[34] = "光源控制器参数.光场6发光时间";
+//  str[35] = "光源控制器参数.相机与光场控制";
+//  str[36] = "光源控制器参数.信号切换";
+//  str[37] = "光源控制器参数.行信号源选择";
 
-  str[43]="光源控制器参数.光场7延时时间";
-  str[44]="光源控制器参数.光场7发光时间";
-  str[45]="光源控制器参数.光场8延时时间";
-  str[46]="光源控制器参数.光场8发光时间";
-  str[47]="光源控制器参数.光场9延时时间";
-  str[48]="光源控制器参数.光场9发光时间";
-  str[49]="光源控制器参数.光场10延时时间";
-  str[50]="光源控制器参数.光场10发光时间";
-  str[51]="光源控制器参数.光场11延时时间";
-  str[52]="光源控制器参数.光场11发光时间";
-  str[53]="光源控制器参数.光场12延时时间";
-  str[54]="光源控制器参数.光场12发光时间";
-  str[55]="光源控制器参数.选择光场的数量";
-  str[56]="光源控制器参数.横向暗场选择寄存器";
-  str[57]="编码器参数.压轮编码器A计数";
-  str[58]="编码器参数.压轮编码器B计数";
-  str[59]="编码器参数.压轮编码器系数";
-  str[60]="控制器系统参数.拍照模式";
-  str[61]="控制器系统参数.拍照结束延时行数";
-  str[62]="编码器参数.压轮编码器四倍频计数";
+//  str[43]="光源控制器参数.光场7延时时间";
+//  str[44]="光源控制器参数.光场7发光时间";
+//  str[45]="光源控制器参数.光场8延时时间";
+//  str[46]="光源控制器参数.光场8发光时间";
+//  str[47]="光源控制器参数.光场9延时时间";
+//  str[48]="光源控制器参数.光场9发光时间";
+//  str[49]="光源控制器参数.光场10延时时间";
+//  str[50]="光源控制器参数.光场10发光时间";
+//  str[51]="光源控制器参数.光场11延时时间";
+//  str[52]="光源控制器参数.光场11发光时间";
+//  str[53]="光源控制器参数.光场12延时时间";
+//  str[54]="光源控制器参数.光场12发光时间";
+//  str[55]="光源控制器参数.选择光场的数量";
+//  str[56]="光源控制器参数.横向暗场选择寄存器";
+//  str[57]="编码器参数.压轮编码器A计数";
+//  str[58]="编码器参数.压轮编码器B计数";
+//  str[59]="编码器参数.压轮编码器系数";
+//  str[60]="控制器系统参数.拍照模式";
+//  str[61]="控制器系统参数.拍照结束延时行数";
+//  str[62]="编码器参数.压轮编码器四倍频计数";
 
-  JSONRECIPE->getParameter(str[0], sigctrl->temp0);
-  JSONRECIPE->getParameter(str[1], sigctrl->temp1);
-  JSONRECIPE->getParameter(str[2], sigctrl->temp2);
-  JSONRECIPE->getParameter(str[3], sigctrl->temp3);
-  JSONRECIPE->getParameter(str[4], sigctrl->temp4);
-  JSONRECIPE->getParameter(str[5], sigctrl->temp5);
-  JSONRECIPE->getParameter(str[6], sigctrl->temp6);
-  JSONRECIPE->getParameter(str[7], sigctrl->temp7);
-  JSONRECIPE->getParameter(str[8], sigctrl->temp8);
-  JSONRECIPE->getParameter(str[9], sigctrl->temp9);
-  JSONRECIPE->getParameter(str[10], sigctrl->temp10);
-  JSONRECIPE->getParameter(str[11], sigctrl->temp11);
-  JSONRECIPE->getParameter(str[12], sigctrl->temp12);
-  JSONRECIPE->getParameter(str[13], sigctrl->temp13);
+//  JSONRECIPE->getParameter(str[0], sigctrl->temp0);
+//  JSONRECIPE->getParameter(str[1], sigctrl->temp1);
+//  JSONRECIPE->getParameter(str[2], sigctrl->temp2);
+//  JSONRECIPE->getParameter(str[3], sigctrl->temp3);
+//  JSONRECIPE->getParameter(str[4], sigctrl->temp4);
+//  JSONRECIPE->getParameter(str[5], sigctrl->temp5);
+//  JSONRECIPE->getParameter(str[6], sigctrl->temp6);
+//  JSONRECIPE->getParameter(str[7], sigctrl->temp7);
+//  JSONRECIPE->getParameter(str[8], sigctrl->temp8);
+//  JSONRECIPE->getParameter(str[9], sigctrl->temp9);
+//  JSONRECIPE->getParameter(str[10], sigctrl->temp10);
+//  JSONRECIPE->getParameter(str[11], sigctrl->temp11);
+//  JSONRECIPE->getParameter(str[12], sigctrl->temp12);
+//  JSONRECIPE->getParameter(str[13], sigctrl->temp13);
 
-  JSONRECIPE->getParameter(str[14], sigctrl->temp14);
-  JSONRECIPE->getParameter(str[15], sigctrl->temp15);
-  JSONRECIPE->getParameter(str[16], sigctrl->temp16);
-  JSONRECIPE->getParameter(str[17], sigctrl->temp17);
-  JSONRECIPE->getParameter(str[18], sigctrl->temp18);
-  JSONRECIPE->getParameter(str[19], sigctrl->temp19);
-  JSONRECIPE->getParameter(str[20], sigctrl->temp20);
-  JSONRECIPE->getParameter(str[21], sigctrl->temp21);
-  JSONRECIPE->getParameter(str[22], sigctrl->temp22);
+//  JSONRECIPE->getParameter(str[14], sigctrl->temp14);
+//  JSONRECIPE->getParameter(str[15], sigctrl->temp15);
+//  JSONRECIPE->getParameter(str[16], sigctrl->temp16);
+//  JSONRECIPE->getParameter(str[17], sigctrl->temp17);
+//  JSONRECIPE->getParameter(str[18], sigctrl->temp18);
+//  JSONRECIPE->getParameter(str[19], sigctrl->temp19);
+//  JSONRECIPE->getParameter(str[20], sigctrl->temp20);
+//  JSONRECIPE->getParameter(str[21], sigctrl->temp21);
+//  JSONRECIPE->getParameter(str[22], sigctrl->temp22);
 
-  JSONRECIPE->getParameter(str[23], sigctrl->temp23);
-  JSONRECIPE->getParameter(str[24], sigctrl->temp24);
-  JSONRECIPE->getParameter(str[25], sigctrl->temp25);
-  JSONRECIPE->getParameter(str[26], sigctrl->temp26);
-  JSONRECIPE->getParameter(str[27], sigctrl->temp27);
-  JSONRECIPE->getParameter(str[28], sigctrl->temp28);
-  JSONRECIPE->getParameter(str[29], sigctrl->temp29);
-  JSONRECIPE->getParameter(str[30], sigctrl->temp30);
-  JSONRECIPE->getParameter(str[31], sigctrl->temp31);
-  JSONRECIPE->getParameter(str[32], sigctrl->temp32);
-  JSONRECIPE->getParameter(str[33], sigctrl->temp33);
-  JSONRECIPE->getParameter(str[34], sigctrl->temp34);
-  JSONRECIPE->getParameter(str[35], sigctrl->temp35);
-  JSONRECIPE->getParameter(str[36], sigctrl->temp36);
-  JSONRECIPE->getParameter(str[37], sigctrl->temp37);
+//  JSONRECIPE->getParameter(str[23], sigctrl->temp23);
+//  JSONRECIPE->getParameter(str[24], sigctrl->temp24);
+//  JSONRECIPE->getParameter(str[25], sigctrl->temp25);
+//  JSONRECIPE->getParameter(str[26], sigctrl->temp26);
+//  JSONRECIPE->getParameter(str[27], sigctrl->temp27);
+//  JSONRECIPE->getParameter(str[28], sigctrl->temp28);
+//  JSONRECIPE->getParameter(str[29], sigctrl->temp29);
+//  JSONRECIPE->getParameter(str[30], sigctrl->temp30);
+//  JSONRECIPE->getParameter(str[31], sigctrl->temp31);
+//  JSONRECIPE->getParameter(str[32], sigctrl->temp32);
+//  JSONRECIPE->getParameter(str[33], sigctrl->temp33);
+//  JSONRECIPE->getParameter(str[34], sigctrl->temp34);
+//  JSONRECIPE->getParameter(str[35], sigctrl->temp35);
+//  JSONRECIPE->getParameter(str[36], sigctrl->temp36);
+//  JSONRECIPE->getParameter(str[37], sigctrl->temp37);
 
-  JSONRECIPE->getParameter(str[43], sigctrl->temp43);
-  JSONRECIPE->getParameter(str[44], sigctrl->temp44);
-  JSONRECIPE->getParameter(str[45], sigctrl->temp45);
-  JSONRECIPE->getParameter(str[46], sigctrl->temp46);
-  JSONRECIPE->getParameter(str[47], sigctrl->temp47);
-  JSONRECIPE->getParameter(str[48], sigctrl->temp48);
-  JSONRECIPE->getParameter(str[49], sigctrl->temp49);
-  JSONRECIPE->getParameter(str[50], sigctrl->temp50);
-  JSONRECIPE->getParameter(str[51], sigctrl->temp51);
-  JSONRECIPE->getParameter(str[52], sigctrl->temp52);
-  JSONRECIPE->getParameter(str[53], sigctrl->temp53);
-  JSONRECIPE->getParameter(str[54], sigctrl->temp54);
-  JSONRECIPE->getParameter(str[55], sigctrl->temp55);
-  JSONRECIPE->getParameter(str[56], sigctrl->temp56);
+//  JSONRECIPE->getParameter(str[43], sigctrl->temp43);
+//  JSONRECIPE->getParameter(str[44], sigctrl->temp44);
+//  JSONRECIPE->getParameter(str[45], sigctrl->temp45);
+//  JSONRECIPE->getParameter(str[46], sigctrl->temp46);
+//  JSONRECIPE->getParameter(str[47], sigctrl->temp47);
+//  JSONRECIPE->getParameter(str[48], sigctrl->temp48);
+//  JSONRECIPE->getParameter(str[49], sigctrl->temp49);
+//  JSONRECIPE->getParameter(str[50], sigctrl->temp50);
+//  JSONRECIPE->getParameter(str[51], sigctrl->temp51);
+//  JSONRECIPE->getParameter(str[52], sigctrl->temp52);
+//  JSONRECIPE->getParameter(str[53], sigctrl->temp53);
+//  JSONRECIPE->getParameter(str[54], sigctrl->temp54);
+//  JSONRECIPE->getParameter(str[55], sigctrl->temp55);
+//  JSONRECIPE->getParameter(str[56], sigctrl->temp56);
 
-  JSONRECIPE->getParameter(str[57], sigctrl->tempRollerACount);
-  JSONRECIPE->getParameter(str[58], sigctrl->tempRollerBCount);
-  JSONRECIPE->getParameter(str[59], sigctrl->tempRollerCofficient);
-  JSONRECIPE->getParameter(str[60], sigctrl->tempAutoPhoto);
-  JSONRECIPE->getParameter(str[61], sigctrl->tempPhotoEndDelayLine);
-  JSONRECIPE->getParameter(str[62], sigctrl->tempRoller4ABCount);
+//  JSONRECIPE->getParameter(str[57], sigctrl->tempRollerACount);
+//  JSONRECIPE->getParameter(str[58], sigctrl->tempRollerBCount);
+//  JSONRECIPE->getParameter(str[59], sigctrl->tempRollerCofficient);
+//  JSONRECIPE->getParameter(str[60], sigctrl->tempAutoPhoto);
+//  JSONRECIPE->getParameter(str[61], sigctrl->tempPhotoEndDelayLine);
+//  JSONRECIPE->getParameter(str[62], sigctrl->tempRoller4ABCount);
 
   m_pSig_comm.SetRegs(ADDR0, ADDR0, &sigctrl->temp0);
   m_pSig_comm.SetRegs(ADDR1, ADDR1, &sigctrl->temp1);
@@ -310,8 +309,8 @@ void SignalControlData::SetData() {
   m_pSig_comm.SetRegs(ADDR56, ADDR56, &sigctrl->temp56);
 
   m_pSig_comm.SetRegs(ADDR59, ADDR59, &sigctrl->tempAutoPhoto);
- int ret = m_pSig_comm.SetRegs(ADDR60, ADDR60, &sigctrl->tempPhotoEndDelayLine);
- qDebug()<<ret;
+  int ret = m_pSig_comm.SetRegs(ADDR60, ADDR60, &sigctrl->tempPhotoEndDelayLine);
+  qDebug()<<ret;
 }
 
 void SignalControlData::SaveData() {
@@ -398,7 +397,7 @@ void SignalControlData::TimeOut1() {
           //帧信号
           m_pSig_comm.GetRegs(ADDR40, ADDR40, &aaa);//1表示控制器在控制帧信号，随后为0
           if (aaa > mid1) {
-              Global::FrameSignal = 1;
+              PARAM.setFrameSignal(1);
               mid1 = aaa;
           } else {
               mid1 = aaa;
@@ -420,13 +419,11 @@ void SignalControlData::TimeOut1() {
           if (ccc > mid3) {
             //ADDR3编码器信号1当前值
             m_pSig_comm.GetRegs(ADDR3, ADDR3, &eee);
-            Global::CodeCount = eee;
+            PARAM.setCodeCount(eee);
             m_pSig_comm.GetRegs(ADDR4, ADDR4, &fff);
-            Global::CodeLineCount = fff;
+            PARAM.setCodeLineCount(fff);
             m_pSig_comm.GetRegs(ADDR5, ADDR5, &fff);
-            Global::Code4Count = fff;
-            qDebug()<<"Global::CodeCount"<<Global::CodeCount;
-            qDebug()<<"Global::Code4Count"<<Global::Code4Count;
+            PARAM.setCode4Count(fff);
             m_pSig_comm.SetRegs(ADDR42, ADDR42, &temp2);
             m_pSig_comm.SetRegs(ADDR42, ADDR42, &temp1);
             mid3 = ccc;
@@ -435,12 +432,12 @@ void SignalControlData::TimeOut1() {
           }
           //单位时间内编码器脉冲计数
           m_pSig_comm.GetRegs(ADDR6, ADDR6, &ggg);
-          Global::CodePerCount = ggg;
+          PARAM.setCodePerCount(ggg);
 
           //报警灯
-          if (Global::AlmLightSignal) {
-              Global::AlmLightSignal=false;
-              uint lightnum=Global::AlmLightVal;
+          if (PARAM.getAlmLightSignal()) {
+              PARAM.setAlmLightSignal(false);
+              uint lightnum = PARAM.getAlmLightVal();
               m_pSig_comm.SetRegs(ADDR41, ADDR41, &lightnum);
           }
 
@@ -457,10 +454,10 @@ void SignalControlData::TimeOut1() {
               m_pSig_comm.GetRegs(ADDR57, ADDR57, &codecount1);
               m_pSig_comm.GetRegs(ADDR58, ADDR58, &codecount2);
               m_pSig_comm.GetRegs(ADDR62, ADDR62, &codecountAB4);
-              Global::encodeARollerCount = codecount1;
-              Global::encodeBRollerCount = codecount2;
-              Global::encodeRollerCount = (codecount1 + codecount2)/2;
-              Global::encodeAB4 = codecountAB4;
+              PARAM.setEncodeARollerCount(codecount1);
+              PARAM.setEncodeBRollerCount(codecount2);
+              PARAM.setEncodeRollerCount((codecount1 + codecount2)/2);//去AB的平均值
+              PARAM.setEncodeAB4(codecountAB4);
           }
           flag = endSignal;
   }

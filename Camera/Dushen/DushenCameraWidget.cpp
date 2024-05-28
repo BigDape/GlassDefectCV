@@ -14,9 +14,9 @@ DushenCameraWidget::DushenCameraWidget(QWidget* parent, QString CameraName, int 
     CameraBase = Camera;
     RealCameraName = CameraName;
     m_CameraNum = CameraNum;
-    CameraFieldNum = Global::FieldSelectedView[CameraNum];
-    for (dvpUint32 i = 0; i < Global::CameraCounts; i++) {
-        ui->comboBox_Devices->addItem(tr(Global::info[i].FriendlyName));
+    CameraFieldNum = PARAM.getFieldSelectedView()[CameraNum];
+    for (dvpUint32 i = 0; i < PARAM.getCameraCounts(); i++) {
+        ui->comboBox_Devices->addItem(tr(PARAM.getInfo(i).FriendlyName));
     }
 
     scene = new QGraphicsScene();
@@ -54,7 +54,7 @@ DushenCameraWidget::DushenCameraWidget(QWidget* parent, QString CameraName, int 
     ui->comboBox_MultiFieldSelect->setCurrentIndex(Index4combox_MultiFieldSelect);
 
 
-    if (Global::IsScanned) {
+    if (PARAM.getIsScanned()) {
         AutoOpen();
         thread()->sleep(1);
         if (CameraBase->IsOpened) {
@@ -66,7 +66,7 @@ DushenCameraWidget::DushenCameraWidget(QWidget* parent, QString CameraName, int 
 DushenCameraWidget::~DushenCameraWidget()
 {
     //防止下次开启相机无法采集
-    if (Global::IsScanned) {
+    if (PARAM.getIsScanned()) {
         if (CameraBase->IsStarted) {
             CameraBase->slot_StopFunc();
             thread()->sleep(1);
@@ -84,17 +84,17 @@ void DushenCameraWidget::UpdateControls()
 
 void DushenCameraWidget::on_pushButton_Scan_clicked()
 {
-    Global::IsScanned = false;
+    PARAM.setIsScanned(false);
     CameraBase->slot_ScanFunc();
     ui->comboBox_Devices->clear();
-    for (dvpUint32 i = 0; i < Global::CameraCounts; i++) {
-        ui->comboBox_Devices->addItem(tr(Global::info[i].FriendlyName));
+    for (dvpUint32 i = 0; i < PARAM.getCameraCounts(); i++) {
+        ui->comboBox_Devices->addItem(tr(PARAM.getInfo(i).FriendlyName));
     }
 }
 
 void DushenCameraWidget::on_pushButton_Open_clicked()
 {
-    if (!Global::IsScanned) {
+    if (!PARAM.getIsScanned()) {
         qDebug() << "Not Scanned";
         return;
     }
@@ -221,14 +221,14 @@ void DushenCameraWidget::on_pushButton_Save_clicked()
     }
 
     QString CurrentName = ui->lbl_CameraName->text();
-    Global::XmlParam.setParameter(t_CameraNum, CurrentName);
-    Global::XmlParam.setParameter(t_CameraFieldName, Global::FieldSelectedView[m_CameraNum]);
-    Global::XmlParam.SaveParasToFile();
+    PARAM.getXmlParam().setParameter(t_CameraNum, CurrentName);
+    PARAM.getXmlParam().setParameter(t_CameraFieldName, PARAM.getFieldSelectedView()[m_CameraNum]);
+    PARAM.getXmlParam().SaveParasToFile();
 }
 
 void DushenCameraWidget::AutoOpen()
 {
-    if (!Global::IsScanned) {
+    if (!PARAM.getIsScanned()) {
         qDebug() << "Not Scanned";
         return;
     }
@@ -277,11 +277,11 @@ void DushenCameraWidget::on_pushButton_Loadini_clicked()
 void DushenCameraWidget::on_pushButton_MultiFieldSelect_clicked()
 {
     if (!CameraBase->IsStarted) {
-        if (ui->comboBox_MultiFieldSelect->currentText().toInt() == Global::FieldSelectedView[m_CameraNum]) {
+        if (ui->comboBox_MultiFieldSelect->currentText().toInt() == PARAM.getFieldSelectedView()[m_CameraNum]) {
             qDebug() << "No Need Operation";
             return;
         }
-        Global::FieldSelectedView[m_CameraNum] = ui->comboBox_MultiFieldSelect->currentText().toInt();
+        PARAM.getFieldSelectedView()[m_CameraNum] = ui->comboBox_MultiFieldSelect->currentText().toInt();
         on_pushButton_Save_clicked();
     }
 }

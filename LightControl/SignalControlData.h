@@ -48,9 +48,6 @@
 #define ADDR40 0x00E8
 #define ADDR41 0x00EC
 #define ADDR42 0x0078//上位机反馈信号
-
-
-
 #define ADDR43 0x0100
 #define ADDR44 0x0104
 #define ADDR45 0x0108
@@ -73,78 +70,243 @@
 #define ADDR62 0x0844  //压轮编码器四倍频计数
 
 typedef struct SignalControl {
+   /**
+   * @brief temp0编码器单位刻度对应距离(um)
+   */
   unsigned int temp0;
+  /**
+   * @brief temp1编码脉冲滤波(us)
+   */
   unsigned int temp1;
+  /**
+   * @brief temp2编码器计数结束标志
+   */
   unsigned int temp2;
+  /**
+   * @brief temp3编码器计数
+   */
   unsigned int temp3;
+  /**
+   * @brief temp4编码器触发行计数
+   */
   unsigned int temp4;
+  /**
+   * @brief temp5编码器4倍频计数
+   */
   unsigned int temp5;
+  /**
+   * @brief temp6编码器单位时间脉冲计数
+   */
   unsigned int temp6;
+  /**
+   * @brief temp7编码器计数时间(0.5s)
+   */
   unsigned int temp7;
+  /**
+   * @brief temp8编码通道
+   */
   unsigned int temp8;
+  /**
+   * @brief temp9编码器转数
+   */
   unsigned int temp9;
+  /**
+   * @brief temp10辊道周长(um)
+   */
   unsigned int temp10;
+  /**
+   * @brief temp11期望单个像素精度(um)
+   */
   unsigned int temp11;
+  /**
+   * @brief temp12辊道最大速度对应行频
+   */
   unsigned int temp12;
+  /**
+   * @brief temp13每行对应的编码计数
+   */
   unsigned int temp13;
+  /**
+   * @brief temp14像素精度(um)
+   */
   unsigned int temp14;
+  /**
+   * @brief temp15光电信号脉冲滤波(us)
+   */
   unsigned int temp15;
+  /**
+   * @brief temp16相机触发脉冲持续时间(10ns)
+   */
   unsigned int temp16;
+  /**
+   * @brief temp17光电相机距离(行)
+   */
   unsigned int temp17;
+  /**
+   * @brief temp18相机帧信号触发延时行数(行)
+   */
   unsigned int temp18;
+  /**
+   * @brief temp19帧信号持续时间(10ns)
+   */
   unsigned int temp19;
-  //long  temp19;
+  /**
+   * @brief temp20模块使能信号
+   */
   unsigned int temp20;
+  /**
+   * @brief temp21相机拍照行数(行)
+   */
   unsigned int temp21;
+  /**
+   * @brief temp22内部行频
+   */
   unsigned int temp22;
+  /**
+   * @brief temp23光场1延时时间(10ns)
+   */
   unsigned int temp23;
+  /**
+   * @brief temp24光场1发光时间(10ns)
+   */
   unsigned int temp24;
+  /**
+   * @brief temp25光场2延时时间(10ns)
+   */
   unsigned int temp25;
+  /**
+   * @brief temp26光场2发光时间(10ns)
+   */
   unsigned int temp26;
+  /**
+   * @brief temp27光场3延时时间(10ns)
+   */
   unsigned int temp27;
+  /**
+   * @brief temp28光场3发光时间(10ns)
+   */
   unsigned int temp28;
+  /**
+   * @brief temp29光场4延时时间(10ns)
+   */
   unsigned int temp29;
+  /**
+   * @brief temp30光场4发光时间(10ns)
+   */
   unsigned int temp30;
+  /**
+   * @brief temp31光场5延时时间(10ns)
+   */
   unsigned int temp31;
+  /**
+   * @brief temp32光场5发光时间(10ns)
+   */
   unsigned int temp32;
+  /**
+   * @brief temp33光场6延时时间(10ns)
+   */
   unsigned int temp33;
+  /**
+   * @brief temp34 光场6发光时间(10ns)
+   */
   unsigned int temp34;
+  /**
+   * @brief temp35 35相机与光场控制
+   */
   unsigned int temp35;
+  /**
+   * @brief temp36信号切换
+   */
   unsigned int temp36;
+  /**
+   * @brief temp37行信号源选择
+   */
   unsigned int temp37;
   unsigned int temp38;
 
-
+  /**
+   * @brief temp43光场7延时时间(10ns)
+   */
   unsigned int temp43;
+  /**
+   * @brief temp44 光场7发光时间(10ns)
+   */
   unsigned int temp44;
+  /**
+   * @brief temp45 光场8延时时间(10ns)
+   */
   unsigned int temp45;
+  /**
+   * @brief temp46 光场8发光时间(10ns)
+   */
   unsigned int temp46;
+  /**
+   * @brief temp47 光场9延时时间(10ns)
+   */
   unsigned int temp47;
+  /**
+   * @brief temp48 光场9发光时间(10ns)
+   */
   unsigned int temp48;
+  /**
+   * @brief temp49 光场10延时时间(10ns)
+   */
   unsigned int temp49;
+  /**
+   * @brief temp50 光场10发光时间(10ns)
+   */
   unsigned int temp50;
+  /**
+   * @brief temp51 光场11延时时间(10ns)
+   */
   unsigned int temp51;
+  /**
+   * @brief temp52 光场11发光时间(10ns)
+   */
   unsigned int temp52;
+  /**
+   * @brief temp53 光场12延时时间(10ns)
+   */
   unsigned int temp53;
+  /**
+   * @brief temp54 光场12发光时间(10ns)
+   */
   unsigned int temp54;
+  /**
+   * @brief temp55 选择光场的数量
+   */
   unsigned int temp55;
+  /**
+   * @brief temp56 横向暗场选择寄存器
+   */
   unsigned int temp56;
+  /**
+   * @brief tempRollerACount 压轮编码器A计数
+   */
   unsigned int tempRollerACount;
+  /**
+   * @brief tempRollerBCount 压轮编码器B计数
+   */
   unsigned int tempRollerBCount;
+  /**
+   * @brief tempRollerCofficient 压轮编码器系数
+   */
   double tempRollerCofficient;
+  /**
+   * @brief tempAutoPhoto 拍照模式
+   */
   unsigned int tempAutoPhoto;
+  /**
+   * @brief tempPhotoEndDelayLine 拍照结束延时行数
+   */
   unsigned int tempPhotoEndDelayLine;
+  /**
+   * @brief tempRoller4ABCount 压轮编码器4倍频计数
+   */
   unsigned int tempRoller4ABCount;
 
 } SignalControl;
 
-//class XianCheng :public QThread
-//{
-//    Q_OBJECT
-//public:
-//    XianCheng();
-//     void run() override;
-//};
 
 class SignalControlData : public QObject {
   Q_OBJECT

@@ -213,32 +213,37 @@ void DushenBasicFunc::slot_ScanFunc()
     dvpStatus status;
     dvpUint32 i;
 
-    if (!Global::IsScanned) {
-        status = dvpRefresh(&Global::CameraCounts);
-        QString cameramountLog = "当前相机数量为 " + QString::number(Global::CameraCounts);
+    if (!PARAM.getIsScanned()) {
+        dvpUint32 temp = PARAM.getCameraCounts();
+        status = dvpRefresh(&temp);
+        PARAM.setCameraCounts(temp);
+        QString cameramountLog = "当前相机数量为 " + QString::number(PARAM.getCameraCounts());
         log_singleton::Write_Log(cameramountLog, Log_Level::General);
 
-        if (Global::CameraCounts < 1) {
-            Global::IsScanned = false;
+        if (PARAM.getCameraCounts() < 1) {
+            PARAM.setIsScanned(false);
             return;
         }
 
         if (status != DVP_STATUS_OK) {
             QMessageBox::about(NULL, "About", "Refresh fail!");
-            Global::IsScanned = false;
+            PARAM.setIsScanned(false);
             return;
         }
 
         if (status == DVP_STATUS_OK) {
-            if (Global::CameraCounts > 16)
-                Global::CameraCounts = 16;
-            for (i = 0; i < Global::CameraCounts; i++) {
-                status = dvpEnum(i, &Global::info[i]);
-                qDebug() << Global::info[i].FriendlyName;
+            if (PARAM.getCameraCounts() > 16)
+                PARAM.setCameraCounts(16);
+
+            for (i = 0; i < PARAM.getCameraCounts(); i++) {
+                dvpCameraInfo tempinfo = PARAM.getInfo(i);
+                status = dvpEnum(i, &tempinfo);
+                PARAM.setInfo(i,tempinfo);
+                qDebug() << PARAM.getInfo(i).FriendlyName;
             }
-            Global::IsScanned = true;
+            PARAM.setIsScanned(true);
         } else {
-            Global::IsScanned = false;
+            PARAM.setIsScanned(false);
         }
     }
 }
@@ -247,17 +252,17 @@ bool DushenBasicFunc::slot_OpenFunc(QString DeviceName)
 {
     dvpStatus status;
 
-    if (!Global::IsScanned) {
+    if (!PARAM.getIsScanned()) {
         QMessageBox::about(NULL, "About", "Devices has not been SCANNED");
         return false;
     }
 
-    for (dvpUint32 i = 0; i < Global::CameraCounts; i++) {
-        if (DeviceName == tr(Global::info[i].FriendlyName)) {
+    for (dvpUint32 i = 0; i < PARAM.getCameraCounts(); i++) {
+        if (DeviceName == tr(PARAM.getInfo(i).FriendlyName)) {
             break;
         }
-        if (i == (Global::CameraCounts - 1)) {
-            if (DeviceName != tr(Global::info[i].FriendlyName)) {
+        if (i == (PARAM.getCameraCounts() - 1)) {
+            if (DeviceName != tr(PARAM.getInfo(i).FriendlyName)) {
                 QMessageBox::about(NULL, "About", "No such Devices");
                 return false;
             }
@@ -271,28 +276,6 @@ bool DushenBasicFunc::slot_OpenFunc(QString DeviceName)
             return false;
         }
         m_FriendlyName = DeviceName;
-
-//        //开启时获取一次参数
-//        QString searchExpoTime = "相机" + QString::number(m_CameraNum) + ".曝光时间";
-//        QString searchGain = "相机" + QString::number(m_CameraNum) + ".相机增益";
-//        QString searchHeight = "相机" + QString::number(m_CameraNum) + ".拍照行数";
-//        QString searchFrameCount = "相机" + QString::number(m_CameraNum) + ".帧次";
-//        double expo;
-//        if (!m_recipe->getParameter(searchExpoTime, expo))
-//            qDebug() << "获取曝光时间失败";
-//        double gain;
-//        if (!m_recipe->getParameter(searchGain, gain))
-//            qDebug() << "获取相机增益失败";
-//        double height;
-//        if (!m_recipe->getParameter(searchHeight, height))
-//            qDebug() << "获取曝光时间失败";
-//        double framecount;
-//        if (!m_recipe->getParameter(searchFrameCount, framecount))
-//            qDebug() << "获取相机增益失败";
-//        fExpoTime = expo;
-//        fAnalogGain = gain;
-//        fHeight=height;
-//        fFrameCount=framecount;
 
         //此处添加一系列初始化流程
         IsMonoCamera(m_handle);
@@ -394,7 +377,7 @@ void DushenBasicFunc::slot_StartFunc()
                 InitFrameCount();//初始化帧次；
 
                 // 创建线程对象
-                m_AcquireImage = new QImageAcquisition(m_handle, nullptr, Global::FieldNumberSet);
+                m_AcquireImage = new QImageAcquisition(m_handle, nullptr, PARAM.getFieldNumberSet());
                 m_pThread = new QThread();
                 m_AcquireImage->moveToThread(m_pThread);
                 m_pThread->start(); // 启动采集线程
@@ -518,18 +501,18 @@ void DushenBasicFunc::slot_GetCameraState()
 
 bool DushenBasicFunc::slot_SearchCamera(QString DeviceName)
 {
-    if (!Global::IsScanned) {
+    if (!PARAM.getIsScanned()) {
         QMessageBox::about(NULL, "About", "Devices has not been SCANNED");
         return false;
     }
 
-    for (dvpUint32 i = 0; i < Global::CameraCounts; i++) {
-        if (DeviceName == tr(Global::info[i].FriendlyName)) {
+    for (dvpUint32 i = 0; i < PARAM.getCameraCounts(); i++) {
+        if (DeviceName == tr(PARAM.getInfo(i).FriendlyName)) {
             qDebug() << "We Have This Camera " << DeviceName;
             break;
         }
-        if (i == (Global::CameraCounts - 1)) {
-            if (DeviceName != tr(Global::info[i].FriendlyName)) {
+        if (i == (PARAM.getCameraCounts() - 1)) {
+            if (DeviceName != tr(PARAM.getInfo(i).FriendlyName)) {
                 qDebug() << "No such Devices";
                 return false;
             }

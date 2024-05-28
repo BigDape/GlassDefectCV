@@ -4,15 +4,12 @@
 #   @MainBuilder    chengwenjie
 #   @CreateDate     2023-06-20
 #---------------------------------------------
-QT       += core gui network xml
+QT += core gui network xml sql
+
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-RC_FILE  += logo.rc
-
 CONFIG += c++11
-
-QT  +=sql
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
@@ -41,6 +38,7 @@ SOURCES += \
     Form/singleflawshowwidget.cpp \
     Form/singlesizeshowwidget.cpp \
     Global.cpp \
+    HsListener.cpp \
     ImageProcess/processdetect.cpp \
     ImageProcess/processtile.cpp \
     Jianbo_db.cpp \
@@ -59,11 +57,14 @@ SOURCES += \
     Parameter/JsonRecipeWidget.cpp \
     Parameter/JsonResultParse.cpp \
     Parameter/XmlParse.cpp \
+    Parameter/json_reader.cpp \
+    Parameter/json_value.cpp \
+    Parameter/json_writer.cpp \
     SystemSettingForm.cpp \
     common_func.cpp \
     log_singleton.cpp \
     main.cpp \
-    mainwindow.cpp \
+    mainwindow.cpp
 
 HEADERS += \
     Camera/Dushen/DushenBasicFunc.h \
@@ -82,6 +83,7 @@ HEADERS += \
     Form/msvlcdnumclockwidget.h \
     Form/singleflawshowwidget.h \
     Global.h \
+    HsListener.h \
     ImageProcess/processdetect.h \
     ImageProcess/processtile.h \
     Jianbo_db.h \
@@ -101,10 +103,21 @@ HEADERS += \
     Parameter/JsonRecipeWidget.h \
     Parameter/JsonResultParse.h \
     Parameter/XmlParse.h \
+    Parameter/allocator.h \
+    Parameter/assertions.h \
+    Parameter/config.h \
+    Parameter/forwards.h \
+    Parameter/json.h \
+    Parameter/json_features.h \
+    Parameter/json_tool.h \
+    Parameter/reader.h \
+    Parameter/value.h \
+    Parameter/version.h \
+    Parameter/writer.h \
     SystemSettingForm.h \
     common_func.h \
     log_singleton.h \
-    mainwindow.h \
+    mainwindow.h
 
 FORMS += \
     Camera/Dushen/DushenCameraWidget.ui \
@@ -119,9 +132,10 @@ FORMS += \
     SystemSettingForm.ui \
     mainwindow.ui
 
-TRANSLATIONS += \
-    HSAOI_zh_CN.ts
-
+TRANSLATIONS += HSAOI_zh_CN.ts
+RC_FILE  += logo.rc
+DISTFILES += logo.rc
+RESOURCES += SystemSource.qrc
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
@@ -142,7 +156,7 @@ win32{
 
 #INCLUDEPATH += C:/Qt/opencv4.5/build/include
 #DEPENDPATH += C:/Qt/opencv4.5/build/include
-
+message($$PWD)
 #添加Halcon22.05库
 INCLUDEPATH += $$PWD/HalconLib/include/
 INCLUDEPATH += $$PWD/HalconLib/include/halconcpp
@@ -152,16 +166,12 @@ LIBS += -L$$PWD/HalconLib/lib/ -lhalconxl
 LIBS += -L$$PWD/HalconLib/lib/ -lhalconcppxl
 LIBS += -L$$PWD/HalconLib/lib/ -lhdevenginecppxl
 
-DISTFILES += \
-    logo.rc
-
-RESOURCES += \
-    SystemSource.qrc
-
 #添加qwt插件
 win32:CONFIG(release, debug|release): LIBS += -LC:/Qt/Qt5.14.2/5.14.2/msvc2017_64/lib/ -lqwt
 else:win32:CONFIG(debug, debug|release): LIBS += -LC:/Qt/Qt5.14.2/5.14.2/msvc2017_64/lib/ -lqwtd
 
+#添加qt文件
 INCLUDEPATH += C:/Qt/Qt5.14.2/5.14.2/msvc2017_64/include
 DEPENDPATH += C:/Qt/Qt5.14.2/5.14.2/msvc2017_64/include
+
 

@@ -13,11 +13,13 @@ int ProcessTile::Cam1Width;
 int ProcessTile::Tile2Column1;
 bool ProcessTile::ErrFlag;
 bool ProcessTile::LastErrFlag;
+
 ProcessTile::ProcessTile(QList<DushenBasicFunc*> Cameras)
 {
     m_Cameras = Cameras;
     init_ProcessTile();
 }
+
 void ProcessTile::init_ProcessTile()
 {
     stopFlag_Tile=false;
@@ -27,11 +29,12 @@ void ProcessTile::init_ProcessTile()
     lastGlassPosition=0;
     ErrFlag=false;
     FirstFrame = true;
-    FieldNumber=Global::FieldNumberSet+1;   //光场数量
+    FieldNumber = PARAM.getFieldNumberSet() + 1;   //光场数量
     TileColumn1=HTuple();
     TileColumn2=HTuple();
     GenEmptyObj(&TileRectangle);
     mosaickthread = new ThreadDo[FieldNumber];
+    qDebug()<<"FieldNumber"<<FieldNumber;
     MosaickHobject = new HObject[4];
     GlassRegion.GenEmptyObj();
     RegionsFrameCrop.GenEmptyObj();
@@ -45,6 +48,7 @@ void ProcessTile::init_ProcessTile()
     ImageTile3R.GenEmptyObj();
     ImageTile4R.GenEmptyObj();
 }
+
 //图像预处理
 void ProcessTile::TileImageProcess()
 {
@@ -54,13 +58,14 @@ void ProcessTile::TileImageProcess()
         //
         // 离线模式
         //
-        if (Global::isOffline) {
+        if (PARAM.getIsOffline()) {
+            qDebug()<<"PARAM.getIsOffline() = " <<PARAM.getIsOffline();
             //开始离线拼接图片
-            //Global::offlineFullPath，待拼接图片的文件夹地址
-            ProcessTile::OfflineTileImageProcess(Global::offlineFullPath);
-            Global::isOffline = false;
-            Global::offlineFullPath.clear();
+            ProcessTile::OfflineTileImageProcess(PARAM.getOfflineFullPath());
+            PARAM.setIsOffline(false);
+            //PARAM.setOfflineFullPath("");
             TileStep = 0;
+
         }
         //
         // 在线模式
@@ -87,28 +92,28 @@ void ProcessTile::TileImageProcess()
                 if(allCamerasStarted && allCameraIsNotEmpty) {
                     qDebug() << "start1 :" << QDateTime::currentDateTime().toString("HH:mm:ss.zzz");
                     qDebug() << "step :" << TileStep;
-                    FrameCount = m_Cameras[0]->m_AcquireImage->ImageQueue.head().FrameCount;
+                    FrameCount = m_Cameras[0]->m_AcquireImage->ImageQueue.head().FrameCount;//相机拍照的帧数
                     if(FrameCount == 1) {
-                        Global::ImageHeight = 0;
-                        Global::ImageWidth = 0;
+                        PARAM.setImageHeight(0);
+                        PARAM.setImageWidth(0);
                         //Err标志位
                         ErrFlag=false;
                     }
                     //帧信号复位
-                    Global::FrameSignal = 0;
+                    PARAM.setFrameSignal(0);
 
                     //GetDictTuple: Halcon算子，从字典中检索与键关联的元组
                     //控制输入参数1：字典句柄；控制输入参数2：键字符串；控制输出参数：从字典中检索的元组值。
-                    GetDictTuple(Global::RecipeDict,"自定义参数",&UserDefinedDict);
+                    GetDictTuple(PARAM.getRecipeDict(),"自定义参数",&UserDefinedDict);
                     TileStep = 10;
                  }
                 break;
             case 10:
                 for (int i = 0; i < FieldNumber; i++) {
                     qDebug() << "FieldNumber :" <<FieldNumber;
-                    if(i<FieldNumber-1) {
-                        for(int j=0;j<Global::camDefineNum;j++) {
-                            qDebug() << "camDefineNum :" <<Global::camDefineNum;
+                    if( i < FieldNumber-1 ) {
+                        for(int j=0;j<PARAM.getCamDefineNum();j++) {
+                            qDebug() << "camDefineNum :" <<PARAM.getCamDefineNum();
                             qDebug() << "camDefineNum i :" <<i<< "ImageList.length() :"<<m_Cameras[j]->m_AcquireImage->ImageQueue.head().ImageList.length();
 
                             //将当前相机的图像列表中的第i个图像添加到mosaickthread数组中索引为i的线程的CameraImageList中
@@ -117,8 +122,8 @@ void ProcessTile::TileImageProcess()
                         }
                         mosaickthread[i].channel=0;
                     } else {
-                        for(int j=0;j<Global::camDefineNum;j++) {
-                            qDebug() << "camDefineNum :" <<Global::camDefineNum;
+                        for(int j=0;j<PARAM.getCamDefineNum();j++) {
+                            qDebug() << "camDefineNum :" <<PARAM.getCamDefineNum();
                             qDebug() << "camDefineNum i :" <<i<< "ImageList.length() :"<<m_Cameras[j]->m_AcquireImage->ImageQueue.head().ImageList.length();
                             mosaickthread[i].CameraImageList.append(m_Cameras[j]->m_AcquireImage->ImageQueue.head().ImageList[0]) ;
                         }
@@ -149,7 +154,7 @@ void ProcessTile::TileImageProcess()
                 qDebug() << "mosaick success";
 
                 //清空相机图片列表
-                for(int j=0;j<Global::camDefineNum;j++) {
+                for(int j=0;j<PARAM.getCamDefineNum();j++) {
                     m_Cameras[j]->m_AcquireImage->ImageQueue.dequeue();
                 }
                 PreProceeTile();
@@ -184,7 +189,7 @@ try {
      GetImageSize(mosaickthread[0].MosaickResultImage, &ImageWidth, &ImageHeight);
 
 
-     //生成亮场背景图
+     //生成亮场背景图 
      if (FirstFrame==true) {
          HObject ImageP500;
          HObject ImageConcat;
@@ -194,8 +199,7 @@ try {
          CropPart(mosaickthread[0].MosaickResultImage,&ImageP500,0,0,ImageWidth,500);
 
          //目的是使BackGroundImage的高度为500的整数倍，且保证 ImageConcat的高度 - ImageHight < 500。
-         for (int j=1; j <= ImageHeight/500+2; j++)
-         {
+         for (int j=1; j <= ImageHeight/500+2; j++) {
              //将ImageConcat与ImageP500两个区域组合成区域集，并将结果存储回 ImageConcat
              ConcatObj(ImageConcat,ImageP500,&ImageConcat);
          }
@@ -208,9 +212,6 @@ try {
      }
      //在 BackGroundImage 中从起始点（0，0）裁剪出一个宽度为 ImageWidth 像素，高度为 ImageHeight 像素的图像，并将其存储回 BackGroundImage 中。
      CropPart(BackGroundImage,&BackGroundImage, 0, 0, ImageWidth, ImageHeight);
-//                HTuple str2 = "D:/q111"     ;
-//                WriteImage(BackGroundImage,"jpg",0,str2);
-
 
      HTuple Row1,Column1,Phi1,Length1,Length2;
      HObject SubImage1,SubRegion1,RegionUnion1,RegionFillUp1,RegionOpening1,ConnectedRegions1,SelectedRegions1;
@@ -304,68 +305,51 @@ try {
        //孔数量判断
         CountObj(RegionQK,&QKNum);
         HObject RegionPanelQK,RegionConnectionPanelQK,RegionContours,RegionPanelMoved;
-        if(QKNum>0)
-        {
+        if (QKNum>0) {
             //计算RegionPanel与RegionQK区域的差集，RegionPanel区域剩下部分形成新的区域
             Difference(RegionPanel,RegionQK,&RegionPanelQK);
             Connection(RegionPanelQK,&RegionConnectionPanelQK);
             SelectShapeStd(RegionConnectionPanelQK, &RegionContours, "max_area", 70);
             RegionPanelQK.Clear();
             RegionConnectionPanelQK.Clear();
-        }
-        else
-        {
+        } else {
             RegionContours=RegionPanel;
         }
 
-        if((Column2-Column1>3000) && Row2-Row1>500)
-        {
-          if(Row1>0 && Row2<ImageHeight-1)
-           {
+        if ((Column2 - Column1 > 3000) && Row2 - Row1 > 500) {
+          if (Row1>0 && Row2<ImageHeight-1) {
                //完整玻璃
-               GlassPosition=0;
+               GlassPosition = 0;
                GlassRegion.GenEmptyObj();   //调用了Halcon对象的GenEmptyObj方法，生成一个空的区域对象
-               GlassRegion=RegionContours;
-           }
-           else
-           {
-               if(Row1>0)
-               {
+               GlassRegion = RegionContours;
+           } else {
+               if (Row1>0) {
                    //玻璃头部
-                   Global::CamRowsPerField=ImageHeight;
+                   PARAM.setCamRowsPerField(ImageHeight);
                    GlassPosition=1;
                    GlassRegion.GenEmptyObj();
                    GlassRegion=RegionContours;
-               }
-               else
-               {
-                   if(Row2<ImageHeight-1)
-                   {
+               } else {
+                   if(Row2<ImageHeight-1) {
                        //玻璃尾部
                        GlassPosition=3;
-                   }
-                   else
-                   {
+                   } else {
                        //玻璃中部
                        GlassPosition=2;
                    }
-
                }
            }
 
-           if(GlassPosition == 0 || GlassPosition==1 || FrameCount == 1)
-           {
-              if(Column1>1000)
-              { TileColumn1=Column1-1000;}
-              else
-              {TileColumn1=0;}
-              if(ImageWidth-Column2>1000)
-              {
-              TileColumn2=Column2+1000;
+           if (GlassPosition == 0 || GlassPosition==1 || FrameCount == 1) {
+              if(Column1 > 1000) {
+                  TileColumn1=Column1-1000;
+              } else {
+                  TileColumn1=0;
               }
-              else
-              {
-              TileColumn2=ImageWidth-1;
+              if(ImageWidth-Column2>1000) {
+                TileColumn2=Column2+1000;
+              } else {
+                TileColumn2=ImageWidth-1;
               }
               qDebug()<<"Column2//////////////////////////////////////////"<<Column2.ToString().Text();
               qDebug() <<"TileColumn1"<<TileColumn1.ToString().Text();
@@ -373,9 +357,7 @@ try {
               qDebug() << "ImageHeighttttt :" << ImageHeight.ToString().Text();
 
            }
-        }
-        else
-        {
+        } else {
           GlassPosition=3;
           QString info="拼图步骤"+ QString::number(FrameCount) + "玻璃有效区域占比小！定为玻璃尾部";
           log_singleton::Write_Log(info, Log_Level::General);
@@ -397,7 +379,7 @@ try {
         if(GlassPosition==3)
         {
            //一次扫描结束
-           Global::FrameSignal = 1;
+           PARAM.setFrameSignal(1);
         }
 
         if(FrameCount == 1 && Row1==0)
@@ -423,11 +405,9 @@ try {
              CropDomain(ImageReduced[i], &ImagePart[i]);
          }
         //拼整图
-        if(GlassPosition!=0)
-        {
+        if (GlassPosition!=0) {
         //拼接前
-         if(GlassPosition==1)
-         {
+         if (GlassPosition==1) {
              ImageTile1.GenEmptyObj();
              ImageTile2.GenEmptyObj();
              ImageTile3.GenEmptyObj();
@@ -455,9 +435,16 @@ try {
                  //Col2 (input_control)：裁切图像右下角列坐标
                  //Width (input_control)：拼接后图像宽
                  //Height (input_control)：拼接后图像高
-                 TileImagesOffset(ho_ObjectsConcat[i], &ho_TiledImage[i], (HTuple(0).Append(200)), (HTuple(0).Append(0)),
-                     (HTuple(-1).Append(-1)), (HTuple(-1).Append(-1)), (HTuple(-1).Append(-1)),
-                     (HTuple(-1).Append(-1)), ImageWidth1, ImageHeight+200);
+                 TileImagesOffset(ho_ObjectsConcat[i],
+                                  &ho_TiledImage[i],
+                                  (HTuple(0).Append(200)),
+                                  (HTuple(0).Append(0)),
+                                  (HTuple(-1).Append(-1)),
+                                  (HTuple(-1).Append(-1)),
+                                  (HTuple(-1).Append(-1)),
+                                  (HTuple(-1).Append(-1)),
+                                  ImageWidth1,
+                                  ImageHeight+200);
             }
 
 
@@ -466,46 +453,29 @@ try {
                  ConcatObj(ImageTile3, ho_TiledImage[2], &ImageTile3);
                  ConcatObj(ImageTile4, ho_TiledImage[3], &ImageTile4);
 
-        //                                                      WriteImage(ho_TiledImage[0],"jpg",0,"D:/tile11");
-        //                                                      WriteImage(ho_TiledImage[1],"jpg",0,"D:/tile12");
-        //                                                      WriteImage(ho_TiledImage[2],"jpg",0,"D:/tile13");
-        //                                                      WriteImage(ho_TiledImage[3],"jpg",0,"D:/tile14");
-
                  HTuple ImageHeight2;
                  HTuple ImageWidth2;
                  GetImageSize(ho_TiledImage[0], &ImageWidth2, &ImageHeight2);
 
                  qDebug()<<"ImageWidth2"<<ImageWidth2.ToString().Text()<<"ImageHeight2"<<ImageHeight2.ToString().Text();
 
-                 for(int i=0;i<FieldNumber;i++)
-                 {
+                 //清除临时变量
+                 for (int i=0;i<FieldNumber;i++) {
                      GenEmptyObj(&ho_ImagePart[i]);
                      GenEmptyObj(&ho_ObjectsConcat[i]);
                      GenEmptyObj(&ho_TiledImage[i]);
                  }
-         }
-         else
-         {
-                 ConcatObj(ImageTile1, ImagePart[0], &ImageTile1);
-                 ConcatObj(ImageTile2, ImagePart[1], &ImageTile2);
-                 ConcatObj(ImageTile3, ImagePart[2], &ImageTile3);
-                 ConcatObj(ImageTile4, ImagePart[3], &ImageTile4);
+         } else {
+             ConcatObj(ImageTile1, ImagePart[0], &ImageTile1);
+             ConcatObj(ImageTile2, ImagePart[1], &ImageTile2);
+             ConcatObj(ImageTile3, ImagePart[2], &ImageTile3);
+             ConcatObj(ImageTile4, ImagePart[3], &ImageTile4);
          }
         //拼接
-         if (GlassPosition==3)
-         {
+         if (GlassPosition==3) {
              HTuple NumTile;
              CountObj(ImageTile1,&NumTile);
-             if(NumTile>0)
-             {
-//                 Cam1pixs=ImageWidth/2 - TileColumn1;
-//                 Cam1Width=ImageWidth/2;
-//                 Tile2Column1=TileColumn1;
-
-//                 if(Cam1pixs<0)
-//                 {
-//                    Cam1pixs=0;
-//                 }
+             if(NumTile>0) {
                  TileImages(ImageTile1, &ImageTile1R, 1, "vertical");
                  TileImages(ImageTile2, &ImageTile2R, 1, "vertical");
                  TileImages(ImageTile3, &ImageTile3R, 1, "vertical");
@@ -515,8 +485,7 @@ try {
                  log_singleton::Write_Log(info, Log_Level::General);
                  HTuple isSaveWholeImage;
                  GetDictTuple(UserDefinedDict,"保存整图",&isSaveWholeImage);
-                 if(isSaveWholeImage==1)
-                 {
+                 if (isSaveWholeImage==1) {
                      WriteImage(ImageTile1R,"jpg",0,"D:/tile1");
                      WriteImage(ImageTile2R,"jpg",0,"D:/tile2");
                      WriteImage(ImageTile3R,"jpg",0,"D:/tile3");
@@ -528,9 +497,7 @@ try {
                  GenEmptyObj(&ImageTile4);
              }
            }
-        }
-        else
-        {
+        } else {
           ImageTile1R = ImagePart[0];
           ImageTile2R = ImagePart[1];
           ImageTile3R = ImagePart[2];
@@ -540,19 +507,24 @@ try {
            //判断玻璃尾端
            qDebug() << "lastGlassPosition :" << lastGlassPosition;
            qDebug() << "GlassPosition :" << GlassPosition;
-           if(GlassPosition==3 && (lastGlassPosition==2 || lastGlassPosition==1))
-           {
+           if(GlassPosition==3 && (lastGlassPosition==2 || lastGlassPosition==1)) {
                 HObject ObjectsConcat[3];
                //玻璃尾部，拼接上张图像尾部1000行
-               for(int i=0;i<FieldNumber-1;i++)
-               {
+               for (int i=0; i<FieldNumber-1; i++) {
                    HTuple ImageHeight1;
                    HTuple ImageWidth1;
-                  GetImageSize(ImagePart[0], &ImageWidth1, &ImageHeight1);
-                  ConcatObj(ImageCrop[i], ImagePart[i], &ObjectsConcat[i]);
-                  TileImagesOffset(ObjectsConcat[i], &ImagePart[i], (HTuple(0).Append(1000)), (HTuple(0).Append(0)),
-                      (HTuple(-1).Append(-1)), (HTuple(-1).Append(-1)), (HTuple(-1).Append(-1)),
-                      (HTuple(-1).Append(-1)), ImageWidth1, ImageHeight1+1000);
+                   GetImageSize(ImagePart[0], &ImageWidth1, &ImageHeight1);
+                   ConcatObj(ImageCrop[i], ImagePart[i], &ObjectsConcat[i]);
+                   TileImagesOffset(ObjectsConcat[i],
+                                    &ImagePart[i],
+                                    (HTuple(0).Append(1000)),
+                                    (HTuple(0).Append(0)),
+                                    (HTuple(-1).Append(-1)),
+                                    (HTuple(-1).Append(-1)),
+                                    (HTuple(-1).Append(-1)),
+                                    (HTuple(-1).Append(-1)),
+                                    ImageWidth1,
+                                    ImageHeight1+1000);
                }
                HObject RegionsFrameMoved;
                MoveRegion(RegionFrame,&RegionsFrameMoved,1000,0);
@@ -560,57 +532,49 @@ try {
                RegionsFrameMoved.Clear();
                RegionsFrameCrop.Clear();
                ObjectsConcat->Clear();
-           }
-           else
-           {
-               if(GlassPosition==1 || GlassPosition==2)
-               {
-                   if(ImageHeight>1000)
-                   {
+           } else {
+               if (GlassPosition==1 || GlassPosition==2) {
+                   if (ImageHeight>1000) {
                        //截取图像尾部1000行
                        HObject CropRectangle,ImageCropRecReduced[3];
                        GenRectangle1(&CropRectangle, ImageHeight -1 -1000, TileColumn1,ImageHeight - 1 , TileColumn2);
-                       for(int i=0;i<FieldNumber-1;i++)
-                       {
-                        ReduceDomain(mosaickthread[i].MosaickResultImage, CropRectangle, &ImageCropRecReduced[i]);
-                        CropDomain(ImageCropRecReduced[i], &ImageCrop[i]);
-                        ImageCropRecReduced[i].Clear();
+                       for (int i=0;i<FieldNumber-1;i++) {
+                           ReduceDomain(mosaickthread[i].MosaickResultImage, CropRectangle, &ImageCropRecReduced[i]);
+                           CropDomain(ImageCropRecReduced[i], &ImageCrop[i]);
+                           ImageCropRecReduced[i].Clear();
                        }
-                        CropRectangle.Clear();
-                        //截取Region尾部1000行
-                        HTuple Row1Frame,Column1Frame,Row2Frame,Column2Frame,FrameRowVal;
-                        HObject RegionLinesFrame,RegionDifferenceFrame,ConnectedRegionsFrame,SelectedRegionsFrame;
+                       CropRectangle.Clear();
+                       //截取Region尾部1000行
+                       HTuple Row1Frame,Column1Frame,Row2Frame,Column2Frame,FrameRowVal;
+                       HObject RegionLinesFrame,RegionDifferenceFrame,ConnectedRegionsFrame,SelectedRegionsFrame;
 
-                        SmallestRectangle1(RegionFrame,&Row1Frame, &Column1Frame, &Row2Frame,&Column2Frame);
-                        GenRegionLine(&RegionLinesFrame, Row2Frame-1000, Column1Frame-100, Row2Frame-1000, Column2Frame+100);
-                        Difference(RegionFrame,RegionLinesFrame,&RegionDifferenceFrame);
-                        Connection(RegionDifferenceFrame,&ConnectedRegionsFrame);
-                        SelectShape(ConnectedRegionsFrame,&SelectedRegionsFrame, "row","and",Row2Frame-1000,Row2Frame);
-                        //获取SelectedRegionsFrame区域左上角行坐标
-                        RegionFeatures(SelectedRegionsFrame,"row1",&FrameRowVal);
-                        MoveRegion(SelectedRegionsFrame,&RegionsFrameCrop,-FrameRowVal,0);
-                        RegionLinesFrame.Clear();
-                        RegionDifferenceFrame.Clear();
-                        ConnectedRegionsFrame.Clear();
-                        SelectedRegionsFrame.Clear();
-                   }
-                   else
-                   {
+                       SmallestRectangle1(RegionFrame,&Row1Frame, &Column1Frame, &Row2Frame,&Column2Frame);
+                       GenRegionLine(&RegionLinesFrame, Row2Frame-1000, Column1Frame-100, Row2Frame-1000, Column2Frame+100);
+                       Difference(RegionFrame,RegionLinesFrame,&RegionDifferenceFrame);
+                       Connection(RegionDifferenceFrame,&ConnectedRegionsFrame);
+                       SelectShape(ConnectedRegionsFrame,&SelectedRegionsFrame, "row","and",Row2Frame-1000,Row2Frame);
+                       //获取SelectedRegionsFrame区域左上角行坐标
+                       RegionFeatures(SelectedRegionsFrame,"row1",&FrameRowVal);
+                       MoveRegion(SelectedRegionsFrame,&RegionsFrameCrop,-FrameRowVal,0);
+                       RegionLinesFrame.Clear();
+                       RegionDifferenceFrame.Clear();
+                       ConnectedRegionsFrame.Clear();
+                       SelectedRegionsFrame.Clear();
+                   } else {
                        QString info="拼图步骤"+ QString::number(FrameCount) + "图像高度小于1000！";
                        log_singleton::Write_Log(info, Log_Level::General);
                    }
                }
            }
-           lastGlassPosition=GlassPosition;
+           lastGlassPosition = GlassPosition;
            //**************************************玻璃位置判断和截取区域提取end**********************************************************
 
 
-//**************************************************************************存图****************************************************************************
+           //*****************************************存图****************************************************************************
 
            HTuple isSaveCropImage;
            GetDictTuple(UserDefinedDict,"保存裁剪图像",&isSaveCropImage);
-           if(isSaveCropImage==1)
-           {
+           if(isSaveCropImage==1) {
                HTuple b= FrameCount;
                WriteImage(ImagePart[0], "jpg", 0, "D:/QQQ1"+b);
                WriteImage(ImagePart[1], "jpg", 0, "D:/QQQ2"+b);
@@ -643,26 +607,23 @@ try {
                                 imageunit = {};
                                 QString info="拼图步骤"+ QString::number(FrameCount) + "完成！";
                                 log_singleton::Write_Log(info, Log_Level::General);
-      }
-      else
-      {
+      } else {
           QString info="拼图步骤"+ QString::number(FrameCount) + "无玻璃！";
           log_singleton::Write_Log(info, Log_Level::General);
       }
-      for(int i=0;i<FieldNumber;i++)
-      {
+      for(int i=0;i<FieldNumber;i++) {
         mosaickthread[i].MosaickResultImage.Clear();
       }
       SubImage1.Clear();
-              SubRegion1.Clear();
-              RegionUnion1.Clear();
-              RegionFillUp1.Clear();
-              RegionOpening1.Clear();
-              ConnectedRegions1.Clear();
-              SelectedRegions1.Clear();
+      SubRegion1.Clear();
+      RegionUnion1.Clear();
+      RegionFillUp1.Clear();
+      RegionOpening1.Clear();
+      ConnectedRegions1.Clear();
+      SelectedRegions1.Clear();
       RegionLines.Clear();
-              RegionLines1.Clear();
-              RegionLines2.Clear();
+      RegionLines1.Clear();
+      RegionLines2.Clear();
       RegionFLPanel.Clear();
       RegionOpeningFL.Clear();
       RegionClosingFL.Clear();
@@ -673,39 +634,37 @@ try {
       RegionConnectionPanel.Clear();
       RegionPanel.Clear();
       TileRectangle.Clear();
-     } catch (HalconCpp::HException& Except) {
-         qDebug() << "HalconHalconErr:" << Except.ErrorMessage().Text();
-         qDebug() << "拼图步骤:" << QString::number(FrameCount) + "异常！";
-         imageunit.ProcessStep = FrameCount;
-         imageunit.GlassPositionInf=101;
-         ErrFlag=true;
-         imageunit.ErrorFlag=ErrFlag;
-         GenEmptyObj(&imageunit.ImageList);
-         GenEmptyObj(&imageunit.ImageRegion);
-         GenEmptyObj(&imageunit.FrameRegion);
-         ImageQueue.enqueue(imageunit);
-         imageunit = {};
-         ImageTile1.Clear();
-         ImageTile2.Clear();
-         ImageTile3.Clear();
-         ImageTile4.Clear();
-         for(int i=0;i<FieldNumber;i++)
-         {
-           mosaickthread[i].MosaickResultImage.Clear();
-         }
-         QString info="拼图步骤"+ QString::number(FrameCount) + "异常";
-         log_singleton::Write_Log(info, Log_Level::General);
- }
-
-
+    } catch (HalconCpp::HException& Except) {
+        qDebug() << "HalconHalconErr:" << Except.ErrorMessage().Text();
+        qDebug() << "拼图步骤:" << QString::number(FrameCount) + "异常！";
+        imageunit.ProcessStep = FrameCount;
+        imageunit.GlassPositionInf=101;
+        ErrFlag=true;
+        imageunit.ErrorFlag=ErrFlag;
+        GenEmptyObj(&imageunit.ImageList);
+        GenEmptyObj(&imageunit.ImageRegion);
+        GenEmptyObj(&imageunit.FrameRegion);
+        ImageQueue.enqueue(imageunit);
+        imageunit = {};
+        ImageTile1.Clear();
+        ImageTile2.Clear();
+        ImageTile3.Clear();
+        ImageTile4.Clear();
+        for (int i=0;i<FieldNumber;i++) {
+            mosaickthread[i].MosaickResultImage.Clear();
+        }
+        QString info="拼图步骤"+ QString::number(FrameCount) + "异常";
+        log_singleton::Write_Log(info, Log_Level::General);
+    }
 }
 
 // 离线模式调用的函数
 void ProcessTile::OfflineTileImageProcess(QString fullpath)
 {
+    qDebug()<<__FUNCTION__;
     //定义了四个 QString 类型的变量，用于存储各图像的完整路径
     QString tile1Fullpath,tile2Fullpath,tile3Fullpath,tile4Fullpath;
-    if (Global::isJpg) {
+    if (PARAM.getIsJpg()) {
         tile1Fullpath = fullpath + QString("/tile1.jpg");
         tile2Fullpath = fullpath + QString("/tile2.jpg");
         tile3Fullpath = fullpath + QString("/tile3.jpg");
@@ -735,7 +694,7 @@ void ProcessTile::OfflineTileImageProcess(QString fullpath)
 
         //GetDictTuple: Halcon算子，从字典中检索与键关联的元组
         //控制输入参数1：字典句柄；控制输入参数2：键字符串；控制输出参数：从字典中检索的元组值。
-        GetDictTuple(Global::RecipeDict,"自定义参数",&UserDefinedDict);
+        GetDictTuple(PARAM.getRecipeDict(),"自定义参数",&UserDefinedDict);
         ProcessTile::PreProceeTile();
     } else {
         qDebug() << tile1Fullpath << tile2Fullpath << tile3Fullpath << tile4Fullpath << " is not exists()";

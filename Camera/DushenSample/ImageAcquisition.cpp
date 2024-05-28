@@ -1,7 +1,7 @@
 ﻿#include "ImageAcquisition.h"
 #include "DVPCamera.h"
 #include "Global.h"
-//#include "log_singleton.h"
+
 #pragma execution_character_set("utf-8")
 QImageAcquisition::QImageAcquisition(dvpHandle& handle, QObject* parent, int FieldCount)
     : QObject(parent)
@@ -65,14 +65,14 @@ void QImageAcquisition::slotGrabFrames()
     if (status == DVP_STATUS_OK) {
         try {
             if (m_threadMutex.tryLock()) {
-                if (Global::FrameSignal == 1) {//拼图完成帧信号会置1，控制器进行拍照也会置1，问题：哪个会影响到判断？？？
+                if (PARAM.getFrameSignal() == 1) {//拼图完成帧信号会置1，控制器进行拍照也会置1，问题：哪个会影响到判断？？？
                     imageunit.FrameCount = 1;
                 } else {
                     imageunit.FrameCount++;
                 }
                 qDebug() << "FrameCount = " << imageunit.FrameCount;
                 strFrameCount = imageunit.FrameCount;
-                int m_FramesPerTri = int(Global::FramesPerTri);//相机的帧次
+                int m_FramesPerTri = int(PARAM.getFramesPerTri());//相机的帧次
 
                 if (strFrameCount % m_FramesPerTri == 0) { //输出完成的帧次
                     qDebug() << "strFrameCount = " << strFrameCount;
@@ -132,12 +132,12 @@ void QImageAcquisition::slotGrabFrames()
                         //
                         // 相机界面显示小图
                         //
-                        if(Global::FieldSelectedView[0] > 0 && Global::FieldSelectedView[0] <= Global::FieldNumberSet) {
-                            PicvViewSelect = Global::FieldSelectedView[0] - 1;
+                        if(PARAM.getFieldSelectedView()[0] > 0 && PARAM.getFieldSelectedView()[0] <= PARAM.getFieldNumberSet()) {
+                            PicvViewSelect = PARAM.getFieldSelectedView()[0] - 1;
                         }
                         if (lightnum4 == PicvViewSelect) {
                             m_ShowImage1 = QImage((uchar*)Dest_Buffer[lightnum4], FrameWidth, FrameHeight, QImage::Format_RGB888);
-                            m_ShowImage1 = m_ShowImage1.rgbSwapped();
+                            m_ShowImage1 = m_ShowImage1.convertToFormat(QImage::Format_ARGB32).rgbSwapped();
                             m_ShowImage = m_ShowImage1.copy();
                         }
                         HObject image;
@@ -189,9 +189,9 @@ void QImageAcquisition::slotGrabFrames()
                     int PicvViewSelect = 0;
                     for (int lightnum4 = 0; lightnum4 < m_FieldCount; lightnum4++) {
 
-                        if(Global::FieldSelectedView[0]>0 && Global::FieldSelectedView[0]<=Global::FieldNumberSet)
+                        if(PARAM.getFieldSelectedView()[0]>0 && PARAM.getFieldSelectedView()[0]<=PARAM.getFieldNumberSet())
                         {
-                            PicvViewSelect=Global::FieldSelectedView[0]-1;
+                            PicvViewSelect = PARAM.getFieldSelectedView()[0]-1;
                         }
                         if (lightnum4 == PicvViewSelect) {
                             m_ShowImage1 = QImage((uchar*)Dest_Buffer[lightnum4], FrameWidth, FrameHeight, QImage::Format_Grayscale8);
@@ -229,9 +229,9 @@ void QImageAcquisition::slotGrabFrames()
             }
             emit signalDisplay();
 
-            } catch (EXCEPINFO e)
-            {
-            qDebug()<<"多场分离报错！";
+            } catch (EXCEPINFO e){
+                qDebug()<<"多场分离报错！";
             }
+
     } // if (status == DVP_STATUS_OK)
 }

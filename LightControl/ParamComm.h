@@ -28,7 +28,7 @@ typedef struct _SC_PackHead
     unsigned short custom2;   //自定义2
     unsigned short custom3;   //自定义3
     unsigned short custom4;   //自定义4
-    unsigned int  dataLength;//数据长度
+    unsigned int  dataLength; //数据长度
 }SC_PackHead;
 
 const int RECV_BUF_LENGTH = 2048;

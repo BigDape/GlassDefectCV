@@ -32,7 +32,7 @@ MainWindow::MainWindow(QWidget* parent)
     //
     setWindowFlags(Qt::FramelessWindowHint | Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint);
     // 获取配置文件
-    QString RecipePath = "Recipes/" + Global::CurrentRecipe + ".json";
+    QString RecipePath = "Recipes/" + PARAM.getCurrentRecipe() + ".json";
     JsonRecipe = new JsonParse2Map(RecipePath);
     //
     // 初始化相关参数
@@ -263,8 +263,8 @@ void MainWindow::initLayout()
 void MainWindow::initSignalPlatform()
 {
     sig_comm = new RegParasComm();
-    sig_comm->InitSock(Global::serverIp.toStdString().c_str(), Global::RegParaPort);
-    qDebug() << "链接：" << Global::serverIp.toStdString().c_str() << Global::RegParaPort;
+    sig_comm->InitSock(PARAM.getServerIp().toStdString().c_str(), PARAM.getRegParaPort());
+    qDebug() << "链接：" << PARAM.getServerIp().toStdString().c_str() << PARAM.getRegParaPort();
     sig_comm->ConnectToServer();
 }
 
@@ -349,7 +349,7 @@ void MainWindow::Create_CameraShow()
     Dock_CameraShow->setObjectName("CameraShow");
     Dock_CameraShow->setWindowTitle("相机");
     Dock_CameraShow->setAllowedAreas(Qt::AllDockWidgetAreas);
-    Camera_widget = new CamerasWidget(Dock_CameraShow, Cameras, Global::camDefineNum);
+    Camera_widget = new CamerasWidget(Dock_CameraShow, Cameras, PARAM.getCamDefineNum());
     Dock_CameraShow->setWidget(Camera_widget);
     Dock_CameraShow->setFeatures(QDockWidget::DockWidgetFloatable);
     connect(this, &MainWindow::sig_StartButton2CameraStart, Camera_widget, &CamerasWidget::slot_CameraStart);
@@ -358,7 +358,7 @@ void MainWindow::Create_CameraShow()
 
 void MainWindow::initCamera()
 {
-    for(int i=0; i<Global::camDefineNum; i++){
+    for(int i=0; i<PARAM.getCamDefineNum(); i++){
         Cameras.append(new DushenBasicFunc(this,i,JsonRecipe));
     }
 }
@@ -393,11 +393,13 @@ void MainWindow::slot_ActionStart()
         m_pStop->setEnabled(true);
         m_pExit->setEnabled(false);
         m_pSettings->setEnabled(false);
-        QString CurrentRecipeNameLog = "获得当前工单: " + Global::CurrentRecipe;
-        QString SystemNameLog = "获得当前项目名: " + Global::SystemName;
-        QString RecipePath = "Recipes/" + Global::CurrentRecipe + ".json";
+        QString CurrentRecipeNameLog = "获得当前工单: " + PARAM.getCurrentRecipe();
+        QString SystemNameLog = "获得当前项目名: " + PARAM.getSystemName();
+        QString RecipePath = "Recipes/" + PARAM.getCurrentRecipe() + ".json";
         JsonParse2Map *JsonRecipe = new JsonParse2Map(RecipePath);
-        JsonRecipe->getParameter("相机0.帧次",Global::FramesPerTri);
+        uint frampertri = 0;
+        JsonRecipe->getParameter("相机0.帧次",frampertri);
+        PARAM.setFramesPerTri(frampertri);
         SignalControlThread->start();
     }
 }
@@ -458,8 +460,8 @@ void MainWindow::slot_ChangeRecipe(QString RecipeName)
     QString NewFilepath = "Recipes/" + RecipeName + ".json";
     JsonRecipe->ChangeParams(NewFilepath);
     log_singleton::Write_Log("新工单已被选择", Log_Level::General);
-    Global::CurrentRecipe = RecipeName;
-    Global::SaveXml();
+    PARAM.setCurrentRecipe(RecipeName);
+    PARAM.SaveXml();
     emit sig_DeliverNewRecipe(JsonRecipe);
     emit sig_FlawWidgetChange();
 
@@ -538,19 +540,20 @@ void MainWindow::slot_Offline()
           _offlineSelectedDir = _offlineSelectedDir.replace(QRegExp("\\"), "/");
           qDebug()<<"_selectedDir =" <<_offlineSelectedDir;
           QDir dir(_offlineSelectedDir);
-          QFileInfoList fileList = dir.entryInfoList(QStringList() << "*.jpg");
+          QFileInfoList fileList = dir.entryInfoList(QStringList() << "*");
           bool isJpg = false;
           //遍历容器
           for(auto fileInfo:fileList) {
-             //输出文件名包含后缀
-             qDebug() << fileInfo.fileName();
-             //输出文件的完整路径名
-             qDebug() << fileInfo.absoluteFilePath();
-             isJpg = true;
+             qDebug() << fileInfo.absoluteFilePath();//输出文件的完整路径名
+             if ( fileInfo.suffix() == "jpg")
+                isJpg = true;
+             else
+                isJpg = false;
           }
-          Global::isJpg = isJpg;  //是不是jpg后缀
-          Global::offlineFullPath = _offlineSelectedDir;
-          Global::isOffline = true; //等待处理线程触发
+          qDebug()<<"isJpg =" << isJpg;
+          PARAM.setIsJpg(isJpg);  //是不是jpg后缀
+          PARAM.setOfflineFullPath(_offlineSelectedDir);
+          PARAM.setIsOffline(true); //等待处理线程触发
       }
    } catch(...) {
       qDebug()<<"slot_ButtonExportClicked() error";

@@ -8,7 +8,6 @@
 #ifndef JSONRECIPEWIDGET_H
 #define JSONRECIPEWIDGET_H
 
-//#include "Parameter/JsonParse.h"
 #include "Parameter/JsonParse2Map.h"
 #include <QComboBox>
 #include <QDateTime>
@@ -18,19 +17,19 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QTreeWidget>
-#include<QTextStream>
+#include <QTextStream>
 #include <QTreeWidgetItem>
 #include <QTreeWidgetItemIterator>
 #include <QVBoxLayout>
 #include <QWidget>
-#include<QInputDialog>
-#include<QSettings>
-#include<QCoreApplication>
-#include<QFile>
+#include <QInputDialog>
+#include <QSettings>
+#include <QCoreApplication>
+#include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include<QTextCodec>
-#include<QMessageBox>
+#include <QTextCodec>
+#include <QMessageBox>
 #include "HalconCpp.h"
 using namespace HalconCpp;
 
@@ -42,10 +41,11 @@ class JsonRecipeWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit JsonRecipeWidget(QWidget* parent = nullptr, JsonParse2Map* Recipe = nullptr,QString name="");
+    explicit JsonRecipeWidget(QWidget* parent = nullptr,
+                              JsonParse2Map* Recipe = nullptr,
+                              QString name="");
     ~JsonRecipeWidget();
 
-    //    JsonParse* CurrentRecipe;
     JsonParse2Map* CurrentRecipe;
 
 private:
@@ -54,20 +54,18 @@ private:
     void InitTreeWidget();
     void InitRecipesInFiles();
     void InitWidgetLayout();
-
     void InitTickData(QString name);
 
-
     //窗口控件
-    QPushButton* btn_Save;
-    QPushButton* btn_Read;
-    QPushButton* btn_SelectRecipe;
-    QPushButton* btn_NewRecipe;
-    QPushButton* btn_DeleteRecipe;
-    QPushButton* btn_NewParam;
-    QPushButton* btn_DeleteSingleParam;
-    QPushButton* btn_CreateSon;
-    QPushButton* btn_DeleteTicket;
+    QPushButton* btn_Save;               // 保存
+    QPushButton* btn_Read;               // 读取
+    QPushButton* btn_SelectRecipe;       // 选择
+    QPushButton* btn_NewRecipe;          // 新建工单
+    QPushButton* btn_DeleteRecipe;       // 删除
+    QPushButton* btn_NewParam;           // 新建参数
+    QPushButton* btn_DeleteSingleParam;  // 删除元素
+    QPushButton* btn_CreateSon;          // 创建子项名称
+    QPushButton* btn_DeleteTicket;       // 删除工单
 
     QComboBox* cbx_RecipeSelect;
     QLabel* lbl_OperationResult;

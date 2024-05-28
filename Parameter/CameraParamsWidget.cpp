@@ -5,7 +5,6 @@
 CameraParamsWidget::CameraParamsWidget(QWidget* parent, JsonParse2Map* RecipeParse)
     : QWidget(parent)
 {
-    //    CurrentRecipe = RecipeParse;
     Recipe = RecipeParse;
     InitWidgetLayout();
     InitTreeWidget();

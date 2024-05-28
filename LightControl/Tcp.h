@@ -20,8 +20,7 @@ public:
     bool WriteData(const QByteArray& data);
     void InitSock(const char* IP, int port);
     void SetAutoConnect(bool bAuto) { m_bAutoReConnect = bAuto; }
-    bool IsOpen()
-    {
+    bool IsOpen() {
         if (!m_pSock)
             return false;
         return m_bConnFlag;

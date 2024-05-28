@@ -11,7 +11,6 @@ MainForm::MainForm(QWidget* parent)
     vbox = new QVBoxLayout();
     setLayout(vbox);
     log_singleton::CreateWidget0();
-    Global::InitGlobalParam();
     title_bar = new TitleBar(this);
     main_window = new MainWindow(this);
 
@@ -33,7 +32,7 @@ MainForm::MainForm(QWidget* parent)
     vbox->addWidget(title_bar);
     vbox->addWidget(main_window);
 
-    //QWidget::showFullScreen();
+    QWidget::showFullScreen();//展开全屏
 }
 
 MainForm::~MainForm()
@@ -43,6 +42,5 @@ MainForm::~MainForm()
 
 void MainForm::slot_tt()
 {
-    QString recipeName=Global::CurrentRecipe;
-    m_CurrentRecipeLabel->setText("当前配方："+recipeName);
+    m_CurrentRecipeLabel->setText("当前配方："+PARAM.getCurrentRecipe());
 }

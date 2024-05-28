@@ -112,15 +112,14 @@ void Process_Detect::VisionProcess()
             case 0:
                 if (ProcessTile::ImageQueue.size() != 0) {
                     //recipe切换
-                    if(Global::RecChangeSignal)
-                    {
+                    if(PARAM.getRecChangeSignal()) {
                        LastProcessStep = 0;
-                       Global::RecChangeSignal=false;
+                       PARAM.setRecChangeSignal(false);
                     }
 
                     qDebug() << "start1 :" << QDateTime::currentDateTime().toString("HH:mm:ss.zzz");
 
-                    GetDictTuple(Global::RecipeDict,"编码器参数",&Code);
+                    GetDictTuple(PARAM.getRecipeDict(),"编码器参数",&Code);
 
                     GetDictTuple(Code,"编码器单位刻度对应距离",&CodePerScale);
 //                  ReadDict("D:/HalconFunction/DuMo3.2.hdict", HTuple(), HTuple(), &RecipeDict);
@@ -133,21 +132,19 @@ void Process_Detect::VisionProcess()
             case 10:
                 ProcessStep = ProcessTile::ImageQueue.head().ProcessStep;
                 GlassPosition=ProcessTile::ImageQueue.head().GlassPositionInf;
-                m_FramesPerTri=Global::FramesPerTri;
+                m_FramesPerTri = PARAM.getFramesPerTri();
                 HTuple UserDefinedDict;
-                GetDictTuple(Global::RecipeDict,"自定义参数",&UserDefinedDict);
-                if(ProcessStep==1 || GlassPosition==1 || GlassPosition==0)
-                {                    
+                GetDictTuple(PARAM.getRecipeDict(),"自定义参数",&UserDefinedDict);
+                if (ProcessStep==1 || GlassPosition==1 || GlassPosition==0) {
                     ErrFlag=false;
                     //判断上一片玻璃结果是否输出
-                    if(ResultNotOutFlag)
-                    {
+                    if(ResultNotOutFlag) {
                        // 输出结果
                         SummaryResults();
-                        ResultNotOutFlag=false;
+                        ResultNotOutFlag = false;
                     }
-                    Global::AlmLightSignal=true;
-                    Global::AlmLightVal=0;
+                    PARAM.setAlmLightSignal(true);
+                    PARAM.setAlmLightVal(0);
                 }
                 qDebug() << "ProcessStep :" << ProcessStep;
                 qDebug() << "LastProcessStep :" << LastProcessStep;
@@ -184,7 +181,7 @@ void Process_Detect::VisionProcess()
                                     procedurecall->SetInputCtrlParamTuple("VisionProcessStep", ProcessStep);
                                     procedurecall->SetInputCtrlParamTuple("GlassPositionInf", GlassPosition);
                                     procedurecall->SetInputCtrlParamTuple("YCoordIn", YCoordIn);
-                                    procedurecall->SetInputCtrlParamTuple("DetectDict", Global::RecipeDict);
+                                    procedurecall->SetInputCtrlParamTuple("DetectDict", PARAM.getRecipeDict());
                                     procedurecall->Execute();
                                     SelectObj1.Clear();
                                     SelectObj2.Clear();
@@ -217,7 +214,7 @@ void Process_Detect::VisionProcess()
                                     YValues = procedurecall->GetOutputCtrlParamTuple("Row_y");
                                     qDebug()<<"XValues:"<<XValues.Length();
                                     if ( XValues.Length() == YValues.Length() ) {
-                                        Global::courtourMapXY.clear();
+                                        PARAM.getCourtourMapXY().clear();
                                         for (int ii = 0; ii < XValues.Length(); ii = ii +12) {
                                             QString xx = XValues.TupleSelect(ii).ToString().Text();
                                             QString yy = YValues.TupleSelect(ii).ToString().Text();
@@ -225,7 +222,7 @@ void Process_Detect::VisionProcess()
                                             tour.index = ii;
                                             tour.x = xx;
                                             tour.y = yy;
-                                            Global::courtourMapXY.push_back(tour);
+                                            PARAM.setCourtourMapXY(tour);
                                          }
                                     }
 
@@ -361,7 +358,7 @@ void Process_Detect::VisionProcess()
 
                                      ginfo->GlassWidth=strGlassLength.toDouble();
                                      ginfo->GlassLength=strGlassWidth.toDouble();
-                                     Global::RollerAngle = strGlassAngle.toDouble();
+                                     PARAM.setRollerAngle(strGlassAngle.toDouble());
 
                                      ginfo->GlassID=ResultDataJson->InterParasToQJson(ResultDataJson->ResultData, LastDefectCount, Count, GlassPosition, 0 , true);
                                      qDebug()<<"GlassPosition: "<<GlassPosition;
@@ -371,7 +368,7 @@ void Process_Detect::VisionProcess()
                                     emit sig_Deliver(Points);
                                     emit sig_updateSignalFlaw(ginfo->GlassID);
                                     qDebug()<<"ProcessStep"<<ProcessStep;
-                                    qDebug()<<"m_FramesPerTri"<<Global::FramesPerTri;
+                                    qDebug()<<"m_FramesPerTri"<<PARAM.getFramesPerTri();
                                     emit sig_updateFlaw(ginfo);
                                     QString info="ProcessStep" + QString::number(ProcessStep)  + "算法执行完成！";
                                     log_singleton::Write_Log(info, Log_Level::General);
@@ -394,32 +391,27 @@ void Process_Detect::VisionProcess()
                     }
                    }
 
-                  //尺寸測量+缺陷信息
-                  if (GlassPosition==0 || GlassPosition==3 )
-                  {
-                      HTuple EnableMeasure;
-                      GetDictTuple(UserDefinedDict,"尺寸测量启用",&EnableMeasure);
-                      qDebug() << "EnableMeasure :" << EnableMeasure.ToString().Text();
-                      if(EnableMeasure==1)
-                      {
+                //尺寸測量+缺陷信息
+                if (GlassPosition==0 || GlassPosition==3 ) {
+                    HTuple EnableMeasure;
+                    GetDictTuple(UserDefinedDict,"尺寸测量启用",&EnableMeasure);
+                    qDebug() << "EnableMeasure :" << EnableMeasure.ToString().Text();
+                    if(EnableMeasure==1) {
                           DetectSiYin();
                           HolesData2Json();
                       }
-
                   }
-                  ResultNotOutFlag=true;
-                  Glassinfo();
-                  emit sendData(ginfo);
+                ResultNotOutFlag = true;
+                Glassinfo();
+                emit sendData(ginfo);
 
-                  if (GlassPosition==0 || GlassPosition==3 )
-                  {
-                      SummaryResults();
-                      ResultNotOutFlag=false;
-                  }
-                  ProcessTile::ImageQueue.dequeue();                
-                  DetectStep = 0;
-                  break;
-
+                if (GlassPosition==0 || GlassPosition==3 ) {
+                    SummaryResults();
+                    ResultNotOutFlag=false;
+                }
+                ProcessTile::ImageQueue.dequeue();
+                DetectStep = 0;
+                break;
             }
 
             if(stopFlag_Detect==true)
@@ -435,7 +427,7 @@ void Process_Detect::DetectSiYin()
             procedurecall2->SetInputCtrlParamTuple("Cam1pixs", ProcessTile::Cam1pixs);
             procedurecall2->SetInputCtrlParamTuple("Cam1Width", ProcessTile::Cam1Width);
             procedurecall2->SetInputCtrlParamTuple("Tile2Column1", ProcessTile::Tile2Column1);
-            procedurecall2->SetInputCtrlParamTuple("DetectDict", Global::RecipeDict);
+            procedurecall2->SetInputCtrlParamTuple("DetectDict", PARAM.getRecipeDict());
             procedurecall2->SetInputIconicParamObject("Image1", ProcessTile::ImageTile1R);
             procedurecall2->SetInputIconicParamObject("Image2", ProcessTile::ImageTile2R);
             procedurecall2->SetInputIconicParamObject("Image3", ProcessTile::ImageTile3R);
@@ -478,8 +470,8 @@ void Process_Detect::DetectSiYin()
             GlassLength = 0;
             qDebug() << "HalconHalconErr:" << Except.ErrorMessage().Text();
         }
-        qDebug() << "GlassWidthttttttttttttttt"<<GlassWidth.ToString().Text();
-        qDebug() << "GlassWidthttttttttttttttttt"<<GlassLength.ToString().Text();
+        qDebug() << "GlassWidth"<<GlassWidth.ToString().Text();
+        qDebug() << "GlassWidth"<<GlassLength.ToString().Text();
     } else {
         //无测量结果
     }
@@ -498,97 +490,79 @@ void Process_Detect::slot_updateSortInfo()
     }
 }
 
-//void Process_Detect::slot_ClearDate()
-//{
-//    result->ngNum=0;
-//    result->okNum=0;
-//    result->sorted=0;
-//    result->GlassNum=0;
-//    result->passRate=0;
-//    result->unsorted=0;
-//    result->exceptNum=0;
-//    result->pre_result="OK";
-//    result->sort_result="OK";
-//}
 void Process_Detect::SummaryResults()
-{             
+{
+    //报警灯信号输出
+    if (ginfo->isOK) {
+        Qlist_Result.append(true);
+        PARAM.setAlmLightSignal(true);
+        PARAM.setAlmLightVal(4);
+    } else {
+        Qlist_Result.append(false);
+        PARAM.setAlmLightSignal(true);
+        PARAM.setAlmLightVal(15);
+    }
 
+    //检测结果刷新
+    update_result(ginfo->isOK);
 
-        //报警灯信号输出
-        if(ginfo->isOK)
-        {
-            Qlist_Result.append(true);
-            Global::AlmLightSignal=true;
-            Global::AlmLightVal=4;
-        }
-        else
-        {
-            Qlist_Result.append(false);
-            Global::AlmLightSignal=true;
-            Global::AlmLightVal=15;
-        }
+    qDebug() << result->GlassNum;
+    emit sig_UpdateResultInfo(result);
 
-        //检测结果刷新
-        update_result(ginfo->isOK);
+    //变量清理
+    ErrImage1.Clear();
+    ErrImage2.Clear();
+    ErrImage3.Clear();
+    OutLineImage.Clear();
+    HolesImage.Clear();
+    GenEmptyObj(&ErrImage1);
+    GenEmptyObj(&ErrImage2);
+    GenEmptyObj(&ErrImage3);
+    GenEmptyObj(&OutLineImage);
+    GenEmptyObj(&HolesImage);
+    ResultDict = HTuple();
+    ResultDictHoles = HTuple();
+    GlassWidth = HTuple();
+    GlassLength = HTuple();
+    ErrName = HTuple();
+    ErrType = HTuple();
+    Type = HTuple();
+    HolesOK = HTuple();
+    DistanceHorizontal = HTuple();
+    DistanceVertical = HTuple();
+    HolesWidth = HTuple();
+    HolesHeight = HTuple();
+    DefectLevel = HTuple();
+    ErrX = HTuple();
+    ErrY = HTuple();
+    ErrW = HTuple();
+    ErrL = HTuple();
+    ErrArea = HTuple();
+    ResultDataJson->ResultData.DefectID.clear();
+    ResultDataJson->ResultData.DefectType.clear();
+    ResultDataJson->ResultData.DefectLeve.clear();
 
-        qDebug() << result->GlassNum;
-        emit sig_UpdateResultInfo(result);
-//        emit sig_SignalLight(1);
-        //变量清理
-        ErrImage1.Clear();
-        ErrImage2.Clear();
-        ErrImage3.Clear();
-        OutLineImage.Clear();
-        HolesImage.Clear();
-        GenEmptyObj(&ErrImage1);
-        GenEmptyObj(&ErrImage2);
-        GenEmptyObj(&ErrImage3);
-        GenEmptyObj(&OutLineImage);
-        GenEmptyObj(&HolesImage);
-        ResultDict = HTuple();
-        ResultDictHoles = HTuple();
-        GlassWidth = HTuple();
-        GlassLength = HTuple();
-        ErrName = HTuple();
-        ErrType = HTuple();
-        Type = HTuple();
-        HolesOK = HTuple();
-        DistanceHorizontal = HTuple();
-        DistanceVertical = HTuple();
-        HolesWidth = HTuple();
-        HolesHeight = HTuple();
-        DefectLevel = HTuple();
-        ErrX = HTuple();
-        ErrY = HTuple();
-        ErrW = HTuple();
-        ErrL = HTuple();
-        ErrArea = HTuple();
-        ResultDataJson->ResultData.DefectID.clear();
-        ResultDataJson->ResultData.DefectType.clear();
-        ResultDataJson->ResultData.DefectLeve.clear();
+    ResultDataJson->ResultData.Lenth.clear();
+    ResultDataJson->ResultData.Width.clear();
+    ResultDataJson->ResultData.Area.clear();
+    ResultDataJson->ResultData.X.clear();
+    ResultDataJson->ResultData.Y.clear();
+    ResultDataJson->ResultData.ImageNGPath.clear();
+    ResultDataJson->ResultData.GlassLength.clear();
+    ResultDataJson->ResultData.GlassWidth.clear();
 
-        ResultDataJson->ResultData.Lenth.clear();
-        ResultDataJson->ResultData.Width.clear();
-        ResultDataJson->ResultData.Area.clear();
-        ResultDataJson->ResultData.X.clear();
-        ResultDataJson->ResultData.Y.clear();
-        ResultDataJson->ResultData.ImageNGPath.clear();
-        ResultDataJson->ResultData.GlassLength.clear();
-        ResultDataJson->ResultData.GlassWidth.clear();
-
-        ResultDataJson->ResultData.Type.clear();
-        ResultDataJson->ResultData.HolesLeve.clear();
-        ResultDataJson->ResultData.HolesWidth.clear();
-        ResultDataJson->ResultData.HolesHeight.clear();
-        ResultDataJson->ResultData.DistanceVertical.clear();
-        ResultDataJson->ResultData.DistanceHorizontal.clear();
-        ResultDataJson->ResultData.ImageHolesLinePath.clear();
-        ResultDataJson->ResultData.ImageHolesPath.clear();
-          // 发送数据
-        Points->clear();
-        QString info="玻璃ID" + ginfo->GlassID  + "算法执行完成！";
-
-        log_singleton::Write_Log(info, Log_Level::General);
+    ResultDataJson->ResultData.Type.clear();
+    ResultDataJson->ResultData.HolesLeve.clear();
+    ResultDataJson->ResultData.HolesWidth.clear();
+    ResultDataJson->ResultData.HolesHeight.clear();
+    ResultDataJson->ResultData.DistanceVertical.clear();
+    ResultDataJson->ResultData.DistanceHorizontal.clear();
+    ResultDataJson->ResultData.ImageHolesLinePath.clear();
+    ResultDataJson->ResultData.ImageHolesPath.clear();
+    // 发送数据
+    Points->clear();
+    QString info="玻璃ID" + ginfo->GlassID  + "算法执行完成！";
+    log_singleton::Write_Log(info, Log_Level::General);
 }
 
 void Process_Detect::DetectData2Json()

@@ -1,9 +1,10 @@
 #include "ParamComm.h"
 #pragma execution_character_set("utf-8")
 
-ParamComm::ParamComm() : TcpPackComm(BUFFERSIZE_MAX, BUFFERSIZE_MAX, 0)
-    , m_recvLen_t(0)
-    , m_nAlysOffset(0)
+ParamComm::ParamComm() :
+    TcpPackComm(BUFFERSIZE_MAX, BUFFERSIZE_MAX, 0),
+    m_recvLen_t(0),
+    m_nAlysOffset(0)
 {
     memset(m_recvBuf_t, 0, sizeof(m_recvBuf_t));
     memset(m_pAlysBuf, 0, sizeof(m_pAlysBuf)); //接收缓存
@@ -21,14 +22,12 @@ int ParamComm::WriteCommand(const char *send_data, int send_len, char * recv_dat
 
     m_lockOp.lock();
 
-    if (!WriteData(send_data, send_len))
-    {
+    if (!WriteData(send_data, send_len)) {
         m_lockOp.unlock();
         return -1;
     }
 
-    if ( GetAndAnalyseData(recv_data, recv_len) < 0)
-    {
+    if ( GetAndAnalyseData(recv_data, recv_len) < 0) {
         m_lockOp.unlock();
         return -2;
     }
@@ -58,38 +57,29 @@ int ParamComm::ReadRecvBuf(char * data, int max_size)
 int ParamComm::GetAndAnalyseData(char * pOutBuf, int& recvLength)
 {
     int nRet = -1;
-
     int l_count = 0;
-    do
-    {
+    do {
         int nRecv = ReadRecvBuf(m_pAlysBuf, RECV_BUF_LENGTH);
-        if (nRecv > 0)
-        {
+        if (nRecv > 0) {
             memcpy(m_pPackBuf+m_nAlysOffset,m_pAlysBuf,nRecv);
             m_nAlysOffset = m_nAlysOffset + nRecv;
 
-            if (m_nAlysOffset >= (int)sizeof(SC_PackHead))
-            {
+            if (m_nAlysOffset >= (int)sizeof(SC_PackHead)) {
                 int indexStart = -1;
-                for (int i = 0; i < m_nAlysOffset-1; ++i)
-                {
-                    if ( (unsigned char)m_pAlysBuf[i] == (unsigned char)HEAD_LABEL_SC_1 && (unsigned char)m_pAlysBuf[i+1] == (unsigned char)HEAD_LABEL_SC_2)
-                    {
+                for (int i = 0; i < m_nAlysOffset-1; ++i){
+                    if ((unsigned char)m_pAlysBuf[i] == (unsigned char)HEAD_LABEL_SC_1 && (unsigned char)m_pAlysBuf[i+1] == (unsigned char)HEAD_LABEL_SC_2) {
                         indexStart = i;
                         break;
                     }
                 }
 
-                if (indexStart < 0)
-                {
+                if (indexStart < 0) {
                     m_nAlysOffset = 0;
                     indexStart = 0;
                     memset(m_pPackBuf, 0, sizeof(m_pPackBuf));
                     QThread::msleep(SlEEP_MSEC);
                     continue;
-                }
-                else if (indexStart > 0)
-                {
+                } else if (indexStart > 0) {
                     m_nAlysOffset -= indexStart;
                     memcpy(m_pPackBuf, m_pPackBuf+indexStart, m_nAlysOffset);
                     indexStart = 0;

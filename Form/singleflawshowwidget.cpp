@@ -278,18 +278,18 @@ void SingleFlawShowWidget::slot_FlawTrack(QTableWidgetItem* item)
           //获取到缺陷的x,y
           y = rowMapXY[row].first;
           x = rowMapXY[row].second;
-         if(Global::m_plot != NULL) {
+         if(PARAM.getPlot() != NULL) {
              double xValue = x.toDouble();
              double yValue = y.toDouble();
-             if ( Global::m_plot != NULL) {
-                 Global::m_plot->detachItems(QwtPlotItem::Rtti_PlotShape);//清理之前追踪图框
+             if ( PARAM.getPlot() != NULL) {
+                 PARAM.getPlot()->detachItems(QwtPlotItem::Rtti_PlotShape);//清理之前追踪图框
                  QwtPlotShapeItem* trackItem = new QwtPlotShapeItem;
                  trackItem->setPen(QPen(Qt::red));
                  QRectF trackRect(xValue-20, yValue-20, 40, 40);
                  trackItem->setRect(trackRect);
-                 trackItem->attach(Global::m_plot);
+                 trackItem->attach(PARAM.getPlot().get());
 
-                 Global::m_plot->replot();
+                 PARAM.getPlot()->replot();
              }
          }
       }

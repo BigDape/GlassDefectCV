@@ -5,32 +5,35 @@
 #include "ui_JsonRecipeWidget.h"
 #include<QDebug>
 #include<QFormLayout>
+#include "HsListener.h"
 #pragma execution_character_set("utf-8")
 
-JsonRecipeWidget::JsonRecipeWidget(QWidget* parent, JsonParse2Map* RecipeParse,QString Ticketname)
+JsonRecipeWidget::JsonRecipeWidget(QWidget* parent,
+                                   JsonParse2Map* RecipeParse,
+                                   QString Ticketname)
     : QWidget(parent)
     , ui(new Ui::JsonRecipeWidget)
 {
     ui->setupUi(this);
     CurrentRecipe = RecipeParse;
     ParamsListName<<"尺寸测量"<<"缺陷检测"<<"自定义参数";
+    tickFileName = "./Recipes/tickets/TicketCamera.json";
 
-
-    tickFileName="./Recipes/tickets/TicketCamera.json";
-
-
-    tickName=Ticketname;
+    tickName = Ticketname;
     InitTickData(tickName);
-
-   // ParamsListName=name;
     InitWidgetLayout();
-    this->setWindowTitle(Global::CurrentRecipe);
+    this->setWindowTitle(PARAM.getCurrentRecipe());
     InitRecipesInFiles();
     InitTreeWidget();
-    connect(TreeWidget, &QTreeWidget::itemDoubleClicked, this,
-        &JsonRecipeWidget::slot_ItemDoubleClicked);
-    connect(TreeWidget, &QTreeWidget::itemClicked, this,
-        &JsonRecipeWidget::slot_ItemSelected);
+    connect(TreeWidget,
+            &QTreeWidget::itemDoubleClicked,
+            this,
+            &JsonRecipeWidget::slot_ItemDoubleClicked);
+
+    connect(TreeWidget,
+            &QTreeWidget::itemClicked,
+            this,
+            &JsonRecipeWidget::slot_ItemSelected);
 }
 
 JsonRecipeWidget::~JsonRecipeWidget() { delete ui; }
@@ -39,53 +42,60 @@ JsonRecipeWidget::~JsonRecipeWidget() { delete ui; }
 
 void JsonRecipeWidget::InitTickData(QString TicketName)//初始化子项数目
 {
+    if (TicketName.isEmpty()) {//检查参数
+        INFOMATION.criticalMessageBox(this,"InitTickData TicketName is emprt");
+        return;
+    }
     QFile file(tickFileName);
     file.open(QIODevice::ReadOnly);
     if (!file.isOpen()) {
-        qDebug() << "Tick文件打开错误";
+        INFOMATION.criticalMessageBox(this,"Tick文件打开错误");
+        return;
     }
     QString jsonString = QString(file.readAll());//json文件的全部内容(qstring)
     file.close();
     QJsonDocument jsonDocument = QJsonDocument::fromJson(jsonString.toUtf8());
     if (jsonDocument.isNull()) {
-        qDebug() << "tickJson文件读取错误";
+        INFOMATION.criticalMessageBox(this,"tickJson文件读取错误");
+        return;
     }
     QJsonObject jsonObj;
-    jsonObj=jsonDocument.object();
-    QStringList jsonlist1=jsonObj.keys();
-    QString a1=jsonObj[TicketName].toString();
-    QStringList a2=a1.split(".",QString::SkipEmptyParts);
-    if(TicketName=="相机"){
-        int numPartToKeep=Global::camDefineNum;
-        if(a2.size()>numPartToKeep){
-            a2=a2.mid(0,numPartToKeep);
+    jsonObj = jsonDocument.object();
+    QStringList jsonlist1 = jsonObj.keys();
+    QString originStr = jsonObj[TicketName].toString();
+    QStringList splitStr = originStr.split(".",QString::SkipEmptyParts);
+    if (TicketName=="相机") {
+        int numPartToKeep = PARAM.getCamDefineNum();
+        if( splitStr.size() > numPartToKeep) {
+            splitStr=splitStr.mid(0,numPartToKeep);
         }
     }
-    ParamsListName=a2;
+    ParamsListName = splitStr;
 }
 
 void JsonRecipeWidget::SaveTicketData()
 {
-    qDebug()<<"aaa";
-    QString b1;
+    QString paramName;
     for(const auto&it:ParamsListName){
-        b1+=it+".";
+        paramName += it+".";
     }
-    qDebug()<<"b1"<<b1;
 
     QFile file(tickFileName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "Failed to open the file.";
+        INFOMATION.criticalMessageBox(this,"Failed to open the file.");
+        return;
     }
     QByteArray jsonData = file.readAll();
     file.close();
     // 解析 JSON 数据
     QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData);
-    if (jsonDoc.isNull() || !jsonDoc.isObject())
-        qDebug() << "Failed to parse JSON document.";
-       // 获取 JSON 对象
+    if (jsonDoc.isNull() || !jsonDoc.isObject()) {
+        INFOMATION.criticalMessageBox(this,"Failed to parse JSON document.");
+        return;
+    }
+    // 获取 JSON 对象
     QJsonObject jsonObj = jsonDoc.object();
-    jsonObj[tickName]=b1;
+    jsonObj[tickName] = paramName;
     jsonDoc=QJsonDocument(jsonObj);
 
     QString jsonstr = jsonDoc.toJson();
@@ -112,7 +122,7 @@ void JsonRecipeWidget::InitTreeWidget()
     TreeWidget->setColumnCount(HlableCnt);
     TreeWidget->setHeaderLabels(HStrList);
     TreeWidget->setColumnWidth(0, 200);
-    for(int i=0;i<ParamsListName.size();i++){
+    for(int i=0;i<ParamsListName.size();i++) {
         QTreeWidgetItem* rootItem=new QTreeWidgetItem(TreeWidget);
         rootItem->setText(0,ParamsListName[i]);
     }
@@ -122,6 +132,7 @@ void JsonRecipeWidget::InitTreeWidget()
     TreeWidget->expandAll();
 }
 
+//找到目录下所有的json格式的工单可以供界面选择
 void JsonRecipeWidget::InitRecipesInFiles()
 {
     cbx_RecipeSelect->clear();
@@ -140,8 +151,7 @@ void JsonRecipeWidget::InitRecipesInFiles()
     foreach (QString FileName, FileNames) {
         cbx_RecipeSelect->addItem(FileName);
     }
-    qDebug()<<"Global::CurrentRecipe"<<Global::CurrentRecipe;
-    int SelectIndex = cbx_RecipeSelect->findText(Global::CurrentRecipe);
+    int SelectIndex = cbx_RecipeSelect->findText(PARAM.getCurrentRecipe());
     cbx_RecipeSelect->setCurrentIndex(SelectIndex);
 }
 
@@ -218,15 +228,16 @@ void JsonRecipeWidget::ReadParamsFromRecipe()
 
 void JsonRecipeWidget::SelectRecipe()
 {
-    if (cbx_RecipeSelect->currentText() == Global::CurrentRecipe) {
+    if (cbx_RecipeSelect->currentText() == PARAM.getCurrentRecipe()) {
         lbl_OperationResult->setText("无需操作");
         return;
     }
-    Global::CurrentRecipe=cbx_RecipeSelect->currentText();
+    PARAM.setCurrentRecipe(cbx_RecipeSelect->currentText());
     this->setWindowTitle(cbx_RecipeSelect->currentText());
     emit sig_DeliverName(cbx_RecipeSelect->currentText());
-    HTuple CurrentRecipeHT=  Global::CurrentRecipe.toUtf8().constData();
-    ReadDict("Recipes/"+ CurrentRecipeHT +".json", HTuple(), HTuple(), &Global::RecipeDict);
+    HTuple CurrentRecipeHT= PARAM.getCurrentRecipe().toUtf8().constData();
+    HTuple recipeDict = PARAM.getRecipeDict();
+    ReadDict("Recipes/"+ CurrentRecipeHT +".json", HTuple(), HTuple(), &recipeDict);
 }
 
 void JsonRecipeWidget::CreateNewRecipe()
@@ -260,7 +271,7 @@ void JsonRecipeWidget::CreateNewRecipe()
         return;
     }
 
-    QString SourceFilePath = "Recipes/" + Global::CurrentRecipe + ".json";
+    QString SourceFilePath = "Recipes/" + PARAM.getCurrentRecipe() + ".json";
     QString DestFilePath = "Recipes/" + InputText + ".json";
 
     log_singleton::Write_Log(SourceFilePath, Log_Level::General);
@@ -280,7 +291,7 @@ void JsonRecipeWidget::CreateNewRecipe()
 
 void JsonRecipeWidget::DeleteRecipe()
 {
-    if (Global::CurrentRecipe != cbx_RecipeSelect->currentText()) {
+    if (PARAM.getCurrentRecipe() != cbx_RecipeSelect->currentText()) {
 
         QString filePath = "Recipes/" + cbx_RecipeSelect->currentText() + ".json"; // 文件路径
         QFile file(filePath);
@@ -300,10 +311,11 @@ void JsonRecipeWidget::DeleteRecipe()
 
 void JsonRecipeWidget::slot_RecipeChanged(JsonParse2Map* m_RecipeChanged)
 {
-    CurrentRecipe = m_RecipeChanged;
-    CurrentRecipe->getParameter("相机0.帧次",Global::FramesPerTri);
-    qDebug()<<"相机0.帧次"<<Global::FramesPerTri;
-    Global::RecChangeSignal=true;
+    uint framesPerTri = 0;
+    m_RecipeChanged->getParameter("相机0.帧次",framesPerTri);
+    PARAM.setFramesPerTri(framesPerTri);
+    qDebug()<<"相机0.帧次"<<PARAM.getFramesPerTri();
+    PARAM.setRecChangeSignal(true);
     //写入参数
     ReadValue2Tree();
     QDateTime currentDateTime = QDateTime::currentDateTime();
@@ -346,7 +358,7 @@ void JsonRecipeWidget::ReadValue2Tree()
 
 void JsonRecipeWidget::SaveValue2tree()
 {
-    if(cbx_RecipeSelect->currentText()!=Global::CurrentRecipe){
+    if(cbx_RecipeSelect->currentText() != PARAM.getCurrentRecipe()){
         qDebug()<<"无法保存，因为当前工单不一致";
         lbl_OperationResult->setText("无法保存，因为当前工单不一致");
         return;
@@ -370,9 +382,10 @@ void JsonRecipeWidget::SaveValue2tree()
     lbl_OperationResult->setText(currentDateTimeString);
     lbl_OperationResult->adjustSize();
 
-    HTuple CurrentRecipeHT=  Global::CurrentRecipe.toUtf8().constData();
-    ReadDict("Recipes/"+ CurrentRecipeHT +".json", HTuple(), HTuple(), &Global::RecipeDict);
-
+    HTuple CurrentRecipeHT= PARAM.getCurrentRecipe().toUtf8().constData();
+    HTuple recipedict;
+    ReadDict("Recipes/"+ CurrentRecipeHT +".json", HTuple(), HTuple(), &recipedict);
+    PARAM.setRecipeDict(recipedict);
 }
 
 void JsonRecipeWidget::GetNewParam()
@@ -477,11 +490,6 @@ void JsonRecipeWidget::DeleteTick()
         msgBox.setDefaultButton(QMessageBox::Cancel);
         int ret=msgBox.exec();
         if(ret==QMessageBox::Ok){
-//            if(ParamsListName.contains(SelectedParent)){
-//                QMessageBox::StandardButton ero;
-//                ero=QMessageBox::critical(this,"错误","当前工单为系统工单，无法删除",QMessageBox::Ok);
-//                return;
-//            }
             QMessageBox::StandardButton reply;
             reply = QMessageBox::warning(this, "警告", "该操作无法撤回，确定要删除工单吗?", QMessageBox::Yes | QMessageBox::No);
             if(reply==QMessageBox::Yes){
@@ -496,26 +504,23 @@ void JsonRecipeWidget::DeleteTick()
                 lbl_OperationResult->setText(currentDateTimeString);
                 lbl_OperationResult->adjustSize();
             }
-        }else if(ret==QMessageBox::Cancel){
+        } else if(ret==QMessageBox::Cancel){
             log_singleton::Write_Log("取消删除子项", Log_Level::General);
-                        lbl_OperationResult->setText("取消删除子项");
-                        lbl_OperationResult->adjustSize();
+            lbl_OperationResult->setText("取消删除子项");
+            lbl_OperationResult->adjustSize();
         }
         return;
     }
 }
 
 
-void JsonRecipeWidget::slot_ItemDoubleClicked(QTreeWidgetItem* item,
-    int column)
+void JsonRecipeWidget::slot_ItemDoubleClicked(QTreeWidgetItem* item, int column)
 {
     if (column == 1) {
         item->setFlags(item->flags() | Qt::ItemIsEditable);
     } else {
         item->setFlags(item->flags() & ~(Qt::ItemIsEditable));
     }
-
-
 }
 
 void JsonRecipeWidget::slot_ItemSelected(QTreeWidgetItem* item, int column)
