@@ -45,7 +45,7 @@
 #define ADDR37 0x01D0
 #define ADDR38 0x00E0//内部产生光电信号
 #define ADDR39 0x00E4
-#define ADDR40 0x00E8
+#define ADDR40 0x00E8 //帧信号为1时执行，为0时结束
 #define ADDR41 0x00EC
 #define ADDR42 0x0078//上位机反馈信号
 #define ADDR43 0x0100

@@ -84,6 +84,8 @@ private slots:
     NO_TCP_SAVE_BUTTON_DECLARE(Camera3Name)
     NO_TCP_SAVE_BUTTON_DECLARE(ServerIP)
     NO_TCP_SAVE_BUTTON_DECLARE(Port)
+    //设置
+
 signals:
 
 private:

@@ -4,7 +4,6 @@
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
-#include "HsListener.h"
 using namespace std;
 
 #pragma execution_character_set("utf-8")

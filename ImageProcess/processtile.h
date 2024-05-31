@@ -19,6 +19,15 @@
 #include <QtDebug>
 using namespace HalconCpp;
 using namespace HDevEngineCpp;
+
+enum GlassPart{
+    UnknowPart = -1,
+    Complete = 0,
+    HeadPart = 1,
+    MidPart = 2,
+    TailPart = 3
+};
+
 class ProcessTile : public QObject {
     Q_OBJECT
     int MosaickNum;
@@ -39,8 +48,8 @@ public:
     int TileStep;
     int FrameCount;
     int framecount;
-    int GlassPosition;
-    int lastGlassPosition;
+    GlassPart GlassPosition;
+    GlassPart lastGlassPosition;
     bool FirstFrame;
     HTuple UserDefinedDict;
 

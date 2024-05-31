@@ -828,12 +828,15 @@ void LightControl::readRecipeToTable(std::string filePath)
 
 void LightControl::initConnect()
 {
+    // 工单
     connect(ui->RecipeCB,SIGNAL(currentIndexChanged(int index)), this,SLOT(void slotUpdateRecipe(int index)));
+    // 全局设置
     connect(ui->AllSet,SIGNAL(clicked()),this,SLOT(slotAllSet()));
     connect(ui->AllSave,SIGNAL(clicked()),this,SLOT(slotAllSave()));
     connect(ui->CreateRecipe, SIGNAL(clicked()),this,SLOT(slotCreateRecipe()));
     connect(ui->CopyRecipe,SIGNAL(clicked()), this, SLOT(slotCopyRecipe()));
     connect(ui->Trigger,SIGNAL(clicked()), this, SLOT(slotTrigger()));
+    // 系统参数界面设置
     connect(ui->SystemNameSetBT,SIGNAL(clicked()), this, SLOT(slotSetBTSystemName()));
     connect(ui->CameraNumSetBT,SIGNAL(clicked()), this, SLOT(slotSetBTCameraNum()));
     connect(ui->Camera0NameSetBT,SIGNAL(clicked()), this, SLOT(slotSetBTCamera0Name()));
@@ -842,10 +845,17 @@ void LightControl::initConnect()
     connect(ui->Camera3NameSetBT,SIGNAL(clicked()), this, SLOT(slotSetBTCamera3Name()));
     connect(ui->ServerIPSetBT,SIGNAL(clicked()), this, SLOT(slotSetBTServerIP()));
     connect(ui->PortSetBT,SIGNAL(clicked()), this, SLOT(slotSetBTPort()));
-
-
-
+    // 系统参数界面保存
     connect(ui->SystemNameSaveBT,SIGNAL(clicked()), this, SLOT(slotSaveBTSystemName()));
+    connect(ui->CameraNumSaveBT,SIGNAL(clicked()), this, SLOT(slotSaveBTCameraNum()));
+    connect(ui->Camera0NameSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamera0Name()));
+    connect(ui->Camera1NameSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamera1Name()));
+    connect(ui->Camera2NameSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamera2Name()));
+    connect(ui->Camera3NameSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamera3Name()));
+    connect(ui->ServerIPSaveBT,SIGNAL(clicked()), this, SLOT(slotSaveBTServerIP()));
+    connect(ui->PortSaveBT,SIGNAL(clicked()), this, SLOT(slotSaveBTPort()));
+    //自定义参数
+    connect(ui->SaveOriginImageSetBT,SIGNAL(clicked()), this, SLOT(slotSetBTSaveOriginImage()));
 
 }
 
@@ -1084,8 +1094,6 @@ void LightControl::slotSetBTPort()
     INFOMATION.informationMessageBox(this,"设置对话框","设置成功");
 }
 
-
-
 void LightControl::slotSaveBTSystemName()
 {
     //设置全局变量
@@ -1102,4 +1110,11 @@ void LightControl::slotSaveBTSystemName()
         ofs.close();
     }
     INFOMATION.informationMessageBox(this,"保存对话框","保存成功");
+}
+
+void LightControl::slotSaveBTCameraNum()
+{
+    // 设置全局变量
+    PARAM.setCameraCounts(ui->CameraNumLE->text().toUInt());
+    //
 }

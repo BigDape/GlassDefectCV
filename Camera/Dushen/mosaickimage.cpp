@@ -98,17 +98,22 @@ void MosaickImage::DoMosaick(QList<HObject> CameraImageList, int channel, HObjec
        qDebug() << "ImageWidth :" << ImageWidth.ToString().Text();
        qDebug() << "ImageHeight :" << ImageHeight.ToString().Text();
        // + PixelDif12
-       QList<HTuple> a1,a2,a3,a4;
+       QList<HTuple> a1,a2,a3,a4;//这四个数组用于裁图重复、偏差的部分
        a1<<101<<100<<100<<100;
        a2<<0<<overlap<<88<<38<<0<<overlapsiyin<<77<<88<<99;
        a3<<ImageWidth-overlap<<ImageWidth-overlap<<ImageWidth-29<<ImageWidth-29<<ImageWidth-overlapsiyin<<ImageWidth-overlapsiyin<<ImageWidth-15<<ImageWidth-15;
        a4<<ImageHeight - 200;
-       if(channel==0) {
-            for(int i=0; i<PARAM.getCamDefineNum();i++)
+       if(channel==0) {//前面照片
+            for(int i=0; i<PARAM.getCamDefineNum();i++) {
+                //被截取的图像、截取到的图像、起始点row,col,宽和高
                 CropPart(CameraImageList[i],&CameraImageList[i],a1[i],a2[i],a3[i],a4[0]);
-        } else {
-            for(int i=0;i<PARAM.getCamDefineNum();i++)
+            }
+
+        } else { //最后一组照片
+            for(int i=0;i<PARAM.getCamDefineNum();i++) {
                 CropPart(CameraImageList[i],&CameraImageList[i],a1[i],a2[i+4],a3[i+4],a4[0]);
+            }
+
         }
         GenEmptyObj(&PrepareImage);
         for (int i = 0; i < PARAM.getCamDefineNum(); i++) {
@@ -116,7 +121,7 @@ void MosaickImage::DoMosaick(QList<HObject> CameraImageList, int channel, HObjec
         }
 
         GenEmptyObj(&FiledImage);
-        TileImages(PrepareImage, &FiledImage, PARAM.getCamDefineNum(), "horizontal"); //对待拼接对象进行拼接操作，拼接结果放在FiledImage中
+        TileImages(PrepareImage, &FiledImage, PARAM.getCamDefineNum(), "horizontal"); //对待拼接对象进行水平拼接操作，拼接结果放在FiledImage中
         a1.clear();
         a2.clear();
         a3.clear();

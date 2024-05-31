@@ -122,9 +122,6 @@ void Process_Detect::VisionProcess()
                     GetDictTuple(PARAM.getRecipeDict(),"编码器参数",&Code);
 
                     GetDictTuple(Code,"编码器单位刻度对应距离",&CodePerScale);
-//                  ReadDict("D:/HalconFunction/DuMo3.2.hdict", HTuple(), HTuple(), &RecipeDict);
-
-
                     qDebug()<<"编码器单位刻度对应距离:"<<CodePerScale.ToString().Text();
                     DetectStep = 10;
                 }
@@ -150,14 +147,11 @@ void Process_Detect::VisionProcess()
                 qDebug() << "LastProcessStep :" << LastProcessStep;
                 HTuple EnableDefect;
                 GetDictTuple(UserDefinedDict,"缺陷检测启用",&EnableDefect);
-                if(EnableDefect==1) {
+                if(EnableDefect == 1) {
                     //图像正常执行算法or输出异常提醒
-                    if(ProcessTile::ImageQueue.head().ImageList.CountObj()>0 && ProcessTile::ImageQueue.head().ErrorFlag==false)
-                    {
+                    if (ProcessTile::ImageQueue.head().ImageList.CountObj()>0 && ProcessTile::ImageQueue.head().ErrorFlag==false) {
                         bool EnableDefect=true;
-                        if(EnableDefect)
-                        {
-
+                        if(EnableDefect) {
                                try {
                                     HObject SelectObj1,SelectObj2,SelectObj3;
                                     SelectObj(ProcessTile::ImageQueue.head().ImageList,&SelectObj1,1);
@@ -169,13 +163,10 @@ void Process_Detect::VisionProcess()
                                     procedurecall->SetInputIconicParamObject("Image3", SelectObj3);
                                     procedurecall->SetInputIconicParamObject("GlassRegion", ProcessTile::ImageQueue.head().ImageRegion);
                                     procedurecall->SetInputIconicParamObject("FrameRegion", ProcessTile::ImageQueue.head().FrameRegion);
-                                    if(GlassPosition==1 || GlassPosition==0)
-                                    {
+                                    if(GlassPosition==1 || GlassPosition==0) {
                                         HTuple a=0;
                                         YCoordIn= a ;
-                                    }
-                                    else
-                                    {
+                                    } else {
                                         YCoordIn= YCoordOut;
                                     }
                                     procedurecall->SetInputCtrlParamTuple("VisionProcessStep", ProcessStep);
@@ -228,8 +219,7 @@ void Process_Detect::VisionProcess()
 
                                     HTuple Count;
                                     CountObj(ErrImage1, &Count);
-                                    if(Count>0)
-                                    {
+                                    if (Count>0) {
                                         QString folderDefectImage = QString("E:/SaveDefectImage");
                                         QDir directory(folderDefectImage);
                                         // 判断存储小图文件夹是否存在
@@ -373,11 +363,11 @@ void Process_Detect::VisionProcess()
                                     QString info="ProcessStep" + QString::number(ProcessStep)  + "算法执行完成！";
                                     log_singleton::Write_Log(info, Log_Level::General);
                                 } catch (HalconCpp::HException& Except) {
-                                        ErrFlag=true;
-                                        qDebug() << "HalconHalconErr:" << Except.ErrorMessage().Text();
-                                        QString info= "算法执行异常！";
-                                        log_singleton::Write_Log(info, Log_Level::General);
-                                        // 处理异常操作
+                                    ErrFlag=true;
+                                    qDebug() << "HalconHalconErr:" << Except.ErrorMessage().Text();
+                                    QString info= "算法执行异常！";
+                                    log_singleton::Write_Log(info, Log_Level::General);
+                                    // 处理异常操作
                                 }
 
                             }
@@ -397,12 +387,12 @@ void Process_Detect::VisionProcess()
                     GetDictTuple(UserDefinedDict,"尺寸测量启用",&EnableMeasure);
                     qDebug() << "EnableMeasure :" << EnableMeasure.ToString().Text();
                     if(EnableMeasure==1) {
-                          DetectSiYin();
-                          HolesData2Json();
+                          Process_Detect::DetectSiYin();
+                          Process_Detect::HolesData2Json();
                       }
                   }
                 ResultNotOutFlag = true;
-                Glassinfo();
+                Process_Detect::Glassinfo();
                 emit sendData(ginfo);
 
                 if (GlassPosition==0 || GlassPosition==3 ) {
@@ -504,7 +494,7 @@ void Process_Detect::SummaryResults()
     }
 
     //检测结果刷新
-    update_result(ginfo->isOK);
+    Process_Detect::update_result(ginfo->isOK);
 
     qDebug() << result->GlassNum;
     emit sig_UpdateResultInfo(result);

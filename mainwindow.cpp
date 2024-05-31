@@ -263,8 +263,8 @@ void MainWindow::initLayout()
 void MainWindow::initSignalPlatform()
 {
     sig_comm = new RegParasComm();
-    sig_comm->InitSock(PARAM.getServerIp().toStdString().c_str(), PARAM.getRegParaPort());
-    qDebug() << "链接：" << PARAM.getServerIp().toStdString().c_str() << PARAM.getRegParaPort();
+    sig_comm->InitSock(PARAM.getServerIP().toStdString().c_str(), PARAM.getPort());
+    qDebug() << "链接：" << PARAM.getServerIP().toStdString().c_str() << PARAM.getPort();
     sig_comm->ConnectToServer();
 }
 

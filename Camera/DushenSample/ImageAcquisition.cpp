@@ -98,7 +98,7 @@ void QImageAcquisition::slotGrabFrames()
                         Dest_Buffer[i] = new byte[ImageSize];
                     }
                     //重叠区域复制
-                    if (strFrameCount % m_FramesPerTri != 1 && m_FramesPerTri>1) {
+                    if (strFrameCount % m_FramesPerTri != 1 && m_FramesPerTri > 1) {
                         for (int lightnum1 = 0; lightnum1 < m_FieldCount; lightnum1++) {
                             memcpy(Dest_Buffer[lightnum1], Last_Buffer[lightnum1], ImageLineSize * ImageOffset);
                         }
