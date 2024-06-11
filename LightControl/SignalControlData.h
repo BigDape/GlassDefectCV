@@ -24,7 +24,7 @@
 #define ADDR16 0x0090
 #define ADDR17 0x0094
 #define ADDR18 0x00C8
-#define ADDR19 0x00CC
+#define ADDR19 0x00CC //帧信号持续时间
 #define ADDR20 0x00D0
 #define ADDR21 0x00D8
 #define ADDR22 0x00DC

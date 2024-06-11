@@ -116,6 +116,7 @@ HEADERS += \
     Parameter/writer.h \
     SystemSettingForm.h \
     common_func.h \
+    hsThreadPool.h \
     log_singleton.h \
     mainwindow.h
 

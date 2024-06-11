@@ -854,9 +854,190 @@ void LightControl::initConnect()
     connect(ui->Camera3NameSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamera3Name()));
     connect(ui->ServerIPSaveBT,SIGNAL(clicked()), this, SLOT(slotSaveBTServerIP()));
     connect(ui->PortSaveBT,SIGNAL(clicked()), this, SLOT(slotSaveBTPort()));
-    //自定义参数
+    //自定义参数设置
     connect(ui->SaveOriginImageSetBT,SIGNAL(clicked()), this, SLOT(slotSetBTSaveOriginImage()));
-
+    connect(ui->SaveEntireImageSetBT,SIGNAL(clicked()), this, SLOT(slotSetBTSaveEntireImage()));
+    connect(ui->SaveFlawImageSetBT,SIGNAL(clicked()), this, SLOT(slotSetBTSaveFlawImage()));
+    connect(ui->SaveCropImageSetBT,SIGNAL(clicked()), this, SLOT(slotSetBTSaveCropImage()));
+    connect(ui->XYLengthEnableSetBT,SIGNAL(clicked()), this, SLOT(slotSetBTXYLengthEnable()));
+    connect(ui->FlawDefectEnableSetBT,SIGNAL(clicked()), this, SLOT(slotSetBTFlawDefectEnable()));
+    //自定义参数保存
+    connect(ui->SaveOriginImageSaveBT,SIGNAL(clicked()), this, SLOT(slotSaveBTSaveOriginImage()));
+    connect(ui->SaveEntireImageSaveBT,SIGNAL(clicked()), this, SLOT(slotSaveBTSaveEntireImage()));
+    connect(ui->SaveFlawImageSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTSaveFlawImage()));
+    connect(ui->SaveCropImageSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTSaveCropImage()));
+    connect(ui->XYLengthEnableSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTXYLengthEnable()));
+    connect(ui->FlawDefectEnableSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTFlawDefectEnable()));
+    //缺陷检测参数设置
+    connect(ui->Camera12PixelDeviationSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTCamera12PixelDeviation()));
+    connect(ui->Camera23PixelDeviationSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTCamera23PixelDeviation()));
+    connect(ui->Camera24PixelDeviationSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTCamera24PixelDeviation()));
+    connect(ui->SilkToRollerDistSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTSilkToRollerDist()));
+    connect(ui->ScratchAreaThresholdSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTScratchAreaThreshold()));
+    connect(ui->BubbleStoneAreaThresholdSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTBubbleStoneAreaThreshold()));
+    connect(ui->DirtyAreaThresholdSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTDirtyAreaThreshold()));
+    //缺陷检测参数保存
+    connect(ui->Camera12PixelDeviationSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamera12PixelDeviation()));
+    connect(ui->Camera23PixelDeviationSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamera23PixelDeviation()));
+    connect(ui->Camera24PixelDeviationSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamera24PixelDeviation()));
+    connect(ui->SilkToRollerDistSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTSilkToRollerDist()));
+    connect(ui->ScratchAreaThresholdSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTScratchAreaThreshold()));
+    connect(ui->BubbleStoneAreaThresholdSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTBubbleStoneAreaThreshold()));
+    connect(ui->DirtyAreaThresholdSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTDirtyAreaThreshold()));
+    //尺寸参数设置
+    connect(ui->YAccuracyBSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTYAccuracyB()));
+    connect(ui->YAccuracyKSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTYAccuracyK()));
+    connect(ui->WidthSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTWidth()));
+    connect(ui->WidthDeviationSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTWidthDeviation()));
+    connect(ui->DigonalSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTDigonal()));
+    connect(ui->Digonal1DeviationSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTDigonal1Deviation()));
+    connect(ui->Digonal2SetBT, SIGNAL(clicked()), this, SLOT(slotSetBTDigonal2()));
+    connect(ui->Digonal2DeviationSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTDigonal2Deviation()));
+    connect(ui->Camera1Pixel0AccuracySetBT, SIGNAL(clicked()), this, SLOT(slotSetBTCamera1Pixel0Accuracy()));
+    connect(ui->Camera1PixelKValueSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTCamera1PixelKValue()));
+    connect(ui->Camera21AccuracyRatioSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTCamera21AccuracyRatio()));
+    connect(ui->Camera2PixelKValueSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTCamera2PixelKValue()));
+    connect(ui->LengthSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTLength()));
+    connect(ui->LengthDeviationSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTLengthDeviation()));
+    //尺寸参数保存
+    connect(ui->YAccuracyBSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTYAccuracyB()));
+    connect(ui->YAccuracyKSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTYAccuracyK()));
+    connect(ui->WidthSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTWidth()));
+    connect(ui->WidthDeviationSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTWidthDeviation()));
+    connect(ui->DigonalSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTDigonal()));
+    connect(ui->Digonal1DeviationSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTDigonal1Deviation()));
+    connect(ui->Doagonal2SaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTDoagonal2()));
+    connect(ui->Digonal2DeviationSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTDigonal2Deviation()));
+    connect(ui->Camera1Pixel0AccuracySaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamera1Pixel0Accuracy()));
+    connect(ui->Camera1PixelKValueSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamera1PixelKValue()));
+    connect(ui->Camera21AccuracyRatioSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamera21AccuracyRatio()));
+    connect(ui->Camera2PixelKValueSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamera2PixelKValue()));
+    connect(ui->LengthSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTLength()));
+    connect(ui->LengthDeviationSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTLengthDeviation()));
+    //相机参数设置
+    connect(ui->Camera0FrameSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTCamera0Frame()));
+    connect(ui->Camera0PhotoRowSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTCamera0PhotoRow()));
+    connect(ui->Camera0ExposureTimeSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTCamera0ExposureTime()));
+    connect(ui->Camera0GainSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTCamera0Gain()));
+    connect(ui->Camera1FrameSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTCamera1Frame()));
+    connect(ui->Camera1PhotoRowSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTCamera1PhotoRow()));
+    connect(ui->Camera1ExposureTimeSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTCamera1ExposureTime()));
+    connect(ui->Camera1GainSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTCamera1Gain()));
+    connect(ui->Camera2FrameSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTCamera2Frame()));
+    connect(ui->Camera2PhotoRowSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTCamera2PhotoRow()));
+    connect(ui->Camera2ExposureTimeSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTCamera2ExposureTime()));
+    connect(ui->Camera2GainSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTCamera2Gain()));
+    connect(ui->Camera3FrameSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTCamera3Frame()));
+    connect(ui->Camera3PhotoRowSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTCamera3PhotoRow()));
+    connect(ui->Camera3ExposureTimeSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTCamera3ExposureTime()));
+    connect(ui->Camera3GainSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTCamera3Gain()));
+    //相机参数保存
+    connect(ui->Camera0FrameSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamera0Frame()));
+    connect(ui->Camera0PhotoRowSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamera0PhotoRow()));
+    connect(ui->Camera0ExposureTimeSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamera0ExposureTime()));
+    connect(ui->Camera0GainSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamera0Gain()));
+    connect(ui->Camera1FrameSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamera1Frame()));
+    connect(ui->Camera1PhotoRowSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamera1PhotoRow()));
+    connect(ui->Camera1ExposureTimeSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamera1ExposureTime()));
+    connect(ui->Camera1GainSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamera1Gain()));
+    connect(ui->Camera2FrameSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamera2Frame()));
+    connect(ui->Camera2PhotoRowSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamera2PhotoRow()));
+    connect(ui->Camera2ExposureTimeSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamera2ExposureTime()));
+    connect(ui->Camera2GainSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamera2Gain()));
+    connect(ui->Camera3FrameSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamera3Frame()));
+    connect(ui->Camera3PhotoRowSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamera3PhotoRow()));
+    connect(ui->Camera3ExposureTimeSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamera3ExposureTime()));
+    connect(ui->Camera3GainSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamera3Gain()));
+    //编码器参数设置
+    connect(ui->EncodeUnitToDistSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTEncodeUnitToDist()));
+    connect(ui->EncodePulseFilterUsSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTEncodePulseFilterUs()));
+    connect(ui->EncodeCountEndFlagSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTEncodeCountEndFlag()));
+    connect(ui->EncodeCountSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTEncodeCount()));
+    connect(ui->EncodeTriggerRowCountSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTEncodeTriggerRowCount()));
+    connect(ui->Encode4FrequencyMultiplierCountSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTEncode4FrequencyMultiplierCount()));
+    connect(ui->EncodeUnitTimePulseCountSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTEncodeUnitTimePulseCount()));
+    connect(ui->EncodeCountTimeHalfSecondSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTEncodeCountTimeHalfSecond()));
+    connect(ui->EncodeChannelSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTEncodeChannel()));
+    connect(ui->EncodeRevolutionSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTEncodeRevolution()));
+    connect(ui->RollerPerimeterUmSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTRollerPerimeterUm()));
+    connect(ui->ExpectSinglePixelAccuracySetBT, SIGNAL(clicked()), this, SLOT(slotSetBTExpectSinglePixelAccuracy()));
+    connect(ui->RollerMaxSpeedToRowCountSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTRollerMaxSpeedToRowCount()));
+    connect(ui->EveryRowToEncodeCountSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTEveryRowToEncodeCount()));
+    connect(ui->EncodePressureWheelCountASetBT, SIGNAL(clicked()), this, SLOT(slotSetBTEncodePressureWheelCountA()));
+    connect(ui->EncodePressureWheelCountBSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTEncodePressureWheelCountB()));
+    connect(ui->PressureWheel4FrequencyMutliperSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTPressureWheel4FrequencyMutliper()));
+    connect(ui->PressureEncodecoefficientSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTPressureEncodecoefficient()));
+    //编码器参数保存
+    connect(ui->EncodeUnitToDistSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTEncodeUnitToDist()));
+    connect(ui->EncodePulseFilterUsSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTEncodePulseFilterUs()));
+    connect(ui->EncodeCountEndFlagSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTEncodeCountEndFlag()));
+    connect(ui->EncodeCountSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTEncodeCount()));
+    connect(ui->EncodeTriggerRowCountSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTEncodeTriggerRowCount()));
+    connect(ui->Encode4FrequencyMultiplierCountSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTEncode4FrequencyMultiplierCount()));
+    connect(ui->EncodeUnitTimePulseCountSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTEncodeUnitTimePulseCount()));
+    connect(ui->EncodeCountTimeHalfSecondSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTEncodeCountTimeHalfSecond()));
+    connect(ui->EncodeChannelSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTEncodeChannel()));
+    connect(ui->EncodeRevolutionSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTEncodeRevolution()));
+    connect(ui->RollerPerimeterUmSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTRollerPerimeterUm()));
+    connect(ui->ExpectSinglePixelAccuracySaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTExpectSinglePixelAccuracy()));
+    connect(ui->RollerMaxSpeedToRowCountSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTRollerMaxSpeedToRowCount()));
+    connect(ui->EveryRowToEncodeCountSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTEveryRowToEncodeCount()));
+    connect(ui->EncodePressureWheelCountASaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTEncodePressureWheelCountA()));
+    connect(ui->EncodePressureWheelCountBSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTEncodePressureWheelCountB()));
+    connect(ui->PressureWheel4FrequencyMutliperSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTPressureWheel4FrequencyMutliper()));
+    connect(ui->PressureEncodecoefficientSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTPressureEncodecoefficient()));
+    //控制器参数设置
+    connect(ui->PixelAccuracyUmSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTPixelAccuracyUm()));
+    connect(ui->PhotoelectricSignalPulseFilterSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTPhotoelectricSignalPulseFilter()));
+    connect(ui->CamareTrigerPulseContinueTime10nsSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTCamareTrigerPulseContinueTime10ns()));
+    connect(ui->PhotoelectricToCamareDistSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTPhotoelectricToCamareDist()));
+    connect(ui->CamareFrameTrigerDelayRowCountSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTCamareFrameTrigerDelayRowCount()));
+    connect(ui->FrameSignalContinueTimeSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTFrameSignalContinueTime()));
+    connect(ui->ModuleEnableSignalSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTModuleEnableSignal()));
+    connect(ui->CamarePhotoRowCountSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTCamarePhotoRowCount()));
+    connect(ui->InnerRowFrequencySetBT, SIGNAL(clicked()), this, SLOT(slotSetBTInnerRowFrequency()));
+    connect(ui->PhotoModeSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTPhotoMode()));
+    connect(ui->PhotoEndDelayRowCountSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTPhotoEndDelayRowCount()));
+    //控制器参数保存
+    connect(ui->PixelAccuracyUmSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTPixelAccuracyUm()));
+    connect(ui->PhotoelectricSignalPulseFilterSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTPhotoelectricSignalPulseFilter()));
+    connect(ui->CamareTrigerPulseContinueTime10nsSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamareTrigerPulseContinueTime10ns()));
+    connect(ui->PhotoelectricToCamareDistSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTPhotoelectricToCamareDist()));
+    connect(ui->CamareFrameTrigerDelayRowCountSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamareFrameTrigerDelayRowCount()));
+    connect(ui->FrameSignalContinueTimeSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTFrameSignalContinueTime()));
+    connect(ui->ModuleEnableSignalSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTModuleEnableSignal()));
+    connect(ui->CamarePhotoRowCountSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamarePhotoRowCount()));
+    connect(ui->InnerRowFrequencySaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTInnerRowFrequency()));
+    connect(ui->PhotoModeSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTPhotoMode()));
+    connect(ui->PhotoEndDelayRowCountSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTPhotoEndDelayRowCount()));
+    //光源控制器参数设置
+    connect(ui->LightField1DelayTimeSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTLightField1DelayTime()));
+    connect(ui->LightField1GlowTimeSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTLightField1GlowTime()));
+    connect(ui->LightField2DelayTimeSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTLightField2DelayTime()));
+    connect(ui->LightField2GlowTimeSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTLightField2GlowTime()));
+    connect(ui->LightField3DelayTimeSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTLightField3DelayTime()));
+    connect(ui->LightField3GlowTimeSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTLightField3GlowTime()));
+    connect(ui->LightField4DelayTimeSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTLightField4DelayTime()));
+    connect(ui->LightField4GlowTimeSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTLightField4GlowTime()));
+    connect(ui->SelectedLightFieldNumberSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTSelectedLightFieldNumber()));
+    connect(ui->HorizontalDarkfieldSelectRegisterSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTHorizontalDarkfieldSelectRegister()));
+    connect(ui->CamareAndLightFieldControlSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTCamareAndLightFieldControl()));
+    connect(ui->SignalSwitchSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTSignalSwitch()));
+    connect(ui->RowSignalSelectedSetBT, SIGNAL(clicked()), this, SLOT(slotSetBTRowSignalSelected()));
+    //光源控制器参数保存
+    connect(ui->LightField1DelayTimeSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTLightField1DelayTime()));
+    connect(ui->LightField1GlowTimeSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTLightField1GlowTime()));
+    connect(ui->LightField2DelayTimeSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTLightField2DelayTime()));
+    connect(ui->LightField2GlowTimeSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTLightField2GlowTime()));
+    connect(ui->LightField3DelayTimeSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTLightField3DelayTime()));
+    connect(ui->LightField3GlowTimeSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTLightField3GlowTime()));
+    connect(ui->LightField4DelayTimeSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTLightField4DelayTime()));
+    connect(ui->LightField4GlowTimeSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTLightField4GlowTime()));
+    connect(ui->SelectedLightFieldNumberSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTSelectedLightFieldNumber()));
+    connect(ui->HorizontalDarkfieldSelectRegisterSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTHorizontalDarkfieldSelectRegister()));
+    connect(ui->CamareAndLightFieldControlSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTCamareAndLightFieldControl()));
+    connect(ui->SignalSwitchSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTSignalSwitch()));
+    connect(ui->RowSignalSelectedSaveBT, SIGNAL(clicked()), this, SLOT(slotSaveBTRowSignalSelected()));
 }
 
 void LightControl::slotUpdateRecipe(int index)

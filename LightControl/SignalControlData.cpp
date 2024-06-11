@@ -389,7 +389,7 @@ void SignalControlData::Trigger() {
 
 
 void SignalControlData::TimeOut1() {
-    //初始化编码器结束标志信号
+    //初始化编码器结束标志信号，测试Y反向长度
     m_pSig_comm.SetRegs(ADDR42, ADDR42, &temp2);
     m_pSig_comm.SetRegs(ADDR42, ADDR42, &temp1);
     unsigned int flag = 0; //上升沿
@@ -402,7 +402,7 @@ void SignalControlData::TimeOut1() {
           } else {
               mid1 = aaa;
           }
-          //分拣信号
+          //分拣信号（暂未用到）
           m_pSig_comm.GetRegs(ADDR39, ADDR39, &bbb);
           if (bbb > mid2) {
             emit sig_updateSortGlassSignal();
@@ -411,7 +411,7 @@ void SignalControlData::TimeOut1() {
             mid2 = bbb;
           }
           //ADDR8编码通道选择
-          //ADDR2编码器信号结束标志
+          //ADDR2编码器信号结束标志,光电
           m_pSig_comm.GetRegs(ADDR2, ADDR2, &ccc);
 
           //ADDR4编码器备用
@@ -430,7 +430,7 @@ void SignalControlData::TimeOut1() {
           } else {
               mid3 = ccc;
           }
-          //单位时间内编码器脉冲计数
+          //单位时间内编码器脉冲计数（暂未用到），单位时间内是否速度是否均匀
           m_pSig_comm.GetRegs(ADDR6, ADDR6, &ggg);
           PARAM.setCodePerCount(ggg);
 
