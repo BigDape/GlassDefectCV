@@ -387,7 +387,7 @@ void SignalControlData::Trigger() {
   m_pSig_comm.SetRegs(ADDR38, ADDR38, &temp1);
 }
 
-
+//todo:什么时候启动线程
 void SignalControlData::TimeOut1() {
     //初始化编码器结束标志信号，测试Y反向长度
     m_pSig_comm.SetRegs(ADDR42, ADDR42, &temp2);

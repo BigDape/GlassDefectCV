@@ -14,6 +14,8 @@
 #include <QFileDialog>
 #include <iostream>
 #include <stdlib.h>
+#include "LightControl/LightControl.h"
+
 #pragma execution_character_set("utf-8")
 using namespace HalconCpp;
 
@@ -61,6 +63,11 @@ MainWindow::MainWindow(QWidget* parent)
     SigCtrlData->moveToThread(SignalControlThread);
     connect(SignalControlThread, &QThread::started, SigCtrlData, &SignalControlData::TimeOut1); // 超时循环触发
     connect(this, &MainWindow::destroyed, this, &MainWindow::stopThread);                       // 关闭时，结束线程
+
+    //
+    // 声明对象
+    //
+    setupWidget = std::make_shared<LightControl>(*sig_comm, this);
 
     //
     //  绑定信号和槽函数
@@ -372,15 +379,19 @@ void MainWindow::slot_CloseSystem()
 
 void MainWindow::slot_ShowSystemSettingForm()
 {
-    if (SystemSettings == NULL) {
-        SystemSettings = new SystemSettingForm(*sig_comm, *JsonRecipe);
-        connect(SystemSettings, SIGNAL(sig_Deliver_NewRecipeName2mainWindow(QString)), this, SLOT(slot_ChangeRecipe(QString)));
-        connect(this, SIGNAL(sig_DeliverNewRecipe(JsonParse2Map*)), SystemSettings, SLOT(slot_JsonRecipe_Changed(JsonParse2Map*)));
+    if (setupWidget != nullptr) {
+        setupWidget->show();
     }
-    SystemSettings->setWindowFlags(Qt::Window);
-    SystemSettings->setWindowIcon(QIcon(":/toolbar/icons/setup.ico"));
-    SystemSettings->setWindowTitle("系统设置");
-    SystemSettings->show();
+//    LightControl(RegParasComm& sig_comm, QWidget* parent = nullptr);
+//    if (SystemSettings == NULL) {
+//        SystemSettings = new SystemSettingForm(*sig_comm, *JsonRecipe);
+//        connect(SystemSettings, SIGNAL(sig_Deliver_NewRecipeName2mainWindow(QString)), this, SLOT(slot_ChangeRecipe(QString)));
+//        connect(this, SIGNAL(sig_DeliverNewRecipe(JsonParse2Map*)), SystemSettings, SLOT(slot_JsonRecipe_Changed(JsonParse2Map*)));
+//    }
+//    SystemSettings->setWindowFlags(Qt::Window);
+//    SystemSettings->setWindowIcon(QIcon(":/toolbar/icons/setup.ico"));
+//    SystemSettings->setWindowTitle("系统设置");
+//    SystemSettings->show();
 }
 
 void MainWindow::slot_ActionStart()

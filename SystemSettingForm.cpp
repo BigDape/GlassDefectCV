@@ -61,7 +61,7 @@ void SystemSettingForm::InitForm()
     connect(this, SIGNAL(sig_Deliver_NewRecipe(JsonParse2Map*)), this_JsonRecipeWidget, SLOT(slot_RecipeChanged(JsonParse2Map*)));
     connect(this_JsonRecipeWidget, SIGNAL(sig_CameraParamsChangeRecipe()), cameraRecipeWidget, SLOT(ReadValue2Tree()));
     connect(this_JsonRecipeWidget, SIGNAL(sig_LightControlChange()), SigCtrlData, SLOT(slot_DeliverLightData()));
-    connect(SigCtrlData, SIGNAL(sig_RecipeChage()), LightControlWidget, SLOT(slot_InitTree()));
+    //connect(SigCtrlData, SIGNAL(sig_RecipeChage()), LightControlWidget, SLOT(slot_InitTree()));
 }
 
 void SystemSettingForm::slot_ListView_Pressed()

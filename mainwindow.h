@@ -52,8 +52,9 @@ public:
     int SystemStatus = 0; // 0停止，1采集
 
     RegParasComm* sig_comm;
-
     QString _offlineSelectedDir; //离线模式下选择的路径
+
+    std::shared_ptr<LightControl> setupWidget;
 
 private:
     Ui::MainWindow* ui;

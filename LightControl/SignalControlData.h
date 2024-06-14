@@ -69,6 +69,72 @@
 #define ADDR61 0x087C  //压轮编码值可读标志
 #define ADDR62 0x0844  //压轮编码器四倍频计数
 
+
+//    specificItem0 = ui->treeWidget->topLevelItem(0);        //编码器参数
+//    childItem0 = specificItem0->child(0);                   // 编码器单位刻度对应距离(um)
+//    childItem1 = specificItem0->child(1);                   // 编码脉冲滤波(us)
+//    childItem2 = specificItem0->child(2);                   // 编码器计数结束标志
+//    childItem3 = specificItem0->child(3);                   // 编码器计数
+//    childItem4 = specificItem0->child(4);                   // 编码器触发行计数
+//    childItem5 = specificItem0->child(5);                   // 编码器4倍频计数
+//    childItem6 = specificItem0->child(6);                   // 编码器单位时间脉冲计数
+//    childItem7 = specificItem0->child(7);                   // 编码器计数时间(0.5s)
+//    childItem8 = specificItem0->child(8);                   // 编码通道
+//    childItem9 = specificItem0->child(9);                   // 编码器转数
+//    childItem10 = specificItem0->child(10);                 // 辊道周长(um)
+//    childItem11 = specificItem0->child(11);                 // 期望单个像素精度(um)
+//    childItem12 = specificItem0->child(12);                 // 辊道最大速度对应行频
+//    childItem13 = specificItem0->child(13);                 // 每行对应的编码计数
+//    childItem_rollerACount = specificItem0->child(14);      // 压轮编码器A计数
+//    childItem_rollerBCount = specificItem0->child(15);      // 压轮编码器B计数
+//    childItemAB4 = specificItem0->child(16);                // 压轮编码器4倍频计数
+//    chileItem_rollerCofficient = specificItem0->child(17);  // 压轮编码器系数
+
+//    specificItem1 = ui->treeWidget->topLevelItem(1);        //控制器系统参数
+//    childItem14 = specificItem1->child(0);                  //像素精度(um)
+//    childItem15 = specificItem1->child(1);                  //光电信号脉冲滤波(us)
+//    childItem16 = specificItem1->child(2);                  //相机触发脉冲持续时间(10ns)
+//    childItem17 = specificItem1->child(3);                  //光电相机距离(行)
+//    childItem18 = specificItem1->child(4);                  //相机帧信号触发延时行数(行)
+//    childItem19 = specificItem1->child(5);                  //帧信号持续时间(10ns)
+//    childItem20 = specificItem1->child(6);                  //模块使能信号
+//    childItem21 = specificItem1->child(7);                  //相机拍照行数(行)
+//    childItem22 = specificItem1->child(8);                  //内部行频
+//    chileItem_photoMode = specificItem1->child(9);          //拍照模式
+//    chileItem_photoEndDelayLine = specificItem1->child(10); //拍照结束延时行数
+
+//    specificItem2 = ui->treeWidget->topLevelItem(2);//光源控制器参数
+//    childItem23 = specificItem2->child(0);          // 光场1延时时间(10ns)
+//    childItem24 = specificItem2->child(1);          // 光场1发光时间(10ns)
+//    childItem25 = specificItem2->child(2);          // 光场2延时时间(10ns)
+//    childItem26 = specificItem2->child(3);          // 光场2发光时间(10ns)
+//    childItem27 = specificItem2->child(4);          // 光场3延时时间(10ns)
+//    childItem28 = specificItem2->child(5);          // 光场3发光时间(10ns)
+//    childItem29 = specificItem2->child(6);          // 光场4延时时间(10ns)
+//    childItem30 = specificItem2->child(7);          // 光场4发光时间(10ns)
+//    childItem31 = specificItem2->child(8);          // 光场5延时时间(10ns)
+//    childItem32 = specificItem2->child(9);          // 光场5发光时间(10ns)
+//    childItem33 = specificItem2->child(10);         // 光场6延时时间(10ns)
+//    childItem34 = specificItem2->child(11);         // 光场6发光时间(10ns)
+//    childItem35 = specificItem2->child(26);         // 35相机与光场控制
+//    childItem36 = specificItem2->child(27);         // 36信号切换
+//    childItem37 = specificItem2->child(28);         // 37行信号源选择
+//    childItem43 = specificItem2->child(12);         // 光场7延时时间(10ns)
+//    childItem44 = specificItem2->child(13);         // 光场7发光时间(10ns)
+//    childItem45 = specificItem2->child(14);         // 光场8延时时间(10ns)
+//    childItem46 = specificItem2->child(15);         // 光场8发光时间(10ns)
+//    childItem47 = specificItem2->child(16);         // 光场9延时时间(10ns)
+//    childItem48 = specificItem2->child(17);         // 光场9发光时间(10ns)
+//    childItem49 = specificItem2->child(18);         // 光场10延时时间(10ns)
+//    childItem50 = specificItem2->child(19);         // 光场10发光时间(10ns)
+//    childItem51 = specificItem2->child(20);         // 光场11延时时间(10ns)
+//    childItem52 = specificItem2->child(21);         // 光场11发光时间(10ns)
+//    childItem53 = specificItem2->child(22);         // 光场12延时时间(10ns)
+//    childItem54 = specificItem2->child(23);         // 光场12发光时间(10ns)
+//    childItem55 = specificItem2->child(24);         // 选择光场的数量
+//    childItem56 = specificItem2->child(25);         // 横向暗场选择寄存器
+
+
 typedef struct SignalControl {
    /**
    * @brief temp0编码器单位刻度对应距离(um)
