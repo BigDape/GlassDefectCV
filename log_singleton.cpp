@@ -167,7 +167,7 @@ void log_singleton::InsertInfo(const QString& Log_message, Log_Level Log_level)
         item->setForeground(QBrush(QColor(255, 0, 0)));
         break;
     }
-    widget0->insertItem(0, item);
+    //widget0->insertItem(0, item);
 
 }
 

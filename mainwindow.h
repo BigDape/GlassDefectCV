@@ -18,6 +18,7 @@
 #include <QSettings>
 #include <QThread>
 #include <Form/SingleSizeShowWidget.h>
+#include "Form/TitleBar.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -32,6 +33,8 @@ public:
     MainWindow(QWidget* parent = nullptr);
     ~MainWindow();
 
+    QLabel *m_CurrentRecipeLabel;//工单标签
+    TitleBar* title_bar; //
     //工单
     JsonParse2Map* JsonRecipe;
 
@@ -66,8 +69,6 @@ private:
     ProcessTile* Tileworker;
     SignalControlData* SigCtrlData;
 
-    void initCamera();
-
     QAction* m_pExit;
     QAction* m_pSettings;
     QAction* m_pStart;
@@ -77,17 +78,17 @@ private:
     QAction* m_pDB;
     QAction* m_offline; //离线模式
 
-    QLabel* label1;
-      QLabel* label2;
-      QLineEdit* lineEdit1;
-      QLineEdit* lineEdit2;
+    QLabel* checkoutLabel; //检出标签
+    QLabel* sortingLabel;  //分拣标签
+
+    QLineEdit* checkoutLineEdit;  //检出输入框
+    QLineEdit* sortingLineEdit;  //分拣输入框
 
     QWidget* GlassInfoWidget;
 
     QProcess* DB;
 
     void initMenu();
-    void initWindow();
     void initLayout();
     void initSignalPlatform();
     void initThread();
@@ -105,7 +106,7 @@ private:
     QDockWidget* Dock_SingleSizeShowView;
     QDockWidget* Dock_CameraShow;
 
-    void Create_FlawShowWidget();
+    void createFlawShowWidget();
     void Create_GlassStatisticsTable();
     void Create_SingleFlawShow();
     void Create_SingleSizeShow();

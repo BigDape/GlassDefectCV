@@ -45,8 +45,7 @@
 class FlawShowWidget : public QWidget {
   Q_OBJECT
  public:
-  explicit FlawShowWidget(QWidget* parent = nullptr,
-                          JsonParse2Map* recipe = nullptr);
+  explicit FlawShowWidget(QWidget* parent = nullptr);
   virtual ~FlawShowWidget();
 
   enum FlawMoveWay {
@@ -63,7 +62,7 @@ class FlawShowWidget : public QWidget {
 
   bool isGetGlassSize = false;
   bool isGetFlawPoints = false;
-  JsonParse2Map* RECIPE;
+  //JsonParse2Map* RECIPE;
 
   MsvLCDNumClockWidget* clock;
 

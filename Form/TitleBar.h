@@ -17,35 +17,17 @@ class TitleBar : public QWidget {
 public:
     explicit TitleBar(QWidget* parent = nullptr);
 
-protected:
-    // 双击标题栏进行界面的最大化/还原
-    //    virtual void mouseDoubleClickEvent(QMouseEvent* event);
-
-    // 进行鼠界面的拖动
-    //    virtual void mousePressEvent(QMouseEvent* event);
-
-    // 设置界面标题与图标
-    //    virtual bool eventFilter(QObject* obj, QEvent* event);
-
-private slots:
-    // 进行最小化、最大化/还原、关闭操作
-    //    void onClicked();
-    //    void user_button_clicked();
-    //    void update_user_name(QString& name);
+public slots:
+    // 更新工单名称
+    void slotUpdateRecipe(QString name);
+    // 更新系统名称
+    void slotUpdateSystem(QString name);
 
 private:
-    // 最大化/还原
-    //    void updateMaximize();
-    //    void updateFullscreen();
+    std::shared_ptr<QLabel> m_pIconLabel;
+    std::shared_ptr<QLabel> m_pTitleLabel;
+    std::shared_ptr<QLabel> m_CurrentRecipeLabel;//工单标签
 
-private:
-    QLabel* m_pIconLabel;
-    QLabel* m_pTitleLabel;
-    QPushButton* m_pMinimizeButton;
-    QPushButton* m_pMaximizeButton;
-    QPushButton* m_pCloseButton;
-    QPushButton* m_pFullScreenButton;
-    QPushButton* m_pUserButton;
 };
 
 #endif // TITLEBAR_H

@@ -18,13 +18,15 @@
 #include <QString>
 #include <fstream>
 #include <QTextStream>
+#include "HsListener.h"
+#include "Global.h"
 
 #pragma execution_character_set("utf-8")
 
-FlawShowWidget::FlawShowWidget(QWidget* parent, JsonParse2Map* m_recipe)
+FlawShowWidget::FlawShowWidget(QWidget* parent)
     : QWidget(parent)
 {
-    RECIPE = m_recipe;
+    //RECIPE = m_recipe;
     m_plot = std::make_shared<QwtPlot>(this);
     PARAM.setPlot(m_plot);
 
@@ -145,10 +147,7 @@ FlawShowWidget::FlawShowWidget(QWidget* parent, JsonParse2Map* m_recipe)
     runninginfo = new ResultINFO();
     
     connect(buttonClear, SIGNAL(clicked()), this, SLOT(slot_ButtonClearClicked()));
-
-
     slot_ChangeFlawShow();
-
 }
 
 FlawShowWidget::~FlawShowWidget()
@@ -258,15 +257,15 @@ void FlawShowWidget::slot_GetFlawPoints(QList<FlawPoint>* n_FlawPointList)
 
 void FlawShowWidget::slot_ChangeFlawShow()
 {
-    QString Keyword4Length = "尺寸测量.长度";
-    QString Keyword4Width = "尺寸测量.宽度";
-    double length;
-    RECIPE->getParameter(Keyword4Length, length);
-    double width;
-    RECIPE->getParameter(Keyword4Width, width);
+//    QString Keyword4Length = "尺寸测量.长度";
+//    QString Keyword4Width = "尺寸测量.宽度";
+//    double length;
+//    RECIPE->getParameter(Keyword4Length, length);
+//    double width;
+//    RECIPE->getParameter(Keyword4Width, width);
 
-    int MaxLength = length * 1.1;
-    int MaxWidth = width * 1.1;
+    int MaxLength = PARAM.getLength() * 1.1;
+    int MaxWidth = PARAM.getWidth() * 1.1;
 
     m_plot->setAxisScale(QwtPlot::xBottom, 0, MaxWidth);
     m_plot->setAxisScale(QwtPlot::yLeft, 0, MaxLength);

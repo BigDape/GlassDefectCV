@@ -35,6 +35,7 @@ SOURCES += \
     Form/TitleBar.cpp \
     Form/glassstatictablewidget.cpp \
     Form/msvlcdnumclockwidget.cpp \
+    Form/realtimedefects.cpp \
     Form/singleflawshowwidget.cpp \
     Form/singlesizeshowwidget.cpp \
     Global.cpp \
@@ -81,6 +82,7 @@ HEADERS += \
     Form/TitleBar.h \
     Form/glassstatictablewidget.h \
     Form/msvlcdnumclockwidget.h \
+    Form/realtimedefects.h \
     Form/singleflawshowwidget.h \
     Global.h \
     HsListener.h \
@@ -126,6 +128,7 @@ FORMS += \
     Form/CamerasWidget.ui \
     Form/SingleSizeShowWidget.ui \
     Form/msvlcdnumclockwidget.ui \
+    Form/realtimedefects.ui \
     Form/singleflawshowwidget.ui \
     LightControl/LightControl.ui \
     MainForm.ui \

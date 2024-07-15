@@ -29,75 +29,44 @@ MainWindow::MainWindow(QWidget* parent)
     //
     // 设置窗口属性
     // Qt::FramelessWindowHint(无窗口边框)
-    // Qt::WindowSystemMenuHint(为窗口添加一个窗口系统系统菜单，并尽可能地添加一个关闭按钮)
+    // Qt::WindowSystemMenuHint(为窗口添加一个窗口系统菜单，并尽可能地添加一个关闭按钮)
     // Qt::WindowMinMaxButtonsHint(为窗口添加一个“最小化”按钮 和一个“最大化”按钮)
     //
     setWindowFlags(Qt::FramelessWindowHint | Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint);
-    // 获取配置文件
+    // 获取配置文件,todo：待删除
     QString RecipePath = "Recipes/" + PARAM.getCurrentRecipe() + ".json";
     JsonRecipe = new JsonParse2Map(RecipePath);
+
+    log_singleton::CreateWidget0();//日志界面待修改
+
+    //
+    // 标题栏：图标+系统名称+工单
+    //
+    title_bar = new TitleBar(this);
+
+
+//    timer=new QTimer();
+//    timer->setInterval(1000);
+//    connect(timer,&QTimer::timeout,this,&MainForm::slot_tt);
+//    timer->start();
+
+//    vbox->addWidget(title_bar);
+//    vbox->addWidget(main_window);
+
+
     //
     // 初始化相关参数
     //
-    initCamera();           //初始化相机
-    initSignalPlatform();   //初始化信号平台
-    initMenu();             //初始化菜单栏
-    initWindow();           //初始化窗口
-    initLayout();           //初始化布局
-    initThread();           //初始化多线程
-    initDatabase();         //初始化数据库
+    //初始化相机
+    for(int i=0; i<PARAM.getCamDefineNum(); i++){
+        Cameras.append(new DushenBasicFunc(this,i,JsonRecipe));
+    }
+    //初始化信号平台,待优化
+    sig_comm = new RegParasComm();
+    sig_comm->InitSock(PARAM.getServerIP().toStdString().c_str(), PARAM.getPort());
+    sig_comm->ConnectToServer();
 
-    this->showMaximized();
-    //
-    // 绑定信号和槽函数
-    //
-    connect(m_GlassStatisticTable, SIGNAL(sig_DeliverGlassID(QString)), this, SLOT(slot_ShowSingleFlawView(QString)));
-    connect(m_GlassStatisticTable, SIGNAL(sig_DeliverGlassID(QString)), m_SingleFlawShow, SLOT(slot_RecieveID(QString)));
-    connect(m_GlassStatisticTable, SIGNAL(sig_DeliverGlassID(QString)), m_SingleSizeShow, SLOT(slot_RecieveID(QString)));
-
-    //
-    // 信号平台线程
-    //
-    SigCtrlData = new SignalControlData(*sig_comm);
-    SignalControlThread = new QThread(this);
-    SigCtrlData->moveToThread(SignalControlThread);
-    connect(SignalControlThread, &QThread::started, SigCtrlData, &SignalControlData::TimeOut1); // 超时循环触发
-    connect(this, &MainWindow::destroyed, this, &MainWindow::stopThread);                       // 关闭时，结束线程
-
-    //
-    // 声明对象
-    //
-    setupWidget = std::make_shared<LightControl>(*sig_comm, this);
-
-    //
-    //  绑定信号和槽函数
-    //
-    //0、更新玻璃结果
-    connect(Detectworker, SIGNAL(sig_UpdateResultInfo(ResultINFO*)), m_FlawShowWidget, SLOT(slot_GetGlassResult(ResultINFO*)));
-    //1、更新单个缺陷结果
-    connect(Detectworker,SIGNAL(sig_updateSignalFlaw(Qstring)), m_SingleFlawShow,SLOT(slot_RecieveID(Qstring)));
-    //2、更新前一块玻璃结果
-    connect(m_FlawShowWidget, SIGNAL(sig_updatePreGlassRes(bool)), this, SLOT(slot_updatePreGlassRes(bool)));
-    //3、更新排列玻璃结果
-    connect(Detectworker, SIGNAL(sig_updateSortRes(ResultINFO*)), this, SLOT(slot_updateSortGlassRes(ResultINFO*)));
-    //4、更新玻璃信号
-    connect(SigCtrlData, &SignalControlData::sig_updateSortGlassSignal,Detectworker, &Process_Detect::slot_updateSortInfo, Qt::DirectConnection);
-    //5、清除玻璃信号
-    connect(m_FlawShowWidget, SIGNAL(sig_ClearDate()), this, SLOT(slot_clearPreSortGlassInfo()));
-    //6、清除玻璃的数据
-    connect(m_FlawShowWidget, SIGNAL(sig_ClearDate()), m_GlassStatisticTable, SLOT(slot_clearRowData()));
-    //7、轨迹追踪
-    connect(m_SingleFlawShow, SIGNAL(sig_paintFlawPoint(QString x,QString y)), m_FlawShowWidget, SLOT(slot_FlawTrack(QString x, QString y)));
-
-}
-
-MainWindow::~MainWindow()
-{
-    delete ui;
-}
-
-void MainWindow::initMenu()
-{
+    //初始化菜单栏
     m_pExit = new QAction("&退出", this);
     m_pExit->setShortcut(QKeySequence::Quit);
     m_pExit->setToolTip(tr("Exit System."));
@@ -149,44 +118,48 @@ void MainWindow::initMenu()
     connect(m_offline, SIGNAL(triggered()), this, SLOT(slot_Offline()));
     ui->toolBar->addAction(m_offline);
 
+    // 初始化检出、分拣
     GlassInfoWidget = new QWidget();
-
-    label1 = new QLabel("检出");
-    label2 = new QLabel("分拣");
-    label1->setAlignment(Qt::AlignCenter);
-    label2->setAlignment(Qt::AlignCenter);
+    checkoutLabel = new QLabel("检出");
+    sortingLabel = new QLabel("分拣");
+    checkoutLabel->setAlignment(Qt::AlignCenter);
+    sortingLabel->setAlignment(Qt::AlignCenter);
     QFont font2;
     font2.setPointSize(12);
-    label1->setFont(font2);
-    label2->setFont(font2);
-    lineEdit1 = new QLineEdit();
-    lineEdit2 = new QLineEdit();
-    lineEdit1->setMinimumSize(40, 40);
-    lineEdit1->setMaximumSize(40, 40);
-    lineEdit2->setMinimumSize(40, 40);
-    lineEdit2->setMaximumSize(40, 40);
+    checkoutLabel->setFont(font2);
+    sortingLabel->setFont(font2);
+    checkoutLineEdit = new QLineEdit();
+    sortingLineEdit = new QLineEdit();
+    checkoutLineEdit->setMinimumSize(40, 40);
+    checkoutLineEdit->setMaximumSize(40, 40);
+    sortingLineEdit->setMinimumSize(40, 40);
+    sortingLineEdit->setMaximumSize(40, 40);
 
-    lineEdit1->setReadOnly(true);
-    lineEdit2->setReadOnly(true);
-    lineEdit1->setStyleSheet(
-        "color: black;border: none; background-color: #FFFFFF; border-radius: "
-        "20px;");
-    lineEdit2->setStyleSheet(
-        "color: black;border: none; background-color: #FFFFFF; border-radius: "
-        "20px;");
+    checkoutLineEdit->setReadOnly(true);
+    sortingLineEdit->setReadOnly(true);
+    checkoutLineEdit->setStyleSheet("color: black;border: none; background-color: #FFFFFF; border-radius: " "20px;");
+    sortingLineEdit->setStyleSheet("color: black;border: none; background-color: #FFFFFF; border-radius: " "20px;");
 
     QFont font1;
     font1.setPointSize(18);
-    lineEdit1->setFont(font1);
-    lineEdit1->setAlignment(Qt::AlignCenter);
-    lineEdit1->setText("");
+    checkoutLineEdit->setFont(font1);
+    checkoutLineEdit->setAlignment(Qt::AlignCenter);
+    checkoutLineEdit->setText("");
 
-    lineEdit2->setFont(font1);
-    lineEdit2->setAlignment(Qt::AlignCenter);
-    lineEdit2->setText("");
+    sortingLineEdit->setFont(font1);
+    sortingLineEdit->setAlignment(Qt::AlignCenter);
+    sortingLineEdit->setText("");
 
-
+    QLabel* signalLabel = new QLabel("控制器");  //控制器标签
+    signalLabel->setAlignment(Qt::AlignCenter);
+    signalLabel->setFont(font2);
+    QLineEdit* signalLineEdit = new QLineEdit();  //检出输入框
+    signalLineEdit->setMinimumSize(40, 40);
+    signalLineEdit->setMinimumSize(40, 40);
+    signalLineEdit->setReadOnly(true);
+    signalLineEdit->setStyleSheet("color: black;border: none; background-color: #FFFFFF; border-radius: " "20px;");
     // 创建水平布局用于左侧和右侧的控件
+    QVBoxLayout* signalLayout = new QVBoxLayout();
     QVBoxLayout* leftLayout = new QVBoxLayout();
     QVBoxLayout* rightLayout = new QVBoxLayout();
 
@@ -194,24 +167,24 @@ void MainWindow::initMenu()
     QHBoxLayout* mainLayout = new QHBoxLayout();
 
     // 将 QLineEdit 和 QLabel 添加到左侧和右侧的水平布局中
-    leftLayout->addWidget(lineEdit1);
-    leftLayout->addWidget(label1);
-    rightLayout->addWidget(lineEdit2);
-    rightLayout->addWidget(label2);
+    signalLayout->addWidget(signalLineEdit);
+    signalLayout->addWidget(signalLabel);
+    leftLayout->addWidget(checkoutLineEdit);
+    leftLayout->addWidget(checkoutLabel);
+    rightLayout->addWidget(sortingLineEdit);
+    rightLayout->addWidget(sortingLabel);
 
     // 将左侧和右侧的水平布局添加到垂直布局中
+    mainLayout->addLayout(signalLayout);
     mainLayout->addLayout(leftLayout);
     mainLayout->addLayout(rightLayout);
 
     // 设置 GlassInfoWidget 的主布局
     GlassInfoWidget->setLayout(mainLayout);
-
     GlassInfoWidget->setFixedSize(300, 75);
-
+    // 使用 addWidget 将 GlassInfoWidget 添加到QAction的右侧
     QWidget* spacerWidget = new QWidget();
     spacerWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-
-    // 使用 addWidget 将 GlassInfoWidget 添加到 QToolBar 的最右侧
     ui->toolBar->addWidget(spacerWidget);
     ui->toolBar->addWidget(GlassInfoWidget);
 
@@ -220,19 +193,19 @@ void MainWindow::initMenu()
     ui->toolBar->toggleViewAction()->setEnabled(false);
     ui->toolBar->setFloatable(false);
     ui->toolBar->setMovable(false);
-}
+    //
+    //初始化窗口
+    //
+    MainWindow::createFlawShowWidget();        // 缺陷显示图
+    MainWindow::Create_GlassStatisticsTable();  // 玻璃统计表
+    MainWindow::Create_SingleFlawShow();        // 单个缺陷
+    MainWindow::Create_SingleSizeShow();        // 尺寸信息
+    MainWindow::Create_CameraShow();            // 相机
 
-void MainWindow::initWindow()
-{
-    Create_FlawShowWidget();        // 缺陷显示图
-    Create_GlassStatisticsTable();  // 玻璃统计表
-    Create_SingleFlawShow();        // 单个缺陷
-    Create_SingleSizeShow();        // 尺寸信息
-    Create_CameraShow();            // 相机
-}
-
-void MainWindow::initLayout()
-{
+    //初始化布局
+    //
+    // 垂直布局，widget1:标题栏、widget2：toolbar、widget3:玻璃信息局和时间、widget4：信息表
+    //
     addDockWidget(Qt::TopDockWidgetArea, Dock_FlawShowView);
     Dock_FlawShowView->setMaximumHeight(450);
     Dock_FlawShowView->setMinimumHeight(450);
@@ -265,14 +238,69 @@ void MainWindow::initLayout()
 
     Dock_GlassStatisticsTableView->raise();
 
+    initThread();           //初始化多线程
+    initDatabase();         //初始化数据库
+
+    this->showMaximized();
+    //
+    // 绑定信号和槽函数
+    //
+    connect(m_GlassStatisticTable, SIGNAL(sig_DeliverGlassID(QString)), this, SLOT(slot_ShowSingleFlawView(QString)));
+    connect(m_GlassStatisticTable, SIGNAL(sig_DeliverGlassID(QString)), m_SingleFlawShow, SLOT(slot_RecieveID(QString)));
+    connect(m_GlassStatisticTable, SIGNAL(sig_DeliverGlassID(QString)), m_SingleSizeShow, SLOT(slot_RecieveID(QString)));
+
+    //
+    // 信号平台线程
+    //
+    SigCtrlData = new SignalControlData(*sig_comm);
+    SignalControlThread = new QThread(this);
+    SigCtrlData->moveToThread(SignalControlThread);
+    connect(SignalControlThread, &QThread::started, SigCtrlData, &SignalControlData::TimeOut1); // 超时循环触发
+    connect(this, &MainWindow::destroyed, this, &MainWindow::stopThread);                       // 关闭时，结束线程
+
+    //
+    // 声明对象
+    //
+    setupWidget = std::make_shared<LightControl>(*sig_comm, this);
+
+    //
+    //  绑定信号和槽函数
+    //
+    //0、更新玻璃结果
+    connect(Detectworker, SIGNAL(sig_UpdateResultInfo(ResultINFO*)), m_FlawShowWidget, SLOT(slot_GetGlassResult(ResultINFO*)));
+    //1、更新单个缺陷结果
+    connect(Detectworker,SIGNAL(sig_updateSignalFlaw(Qstring)), m_SingleFlawShow,SLOT(slot_RecieveID(Qstring)));
+    //2、更新前一块玻璃结果
+    connect(m_FlawShowWidget, SIGNAL(sig_updatePreGlassRes(bool)), this, SLOT(slot_updatePreGlassRes(bool)));
+    //3、更新排列玻璃结果
+    connect(Detectworker, SIGNAL(sig_updateSortRes(ResultINFO*)), this, SLOT(slot_updateSortGlassRes(ResultINFO*)));
+    //4、更新玻璃信号
+    connect(SigCtrlData, &SignalControlData::sig_updateSortGlassSignal,Detectworker, &Process_Detect::slot_updateSortInfo, Qt::DirectConnection);
+    //5、清除玻璃信号
+    connect(m_FlawShowWidget, SIGNAL(sig_ClearDate()), this, SLOT(slot_clearPreSortGlassInfo()));
+    //6、清除玻璃的数据
+    connect(m_FlawShowWidget, SIGNAL(sig_ClearDate()), m_GlassStatisticTable, SLOT(slot_clearRowData()));
+    //7、轨迹追踪
+    connect(m_SingleFlawShow, SIGNAL(sig_paintFlawPoint(QString x,QString y)), m_FlawShowWidget, SLOT(slot_FlawTrack(QString x, QString y)));
+
+
+    QWidget::showFullScreen();//展开全屏
 }
 
-void MainWindow::initSignalPlatform()
+MainWindow::~MainWindow()
 {
-    sig_comm = new RegParasComm();
-    sig_comm->InitSock(PARAM.getServerIP().toStdString().c_str(), PARAM.getPort());
-    qDebug() << "链接：" << PARAM.getServerIP().toStdString().c_str() << PARAM.getPort();
-    sig_comm->ConnectToServer();
+    delete ui;
+}
+
+void MainWindow::initMenu()
+{
+
+}
+
+void MainWindow::initLayout()
+{
+
+
 }
 
 void MainWindow::initThread()
@@ -302,13 +330,13 @@ void MainWindow::initDatabase()
     //    }
 }
 
-void MainWindow::Create_FlawShowWidget()
+void MainWindow::createFlawShowWidget()
 {
     Dock_FlawShowView = new QDockWidget(this);
     Dock_FlawShowView->setObjectName("FlawShow");
     Dock_FlawShowView->setWindowTitle(QString("缺陷示意图"));
     Dock_FlawShowView->setAllowedAreas(Qt::AllDockWidgetAreas);
-    m_FlawShowWidget = new FlawShowWidget(Dock_FlawShowView, JsonRecipe);
+    m_FlawShowWidget = new FlawShowWidget(Dock_FlawShowView);
     Dock_FlawShowView->setWidget(m_FlawShowWidget);
     Dock_FlawShowView->setFeatures(QDockWidget::DockWidgetFloatable);
     connect(this, SIGNAL(sig_FlawWidgetChange()), m_FlawShowWidget, SLOT(slot_ChangeFlawShow()));
@@ -363,16 +391,10 @@ void MainWindow::Create_CameraShow()
     connect(this, &MainWindow::sig_StopButton2CameraStop, Camera_widget, &CamerasWidget::slot_CameraStop);
 }
 
-void MainWindow::initCamera()
-{
-    for(int i=0; i<PARAM.getCamDefineNum(); i++){
-        Cameras.append(new DushenBasicFunc(this,i,JsonRecipe));
-    }
-}
 
 void MainWindow::slot_CloseSystem()
 {
-    //推出时线程未正确处理
+    //退出时线程未正确处理
     close();
     qApp->exit(0);
 }
