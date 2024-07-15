@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ProcessParas>
+    <SystemName value="大拓智能视觉检测" type="QSTRING"/>
+    <!--相机参数-->
+    <Camera0 value="DSXL810002374" type="QSTRING"/>
+    <Camera0Field value="1" type="INT32"/>
+    <Camera1 value="DSXL810002378" type="QSTRING"/>
+    <Camera1Field value="1" type="INT32"/>
+    <Camera2 value="DSXL810002135" type="QSTRING"/>
+    <Camera2Field value="1" type="INT32"/>
+    <Camera3 value="DSXL810002382" type="QSTRING"/>
+    <Camera3Field value="1" type="INT32"/>
+    <CameraNum value="2" type="INT32"/>
+    <!--配方参数-->
+    <CurrentRecipe value="8mm" type="QSTRING"/>
+    <!--光源控制器寄存器参数-->
+    <LightField1DelayTime value="0" addr="0x0098" type="INT32"/>
+    <LightField1GlowTime value="4294967295" addr="0x009C" type="INT32"/>
+    <LightField2DelayTime value="2816009541" addr="0x00A0" type="INT32"/>
+    <LightField2GlowTime value="32763" addr="0x00A4" type="INT32"/>
+    <LightField3DelayTime value="0" addr="0x00A8" type="INT32"/>
+    <LightField3GlowTime value="618" addr="0x00AC" type="INT32"/>
+    <LightField4DelayTime value="0" addr="0x00B0" type="INT32"/>
+    <LightField4GlowTime value="32763" addr="0x00B4" type="INT32"/>
+    <LightField5DelayTime value="0" addr="0x00B8" type="INT32"/>
+    <LightField5GlowTime value="618" addr="0x00BC" type="INT32"/>
+    <LightField6DelayTime value="0" addr="0x00C0" type="INT32"/>
+    <LightField6GlowTime value="32763" addr="0x00C4" type="INT32"/>
+    <CameraAndLightFieldControl value="0" addr="0x0040" type="INT32"/>
+    <!--网络参数-->
+    <serverIp value="192.168.1.200" type="QSTRING"/>
+    <RegParaPort value="7002" type="INT32"/>
+</ProcessParas>

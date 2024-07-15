@@ -1,0 +1,63 @@
+{
+    "000000": {
+        "1": {
+            "DistanceHorizontal": "17.8805",
+            "DistanceVertical": "773.964",
+            "HolesHeight": "4.44163",
+            "HolesID": "1",
+            "HolesLeve": "OK",
+            "HolesWidth": "3.23028",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-05-19/¿×/09-39-27",
+            "Time": "09-39-27",
+            "Type": "¿×"
+        },
+        "2": {
+            "DistanceHorizontal": "1103.92",
+            "DistanceVertical": "144.362",
+            "HolesHeight": "16.4542",
+            "HolesID": "2",
+            "HolesLeve": "OK",
+            "HolesWidth": "16.959",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-05-19/¿×/09-39-27",
+            "Time": "09-39-27",
+            "Type": "¿×"
+        },
+        "3": {
+            "DistanceHorizontal": "1103.44",
+            "DistanceVertical": "289.669",
+            "HolesHeight": "16.5552",
+            "HolesID": "3",
+            "HolesLeve": "OK",
+            "HolesWidth": "16.959",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-05-19/¿×/09-39-27",
+            "Time": "09-39-27",
+            "Type": "¿×"
+        },
+        "4": {
+            "DistanceHorizontal": "32.7837",
+            "DistanceVertical": "115.202",
+            "HolesHeight": "23.5205",
+            "HolesID": "4",
+            "HolesLeve": "OK",
+            "HolesWidth": "24.429",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-05-19/¿×/09-39-27",
+            "Time": "09-39-27",
+            "Type": "¿×"
+        },
+        "5": {
+            "DistanceHorizontal": "32.9523",
+            "DistanceVertical": "651.644",
+            "HolesHeight": "23.4195",
+            "HolesID": "5",
+            "HolesLeve": "OK",
+            "HolesWidth": "24.328",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-05-19/¿×/09-39-27",
+            "Time": "09-39-27",
+            "Type": "¿×"
+        },
+        "GlassAngle": "",
+        "GlassLength": "",
+        "GlassWidth": "",
+        "ImageHolesLinePath": "E:/SaveDefectImage/2024-05-19/¿×Ê¾ÒâÍ¼/09-39-27"
+    }
+}

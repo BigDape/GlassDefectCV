@@ -1,0 +1,19 @@
+{
+    "000001": {
+        "1": {
+            "DistanceHorizontal": "27.1363",
+            "DistanceVertical": "292.348",
+            "HolesHeight": "17.4637",
+            "HolesID": "1",
+            "HolesLeve": "OK",
+            "HolesWidth": "23.1167",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-05-11/孔/13-15-49",
+            "Time": "13-15-49",
+            "Type": "孔"
+        },
+        "GlassAngle": "0",
+        "GlassLength": "407.686",
+        "GlassWidth": "422.292",
+        "ImageHolesLinePath": "E:/SaveDefectImage/2024-05-11/孔示意图/13-15-49"
+    }
+}

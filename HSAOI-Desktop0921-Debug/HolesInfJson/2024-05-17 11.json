@@ -1,0 +1,30 @@
+{
+    "000000": {
+        "1": {
+            "DistanceHorizontal": "0",
+            "DistanceVertical": "0",
+            "HolesHeight": "0",
+            "HolesID": "1",
+            "HolesLeve": "OK",
+            "HolesWidth": "0",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-05-17/¿×/11-38-44",
+            "Time": "11-38-44",
+            "Type": "¿×"
+        },
+        "2": {
+            "DistanceHorizontal": "0",
+            "DistanceVertical": "0",
+            "HolesHeight": "0",
+            "HolesID": "2",
+            "HolesLeve": "OK",
+            "HolesWidth": "0",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-05-17/¿×/11-38-44",
+            "Time": "11-38-44",
+            "Type": "¿×"
+        },
+        "GlassAngle": "",
+        "GlassLength": "",
+        "GlassWidth": "",
+        "ImageHolesLinePath": "E:/SaveDefectImage/2024-05-17/¿×Ê¾ÒâÍ¼/11-38-44"
+    }
+}

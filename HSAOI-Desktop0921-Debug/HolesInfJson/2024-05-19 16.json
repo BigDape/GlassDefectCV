@@ -1,0 +1,152 @@
+{
+    "000001": {
+        "GlassAngle": "0000.00058428",
+        "GlassLength": "2235.32",
+        "GlassWidth": "721.519",
+        "ImageHolesLinePath": ""
+    },
+    "000003": {
+        "GlassAngle": "0000.00169145",
+        "GlassLength": "2236.93",
+        "GlassWidth": "728.815",
+        "ImageHolesLinePath": ""
+    },
+    "000006": {
+        "GlassAngle": "00002.67949e-08",
+        "GlassLength": "2235.97",
+        "GlassWidth": "736.813",
+        "ImageHolesLinePath": ""
+    },
+    "000007": {
+        "GlassAngle": "00002.67949e-0800002.67949e-08",
+        "GlassLength": "2235.42",
+        "GlassWidth": "737.307",
+        "ImageHolesLinePath": ""
+    },
+    "000008": {
+        "GlassAngle": "00002.67949e-0800002.67949e-0800002.67949e-08",
+        "GlassLength": "2235.63",
+        "GlassWidth": "738.129",
+        "ImageHolesLinePath": ""
+    },
+    "000009": {
+        "GlassAngle": "00002.67949e-0800002.67949e-0800002.67949e-0800002.67949e-08",
+        "GlassLength": "2235.75",
+        "GlassWidth": "739.522",
+        "ImageHolesLinePath": ""
+    },
+    "000010": {
+        "GlassAngle": "00002.67949e-0800002.67949e-0800002.67949e-0800002.67949e-0800002.67949e-08",
+        "GlassLength": "2234.98",
+        "GlassWidth": "737.95",
+        "ImageHolesLinePath": ""
+    },
+    "000011": {
+        "GlassAngle": "00002.67949e-0800002.67949e-0800002.67949e-0800002.67949e-0800002.67949e-0800002.67949e-08",
+        "GlassLength": "2236.24",
+        "GlassWidth": "738.31",
+        "ImageHolesLinePath": ""
+    },
+    "000012": {
+        "GlassAngle": "00002.67949e-0800002.67949e-0800002.67949e-0800002.67949e-0800002.67949e-0800002.67949e-0800000.0213852",
+        "GlassLength": "2220.34",
+        "GlassWidth": "571.955",
+        "ImageHolesLinePath": ""
+    },
+    "000013": {
+        "GlassAngle": "00002.67949e-0800002.67949e-0800002.67949e-0800002.67949e-0800002.67949e-0800002.67949e-0800000.021385200000.0212601",
+        "GlassLength": "2223.75",
+        "GlassWidth": "572.553",
+        "ImageHolesLinePath": ""
+    },
+    "000014": {
+        "GlassAngle": "00002.67949e-0800002.67949e-0800002.67949e-0800002.67949e-0800002.67949e-0800002.67949e-0800000.021385200000.021260100000.0200945",
+        "GlassLength": "2201.39",
+        "GlassWidth": "582.136",
+        "ImageHolesLinePath": ""
+    },
+    "000015": {
+        "GlassAngle": "00002.67949e-0800002.67949e-0800002.67949e-0800002.67949e-0800002.67949e-0800002.67949e-0800000.021385200000.021260100000.020094500000.0203925",
+        "GlassLength": "2223.83",
+        "GlassWidth": "581.949",
+        "ImageHolesLinePath": ""
+    },
+    "000016": {
+        "GlassAngle": "00002.67949e-0800002.67949e-0800002.67949e-0800002.67949e-0800002.67949e-0800002.67949e-0800000.021385200000.021260100000.020094500000.020392500000.0193852",
+        "GlassLength": "2228.82",
+        "GlassWidth": "581.719",
+        "ImageHolesLinePath": ""
+    },
+    "000017": {
+        "1": {
+            "DistanceHorizontal": "318.874",
+            "DistanceVertical": "598.932",
+            "HolesHeight": "4.23974",
+            "HolesID": "1",
+            "HolesLeve": "OK",
+            "HolesWidth": "3.73501",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-05-19/¿×/16-36-07",
+            "Time": "16-36-07",
+            "Type": "¿×"
+        },
+        "2": {
+            "DistanceHorizontal": "323.153",
+            "DistanceVertical": "599.371",
+            "HolesHeight": "3.33122",
+            "HolesID": "2",
+            "HolesLeve": "OK",
+            "HolesWidth": "4.54258",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-05-19/¿×/16-36-07",
+            "Time": "16-36-07",
+            "Type": "¿×"
+        },
+        "3": {
+            "DistanceHorizontal": "1057.82",
+            "DistanceVertical": "32.8291",
+            "HolesHeight": "4.13879",
+            "HolesID": "3",
+            "HolesLeve": "OK",
+            "HolesWidth": "3.73501",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-05-19/¿×/16-36-07",
+            "Time": "16-36-07",
+            "Type": "¿×"
+        },
+        "4": {
+            "DistanceHorizontal": "1116.72",
+            "DistanceVertical": "148.239",
+            "HolesHeight": "16.3533",
+            "HolesID": "4",
+            "HolesLeve": "OK",
+            "HolesWidth": "17.0599",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-05-19/¿×/16-36-07",
+            "Time": "16-36-07",
+            "Type": "¿×"
+        },
+        "5": {
+            "DistanceHorizontal": "444.386",
+            "DistanceVertical": "586.049",
+            "HolesHeight": "3.43217",
+            "HolesID": "5",
+            "HolesLeve": "OK",
+            "HolesWidth": "3.9369",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-05-19/¿×/16-36-07",
+            "Time": "16-36-07",
+            "Type": "¿×"
+        },
+        "6": {
+            "DistanceHorizontal": "32.9935",
+            "DistanceVertical": "264.104",
+            "HolesHeight": "23.4195",
+            "HolesID": "6",
+            "HolesLeve": "OK",
+            "HolesWidth": "24.328",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-05-19/¿×/16-36-07",
+            "Time": "16-36-07",
+            "Type": "¿×"
+        },
+        "GlassAngle": "00002.67949e-0800002.67949e-0800002.67949e-0800002.67949e-0800002.67949e-0800002.67949e-0800000.021385200000.021260100000.020094500000.020392500000.019385200000.0191966",
+        "GlassLength": "2219.78",
+        "GlassWidth": "581.94",
+        "ImageHolesLinePath": "E:/SaveDefectImage/2024-05-19/¿×Ê¾ÒâÍ¼/16-36-07"
+    }
+}

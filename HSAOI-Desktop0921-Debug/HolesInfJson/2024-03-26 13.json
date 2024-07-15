@@ -1,0 +1,52 @@
+{
+    "000001": {
+        "GlassLength": "1618.68",
+        "GlassWidth": "499.502",
+        "ImageHolesLinePath": ""
+    },
+    "000002": {
+        "GlassLength": "1618.07",
+        "GlassWidth": "499.502",
+        "ImageHolesLinePath": ""
+    },
+    "000003": {
+        "GlassLength": "1618.18",
+        "GlassWidth": "499.52",
+        "ImageHolesLinePath": ""
+    },
+    "000004": {
+        "GlassLength": "1617.24",
+        "GlassWidth": "499.491",
+        "ImageHolesLinePath": ""
+    },
+    "000005": {
+        "GlassLength": "1440.1",
+        "GlassWidth": "1565.7",
+        "ImageHolesLinePath": ""
+    },
+    "000006": {
+        "GlassLength": "1616.65",
+        "GlassWidth": "499.457",
+        "ImageHolesLinePath": ""
+    },
+    "000007": {
+        "GlassLength": "1446.2",
+        "GlassWidth": "1078.1",
+        "ImageHolesLinePath": ""
+    },
+    "000008": {
+        "GlassLength": "1565.09",
+        "GlassWidth": "499.209",
+        "ImageHolesLinePath": ""
+    },
+    "000009": {
+        "GlassLength": "1871.1",
+        "GlassWidth": "956.3",
+        "ImageHolesLinePath": ""
+    },
+    "000010": {
+        "GlassLength": "1563.96",
+        "GlassWidth": "500.398",
+        "ImageHolesLinePath": ""
+    }
+}

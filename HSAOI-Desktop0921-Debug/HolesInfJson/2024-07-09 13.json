@@ -1,0 +1,118 @@
+{
+    "000001": {
+        "1": {
+            "DistanceHorizontal": "19.6776",
+            "DistanceVertical": "13.4556",
+            "HolesHeight": "7.99242",
+            "HolesID": "1",
+            "HolesLeve": "OK",
+            "HolesWidth": "7.99242",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-07-09/孔/13-47-34",
+            "Time": "13-47-34",
+            "Type": "孔"
+        },
+        "10": {
+            "DistanceHorizontal": "64.1979",
+            "DistanceVertical": "48.8145",
+            "HolesHeight": "23.2691",
+            "HolesID": "10",
+            "HolesLeve": "NG",
+            "HolesWidth": "28.4287",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-07-09/孔/13-47-34",
+            "Time": "13-47-34",
+            "Type": "丝印"
+        },
+        "2": {
+            "DistanceHorizontal": "30.2885",
+            "DistanceVertical": "12.0928",
+            "HolesHeight": "7.79008",
+            "HolesID": "2",
+            "HolesLeve": "OK",
+            "HolesWidth": "7.79008",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-07-09/孔/13-47-34",
+            "Time": "13-47-34",
+            "Type": "孔"
+        },
+        "3": {
+            "DistanceHorizontal": "973.674",
+            "DistanceVertical": "130.52",
+            "HolesHeight": "12.4439",
+            "HolesID": "3",
+            "HolesLeve": "OK",
+            "HolesWidth": "12.4439",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-07-09/孔/13-47-34",
+            "Time": "13-47-34",
+            "Type": "孔"
+        },
+        "4": {
+            "DistanceHorizontal": "972.101",
+            "DistanceVertical": "130.982",
+            "HolesHeight": "12.2416",
+            "HolesID": "4",
+            "HolesLeve": "OK",
+            "HolesWidth": "12.2416",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-07-09/孔/13-47-34",
+            "Time": "13-47-34",
+            "Type": "孔"
+        },
+        "5": {
+            "DistanceHorizontal": "30.6545",
+            "DistanceVertical": "12.5957",
+            "HolesHeight": "7.89125",
+            "HolesID": "5",
+            "HolesLeve": "OK",
+            "HolesWidth": "7.89125",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-07-09/孔/13-47-34",
+            "Time": "13-47-34",
+            "Type": "孔"
+        },
+        "6": {
+            "DistanceHorizontal": "30.1486",
+            "DistanceVertical": "11.96",
+            "HolesHeight": "7.99242",
+            "HolesID": "6",
+            "HolesLeve": "OK",
+            "HolesWidth": "7.99242",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-07-09/孔/13-47-34",
+            "Time": "13-47-34",
+            "Type": "孔"
+        },
+        "7": {
+            "DistanceHorizontal": "84.2547",
+            "DistanceVertical": "348.429",
+            "HolesHeight": "7.48657",
+            "HolesID": "7",
+            "HolesLeve": "OK",
+            "HolesWidth": "59.6903",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-07-09/孔/13-47-34",
+            "Time": "13-47-34",
+            "Type": "丝印"
+        },
+        "8": {
+            "DistanceHorizontal": "83.9127",
+            "DistanceVertical": "349.448",
+            "HolesHeight": "7.58774",
+            "HolesID": "8",
+            "HolesLeve": "OK",
+            "HolesWidth": "59.6903",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-07-09/孔/13-47-34",
+            "Time": "13-47-34",
+            "Type": "丝印"
+        },
+        "9": {
+            "DistanceHorizontal": "64.1277",
+            "DistanceVertical": "66.6204",
+            "HolesHeight": "23.3703",
+            "HolesID": "9",
+            "HolesLeve": "OK",
+            "HolesWidth": "28.4287",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-07-09/孔/13-47-34",
+            "Time": "13-47-34",
+            "Type": "丝印"
+        },
+        "GlassAngle": "00006.78112e-05",
+        "GlassLength": "1949.21",
+        "GlassWidth": "701.044",
+        "ImageHolesLinePath": "E:/SaveDefectImage/2024-07-09/孔示意图/13-47-34"
+    }
+}

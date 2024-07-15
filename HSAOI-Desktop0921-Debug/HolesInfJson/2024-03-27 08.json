@@ -1,0 +1,32 @@
+{
+    "000001": {
+        "GlassLength": "1587.61",
+        "GlassWidth": "452.809",
+        "ImageHolesLinePath": ""
+    },
+    "000002": {
+        "GlassLength": "1587.23",
+        "GlassWidth": "452.821",
+        "ImageHolesLinePath": ""
+    },
+    "000003": {
+        "GlassLength": "1587.12",
+        "GlassWidth": "452.912",
+        "ImageHolesLinePath": ""
+    },
+    "000004": {
+        "GlassLength": "1587.1",
+        "GlassWidth": "452.867",
+        "ImageHolesLinePath": ""
+    },
+    "000005": {
+        "GlassLength": "1586.93",
+        "GlassWidth": "452.821",
+        "ImageHolesLinePath": ""
+    },
+    "000006": {
+        "GlassLength": "1586.51",
+        "GlassWidth": "452.821",
+        "ImageHolesLinePath": ""
+    }
+}

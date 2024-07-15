@@ -1,0 +1,569 @@
+{
+    "000001": {
+        "1": {
+            "DistanceHorizontal": "588.917",
+            "DistanceVertical": "143.329",
+            "HolesHeight": "9.2806",
+            "HolesID": "1",
+            "HolesLeve": "OK",
+            "HolesWidth": "15.0305",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/13-34-32",
+            "Time": "13-34-32",
+            "Type": "孔"
+        },
+        "2": {
+            "DistanceHorizontal": "588.905",
+            "DistanceVertical": "138.415",
+            "HolesHeight": "9.07884",
+            "HolesID": "2",
+            "HolesLeve": "OK",
+            "HolesWidth": "14.8288",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/13-34-32",
+            "Time": "13-34-32",
+            "Type": "孔"
+        },
+        "3": {
+            "DistanceHorizontal": "35.595",
+            "DistanceVertical": "73.8917",
+            "HolesHeight": "14.9297",
+            "HolesID": "3",
+            "HolesLeve": "NG",
+            "HolesWidth": "50.4319",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/13-34-32",
+            "Time": "13-34-32",
+            "Type": "丝印"
+        },
+        "4": {
+            "DistanceHorizontal": "36.9599",
+            "DistanceVertical": "84.4837",
+            "HolesHeight": "26.026",
+            "HolesID": "4",
+            "HolesLeve": "NG",
+            "HolesWidth": "52.6554",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/13-34-32",
+            "Time": "13-34-32",
+            "Type": "丝印"
+        },
+        "GlassAngle": "00000.0126727000000000000000000000000000000000000.008388380000000000000.006873120000000000.0058224800000000000000.0046004300000000000000000000000000.0021276300000000000000000000000000000.005199230000000000000000000.0025909600000000000.0017181800000.0010180400000.00056920600000000000000000000000.004280100000.0044720900000.004409800000.010598700000.0093775600000.012803100000.013241200000.0128457",
+        "GlassLength": "1178.41",
+        "GlassWidth": "723.847",
+        "ImageHolesLinePath": "E:/SaveDefectImage/2024-06-21/孔示意图/13-34-32"
+    },
+    "000002": {
+        "1": {
+            "DistanceHorizontal": "588.973",
+            "DistanceVertical": "141.943",
+            "HolesHeight": "9.38753",
+            "HolesID": "1",
+            "HolesLeve": "OK",
+            "HolesWidth": "14.8802",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/13-37-07",
+            "Time": "13-37-07",
+            "Type": "孔"
+        },
+        "2": {
+            "DistanceHorizontal": "588.858",
+            "DistanceVertical": "137.015",
+            "HolesHeight": "8.98806",
+            "HolesID": "2",
+            "HolesLeve": "OK",
+            "HolesWidth": "14.6805",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/13-37-07",
+            "Time": "13-37-07",
+            "Type": "孔"
+        },
+        "3": {
+            "DistanceHorizontal": "35.6055",
+            "DistanceVertical": "73.1528",
+            "HolesHeight": "14.5806",
+            "HolesID": "3",
+            "HolesLeve": "NG",
+            "HolesWidth": "49.9276",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/13-37-07",
+            "Time": "13-37-07",
+            "Type": "丝印"
+        },
+        "4": {
+            "DistanceHorizontal": "36.7183",
+            "DistanceVertical": "83.3393",
+            "HolesHeight": "25.7658",
+            "HolesID": "4",
+            "HolesLeve": "NG",
+            "HolesWidth": "52.1288",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/13-37-07",
+            "Time": "13-37-07",
+            "Type": "丝印"
+        },
+        "GlassAngle": "00000.0126727000000000000000000000000000000000000.008388380000000000000.006873120000000000.0058224800000000000000.0046004300000000000000000000000000.0021276300000000000000000000000000000.005199230000000000000000000.0025909600000000000.0017181800000.0010180400000.00056920600000000000000000000000.004280100000.0044720900000.004409800000.010598700000.0093775600000.012803100000.013241200000.012845700000.0125611",
+        "GlassLength": "1178.69",
+        "GlassWidth": "721.537",
+        "ImageHolesLinePath": "E:/SaveDefectImage/2024-06-21/孔示意图/13-37-07"
+    },
+    "000003": {
+        "1": {
+            "DistanceHorizontal": "588.999",
+            "DistanceVertical": "143.858",
+            "HolesHeight": "9.31364",
+            "HolesID": "1",
+            "HolesLeve": "OK",
+            "HolesWidth": "15.1853",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/13-40-04",
+            "Time": "13-40-04",
+            "Type": "孔"
+        },
+        "2": {
+            "DistanceHorizontal": "588.891",
+            "DistanceVertical": "138.898",
+            "HolesHeight": "9.11117",
+            "HolesID": "2",
+            "HolesLeve": "OK",
+            "HolesWidth": "14.8816",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/13-40-04",
+            "Time": "13-40-04",
+            "Type": "孔"
+        },
+        "3": {
+            "DistanceHorizontal": "35.6254",
+            "DistanceVertical": "74.0029",
+            "HolesHeight": "14.7803",
+            "HolesID": "3",
+            "HolesLeve": "NG",
+            "HolesWidth": "50.51",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/13-40-04",
+            "Time": "13-40-04",
+            "Type": "丝印"
+        },
+        "4": {
+            "DistanceHorizontal": "37.0211",
+            "DistanceVertical": "84.9869",
+            "HolesHeight": "26.1187",
+            "HolesID": "4",
+            "HolesLeve": "NG",
+            "HolesWidth": "53.0457",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/13-40-04",
+            "Time": "13-40-04",
+            "Type": "丝印"
+        },
+        "GlassAngle": "00000.0126727000000000000000000000000000000000000.008388380000000000000.006873120000000000.0058224800000000000000.0046004300000000000000000000000000.0021276300000000000000000000000000000.005199230000000000000000000.0025909600000000000.0017181800000.0010180400000.00056920600000000000000000000000.004280100000.0044720900000.004409800000.010598700000.0093775600000.012803100000.013241200000.012845700000.012561100000.0129149",
+        "GlassLength": "1178.6",
+        "GlassWidth": "724.645",
+        "ImageHolesLinePath": "E:/SaveDefectImage/2024-06-21/孔示意图/13-40-04"
+    },
+    "000004": {
+        "1": {
+            "DistanceHorizontal": "588.924",
+            "DistanceVertical": "144.362",
+            "HolesHeight": "9.44447",
+            "HolesID": "1",
+            "HolesLeve": "OK",
+            "HolesWidth": "15.1315",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/13-43-04",
+            "Time": "13-43-04",
+            "Type": "孔"
+        },
+        "2": {
+            "DistanceHorizontal": "588.909",
+            "DistanceVertical": "139.245",
+            "HolesHeight": "9.13981",
+            "HolesID": "2",
+            "HolesLeve": "OK",
+            "HolesWidth": "14.9284",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/13-43-04",
+            "Time": "13-43-04",
+            "Type": "孔"
+        },
+        "3": {
+            "DistanceHorizontal": "35.5633",
+            "DistanceVertical": "74.2863",
+            "HolesHeight": "14.6237",
+            "HolesID": "3",
+            "HolesLeve": "NG",
+            "HolesWidth": "50.7706",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/13-43-04",
+            "Time": "13-43-04",
+            "Type": "丝印"
+        },
+        "4": {
+            "DistanceHorizontal": "37.0127",
+            "DistanceVertical": "85.4064",
+            "HolesHeight": "26.2008",
+            "HolesID": "4",
+            "HolesLeve": "NG",
+            "HolesWidth": "53.1107",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/13-43-04",
+            "Time": "13-43-04",
+            "Type": "丝印"
+        },
+        "GlassAngle": "00000.0126727000000000000000000000000000000000000.008388380000000000000.006873120000000000.0058224800000000000000.0046004300000000000000000000000000.0021276300000000000000000000000000000.005199230000000000000000000.0025909600000000000.0017181800000.0010180400000.00056920600000000000000000000000.004280100000.0044720900000.004409800000.010598700000.0093775600000.012803100000.013241200000.012845700000.012561100000.012914900000.0130917",
+        "GlassLength": "1178.67",
+        "GlassWidth": "725.34",
+        "ImageHolesLinePath": "E:/SaveDefectImage/2024-06-21/孔示意图/13-43-04"
+    },
+    "000005": {
+        "1": {
+            "DistanceHorizontal": "588.93",
+            "DistanceVertical": "144.783",
+            "HolesHeight": "9.36779",
+            "HolesID": "1",
+            "HolesLeve": "OK",
+            "HolesWidth": "15.1717",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/13-45-54",
+            "Time": "13-45-54",
+            "Type": "孔"
+        },
+        "2": {
+            "DistanceHorizontal": "588.862",
+            "DistanceVertical": "139.71",
+            "HolesHeight": "9.16414",
+            "HolesID": "2",
+            "HolesLeve": "OK",
+            "HolesWidth": "14.9681",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/13-45-54",
+            "Time": "13-45-54",
+            "Type": "孔"
+        },
+        "3": {
+            "DistanceHorizontal": "35.485",
+            "DistanceVertical": "74.6368",
+            "HolesHeight": "14.9681",
+            "HolesID": "3",
+            "HolesLeve": "NG",
+            "HolesWidth": "50.8037",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/13-45-54",
+            "Time": "13-45-54",
+            "Type": "丝印"
+        },
+        "4": {
+            "DistanceHorizontal": "37.0399",
+            "DistanceVertical": "85.6847",
+            "HolesHeight": "26.3724",
+            "HolesID": "4",
+            "HolesLeve": "NG",
+            "HolesWidth": "53.15",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/13-45-54",
+            "Time": "13-45-54",
+            "Type": "丝印"
+        },
+        "GlassAngle": "00000.0126727000000000000000000000000000000000000.008388380000000000000.006873120000000000.0058224800000000000000.0046004300000000000000000000000000.0021276300000000000000000000000000000.005199230000000000000000000.0025909600000000000.0017181800000.0010180400000.00056920600000000000000000000000.004280100000.0044720900000.004409800000.010598700000.0093775600000.012803100000.013241200000.012845700000.012561100000.012914900000.013091700000.0128829",
+        "GlassLength": "1178.6",
+        "GlassWidth": "725.934",
+        "ImageHolesLinePath": "E:/SaveDefectImage/2024-06-21/孔示意图/13-45-54"
+    },
+    "000006": {
+        "1": {
+            "DistanceHorizontal": "686.754",
+            "DistanceVertical": "143.085",
+            "HolesHeight": "10.8012",
+            "HolesID": "1",
+            "HolesLeve": "OK",
+            "HolesWidth": "15.1419",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/09-22-50",
+            "Time": "09-22-50",
+            "Type": "孔"
+        },
+        "2": {
+            "DistanceHorizontal": "686.79",
+            "DistanceVertical": "146.192",
+            "HolesHeight": "10.5993",
+            "HolesID": "2",
+            "HolesLeve": "OK",
+            "HolesWidth": "14.94",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/09-22-50",
+            "Time": "09-22-50",
+            "Type": "孔"
+        },
+        "3": {
+            "DistanceHorizontal": "40.2326",
+            "DistanceVertical": "74.2964",
+            "HolesHeight": "23.8233",
+            "HolesID": "3",
+            "HolesLeve": "NG",
+            "HolesWidth": "50.3658",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/09-22-50",
+            "Time": "09-22-50",
+            "Type": "丝印"
+        },
+        "4": {
+            "DistanceHorizontal": "42.5701",
+            "DistanceVertical": "84.391",
+            "HolesHeight": "24.2271",
+            "HolesID": "4",
+            "HolesLeve": "NG",
+            "HolesWidth": "51.5794",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/09-22-50",
+            "Time": "09-22-50",
+            "Type": "丝印"
+        },
+        "GlassAngle": "00000.0126727000000000000000000000000000000000000.00838838",
+        "GlassLength": "1374.61",
+        "GlassWidth": "729.259",
+        "ImageHolesLinePath": "E:/SaveDefectImage/2024-06-21/孔示意图/09-22-50"
+    },
+    "000009": {
+        "1": {
+            "DistanceHorizontal": "588.703",
+            "DistanceVertical": "143.077",
+            "HolesHeight": "9.1861",
+            "HolesID": "1",
+            "HolesLeve": "OK",
+            "HolesWidth": "15.041",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/11-37-52",
+            "Time": "11-37-52",
+            "Type": "孔"
+        },
+        "2": {
+            "DistanceHorizontal": "588.68",
+            "DistanceVertical": "145.645",
+            "HolesHeight": "8.98421",
+            "HolesID": "2",
+            "HolesLeve": "OK",
+            "HolesWidth": "14.94",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/11-37-52",
+            "Time": "11-37-52",
+            "Type": "孔"
+        },
+        "GlassAngle": "00000.0126727000000000000000000000000000000000000.008388380000000000000.006873120000000000.0058224800000000000000.0046004300000000000000000000000000.0021276300000000000000000000000000000.005199230000000000000000000.0025909600000000000.0017181800000.0010180400000.00056920600000000000000000000000.0042801",
+        "GlassLength": "1178.12",
+        "GlassWidth": "729.206",
+        "ImageHolesLinePath": "E:/SaveDefectImage/2024-06-21/孔示意图/11-37-52"
+    },
+    "000010": {
+        "1": {
+            "DistanceHorizontal": "588.752",
+            "DistanceVertical": "143.093",
+            "HolesHeight": "9.1861",
+            "HolesID": "1",
+            "HolesLeve": "OK",
+            "HolesWidth": "15.041",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/11-42-49",
+            "Time": "11-42-49",
+            "Type": "孔"
+        },
+        "2": {
+            "DistanceHorizontal": "588.716",
+            "DistanceVertical": "146.022",
+            "HolesHeight": "9.1861",
+            "HolesID": "2",
+            "HolesLeve": "OK",
+            "HolesWidth": "14.94",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/11-42-49",
+            "Time": "11-42-49",
+            "Type": "孔"
+        },
+        "3": {
+            "DistanceHorizontal": "36.3442",
+            "DistanceVertical": "74.902",
+            "HolesHeight": "14.8391",
+            "HolesID": "3",
+            "HolesLeve": "NG",
+            "HolesWidth": "50.3658",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/11-42-49",
+            "Time": "11-42-49",
+            "Type": "丝印"
+        },
+        "4": {
+            "DistanceHorizontal": "37.4444",
+            "DistanceVertical": "74.7506",
+            "HolesHeight": "17.6656",
+            "HolesID": "4",
+            "HolesLeve": "NG",
+            "HolesWidth": "64.0192",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/11-42-49",
+            "Time": "11-42-49",
+            "Type": "丝印"
+        },
+        "GlassAngle": "00000.0126727000000000000000000000000000000000000.008388380000000000000.006873120000000000.0058224800000000000000.0046004300000000000000000000000000.0021276300000000000000000000000000000.005199230000000000000000000.0025909600000000000.0017181800000.0010180400000.00056920600000000000000000000000.004280100000.00447209",
+        "GlassLength": "1178.18",
+        "GlassWidth": "729.217",
+        "ImageHolesLinePath": "E:/SaveDefectImage/2024-06-21/孔示意图/11-42-49"
+    },
+    "000011": {
+        "1": {
+            "DistanceHorizontal": "588.757",
+            "DistanceVertical": "143.054",
+            "HolesHeight": "9.28705",
+            "HolesID": "1",
+            "HolesLeve": "OK",
+            "HolesWidth": "15.041",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/11-45-31",
+            "Time": "11-45-31",
+            "Type": "孔"
+        },
+        "2": {
+            "DistanceHorizontal": "588.809",
+            "DistanceVertical": "145.84",
+            "HolesHeight": "9.08515",
+            "HolesID": "2",
+            "HolesLeve": "OK",
+            "HolesWidth": "14.94",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/11-45-31",
+            "Time": "11-45-31",
+            "Type": "孔"
+        },
+        "3": {
+            "DistanceHorizontal": "36.2493",
+            "DistanceVertical": "74.8011",
+            "HolesHeight": "14.94",
+            "HolesID": "3",
+            "HolesLeve": "NG",
+            "HolesWidth": "50.3658",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/11-45-31",
+            "Time": "11-45-31",
+            "Type": "丝印"
+        },
+        "4": {
+            "DistanceHorizontal": "34.5772",
+            "DistanceVertical": "74.4478",
+            "HolesHeight": "27.0536",
+            "HolesID": "4",
+            "HolesLeve": "NG",
+            "HolesWidth": "64.0192",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/11-45-31",
+            "Time": "11-45-31",
+            "Type": "丝印"
+        },
+        "GlassAngle": "00000.0126727000000000000000000000000000000000000.008388380000000000000.006873120000000000.0058224800000000000000.0046004300000000000000000000000000.0021276300000000000000000000000000000.005199230000000000000000000.0025909600000000000.0017181800000.0010180400000.00056920600000000000000000000000.004280100000.0044720900000.0044098",
+        "GlassLength": "1178.21",
+        "GlassWidth": "729.194",
+        "ImageHolesLinePath": "E:/SaveDefectImage/2024-06-21/孔示意图/11-45-31"
+    },
+    "000012": {
+        "1": {
+            "DistanceHorizontal": "588.814",
+            "DistanceVertical": "142.996",
+            "HolesHeight": "9.28705",
+            "HolesID": "1",
+            "HolesLeve": "OK",
+            "HolesWidth": "15.041",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/11-48-58",
+            "Time": "11-48-58",
+            "Type": "孔"
+        },
+        "2": {
+            "DistanceHorizontal": "588.848",
+            "DistanceVertical": "146.112",
+            "HolesHeight": "9.08515",
+            "HolesID": "2",
+            "HolesLeve": "OK",
+            "HolesWidth": "14.94",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/11-48-58",
+            "Time": "11-48-58",
+            "Type": "孔"
+        },
+        "3": {
+            "DistanceHorizontal": "36.0122",
+            "DistanceVertical": "74.3973",
+            "HolesHeight": "14.94",
+            "HolesID": "3",
+            "HolesLeve": "NG",
+            "HolesWidth": "50.3658",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/11-48-58",
+            "Time": "11-48-58",
+            "Type": "丝印"
+        },
+        "4": {
+            "DistanceHorizontal": "39.0816",
+            "DistanceVertical": "173.905",
+            "HolesHeight": "17.2618",
+            "HolesID": "4",
+            "HolesLeve": "NG",
+            "HolesWidth": "64.0192",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/11-48-58",
+            "Time": "11-48-58",
+            "Type": "丝印"
+        },
+        "GlassAngle": "00000.0126727000000000000000000000000000000000000.008388380000000000000.006873120000000000.0058224800000000000000.0046004300000000000000000000000000.0021276300000000000000000000000000000.005199230000000000000000000.0025909600000000000.0017181800000.0010180400000.00056920600000000000000000000000.004280100000.0044720900000.004409800000.0105987",
+        "GlassLength": "1178.32",
+        "GlassWidth": "729.102",
+        "ImageHolesLinePath": "E:/SaveDefectImage/2024-06-21/孔示意图/11-48-58"
+    },
+    "000013": {
+        "1": {
+            "DistanceHorizontal": "588.731",
+            "DistanceVertical": "143.011",
+            "HolesHeight": "9.1861",
+            "HolesID": "1",
+            "HolesLeve": "OK",
+            "HolesWidth": "15.1419",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/11-51-23",
+            "Time": "11-51-23",
+            "Type": "孔"
+        },
+        "2": {
+            "DistanceHorizontal": "588.771",
+            "DistanceVertical": "146.217",
+            "HolesHeight": "9.08515",
+            "HolesID": "2",
+            "HolesLeve": "OK",
+            "HolesWidth": "14.8391",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/11-51-23",
+            "Time": "11-51-23",
+            "Type": "孔"
+        },
+        "3": {
+            "DistanceHorizontal": "35.9975",
+            "DistanceVertical": "74.4983",
+            "HolesHeight": "14.6372",
+            "HolesID": "3",
+            "HolesLeve": "NG",
+            "HolesWidth": "50.3658",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/11-51-23",
+            "Time": "11-51-23",
+            "Type": "丝印"
+        },
+        "4": {
+            "DistanceHorizontal": "38.8183",
+            "DistanceVertical": "77.3752",
+            "HolesHeight": "17.2618",
+            "HolesID": "4",
+            "HolesLeve": "NG",
+            "HolesWidth": "64.0192",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/11-51-23",
+            "Time": "11-51-23",
+            "Type": "丝印"
+        },
+        "GlassAngle": "00000.0126727000000000000000000000000000000000000.008388380000000000000.006873120000000000.0058224800000000000000.0046004300000000000000000000000000.0021276300000000000000000000000000000.005199230000000000000000000.0025909600000000000.0017181800000.0010180400000.00056920600000000000000000000000.004280100000.0044720900000.004409800000.010598700000.00937756",
+        "GlassLength": "1178.22",
+        "GlassWidth": "729.181",
+        "ImageHolesLinePath": "E:/SaveDefectImage/2024-06-21/孔示意图/11-51-23"
+    },
+    "000014": {
+        "1": {
+            "DistanceHorizontal": "588.96",
+            "DistanceVertical": "143.448",
+            "HolesHeight": "9.38799",
+            "HolesID": "1",
+            "HolesLeve": "OK",
+            "HolesWidth": "15.041",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/11-58-20",
+            "Time": "11-58-20",
+            "Type": "孔"
+        },
+        "2": {
+            "DistanceHorizontal": "588.854",
+            "DistanceVertical": "138.567",
+            "HolesHeight": "8.98421",
+            "HolesID": "2",
+            "HolesLeve": "OK",
+            "HolesWidth": "14.8391",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/11-58-20",
+            "Time": "11-58-20",
+            "Type": "孔"
+        },
+        "3": {
+            "DistanceHorizontal": "36.9311",
+            "DistanceVertical": "84.4415",
+            "HolesHeight": "26.1451",
+            "HolesID": "3",
+            "HolesLeve": "NG",
+            "HolesWidth": "52.6919",
+            "ImageHolesPath": "E:/SaveDefectImage/2024-06-21/孔/11-58-20",
+            "Time": "11-58-20",
+            "Type": "丝印"
+        },
+        "GlassAngle": "00000.0126727000000000000000000000000000000000000.008388380000000000000.006873120000000000.0058224800000000000000.0046004300000000000000000000000000.0021276300000000000000000000000000000.005199230000000000000000000.0025909600000000000.0017181800000.0010180400000.00056920600000000000000000000000.004280100000.0044720900000.004409800000.010598700000.0093775600000.0128031",
+        "GlassLength": "1178.47",
+        "GlassWidth": "724.017",
+        "ImageHolesLinePath": "E:/SaveDefectImage/2024-06-21/孔示意图/11-58-20"
+    }
+}
