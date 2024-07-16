@@ -4,7 +4,7 @@
 #   @MainBuilder    chengwenjie
 #   @CreateDate     2023-06-20
 #---------------------------------------------
-QT       += core gui network xml
+QT       += core gui network xml sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
