@@ -266,6 +266,7 @@ Makefile: ..\HSAOI_Demo_0920_1\HSAOI.pro C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\mkspe
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\mkspecs\features\qt_config.prf \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\mkspecs\win32-msvc\qmake.conf \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\mkspecs\features\spec_post.prf \
+		.qmake.stash \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\mkspecs\features\exclusive_builds.prf \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\mkspecs\common\msvc-version.conf \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\mkspecs\features\toolchain.prf \
@@ -298,7 +299,6 @@ Makefile: ..\HSAOI_Demo_0920_1\HSAOI.pro C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\mkspe
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\lib\Qt5Sql.prl \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\lib\Qt5Core.prl \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\lib\qtmain.prl \
-		.qmake.stash \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\mkspecs\features\build_pass.prf \
 		..\HSAOI_Demo_0920_1\SystemSource.qrc \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\lib\Qt5Widgetsd.prl \
@@ -491,6 +491,7 @@ C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\mkspecs\features\qt_functions.prf:
 C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\mkspecs\features\qt_config.prf:
 C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\mkspecs\win32-msvc\qmake.conf:
 C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\mkspecs\features\spec_post.prf:
+.qmake.stash:
 C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\mkspecs\features\exclusive_builds.prf:
 C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\mkspecs\common\msvc-version.conf:
 C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\mkspecs\features\toolchain.prf:
@@ -523,7 +524,6 @@ C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\lib\Qt5Xml.prl:
 C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\lib\Qt5Sql.prl:
 C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\lib\Qt5Core.prl:
 C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\lib\qtmain.prl:
-.qmake.stash:
 C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\mkspecs\features\build_pass.prf:
 ..\HSAOI_Demo_0920_1\SystemSource.qrc:
 C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\lib\Qt5Widgetsd.prl:

@@ -293,8 +293,8 @@ void MainWindow::initThread()
 
 void MainWindow::initDatabase()
 {
-    Database = new Jianbo_db();
-    Database->start_connect();
+    //Database = new Jianbo_db();
+    //Database->start_connect();
     //    for (int i = 0; i < 10; i++) {
     //        Database->start_insert(QDateTime::currentDateTime(), i * 17, i * 7, i * 11, "OK", i * 3, "400*400", 0, 0, 0, 1, 1, 0, 0, 1, 1, 1);
     //    }
@@ -382,6 +382,14 @@ void MainWindow::slot_ShowSystemSettingForm()
         connect(this, SIGNAL(sig_DeliverNewRecipe(JsonParse2Map*)), SystemSettings, SLOT(slot_JsonRecipe_Changed(JsonParse2Map*)));
     }
     SystemSettings->setWindowFlags(Qt::Window);
+
+    //点击之后不可对其他窗体操作
+    SystemSettings->setWindowModality(Qt::ApplicationModal);
+    //设置窗口无最小化按钮
+    SystemSettings->setWindowFlags(SystemSettings->windowFlags() & ~Qt::WindowMinimizeButtonHint);
+    // 设置窗口无全屏按钮
+     SystemSettings->setWindowFlags(SystemSettings->windowFlags() & ~Qt::WindowMaximizeButtonHint);
+
     SystemSettings->setWindowIcon(QIcon(":/toolbar/icons/setup.ico"));
     SystemSettings->setWindowTitle("系统设置");
     SystemSettings->show();
