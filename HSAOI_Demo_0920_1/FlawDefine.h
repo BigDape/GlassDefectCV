@@ -7,6 +7,8 @@
 #define MAX_DATA_PACK_ROW_NUE_PER_FIELD 3
 
 #include <windows.h>
+#include <mutex>
+#include <queue>
 
 typedef unsigned long DWORD;
 typedef unsigned short WORD;
@@ -359,6 +361,38 @@ enum DrawFlawType {
     RectangleMark = 14,
     RhombusMark = 15,
     ReserveType = 255
+};
+
+template <typename T>
+class SafeQueue{
+private:
+    std::queue<T> _queue;
+    std::mutex _mutex;
+public:
+    SafeQueue(){}
+    SafeQueue(SafeQueue&){}
+    ~SafeQueue(){}
+    bool empty(){
+        std::unique_lock<std::mutex> sbguard(_mutex);
+        return _queue.empty();
+    }
+    int size(){
+        std::unique_lock<std::mutex> sbguard(_mutex);
+        return _queue.size();
+    }
+    void inqueue(T& t){
+        std::unique_lock<std::mutex> sbguard(_mutex);
+        _queue.push(t);
+    }
+    bool dequeue(T& t){
+        std::unique_lock<std::mutex> sbguard(_mutex);
+        if(_queue.empty()){
+            return false;
+        }
+        t = std::move(_queue.front());
+        _queue.pop();
+        return true;
+    }
 };
 
 #endif // FLAWDEFINE_H

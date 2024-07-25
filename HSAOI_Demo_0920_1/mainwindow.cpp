@@ -73,9 +73,6 @@ MainWindow::MainWindow(QWidget* parent)
     connect(m_FlawShowWidget, SIGNAL(sig_ClearDate()), this, SLOT(slot_clearPreSortGlassInfo()));
     connect(m_FlawShowWidget, SIGNAL(sig_ClearDate()), m_GlassStatisticTable, SLOT(slot_clearRowData()));
     connect(m_SingleFlawShow, SIGNAL(sig_paintFlawPoint(QString x,QString y)), m_FlawShowWidget, SLOT(slot_FlawTrack(QString x, QString y)));
-
-    //slot_ShowSystemSettingForm();
-    //SystemSettings->hide();
 }
 
 MainWindow::~MainWindow()
@@ -275,7 +272,6 @@ void MainWindow::initThread()
     TileImageThread = new QThread(this);
     DetectImageThread = new QThread(this);
     Detectworker = new Process_Detect();
-    //    connect(Detectworker,SIGNAL(sig_Deliver(QList<FlawPoint>*)),this,SLOT(slot_FromDetect(QList<FlawPoint>*)));
     Tileworker = new ProcessTile(Cameras);
     Detectworker->moveToThread(DetectImageThread);
     Tileworker->moveToThread(TileImageThread);
@@ -285,10 +281,11 @@ void MainWindow::initThread()
     DetectImageThread->start();
     TileImageThread->start();
     connect(Detectworker, SIGNAL(sendData(GLASSINFO*)), m_GlassStatisticTable, SLOT(slot_insertRowData(GLASSINFO*)));
-//    connect(Detectworker, SIGNAL(sendData(GLASSINFO*)), m_FlawShowWidget, SLOT(slot_GetGlassSize(GLASSINFO*)));
     connect(Detectworker, SIGNAL(sig_updateFlaw(GLASSINFO*)), m_FlawShowWidget, SLOT(slot_GetGlassSize(GLASSINFO*)));
     connect(Detectworker, SIGNAL(sig_Deliver(QList<FlawPoint>*)), m_FlawShowWidget, SLOT(slot_GetFlawPoints(QList<FlawPoint>*)));
-//    connect(m_FlawShowWidget, SIGNAL(sig_ClearDate()), Detectworker, SLOT(slot_ClearDate()));
+    connect(Detectworker, SIGNAL(sig_refreshFlaw(QString)), m_SingleFlawShow, SLOT(slot_refrshFlaw(QString)));
+    connect(Detectworker, SIGNAL(sig_refreshSize(QString)), m_SingleSizeShow, SLOT(slot_refreshSize(QString)));
+
 }
 
 void MainWindow::initDatabase()
@@ -482,14 +479,10 @@ void MainWindow::slot_updatePreGlassRes(bool res)
 {
     if (res) {
         lineEdit1->setText("OK");
-        lineEdit1->setStyleSheet(
-            "color: black;border: none; background-color: green; border-radius: "
-            "20px;");
+        lineEdit1->setStyleSheet("color: black;border: none; background-color: green; border-radius: 20px;");
     } else {
         lineEdit1->setText("NG");
-        lineEdit1->setStyleSheet(
-            "color: black;border: none; background-color: red; border-radius: "
-            "20px;");
+        lineEdit1->setStyleSheet("color: black;border: none; background-color: red; border-radius: 20px;");
     }
 }
 
@@ -535,18 +528,20 @@ void MainWindow::slot_ShowSingleFlawView(QString)
 
 void MainWindow::slot_SendPoint(const FlawPoint &flawpoint)
 {
-    QString firstColumnContent = m_GlassStatisticTable->tableWidget->item(0, 0)->text();
-    QString SecondColumnContent = m_GlassStatisticTable->tableWidget->item(0, 1)->text().left(13);
-    QString Deliver = firstColumnContent + "." + SecondColumnContent;
-    if (firstColumnContent != "")
-    {
-        m_SingleFlawShow->slot_RecieveID(Deliver);
-        m_SingleSizeShow->slot_RecieveID(Deliver);
-        m_SingleSizeShow->slot_showSizeDiagramImage();
-    }
+    if(m_GlassStatisticTable->tableWidget->item(0, 0) != nullptr) {
+        QString firstColumnContent = m_GlassStatisticTable->tableWidget->item(0, 0)->text();
+        QString SecondColumnContent = m_GlassStatisticTable->tableWidget->item(0, 1)->text().left(13);
+        QString Deliver = firstColumnContent + "." + SecondColumnContent;
+        if (firstColumnContent != "")
+        {
+            m_SingleFlawShow->slot_RecieveID(Deliver);
+            m_SingleSizeShow->slot_RecieveID(Deliver);
+            m_SingleSizeShow->slot_showSizeDiagramImage();
+        }
 
-    Dock_SingleFlawShowView->raise();
-     m_SingleFlawShow->slot_PickerCheckData(flawpoint);
+        Dock_SingleFlawShowView->raise();
+         m_SingleFlawShow->slot_PickerCheckData(flawpoint);
+    }
 }
 
 void MainWindow::slot_Offline()

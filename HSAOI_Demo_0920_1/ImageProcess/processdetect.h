@@ -19,6 +19,8 @@
 #include "Parameter/JsonResultParse.h"
 #include "HDevEngineCpp.h"
 #include "HalconCpp.h"
+#include "FlawDefine.h"
+#include "Jianbo_db.h"
 
 using namespace HalconCpp;
 using namespace HDevEngineCpp;
@@ -126,23 +128,43 @@ public:
     void VisionProcess();
     void DetectSiYin();
     void SummaryResults();
-    void DetectData2Json();
     void HolesData2Json();
     void Glassinfo();
+    //孔洞数据插入数据库
+    bool insertHoleData(GlassSizeInfo data);
+
 
 signals:
-//    void resultReady(JsonResultParse::DetectResult a);
     void sendData(GLASSINFO* info);
     void sig_updateFlaw(GLASSINFO* info);
-    void sig_Deliver(QList<FlawPoint>* Points);// emit sig_Deliver(Points);
+    void sig_Deliver(QList<FlawPoint>* Points);
     void sig_UpdateResultInfo(ResultINFO *result);
     void sig_updateSortRes(ResultINFO *result);
     void sig_updateSignalFlaw(QString id);
-//    void sig_SignalLight(unsigned int a);
+    void sig_refreshFlaw(QString glassid); //刷新缺陷
+    void sig_refreshSize(QString glassid); //刷新尺寸
 
 public slots:
     void slot_updateSortInfo();
 //    void slot_ClearDate();
+
+
+
+public:
+    void getProcessVisionResult();
+    void saveErrImage(HObject errImage1,
+                      HObject errImage2,
+                      HObject errImage3,
+                      int lastDefectCount,
+                      QDateTime currentDateTime);
+    void funcSaveErrImage();
+
+private:
+    bool isExistDir(QString dirpath);
+    SafeQueue<std::tuple<QString, HObject>> threadQueue;
+    std::atomic<bool> hasStopThread;
+    QDateTime currentTimeJson; //json文件名时间点
+    bool onceCall;  //只调用一次
 };
 
 #endif // PROCESS_DETECT_H

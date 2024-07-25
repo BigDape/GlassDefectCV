@@ -64,8 +64,8 @@ class SingleFlawShowWidget : public QWidget {
 
   void slot_FlawTrack(QTableWidgetItem* item);
    void slot_ButtonExportClicked();
-private slots:
-  void on_pushButton_clicked();
+
+   void slot_refrshFlaw(QString glassid);
 
 private:
   Ui::SingleFlawShowWidget* ui;

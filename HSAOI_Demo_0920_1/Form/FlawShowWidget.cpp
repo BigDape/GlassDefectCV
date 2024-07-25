@@ -40,7 +40,7 @@ FlawShowWidget::FlawShowWidget(QWidget* parent, JsonParse2Map* m_recipe)
     widget = new QWidget(this);
 
 
-    plotpicker=new QwtPlotPicker(QwtPlot::xBottom,QwtPlot::yLeft,QwtPlotPicker::CrossRubberBand,QwtPicker::AlwaysOn,m_plot->canvas());
+    plotpicker = new QwtPlotPicker(QwtPlot::xBottom,QwtPlot::yLeft,QwtPlotPicker::CrossRubberBand,QwtPicker::AlwaysOn,m_plot->canvas());
     plotpicker->setTrackerMode(QwtPicker::ActiveOnly);
     plotpicker->setStateMachine(new QwtPickerDragPointMachine);
     connect(plotpicker,SIGNAL(appended(const QPointF&)),this,SLOT(slot_PlotPicker(QPointF)));
@@ -239,13 +239,9 @@ void FlawShowWidget::slot_GetGlassSize(GLASSINFO* info)
     isGetGlassSize = true;
     isGetFlawPoints = true;
     slot_resize();
-
     int MaxLength = h * 1.1;
     int MaxWidth = w * 1.1;
-
-
     qDebug() << "length = " << MaxLength << "width = " << MaxWidth;
-
     m_plot->setAxisScale(QwtPlot::xBottom, 0, MaxWidth);
     m_plot->setAxisScale(QwtPlot::yLeft, 0, MaxLength);
 }
@@ -274,9 +270,7 @@ void FlawShowWidget::slot_ChangeFlawShow()
 
 void FlawShowWidget::slot_GetGlassResult(ResultINFO* ResInfo)
 {
-
     runninginfo = ResInfo;
-
     UINT64 glassnum = ResInfo->GlassNum;
     uint ok = ResInfo->okNum;
     uint ng = ResInfo->ngNum;
@@ -299,7 +293,7 @@ void FlawShowWidget::slot_GetGlassResult(ResultINFO* ResInfo)
     lineedit5->setText(QString::number(exceptnum));
     lineedit6->setText(QString::number(sort));
     lineedit7->setText(QString::number(unsort));
-
+    //界面上显示OK或者NG
     emit sig_updatePreGlassRes(preres);
 }
 
@@ -327,12 +321,10 @@ void FlawShowWidget::slot_ButtonClearClicked()
 
 void FlawShowWidget::slot_PlotPicker(const QPointF &pos)
 {
-    qDebug()<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&";
     for(const FlawPoint&flawPoints:FlawPointList){
         QPointF flawpt(flawPoints.x,flawPoints.y);
         double distance=QLineF(flawpt,pos).length();
         if(distance<10){
-            qDebug()<<"**************************************************************************************************";
             qDebug()<<"缺陷"<<flawpt.x()<<" "<<flawpt.y();
             emit sig_sendFlawPoint(flawPoints);
         }

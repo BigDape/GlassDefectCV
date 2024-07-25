@@ -29,7 +29,6 @@ SOURCES += \
     Camera/Dushen/DushenBasicFunc.cpp \
     Camera/Dushen/DushenCameraWidget.cpp \
     Camera/Dushen/mosaickimage.cpp \
-    Camera/DushenSample/BasicFunction.cpp \
     Camera/DushenSample/ImageAcquisition.cpp \
     Camera/DushenSample/MyGraphicsitem.cpp \
     Form/CamerasWidget.cpp \
@@ -68,7 +67,6 @@ HEADERS += \
     Camera/Dushen/DushenBasicFunc.h \
     Camera/Dushen/DushenCameraWidget.h \
     Camera/Dushen/mosaickimage.h \
-    Camera/DushenSample/BasicFunction.h \
     Camera/DushenSample/DVPCamera.h \
     Camera/DushenSample/ImageAcquisition.h \
     Camera/DushenSample/MyGraphicsitem.h \
@@ -107,7 +105,6 @@ HEADERS += \
 
 FORMS += \
     Camera/Dushen/DushenCameraWidget.ui \
-    Camera/DushenSample/BasicFunction.ui \
     Form/CamerasWidget.ui \
     Form/SingleSizeShowWidget.ui \
     Form/msvlcdnumclockwidget.ui \
@@ -163,4 +160,24 @@ else:win32:CONFIG(debug, debug|release): LIBS += -LC:/Qt/Qt5.14.2/5.14.2/msvc201
 
 INCLUDEPATH += C:/Qt/Qt5.14.2/5.14.2/msvc2017_64/include
 DEPENDPATH += C:/Qt/Qt5.14.2/5.14.2/msvc2017_64/include
+
+#添加opencv组件
+win32:CONFIG(release, debug|release): LIBS += -LC:/opencv/build/x64/vc15/lib/ -lopencv_world455
+else:win32:CONFIG(debug, debug|release): LIBS += -LC:/opencv/build/x64/vc15/lib/ -lopencv_world455d
+
+INCLUDEPATH += C:/opencv/build/include
+DEPENDPATH += C:/opencv/build/include
+
+# 在Release生成用于调试dump的信息，包括【禁用release编译优化】、【生成PDB符号表】，但是这些设置会降低程序性能，和debug差不多
+CONFIG(release, debug|release) {
+    QMAKE_CXXFLAGS_RELEASE -= -O2
+    QMAKE_CXXFLAGS_RELEASE += -O0
+    QMAKE_CXXFLAGS_RELEASE += /Zi
+    QMAKE_LFLAGS_RELEASE += /DEBUG /OPT:REF /OPT:ICF                # 生成 PDB符号文件，功能和下一行一样，但是最好用这一行，显示指定编译选项
+
+    # 打印变量参数值
+    message(QMAKE_CXXFLAGS_RELEASE变量值：$$QMAKE_CXXFLAGS_RELEASE)
+    message(QMAKE_LFLAGS_RELEASE变量值：$$QMAKE_LFLAGS_RELEASE)
+}
+
 

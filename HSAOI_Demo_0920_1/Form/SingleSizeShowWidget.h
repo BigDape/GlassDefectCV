@@ -64,6 +64,8 @@ public slots:
     void slot_showSizeDiagramImage();
 
     void slot_onItemDoubleClicked(QTableWidgetItem *);
+    void slot_refreshSize(QString glassid);
+
 private:
     Ui::SingleSizeShowWidget *ui;
     Qt::Orientation m_orientation;

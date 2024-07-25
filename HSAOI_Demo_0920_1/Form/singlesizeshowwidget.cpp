@@ -25,11 +25,9 @@ SingleSizeShowWidget::SingleSizeShowWidget(Qt::Orientation ori,
     ui->graphicsView_2->setScene(scene2);
     scene2->addItem(loadedPixmapItem2);
 
-    connect(ui->tableWidget, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this,
-            SLOT(slot_onItemDoubleClicked(QTableWidgetItem*)));
-    connect(ui->tableWidget, &QTableWidget::itemDoubleClicked, this,
-            &SingleSizeShowWidget::slot_showSizeSmallImage);
-
+    connect(ui->tableWidget, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this,SLOT(slot_onItemDoubleClicked(QTableWidgetItem*)));
+    //双击表格，显示空洞门夹丝印小图
+    connect(ui->tableWidget, &QTableWidget::itemDoubleClicked, this, &SingleSizeShowWidget::slot_showSizeSmallImage);
 
     initLayout();
     SingleSizeShowWidget::initMode();
@@ -66,16 +64,15 @@ void SingleSizeShowWidget::slot_onItemDoubleClicked(QTableWidgetItem*) {
   }
 }
 
-void SingleSizeShowWidget::slot_RecieveID(QString IDandDate) {
-
+void SingleSizeShowWidget::slot_RecieveID(QString IDandDate)
+{
   GlassID = IDandDate.split(".")[0];
   if(LastGlassID!=GlassID) {
       LastGlassID=GlassID;
       Date = IDandDate.split(".")[1];
       fileName = "HolesInfJson/" + Date + ".json";
       JSONRECIPE = new JsonParse2Map(fileName);
-
-      slot_showSizeDiagramImage();
+      SingleSizeShowWidget::slot_showSizeDiagramImage();
 
       int count = JSONRECIPE->CountValuesUnderKey(GlassID);
       ui->tableWidget->setRowCount(count);
@@ -143,32 +140,31 @@ void SingleSizeShowWidget::slot_RecieveID(QString IDandDate) {
           ui->tableWidget->setItem(i - 1, 3, item3);
     }
   }
+
+//  QTableWidgetItem* item = ui->tableWidget->takeItem(0,0);
+//  if (item != nullptr) {
+//      SingleSizeShowWidget::slot_showSizeSmallImage(item);
+//      SingleSizeShowWidget::slot_showSizeDiagramImage();
+//  }
 }
+
 void SingleSizeShowWidget::slot_showSizeSmallImage(QTableWidgetItem *item)
 {
     if (item) {
       int row = item->row();
+      if (row < 0)
+          return;
       QString itemID = ui->tableWidget->item(row, 0)->text();
       JSONRECIPE = new JsonParse2Map(fileName);
       QString ImageHolesPath;
-      JSONRECIPE->getParameter(
-          GlassID + "." + QString::number(row + 1) + ".ImageHolesPath", ImageHolesPath);
+      JSONRECIPE->getParameter(GlassID + "." + QString::number(row + 1) + ".ImageHolesPath", ImageHolesPath);
       ImageHolesPath = ImageHolesPath.replace(QChar(0x202A), "");
       qDebug() << "ImageHolesPath = " << ImageHolesPath;
       QDir dir;
       QString strpath;
       dir.setPath(ImageHolesPath);
       QFileInfoList infolist = dir.entryInfoList(QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
-//      foreach(const QFileInfo &info, infolist)
-//      {
-//          strpath += info.absoluteFilePath() + "_";
-//      }
-//      qDebug() << strpath << strpath.split("_")[0] << strpath.split("_")[1] << strpath.split("_")[2];
-//      QPixmap pixmap2(strpath.split("_")[row]);
-//      ui->label_2->setPixmap(pixmap2.scaled(310, 310));
-//      ui->label_2->setFixedSize(320, 320);
       QString path2 = ImageHolesPath + "/" +QString::number(row);
-      //QImage img2(strpath.split("_")[row]);
       QImage img2(path2);
       loadedPixmapItem2->loadImage(img2);
       int nwidth = ui->graphicsView_2->width(), nheight = ui->graphicsView_2->height();
@@ -180,14 +176,9 @@ void SingleSizeShowWidget::slot_showSizeSmallImage(QTableWidgetItem *item)
 void SingleSizeShowWidget::slot_showSizeDiagramImage()
 {
     QString ImageHolesLinePath;
-    JSONRECIPE->getParameter(
-        GlassID + ".ImageHolesLinePath", ImageHolesLinePath);
+    JSONRECIPE->getParameter(GlassID + ".ImageHolesLinePath", ImageHolesLinePath);
     ImageHolesLinePath = ImageHolesLinePath.replace(QChar(0x202A), "");
     qDebug() << "ImageHolesLinePath = " << ImageHolesLinePath;
-//    QPixmap pixmap1(ImageHolesLinePath + "/1.jpg");
-//    ui->label->setPixmap(pixmap1.scaled(630, 310));
-//    ui->label->setScaledContents(true);
-//    ui->label->setFixedSize(640, 320);
     QImage img1(ImageHolesLinePath + "/1.jpg");
     loadedPixmapItem->loadImage(img1);
     int nwidth = ui->graphicsView->width(), nheight = ui->graphicsView->height();
@@ -287,4 +278,105 @@ bool SingleSizeShowWidget::matchMenjiaMode(QString distanceHorizontal,QString di
     }
     return result;
 }
+
+void SingleSizeShowWidget::slot_refreshSize(QString glassid)
+{
+    qDebug()<<"SingleSizeShowWidget::slot_refreshSize";
+    QString glassID = glassid.split(".")[0];
+    GlassID = glassID;
+    QString date = glassid.split(".")[1];
+    qDebug()<<"glassID ="<<glassID <<"date ="<<date;
+    QString fileName = "HolesInfJson/" + date + ".json";
+    JSONRECIPE = new JsonParse2Map(fileName);
+    SingleSizeShowWidget::slot_showSizeDiagramImage();
+
+    int count = JSONRECIPE->CountValuesUnderKey(glassID);
+    qDebug()<<"count =" <<count;
+    ui->tableWidget->setRowCount(count);
+    for (int i = 1; i <= count; i++) {
+        QString HolesID, Time, Type, HolesLeve, HolesHeight, HolesWidth, DistanceHorizontal, DistanceVertical;
+        JSONRECIPE->getParameter(glassID + "." + QString::number(i) + ".HolesID",HolesID);
+        qDebug()<<"HolesID = "<<HolesID;
+        QTableWidgetItem* item0 = new QTableWidgetItem(HolesID);
+        item0->setTextAlignment(Qt::AlignCenter);
+        ui->tableWidget->setItem(i - 1, 0, item0);
+
+        JSONRECIPE->getParameter(glassID + "." + QString::number(i) + ".Time",Time);
+        qDebug()<<"Time = "<<Time;
+        QTableWidgetItem* item1 = new QTableWidgetItem(Time);
+        item1->setTextAlignment(Qt::AlignCenter);
+        ui->tableWidget->setItem(i - 1, 1, item1);
+
+        JSONRECIPE->getParameter(glassID + "." + QString::number(i) + ".Type",Type);
+        qDebug()<<"Type = "<<Type;
+        QTableWidgetItem* item2 = new QTableWidgetItem(Type);
+        item2->setTextAlignment(Qt::AlignCenter);
+        ui->tableWidget->setItem(i - 1, 2, item2);
+
+  //          JSONRECIPE->getParameter(glassID + "." + QString::number(i) + ".HolesLeve",HolesLeve);
+  //          QTableWidgetItem* item3 = new QTableWidgetItem(HolesLeve);
+  //          item3->setTextAlignment(Qt::AlignCenter);
+  //          ui->tableWidget->setItem(i - 1, 3, item3);
+
+        JSONRECIPE->getParameter(glassID + "." + QString::number(i) + ".HolesHeight", HolesHeight);
+        QTableWidgetItem* item4 = new QTableWidgetItem(HolesHeight);
+        item4->setTextAlignment(Qt::AlignCenter);
+        ui->tableWidget->setItem(i - 1, 4, item4);
+
+        JSONRECIPE->getParameter(glassID + "." + QString::number(i) + ".HolesWidth", HolesWidth);
+        QTableWidgetItem* item5 = new QTableWidgetItem(HolesWidth);
+        item5->setTextAlignment(Qt::AlignCenter);
+        ui->tableWidget->setItem(i - 1, 5, item5);
+
+        JSONRECIPE->getParameter(glassID + "." + QString::number(i) + ".DistanceHorizontal",DistanceHorizontal);
+        QTableWidgetItem* item6 = new QTableWidgetItem(DistanceHorizontal);
+        item6->setTextAlignment(Qt::AlignCenter);
+        ui->tableWidget->setItem(i - 1, 6, item6);
+
+        JSONRECIPE->getParameter(glassID + "." + QString::number(i) + ".DistanceVertical",DistanceVertical);
+        QTableWidgetItem* item7 = new QTableWidgetItem(DistanceVertical);
+        item7->setTextAlignment(Qt::AlignCenter);
+        ui->tableWidget->setItem(i - 1, 7, item7);
+
+        //比较孔洞
+        JSONRECIPE->getParameter(glassID + "." + QString::number(i) + ".HolesLeve",HolesLeve);
+        if (HolesLeve == "OK") {
+            if(Type == "孔") {
+                if(SingleSizeShowWidget::matchHoleMode(HolesHeight,HolesWidth,DistanceHorizontal,DistanceVertical) == false) {
+                    qDebug()<<"NG:=>"<<"HolesHeight="<<HolesHeight<<",HolesWidth="<<HolesWidth<<",DistanceHorizontal="<<DistanceHorizontal<<",DistanceVertical="<<DistanceVertical;
+                    HolesLeve = "NG";
+                }
+            } else if(Type == "门夹"){
+                if(SingleSizeShowWidget::matchMenjiaMode(DistanceHorizontal,DistanceVertical) == false) {
+                    qDebug()<<"NG:=>"<<"DistanceHorizontal="<<DistanceHorizontal<<",DistanceVertical="<<DistanceVertical;
+                    HolesLeve = "NG";
+                }
+            }
+        }
+        QTableWidgetItem* item3 = new QTableWidgetItem(HolesLeve);
+        item3->setTextAlignment(Qt::AlignCenter);
+        ui->tableWidget->setItem(i - 1, 3, item3);
+    }
+    //显示孔洞小图
+    qDebug()<<"ui->tableWidget->item(0, 0) ="<<ui->tableWidget->item(0, 0);
+    if (nullptr != ui->tableWidget->item(0, 0)) {
+      QString itemID = ui->tableWidget->item(0, 0)->text();
+      JSONRECIPE = new JsonParse2Map(fileName);
+      QString ImageHolesPath;
+      JSONRECIPE->getParameter(glassID + "." + QString::number(1) + ".ImageHolesPath", ImageHolesPath);
+      ImageHolesPath = ImageHolesPath.replace(QChar(0x202A), "");
+      qDebug() << "ImageHolesPath = " << ImageHolesPath;
+      QDir dir;
+      QString strpath;
+      dir.setPath(ImageHolesPath);
+      QFileInfoList infolist = dir.entryInfoList(QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
+      QString path2 = ImageHolesPath + "/" +QString::number(0);
+      QImage img2(path2);
+      loadedPixmapItem2->loadImage(img2);
+      int nwidth = ui->graphicsView_2->width(), nheight = ui->graphicsView_2->height();
+      loadedPixmapItem2->setQGraphicsViewWH(nwidth, nheight);
+      ui->graphicsView_2->setSceneRect((QRectF(-(nwidth / 2), -(nheight / 2), nwidth, nheight)));
+    }
+}
+
 

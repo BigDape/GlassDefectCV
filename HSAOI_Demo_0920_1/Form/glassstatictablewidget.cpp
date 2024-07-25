@@ -153,13 +153,7 @@ void GlassStatisticTableWidget::slot_insertRowData(GLASSINFO* info)
 
     RECIPE = new JsonParse2Map("Recipes/" + Global::CurrentRecipe + ".json");
     //长度
-    double glassLength_temp = 0;
-//    if (qAbs(info->GlassWidth - Global::encodeRollerYLength) <= 100) {
-//        glassLength_temp = Global::encodeRollerYLength;
-//    } else {
-        glassLength_temp = info->GlassWidth;
-//    }
-    qDebug()<<"glassLength_temp"<<glassLength_temp;
+    double  glassLength_temp = info->GlassWidth;
     QString glasslength = QString::number(glassLength_temp,'f', 2);
     QTableWidgetItem* length = new QTableWidgetItem(glasslength);
     length->setTextAlignment(Qt::AlignCenter);
@@ -242,7 +236,6 @@ void GlassStatisticTableWidget::slot_insertRowData(GLASSINFO* info)
     flaw6->setTextAlignment(Qt::AlignCenter);
     flaw6->setFlags(flaw6->flags() & ~Qt::ItemIsEditable);
     tableWidget->setItem(row, 16, flaw6);
-
 
     // 设置表格内容居中显示
     for (int i = 0; i < tableWidget->columnCount(); ++i) {

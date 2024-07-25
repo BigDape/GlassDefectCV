@@ -139,6 +139,8 @@ class FlawShowWidget : public QWidget {
   void slot_ButtonClearClicked();
   void slot_PlotPicker(const QPointF&pos);
   void slot_LegendChecked(const QVariant &itemInfo,bool on, int index);
+
+
 };
 
 #endif  // FLAWSHOWWIDGET_H

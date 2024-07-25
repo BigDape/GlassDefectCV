@@ -3,14 +3,23 @@
 #include "processtile.h"
 #include "Global.h"
 #include <algorithm>
+#include <thread>
+#include <iostream>
+#include <stdexcept>
+#include <string>
+#include <tuple>
+
 #pragma execution_character_set("utf-8")
 Process_Detect::Process_Detect()
+    :hasStopThread(false),
+      onceCall(false)
 {
     init_detect();
 }
 
 Process_Detect::~Process_Detect()
 {
+    hasStopThread.store(true);
     delete engine;
     engine = nullptr;
     delete procedure;
@@ -88,16 +97,13 @@ void Process_Detect::init_detect()
 
 void Process_Detect::update_result(bool a)
 {
-    if(a)
-    {
+    if(a) {
        result->GlassNum++;
        result->okNum++;
        result->unsorted++;
        result->passRate=result->okNum/result->GlassNum;
        result->pre_result = true;
-    }
-    else
-    {
+    } else {
         result->GlassNum++;
         result->ngNum++;
         result->unsorted++;
@@ -105,46 +111,44 @@ void Process_Detect::update_result(bool a)
         result->pre_result = false;
     }
 }
+
 //算法执行
 void Process_Detect::VisionProcess()
 {
+    //开启一个线程用于保存图片
+    if(onceCall==false) {
+        std::thread t(&Process_Detect::funcSaveErrImage, this);
+        t.detach();
+        onceCall = true;
+    }
+
     ResultDataJson = new JsonResultParse();
     ginfo = new GLASSINFO;
     while (true) {
-            switch (DetectStep) {
+        switch (DetectStep) {
             case 0:
                 if (ProcessTile::ImageQueue.size() != 0) {
                     //recipe切换
-                    if(Global::RecChangeSignal)
-                    {
+                    if(Global::RecChangeSignal) {
                        LastProcessStep = 0;
-                       Global::RecChangeSignal=false;
+                       Global::RecChangeSignal = false;
                     }
-
-                    qDebug() << "start1 :" << QDateTime::currentDateTime().toString("HH:mm:ss.zzz");
-
                     GetDictTuple(Global::RecipeDict,"编码器参数",&Code);
-
                     GetDictTuple(Code,"编码器单位刻度对应距离",&CodePerScale);
-//                    ReadDict("D:/HalconFunction/DuMo3.2.hdict", HTuple(), HTuple(), &RecipeDict);
-
-
                     qDebug()<<"编码器单位刻度对应距离:"<<CodePerScale.ToString().Text();
                     DetectStep = 10;
                 }
                 break;
             case 10:
-                ProcessStep=ProcessTile::ImageQueue.head().ProcessStep;
-                GlassPosition=ProcessTile::ImageQueue.head().GlassPositionInf;
-                m_FramesPerTri=Global::FramesPerTri;
+                ProcessStep = ProcessTile::ImageQueue.head().ProcessStep;
+                GlassPosition = ProcessTile::ImageQueue.head().GlassPositionInf;
+                m_FramesPerTri = Global::FramesPerTri;
                 HTuple UserDefinedDict;
                 GetDictTuple(Global::RecipeDict,"自定义参数",&UserDefinedDict);
-                if(ProcessStep==1 || GlassPosition==1 || GlassPosition==0)
-                {                    
+                if(ProcessStep==1 || GlassPosition==1 || GlassPosition==0) {
                     ErrFlag=false;
                     //判断上一片玻璃结果是否输出
-                    if(ResultNotOutFlag)
-                    {
+                    if(ResultNotOutFlag) {
                        // 输出结果
                         SummaryResults();
                         ResultNotOutFlag=false;
@@ -156,352 +160,227 @@ void Process_Detect::VisionProcess()
                 qDebug() << "LastProcessStep :" << LastProcessStep;
                 HTuple EnableDefect;
                 GetDictTuple(UserDefinedDict,"缺陷检测启用",&EnableDefect);
-                 if(EnableDefect==1)
-                   {
+                if(EnableDefect==1) {
                     //图像正常执行算法or输出异常提醒
-                    if(ProcessTile::ImageQueue.head().ImageList.CountObj()>0 && ProcessTile::ImageQueue.head().ErrorFlag==false)
-                    {
-                        bool EnableDefect=true;
-                        if(EnableDefect)
-                        {
+                    if(ProcessTile::ImageQueue.head().ImageList.CountObj()>0 && ProcessTile::ImageQueue.head().ErrorFlag==false) {
+                        bool EnableDefect = true;
+                        if(EnableDefect) {
+                            try {
+                                HObject SelectObj1,SelectObj2,SelectObj3;
+                                SelectObj(ProcessTile::ImageQueue.head().ImageList,&SelectObj1,1);
+                                SelectObj(ProcessTile::ImageQueue.head().ImageList,&SelectObj2,2);
+                                SelectObj(ProcessTile::ImageQueue.head().ImageList,&SelectObj3,3);
 
-                               try {
-                                    HObject SelectObj1,SelectObj2,SelectObj3;
-                                    SelectObj(ProcessTile::ImageQueue.head().ImageList,&SelectObj1,1);
-                                    SelectObj(ProcessTile::ImageQueue.head().ImageList,&SelectObj2,2);
-                                    SelectObj(ProcessTile::ImageQueue.head().ImageList,&SelectObj3,3);
+                                procedurecall->SetInputIconicParamObject("Image1", SelectObj1);
+                                procedurecall->SetInputIconicParamObject("Image2", SelectObj2);
+                                procedurecall->SetInputIconicParamObject("Image3", SelectObj3);
+                                procedurecall->SetInputIconicParamObject("GlassRegion", ProcessTile::ImageQueue.head().ImageRegion);
+                                procedurecall->SetInputIconicParamObject("FrameRegion", ProcessTile::ImageQueue.head().FrameRegion);
+                                if(GlassPosition==1 || GlassPosition==0) {
+                                    HTuple a=0;
+                                    YCoordIn= a ;
+                                } else {
+                                    YCoordIn= YCoordOut;
+                                }
+                                procedurecall->SetInputCtrlParamTuple("VisionProcessStep", ProcessStep);
+                                procedurecall->SetInputCtrlParamTuple("GlassPositionInf", GlassPosition);
+                                procedurecall->SetInputCtrlParamTuple("YCoordIn", YCoordIn);
+                                procedurecall->SetInputCtrlParamTuple("DetectDict", Global::RecipeDict);
+                                procedurecall->Execute();
+                                SelectObj1.Clear();
+                                SelectObj2.Clear();
+                                SelectObj3.Clear();
 
-                                    procedurecall->SetInputIconicParamObject("Image1", SelectObj1);
-                                    procedurecall->SetInputIconicParamObject("Image2", SelectObj2);
-                                    procedurecall->SetInputIconicParamObject("Image3", SelectObj3);
-                                    procedurecall->SetInputIconicParamObject("GlassRegion", ProcessTile::ImageQueue.head().ImageRegion);
-                                    procedurecall->SetInputIconicParamObject("FrameRegion", ProcessTile::ImageQueue.head().FrameRegion);
-                                    if(GlassPosition==1 || GlassPosition==0)
-                                    {
-                                        HTuple a=0;
-                                        YCoordIn= a ;
+                                ErrImage1=procedurecall->GetOutputIconicParamObject("ErrImage1");
+                                ErrImage2=procedurecall->GetOutputIconicParamObject("ErrImage2");
+                                ErrImage3=procedurecall->GetOutputIconicParamObject("ErrImage3");
+
+                                //获取缺陷参数
+                                ResultDict = procedurecall->GetOutputCtrlParamTuple("ResultDict");
+                                ErrName = ResultDict.TupleGetDictTuple("ErrName");
+                                ErrType = ResultDict.TupleGetDictTuple("ErrType");
+                                DefectLevel = ResultDict.TupleGetDictTuple("DefectLevel");
+                                ErrX = ResultDict.TupleGetDictTuple("ErrX");
+                                ErrY = ResultDict.TupleGetDictTuple("ErrY");
+                                ErrW = ResultDict.TupleGetDictTuple("ErrW");
+                                ErrL = ResultDict.TupleGetDictTuple("ErrH");
+                                ErrArea = ResultDict.TupleGetDictTuple("ErrArea");
+                                YCoordOut=procedurecall->GetOutputCtrlParamTuple("YCoordOut");
+                                GlassLength=procedurecall->GetOutputCtrlParamTuple("GlassLength");
+                                GlassWidth=procedurecall->GetOutputCtrlParamTuple("GlassWidth");
+                                qDebug() << "GlassWidthtttttttttttttttff"<<GlassWidth.ToString().Text();
+                                qDebug() << "GlassWidthtttttttttttttttttff"<<GlassLength.ToString().Text();
+                                GlassAngle=procedurecall->GetOutputCtrlParamTuple("GlassAngle");
+                                //获取轮廓点object
+                                XValues = procedurecall->GetOutputCtrlParamTuple("Col_x");
+                                YValues = procedurecall->GetOutputCtrlParamTuple("Row_y");
+                                qDebug()<<"XValues:"<<XValues.Length();
+                                if ( XValues.Length() == YValues.Length() ) {
+                                    Global::courtourMapXY.clear();
+                                    for (int ii = 0; ii < XValues.Length(); ii = ii +12) {
+                                        QString xx = XValues.TupleSelect(ii).ToString().Text();
+                                        QString yy = YValues.TupleSelect(ii).ToString().Text();
+                                        CourTour tour;
+                                        tour.index = ii;
+                                        tour.x = xx;
+                                        tour.y = yy;
+                                        Global::courtourMapXY.push_back(tour);
                                     }
-                                    else
-                                    {
-                                        YCoordIn= YCoordOut;
-                                    }
-                                    procedurecall->SetInputCtrlParamTuple("VisionProcessStep", ProcessStep);
-                                    procedurecall->SetInputCtrlParamTuple("GlassPositionInf", GlassPosition);
-                                    procedurecall->SetInputCtrlParamTuple("YCoordIn", YCoordIn);
-                                    procedurecall->SetInputCtrlParamTuple("DetectDict", Global::RecipeDict);
-                                    procedurecall->Execute();
-                                    SelectObj1.Clear();
-                                    SelectObj2.Clear();
-                                    SelectObj3.Clear();
-
-                                    ErrImage1=procedurecall->GetOutputIconicParamObject("ErrImage1");
-                                    ErrImage2=procedurecall->GetOutputIconicParamObject("ErrImage2");
-                                    ErrImage3=procedurecall->GetOutputIconicParamObject("ErrImage3");
-
-                                    //获取缺陷参数
-                                    ResultDict = procedurecall->GetOutputCtrlParamTuple("ResultDict");
-    //                                GlassLength = ResultDict.TupleGetDictTuple("GlassLength");
-    //                                GlassWidth = ResultDict.TupleGetDictTuple("GlassWidth");
-    //                                GlassLength = 2000;
-    //                                GlassWidth = 1000;
-                                    ErrName = ResultDict.TupleGetDictTuple("ErrName");
-                                    ErrType = ResultDict.TupleGetDictTuple("ErrType");
-                                    DefectLevel = ResultDict.TupleGetDictTuple("DefectLevel");
-                                    ErrX = ResultDict.TupleGetDictTuple("ErrX");
-                                    ErrY = ResultDict.TupleGetDictTuple("ErrY");
-                                    ErrW = ResultDict.TupleGetDictTuple("ErrW");
-                                    ErrL = ResultDict.TupleGetDictTuple("ErrH");
-                                    ErrArea = ResultDict.TupleGetDictTuple("ErrArea");
-                                    YCoordOut=procedurecall->GetOutputCtrlParamTuple("YCoordOut");
-                                    GlassLength=procedurecall->GetOutputCtrlParamTuple("GlassLength");
-                                    GlassWidth=procedurecall->GetOutputCtrlParamTuple("GlassWidth");
-                                    qDebug() << "GlassWidthtttttttttttttttff"<<GlassWidth.ToString().Text();
-                                    qDebug() << "GlassWidthtttttttttttttttttff"<<GlassLength.ToString().Text();
-                                    GlassAngle=procedurecall->GetOutputCtrlParamTuple("GlassAngle");
-                                    //获取轮廓点object
-                                    XValues = procedurecall->GetOutputCtrlParamTuple("Col_x");
-                                    YValues = procedurecall->GetOutputCtrlParamTuple("Row_y");
-                                    qDebug()<<"XValues:"<<XValues.Length();
-                                    if ( XValues.Length() == YValues.Length() ) {
-                                        Global::courtourMapXY.clear();
-                                        for (int ii = 0; ii < XValues.Length(); ii = ii +12) {
-                                            QString xx = XValues.TupleSelect(ii).ToString().Text();
-                                            QString yy = YValues.TupleSelect(ii).ToString().Text();
-                                            CourTour tour;
-                                            tour.index = ii;
-                                            tour.x = xx;
-                                            tour.y = yy;
-                                            Global::courtourMapXY.push_back(tour);
-                                         }
-                                    }
-
-                                    HTuple Count;
-                                    CountObj(ErrImage1, &Count);
-                                    if(Count>0)
-                                    {
-                                        QString folderDefectImage = QString("E:/SaveDefectImage");
-                                        QDir directory(folderDefectImage);
-                                        // 判断存储小图文件夹是否存在
-                                        QDir folderDir(folderDefectImage);
-                                        if (folderDir.exists()) {
-                                            qDebug() << "Folder" << folderDefectImage << "exists.";
-                                        } else {
-                                            if (directory.mkpath(folderDefectImage)) {
-                                                qDebug() << "Directory"
-                                                         << "created.";
-                                            } else {
-                                                qDebug() << "Failed to create directory";
-                                            }
-                                        }
-                                        qDebug() << "P2 :" << QDateTime::currentDateTime().toString("HH:mm:ss.zzz");
-
-
-                                        // Get the current time
-                                        QDateTime currentDateTime = QDateTime::currentDateTime();
-                                        QString folderName = QString("D:/SaveDefectImage/") + currentDateTime.toString("yyyy-MM-dd");
-                                        //获取已检出缺陷个数
-                                        LastDefectCount=ResultDataJson->ResultData.DefectID.length();
-                                        qDebug() << "LastDefectCount:"<<LastDefectCount;
-                                        for (int i = 0; i < Count; i++) {
-                                            QDir directory(folderName);
-                                            // 判断文件夹是否存在
-                                            QDir folderDir(folderName);
-                                            if (folderDir.exists()) {
-                                                qDebug() << "Folder" << folderName << "exists.";
-                                            } else {
-                                                if (directory.mkpath(folderName)) {
-                                                    qDebug() << "Directory"
-                                                             << "created.";
-                                                } else {
-                                                    qDebug() << "Failed to create directory";
-                                                }
-                                            }
-
-                                            //      ResultDataJson->ResultData.GlassID
-                                            // Build the file name based on the current time
-                                            QString CurrentTime = currentDateTime.toString("hh-mm-ss");
-                                            ResultDataJson->ResultData.Time = CurrentTime;
-                                            QString strErrName = ErrName.TupleSelect(i).ToString().Text();
-                                            strErrName = strErrName.remove("\"");
-                                            QString strDefectLevel = DefectLevel.TupleSelect(i).ToString().Text();
-                                            strDefectLevel = strDefectLevel.remove("\"");
-                                            QString strErrX = ErrX.TupleSelect(i).ToString().Text();
-                                            strErrX = strErrX.remove("\"");
-                                            QString strErrY = ErrY.TupleSelect(i).ToString().Text();
-                                            strErrY = strErrY.remove("\"");
-                                            QString strErrL = ErrL.TupleSelect(i).ToString().Text();
-                                            strErrL = strErrL.remove("\"");
-                                            QString strErrW = ErrW.TupleSelect(i).ToString().Text();
-                                            strErrW = strErrW.remove("\"");
-                                            QString strErrArea = ErrArea.TupleSelect(i).ToString().Text();
-                                            strErrArea = strErrArea.remove("\"");
-    //
-
-                                            ResultDataJson->ResultData.DefectID.append(QString::number(LastDefectCount+i + 1));
-
-                                            ResultDataJson->ResultData.DefectType.append(strErrName);
-
-                                            ResultDataJson->ResultData.DefectLeve.append(strDefectLevel);
-                                            ResultDataJson->ResultData.Y.append(strErrY);
-                                            ResultDataJson->ResultData.X.append(strErrX);
-                                            ResultDataJson->ResultData.Lenth.append(strErrL);
-                                            ResultDataJson->ResultData.Width.append(strErrW);
-                                            ResultDataJson->ResultData.Area.append(strErrArea);
-                                            QString strImageNGPath = folderName + "/" + strErrName + "/" + CurrentTime + "-" + QString::number(LastDefectCount+i + 1);
-                                            ResultDataJson->ResultData.ImageNGPath.append(strImageNGPath);
-                                            FlawPoint Point;
-                                            Point.x=strErrY.toDouble();
-                                            Point.y=strErrX.toDouble();
-                                            Point.FlawType=ErrType.TupleSelect(i).TupleInt();
-                                            Points->append(Point);
-                                            // 发送数据
-                                    //     emit resultReady(ResultDataJson->ResultData);
-                                            //存小图
-                                            QDir directory1(folderName + "/" + strErrName);
-                                            if (directory1.exists()) {
-                                                qDebug() << "Directory"
-                                                         << "already exists.";
-                                            } else {
-                                                // Create the directory
-                                                if (directory1.mkpath(folderName + "/" + strErrName)) {
-                                                    qDebug() << "Directory"
-                                                             << "created.";
-                                                } else {
-                                                    qDebug() << "Failed to create directory";
-                                                }
-                                            }
-                                            QDir directory2(strImageNGPath);
-                                            if (directory2.exists()) {
-                                                qDebug() << "Directory"
-                                                         << "already exists.";
-                                            } else {
-                                                // Create the directory
-                                                if (directory2.mkpath(strImageNGPath)) {
-                                                    qDebug() << "Directory"
-                                                             << "created.";
-                                                } else {
-                                                    qDebug() << "Failed to create directory";
-                                                }
-                                            }
-                                            QString ImageNGPath1 = strImageNGPath + "/" + strErrName + "1.jpg";
-                                            QString ImageNGPath2 = strImageNGPath + "/" + strErrName + "2.jpg";
-                                            QString ImageNGPath3 = strImageNGPath + "/" + strErrName + "3.jpg";
-
-                                            WriteImage(ErrImage1.SelectObj(i + 1), "jpg", 0, ImageNGPath1.toUtf8().constData());
-                                            WriteImage(ErrImage2.SelectObj(i + 1), "jpg", 0, ImageNGPath2.toUtf8().constData());
-                                            WriteImage(ErrImage3.SelectObj(i + 1), "jpg", 0, ImageNGPath3.toUtf8().constData());
-                                        }
-                                 }
-                                     QString strGlassWidth = GlassWidth.ToString().Text();
-                                     strGlassWidth = strGlassWidth.remove("\"");
-                                     QString strGlassLength = GlassLength.ToString().Text();
-                                     strGlassLength = strGlassLength.remove("\"");
-                                     QString strGlassAngle = GlassAngle.ToString().Text();
-                                     qDebug()<<"strGlassAngle ="<<strGlassAngle;
-
-                                     ResultDataJson->ResultData.GlassWidth.clear();
-                                     ResultDataJson->ResultData.GlassLength.clear();
-                                     ResultDataJson->ResultData.GlassWidth.append(strGlassWidth);
-                                     ResultDataJson->ResultData.GlassLength.append(strGlassLength);
-                                     ResultDataJson->ResultData.GlassAngle.append(strGlassAngle);
-
-                                     ginfo->GlassWidth=strGlassLength.toDouble();
-                                     ginfo->GlassLength=strGlassWidth.toDouble();
-                                     Global::RollerAngle = strGlassAngle.toDouble();
-
-                                     ginfo->GlassID=ResultDataJson->InterParasToQJson(ResultDataJson->ResultData, LastDefectCount, Count, GlassPosition, 0 , true);
-                                     qDebug()<<"GlassPosition: "<<GlassPosition;
-                                     qDebug()<<"LastDefectCount: "<<LastDefectCount;
-                                     qDebug()<<"Count: "<< Count.ToString().Text();
-                                    //发送显示缺陷点位置信号
-                                    emit sig_Deliver(Points);
-                                    emit sig_updateSignalFlaw(ginfo->GlassID);
-                                    qDebug()<<"ProcessStep"<<ProcessStep;
-                                    qDebug()<<"m_FramesPerTri"<<Global::FramesPerTri;
-                                    emit sig_updateFlaw(ginfo);
-
-
-
-
-                                    QString info="ProcessStep" + QString::number(ProcessStep)  + "算法执行完成！";
-                                    log_singleton::Write_Log(info, Log_Level::General);
-                                } catch (HalconCpp::HException& Except) {
-                                        ErrFlag=true;
-                                        qDebug() << "HalconHalconErr:" << Except.ErrorMessage().Text();
-                                        QString info= "算法执行异常！";
-                                        log_singleton::Write_Log(info, Log_Level::General);
-                                        // 处理异常操作
                                 }
 
+                                //获取已检出缺陷个数
+                                LastDefectCount = ResultDataJson->ResultData.DefectID.length();
+                                qDebug() << "LastDefectCount:"<<LastDefectCount;
+                                // Build the file name based on the current time
+                                QDateTime currentDateTime = QDateTime::currentDateTime();
+                                currentTimeJson = currentDateTime;
+                                QString CurrentTime = currentDateTime.toString("hh-mm-ss");
+                                ResultDataJson->ResultData.Time = CurrentTime;
+
+                                Process_Detect::saveErrImage(ErrImage1, ErrImage2, ErrImage3, LastDefectCount,currentDateTime);
+
+                                //保存缺陷小图
+                                HTuple Count;
+                                CountObj(ErrImage1, &Count);
+
+                                QString strGlassWidth = GlassWidth.ToString().Text();
+                                strGlassWidth = strGlassWidth.remove("\"");
+                                QString strGlassLength = GlassLength.ToString().Text();
+                                strGlassLength = strGlassLength.remove("\"");
+                                QString strGlassAngle = GlassAngle.ToString().Text();
+                                qDebug()<<"strGlassAngle ="<<strGlassAngle;
+
+                                ResultDataJson->ResultData.GlassWidth.clear();
+                                ResultDataJson->ResultData.GlassLength.clear();
+                                ResultDataJson->ResultData.GlassWidth.append(strGlassWidth);
+                                ResultDataJson->ResultData.GlassLength.append(strGlassLength);
+                                ResultDataJson->ResultData.GlassAngle.append(strGlassAngle);
+
+                                ginfo->GlassWidth  = strGlassLength.toDouble();
+                                ginfo->GlassLength = strGlassWidth.toDouble();
+                                Global::RollerAngle = strGlassAngle.toDouble();
+
+                                ginfo->GlassID = ResultDataJson->InterParasToQJson(ResultDataJson->ResultData, LastDefectCount, Count, GlassPosition, 0 , true);
+                                qDebug()<<"GlassPosition: "<<GlassPosition;
+                                qDebug()<<"LastDefectCount: "<<LastDefectCount;
+                                qDebug()<<"Count: "<< Count.ToString().Text();
+                                //发送显示缺陷点位置信号
+                                emit sig_Deliver(Points);  //将缺陷点传值给其他对象
+                                emit sig_updateSignalFlaw(ginfo->GlassID);
+                                qDebug()<<"ProcessStep"<<ProcessStep;
+                                qDebug()<<"m_FramesPerTri"<<Global::FramesPerTri;
+                                emit sig_updateFlaw(ginfo);//更新缺陷图像轮廓
+                                QString info="ProcessStep" + QString::number(ProcessStep)  + "算法执行完成！";
+                                log_singleton::Write_Log(info, Log_Level::General);
+                            } catch (HalconCpp::HException& Except) {
+                                ErrFlag = true;
+                                qDebug() << "HalconHalconErr:" << Except.ErrorMessage().Text();
+                                QString info= "算法执行异常！";
+                                log_singleton::Write_Log(info, Log_Level::General);
+                                // 处理异常操作
                             }
-                    }
-                    else
-                    {
+                        }
+                    } else {
                         ErrFlag=true;
                         qDebug() << "图像为空或已出现异常！";
                         QString info= "图像为空或已出现异常！";
                         log_singleton::Write_Log(info, Log_Level::General);
                     }
-                   }
+                }
 
                 //尺寸測量+缺陷信息
-                  if (GlassPosition==0 || GlassPosition==3 )
-                  {
-                      HTuple EnableMeasure;
-                      GetDictTuple(UserDefinedDict,"尺寸测量启用",&EnableMeasure);
-                      qDebug() << "EnableMeasure :" << EnableMeasure.ToString().Text();
-                      if(EnableMeasure==1)
-                      {
-                          DetectSiYin();
-                          HolesData2Json();
-                      }
+                if (GlassPosition==0 || GlassPosition==3 ) {
+                    HTuple EnableMeasure;
+                    GetDictTuple(UserDefinedDict,"尺寸测量启用",&EnableMeasure);
+                    qDebug() << "EnableMeasure :" << EnableMeasure.ToString().Text();
+                    if(EnableMeasure==1) {
+                        Process_Detect::DetectSiYin();
+                        Process_Detect::HolesData2Json();
+                    }
+                }
+                ResultNotOutFlag=true;
+                Process_Detect::Glassinfo();
+                emit sendData(ginfo); //插入一行数据
+                QString glassidAndTime = ginfo->GlassID + "." + currentTimeJson.toString("yyyy-MM-dd HH");
+                qDebug()<<"glassidAndTime = "<<glassidAndTime;
+                //更新缺陷小图
+                emit sig_refreshFlaw(glassidAndTime); //刷新缺陷
+                emit sig_refreshSize(glassidAndTime); //刷新尺寸
+                //更新玻璃尺寸
 
-                  }
-                  ResultNotOutFlag=true;
-                  Glassinfo();
-                  emit sendData(ginfo);
-
-                  if (GlassPosition==0 || GlassPosition==3 )
-                  {
-                      SummaryResults();
-                      ResultNotOutFlag=false;
-                  }
-                  ProcessTile::ImageQueue.dequeue();                
-                  DetectStep = 0;
-                  break;
-
+                if (GlassPosition==0 || GlassPosition==3 ) {
+                    SummaryResults();
+                    ResultNotOutFlag=false;
+                }
+                ProcessTile::ImageQueue.dequeue();
+                DetectStep = 0;
+                break;
             }
 
             if(stopFlag_Detect==true)
                 break;
     }
 }
+
 void Process_Detect::DetectSiYin()
 {
-        HTuple NumTile;
-        CountObj(ProcessTile::ImageTile1R,&NumTile);
-        if(NumTile>0)
-        {
-           try {
-                procedurecall2->SetInputCtrlParamTuple("Cam1pixs", ProcessTile::Cam1pixs);
-                procedurecall2->SetInputCtrlParamTuple("Cam1Width", ProcessTile::Cam1Width);
-                procedurecall2->SetInputCtrlParamTuple("Tile2Column1", ProcessTile::Tile2Column1);
-                procedurecall2->SetInputCtrlParamTuple("DetectDict", Global::RecipeDict);
-                procedurecall2->SetInputIconicParamObject("Image1", ProcessTile::ImageTile1R);
-                procedurecall2->SetInputIconicParamObject("Image2", ProcessTile::ImageTile2R);
-                procedurecall2->SetInputIconicParamObject("Image3", ProcessTile::ImageTile3R);
-                procedurecall2->SetInputIconicParamObject("Image4", ProcessTile::ImageTile4R);
+    HTuple NumTile;
+    CountObj(ProcessTile::ImageTile1R,&NumTile);
+    if(NumTile>0) {
+        try {
+            procedurecall2->SetInputCtrlParamTuple("Cam1pixs", ProcessTile::Cam1pixs);
+            procedurecall2->SetInputCtrlParamTuple("Cam1Width", ProcessTile::Cam1Width);
+            procedurecall2->SetInputCtrlParamTuple("Tile2Column1", ProcessTile::Tile2Column1);
+            procedurecall2->SetInputCtrlParamTuple("DetectDict", Global::RecipeDict);
+            procedurecall2->SetInputIconicParamObject("Image1", ProcessTile::ImageTile1R);
+            procedurecall2->SetInputIconicParamObject("Image2", ProcessTile::ImageTile2R);
+            procedurecall2->SetInputIconicParamObject("Image3", ProcessTile::ImageTile3R);
+            procedurecall2->SetInputIconicParamObject("Image4", ProcessTile::ImageTile4R);
 
-                procedurecall2->Execute();
-                ProcessTile::ImageTile1R.Clear();
-                ProcessTile::ImageTile2R.Clear();
-                ProcessTile::ImageTile3R.Clear();
-                ProcessTile::ImageTile4R.Clear();
-                GenEmptyObj(&ProcessTile::ImageTile1R);
-                GenEmptyObj(&ProcessTile::ImageTile2R);
-                GenEmptyObj(&ProcessTile::ImageTile3R);
-                GenEmptyObj(&ProcessTile::ImageTile4R);
+            procedurecall2->Execute();
+            ProcessTile::ImageTile1R.Clear();
+            ProcessTile::ImageTile2R.Clear();
+            ProcessTile::ImageTile3R.Clear();
+            ProcessTile::ImageTile4R.Clear();
+            GenEmptyObj(&ProcessTile::ImageTile1R);
+            GenEmptyObj(&ProcessTile::ImageTile2R);
+            GenEmptyObj(&ProcessTile::ImageTile3R);
+            GenEmptyObj(&ProcessTile::ImageTile4R);
 
-                ConcatObj(OutLineImage, procedurecall2->GetOutputIconicParamObject("OutLineImage"), &OutLineImage);
-                ConcatObj(HolesImage, procedurecall2->GetOutputIconicParamObject("HolesImage"), &HolesImage);
-        }catch (HalconCpp::HException& Except) {
-                ErrFlag=true;
-                qDebug() << "HalconHalconErr:" << Except.ErrorMessage().Text();
-                QString info= "算法执行异常！";
-                log_singleton::Write_Log(info, Log_Level::General);
-                // 处理异常操作
+            ConcatObj(OutLineImage, procedurecall2->GetOutputIconicParamObject("OutLineImage"), &OutLineImage);
+            ConcatObj(HolesImage, procedurecall2->GetOutputIconicParamObject("HolesImage"), &HolesImage);
+        } catch (HalconCpp::HException& Except) {
+            ErrFlag=true;
+            qDebug() << "HalconHalconErr:" << Except.ErrorMessage().Text();
+            QString info= "算法执行异常！";
+            log_singleton::Write_Log(info, Log_Level::General);
+            // 处理异常操作
         }
-                HTuple CountHoles=0;
-                CountObj(HolesImage,&CountHoles);
-              try{
-                ResultDictHoles = procedurecall2->GetOutputCtrlParamTuple("ResultDictHoles");
-
-                if(CountHoles>0)
-                {
+        HTuple CountHoles=0;
+        CountObj(HolesImage,&CountHoles);
+        try{
+            ResultDictHoles = procedurecall2->GetOutputCtrlParamTuple("ResultDictHoles");
+            if(CountHoles>0) {
                 Type = ResultDictHoles.TupleGetDictTuple("Type");
                 HolesOK = ResultDictHoles.TupleGetDictTuple("HolesOK");
                 DistanceHorizontal = ResultDictHoles.TupleGetDictTuple("DistanceHorizontal");
                 DistanceVertical = ResultDictHoles.TupleGetDictTuple("DistanceVertical");
                 HolesWidth = ResultDictHoles.TupleGetDictTuple("HolesWidth");
                 HolesHeight = ResultDictHoles.TupleGetDictTuple("HolesHeight");
-                }
-                GlassWidth = ResultDictHoles.TupleGetDictTuple("GlassWidth");
-                GlassLength = ResultDictHoles.TupleGetDictTuple("GlassHeight");
-                }
-                catch(HalconCpp::HException& Except)
-                {
-                    GlassWidth = 0;
-                    GlassLength = 0;
-                    qDebug() << "HalconHalconErr:" << Except.ErrorMessage().Text();
-                }
+            }
+            GlassWidth = ResultDictHoles.TupleGetDictTuple("GlassWidth");
+            GlassLength = ResultDictHoles.TupleGetDictTuple("GlassHeight");
+        }  catch(HalconCpp::HException& Except) {
+            GlassWidth = 0;
+            GlassLength = 0;
+            qDebug() << "HalconHalconErr:" << Except.ErrorMessage().Text();
+        }
 
-                qDebug() << "GlassWidthttttttttttttttt"<<GlassWidth.ToString().Text();
-                qDebug() << "GlassWidthttttttttttttttttt"<<GlassLength.ToString().Text();
-        }
-        else
-        {
-           //无测量结果
-        }
+        qDebug() << "GlassWidthttttttttttttttt"<<GlassWidth.ToString().Text();
+        qDebug() << "GlassWidthttttttttttttttttt"<<GlassLength.ToString().Text();
+  }else{
+        //无测量结果
+  }
 }
 void Process_Detect::slot_updateSortInfo()
 {
@@ -512,260 +391,174 @@ void Process_Detect::slot_updateSortInfo()
        result->unsorted--;
        emit sig_updateSortRes(result);
        emit sig_UpdateResultInfo(result);
-    }
-    else
-    {
+    } else {
 
     }
 }
 
-//void Process_Detect::slot_ClearDate()
-//{
-//    result->ngNum=0;
-//    result->okNum=0;
-//    result->sorted=0;
-//    result->GlassNum=0;
-//    result->passRate=0;
-//    result->unsorted=0;
-//    result->exceptNum=0;
-//    result->pre_result="OK";
-//    result->sort_result="OK";
-//}
 void Process_Detect::SummaryResults()
-{             
-
-
-        //报警灯信号输出
-        if(ginfo->isOK)
-        {
-            Qlist_Result.append(true);
-            Global::AlmLightSignal=true;
-            Global::AlmLightVal=4;
-        }
-        else
-        {
-            Qlist_Result.append(false);
-            Global::AlmLightSignal=true;
-            Global::AlmLightVal=15;
-        }
-
-        //检测结果刷新
-        update_result(ginfo->isOK);
-
-        qDebug() << result->GlassNum;
-        emit sig_UpdateResultInfo(result);
-//        emit sig_SignalLight(1);
-        //变量清理
-        ErrImage1.Clear();
-        ErrImage2.Clear();
-        ErrImage3.Clear();
-        OutLineImage.Clear();
-        HolesImage.Clear();
-        GenEmptyObj(&ErrImage1);
-        GenEmptyObj(&ErrImage2);
-        GenEmptyObj(&ErrImage3);
-        GenEmptyObj(&OutLineImage);
-        GenEmptyObj(&HolesImage);
-        ResultDict = HTuple();
-        ResultDictHoles = HTuple();
-        GlassWidth = HTuple();
-        GlassLength = HTuple();
-        ErrName = HTuple();
-        ErrType = HTuple();
-        Type = HTuple();
-        HolesOK = HTuple();
-        DistanceHorizontal = HTuple();
-        DistanceVertical = HTuple();
-        HolesWidth = HTuple();
-        HolesHeight = HTuple();
-        DefectLevel = HTuple();
-        ErrX = HTuple();
-        ErrY = HTuple();
-        ErrW = HTuple();
-        ErrL = HTuple();
-        ErrArea = HTuple();
-        ResultDataJson->ResultData.DefectID.clear();
-        ResultDataJson->ResultData.DefectType.clear();
-        ResultDataJson->ResultData.DefectLeve.clear();
-
-        ResultDataJson->ResultData.Lenth.clear();
-        ResultDataJson->ResultData.Width.clear();
-        ResultDataJson->ResultData.Area.clear();
-        ResultDataJson->ResultData.X.clear();
-        ResultDataJson->ResultData.Y.clear();
-        ResultDataJson->ResultData.ImageNGPath.clear();
-        ResultDataJson->ResultData.GlassLength.clear();
-        ResultDataJson->ResultData.GlassWidth.clear();
-
-        ResultDataJson->ResultData.Type.clear();
-        ResultDataJson->ResultData.HolesLeve.clear();
-        ResultDataJson->ResultData.HolesWidth.clear();
-        ResultDataJson->ResultData.HolesHeight.clear();
-        ResultDataJson->ResultData.DistanceVertical.clear();
-        ResultDataJson->ResultData.DistanceHorizontal.clear();
-        ResultDataJson->ResultData.ImageHolesLinePath.clear();
-        ResultDataJson->ResultData.ImageHolesPath.clear();
-
-        ResultDataJson->ResultData.HolesID.clear();
-        ResultDataJson->ResultData.GlassAngle.clear();
-
-          // 发送数据
-        Points->clear();
-        QString info="玻璃ID" + ginfo->GlassID  + "算法执行完成！";
-
-        log_singleton::Write_Log(info, Log_Level::General);
-}
-void Process_Detect::DetectData2Json()
 {
+    //报警灯信号输出
+    if(ginfo->isOK){
+        Qlist_Result.append(true);
+        Global::AlmLightSignal=true;
+        Global::AlmLightVal=4;
+    } else {
+        Qlist_Result.append(false);
+        Global::AlmLightSignal=true;
+        Global::AlmLightVal=15;
+    }
+    QString IDandDate= ginfo->GlassID;
+    //检测结果刷新
+    update_result(ginfo->isOK);
+    //刷新界面
+    emit sig_UpdateResultInfo(result);
+    //变量清理
+    ErrImage1.Clear();
+    ErrImage2.Clear();
+    ErrImage3.Clear();
+    OutLineImage.Clear();
+    HolesImage.Clear();
+    GenEmptyObj(&ErrImage1);
+    GenEmptyObj(&ErrImage2);
+    GenEmptyObj(&ErrImage3);
+    GenEmptyObj(&OutLineImage);
+    GenEmptyObj(&HolesImage);
+    ResultDict = HTuple();
+    ResultDictHoles = HTuple();
+    GlassWidth = HTuple();
+    GlassLength = HTuple();
+    ErrName = HTuple();
+    ErrType = HTuple();
+    Type = HTuple();
+    HolesOK = HTuple();
+    DistanceHorizontal = HTuple();
+    DistanceVertical = HTuple();
+    HolesWidth = HTuple();
+    HolesHeight = HTuple();
+    DefectLevel = HTuple();
+    ErrX = HTuple();
+    ErrY = HTuple();
+    ErrW = HTuple();
+    ErrL = HTuple();
+    ErrArea = HTuple();
+    ResultDataJson->ResultData.DefectID.clear();
+    ResultDataJson->ResultData.DefectType.clear();
+    ResultDataJson->ResultData.DefectLeve.clear();
 
+    ResultDataJson->ResultData.Lenth.clear();
+    ResultDataJson->ResultData.Width.clear();
+    ResultDataJson->ResultData.Area.clear();
+    ResultDataJson->ResultData.X.clear();
+    ResultDataJson->ResultData.Y.clear();
+    ResultDataJson->ResultData.ImageNGPath.clear();
+    ResultDataJson->ResultData.GlassLength.clear();
+    ResultDataJson->ResultData.GlassWidth.clear();
+
+    ResultDataJson->ResultData.Type.clear();
+    ResultDataJson->ResultData.HolesLeve.clear();
+    ResultDataJson->ResultData.HolesWidth.clear();
+    ResultDataJson->ResultData.HolesHeight.clear();
+    ResultDataJson->ResultData.DistanceVertical.clear();
+    ResultDataJson->ResultData.DistanceHorizontal.clear();
+    ResultDataJson->ResultData.ImageHolesLinePath.clear();
+    ResultDataJson->ResultData.ImageHolesPath.clear();
+
+    ResultDataJson->ResultData.HolesID.clear();
+    ResultDataJson->ResultData.GlassAngle.clear();
+
+    // 发送数据
+    Points->clear();
+    QString info="玻璃ID" + ginfo->GlassID  + "算法执行完成！";
+    log_singleton::Write_Log(info, Log_Level::General);
 }
+
 void Process_Detect::HolesData2Json()
 {
+    GlassSizeInfo data; //存入数据库的结构体
     HTuple CountSK;
     CountObj(HolesImage, &CountSK);
     qDebug()<<"count2:"<<CountSK.ToString().Text();
     //siyin信息汇总
-       if(CountSK > 0)
-        {
-            QString folderDefectImage = QString("E:/SaveDefectImage");
-            QDir directory(folderDefectImage);
-            // 判断存储小图文件夹是否存在
-            QDir folderDir(folderDefectImage);
-            if (folderDir.exists()) {
-                qDebug() << "Folder" << folderDefectImage << "exists.";
-            } else {
-                if (directory.mkpath(folderDefectImage)) {
-                    qDebug() << "Directory"
-                             << "created.";
-                } else {
-                    qDebug() << "Failed to create directory";
-                }
+    if(CountSK > 0) {
+        QString folderDefectImage = QString("D:/SaveDefectImage");
+        if (!Process_Detect::isExistDir(folderDefectImage)) {
+            return;
+        }
+        qDebug() << "P2 :" << QDateTime::currentDateTime().toString("HH:mm:ss.zzz");
+
+        // Get the current time
+        QDateTime currentDateTime = QDateTime::currentDateTime();
+        QString folderName = QString("D:/SaveDefectImage/") + currentDateTime.toString("yyyy-MM-dd");
+        for (int i = 0; i < CountSK; i++) {
+            if (!Process_Detect::isExistDir(folderName)) {
+                return;
             }
-            qDebug() << "P2 :" << QDateTime::currentDateTime().toString("HH:mm:ss.zzz");
+            QString CurrentTime = currentDateTime.toString("hh-mm-ss");
+            ResultDataJson->ResultData.Time = CurrentTime;
+            QString strType = Type.TupleSelect(i).ToString().Text();
 
+            strType = strType.remove("\"");
+            QString strHolesOK = HolesOK.TupleSelect(i).ToString().Text();
+            strHolesOK = strHolesOK.remove("\"");
+            qDebug()<<strType<<strHolesOK;
+            QString strDistanceHorizontal, strDistanceVertical, strHolesWidth, strHolesHeight;
+            qDebug()<<"Count2"<<CountSK.ToString().Text()<<"DistanceHorizontal.Length()"<<DistanceHorizontal.Length()<<DistanceVertical.Length()<<HolesWidth.Length()<<HolesHeight.Length();
+            if(DistanceHorizontal.Length()==CountSK && DistanceVertical.Length()==CountSK && HolesWidth.Length()==CountSK  && HolesHeight.Length()==CountSK ) {
+                strDistanceHorizontal = DistanceHorizontal.TupleSelect(i).ToString().Text();
+                strDistanceHorizontal = strDistanceHorizontal.remove("\"");
+                strDistanceVertical = DistanceVertical.TupleSelect(i).ToString().Text();
+                strDistanceVertical = strDistanceVertical.remove("\"");
+                strHolesWidth = HolesWidth.TupleSelect(i).ToString().Text();
+                strHolesWidth = strHolesWidth.remove("\"");
+                strHolesHeight = HolesHeight.TupleSelect(i).ToString().Text();
+                strHolesHeight = strHolesHeight.remove("\"");
+             } else {
+                strDistanceHorizontal="0";
+                strDistanceVertical="0";
+                strHolesWidth="0";
+                strHolesHeight="0";
+             }
+             ResultDataJson->ResultData.HolesID.append(QString::number(i + 1));
+             ResultDataJson->ResultData.Type.append(strType);
+             ResultDataJson->ResultData.HolesLeve.append(strHolesOK);
+             ResultDataJson->ResultData.DistanceVertical.append(strDistanceVertical);
+             ResultDataJson->ResultData.DistanceHorizontal.append(strDistanceHorizontal);
+             ResultDataJson->ResultData.HolesWidth.append(strHolesWidth);
+             ResultDataJson->ResultData.HolesHeight.append(strHolesHeight);
 
-            // Get the current time
-            QDateTime currentDateTime = QDateTime::currentDateTime();
+             QString strImageHolesPath = folderName + "/" + "孔" + "/" + CurrentTime;
+             ResultDataJson->ResultData.ImageHolesPath.append(strImageHolesPath);
 
-            QString folderName = QString("E:/SaveDefectImage/") + currentDateTime.toString("yyyy-MM-dd");
-            for (int i = 0; i < CountSK; i++) {
-                QDir directory(folderName);
-                // 判断文件夹是否存在
-                QDir folderDir(folderName);
-                if (folderDir.exists()) {
-                    qDebug() << "Folder" << folderName << "exists.";
-                } else {
-                    if (directory.mkpath(folderName)) {
-                        qDebug() << "Directory"
-                                 << "created.";
-                    } else {
-                        qDebug() << "Failed to create directory";
-                    }
-                }
-                QString CurrentTime = currentDateTime.toString("hh-mm-ss");
-                ResultDataJson->ResultData.Time = CurrentTime;
-                QString strType = Type.TupleSelect(i).ToString().Text();
+             //存小图
+             QString typedir = folderName + "/" + strType;
+             if (!Process_Detect::isExistDir(typedir) || !Process_Detect::isExistDir(strImageHolesPath)) {
+                return;
+             }
 
-                strType = strType.remove("\"");
-                QString strHolesOK = HolesOK.TupleSelect(i).ToString().Text();
-                strHolesOK = strHolesOK.remove("\"");
-                qDebug()<<strType<<strHolesOK;
-                QString strDistanceHorizontal, strDistanceVertical, strHolesWidth, strHolesHeight;
-                qDebug()<<"Count2"<<CountSK.ToString().Text()<<"DistanceHorizontal.Length()"<<DistanceHorizontal.Length()<<DistanceVertical.Length()<<HolesWidth.Length()<<HolesHeight.Length();
-                if(DistanceHorizontal.Length()==CountSK && DistanceVertical.Length()==CountSK && HolesWidth.Length()==CountSK  && HolesHeight.Length()==CountSK )
-                {
-                    strDistanceHorizontal = DistanceHorizontal.TupleSelect(i).ToString().Text();
-                    strDistanceHorizontal = strDistanceHorizontal.remove("\"");
-                    strDistanceVertical = DistanceVertical.TupleSelect(i).ToString().Text();
-                    strDistanceVertical = strDistanceVertical.remove("\"");
-                    strHolesWidth = HolesWidth.TupleSelect(i).ToString().Text();
-                    strHolesWidth = strHolesWidth.remove("\"");
-                    strHolesHeight = HolesHeight.TupleSelect(i).ToString().Text();
-                    strHolesHeight = strHolesHeight.remove("\"");
-                }
-                else
-                {
-                    strDistanceHorizontal="0";
-                    strDistanceVertical="0";
-                    strHolesWidth="0";
-                    strHolesHeight="0";
-
-                }
-                ResultDataJson->ResultData.HolesID.append(QString::number(i + 1));
-                ResultDataJson->ResultData.Type.append(strType);
-                ResultDataJson->ResultData.HolesLeve.append(strHolesOK);
-                ResultDataJson->ResultData.DistanceVertical.append(strDistanceVertical);
-                ResultDataJson->ResultData.DistanceHorizontal.append(strDistanceHorizontal);
-                ResultDataJson->ResultData.HolesWidth.append(strHolesWidth);
-                ResultDataJson->ResultData.HolesHeight.append(strHolesHeight);
-
-                QString strImageHolesPath = folderName + "/" + "孔" + "/" + CurrentTime;
-                ResultDataJson->ResultData.ImageHolesPath.append(strImageHolesPath);
-
-
-
-                // 发送数据
-        //                                emit resultReady(ResultDataJson->ResultData);
-                //存小图
-                QDir directory1(folderName + "/" + strType);
-                if (directory1.exists()) {
-                    qDebug() << "Directory"
-                             << "already exists.";
-                } else {
-                    // Create the directory
-                    if (directory1.mkpath(folderName + "/" + strType)) {
-                        qDebug() << "Directory"
-                                 << "created.";
-                    } else {
-                        qDebug() << "Failed to create directory";
-                    }
-                }
-                QDir directory2(strImageHolesPath);
-                if (directory2.exists()) {
-                    qDebug() << "Directory"
-                             << "already exists.";
-                } else {
-                    // Create the directory
-                    if (directory2.mkpath(strImageHolesPath)) {
-                        qDebug() << "Directory"
-                                 << "created.";
-                    } else {
-                        qDebug() << "Failed to create directory";
-                    }
-                }
-
-                QString ImageHolesPath2 = strImageHolesPath + "/" + QString::number(i) + ".jpg";
-
-                WriteImage(HolesImage.SelectObj(i + 1), "jpg", 0, ImageHolesPath2.toUtf8().constData());
-
+             QString ImageHolesPath2 = strImageHolesPath + "/" + QString::number(i) + ".jpg";
+//             HObject image = HolesImage.SelectObj(i + 1);
+//             std::tuple<QString,HObject> item = std::make_tuple(ImageHolesPath2,image);
+//             threadQueue.inqueue(item);
+             WriteImage(HolesImage.SelectObj(i + 1), "jpg", 0, ImageHolesPath2.toUtf8().constData());
             }
 
             QString CurrentTime = currentDateTime.toString("hh-mm-ss");
-
             QString strImageHolesLinePath = folderName + "/" + "孔示意图" + "/" + CurrentTime;
             ResultDataJson->ResultData.ImageHolesLinePath.append(strImageHolesLinePath);
 
-            QDir directory3(strImageHolesLinePath);
-            if (directory3.exists()) {
-                qDebug() << "Directory"
-                         << "already exists.";
-            } else {
-                // Create the directory
-                if (directory3.mkpath(strImageHolesLinePath)) {
-                    qDebug() << "Directory"
-                             << "created.";
-                } else {
-                    qDebug() << "Failed to create directory";
-                }
+            if(!Process_Detect::isExistDir(strImageHolesLinePath)) {
+                return;
             }
             QString ImageHolesPath1 = strImageHolesLinePath + "/" + "1.jpg";
             WriteImage(OutLineImage, "jpg", 0, ImageHolesPath1.toUtf8().constData());
         }
+        ginfo->GlassID=ResultDataJson->InterParasToQJson(ResultDataJson->ResultData, 0, 0, 0, CountSK , false);
+        qDebug()<<"GlassID: "<<ginfo->GlassID;
 
-         ginfo->GlassID=ResultDataJson->InterParasToQJson(ResultDataJson->ResultData, 0, 0, 0, CountSK , false);
-         qDebug()<<"GlassID: "<<ginfo->GlassID;
-
+        //Process_Detect::insertHoleData(GlassSizeInfo data);
 }
+
 void Process_Detect::Glassinfo()
 {
     ginfo->isSizeOK=false;
@@ -777,91 +570,59 @@ void Process_Detect::Glassinfo()
         HTuple  hv_Indices,hv_count;
 
         TupleFind(DefectLevel, "NG", &hv_Indices_NG);
-        if (0 != (int(hv_Indices_NG!=-1)))
-        {
-          ginfo->isFlawOK=false;
-        }
-        else
-        {
-          ginfo->isFlawOK=true;
+        if (0 != (int(hv_Indices_NG!=-1))) {
+            ginfo->isFlawOK = false;
+        } else {
+          ginfo->isFlawOK = true;
         }
 
-        if(ginfo->isFlawOK==true && ginfo->isSizeOK==true)
-        {
+        if(ginfo->isFlawOK == true && ginfo->isSizeOK == true) {
             ginfo->isOK=true;
-        }
-        else
-        {
+        } else {
             ginfo->isOK=false;
         }
 
-        if (ResultDataJson->ResultData.DefectType.contains("划伤"))
-            {
-                ginfo->Flaw1 = ResultDataJson->ResultData.DefectType.count("划伤");
-            }
-        else
-            {
-                ginfo->Flaw1 = 0;
-            }
-        if (ResultDataJson->ResultData.DefectType.contains("气泡"))
-        {
-            ginfo->Flaw2 = ResultDataJson->ResultData.DefectType.count("气泡");
+        if (ResultDataJson->ResultData.DefectType.contains("划伤")) {
+            ginfo->Flaw1 = ResultDataJson->ResultData.DefectType.count("划伤");
+        } else {
+            ginfo->Flaw1 = 0;
         }
-        else
-        {
+        if (ResultDataJson->ResultData.DefectType.contains("气泡")) {
+            ginfo->Flaw2 = ResultDataJson->ResultData.DefectType.count("气泡");
+        } else {
             ginfo->Flaw2 = 0;
         }
-        if (ResultDataJson->ResultData.DefectType.contains("崩边"))
-        {
+
+        if (ResultDataJson->ResultData.DefectType.contains("崩边")) {
             ginfo->Flaw3 = ResultDataJson->ResultData.DefectType.count("崩边");
-        }
-        else
-        {
+        } else {
             ginfo->Flaw3 = 0;
         }
 
-        if (ResultDataJson->ResultData.DefectType.contains("脏污"))
-        {
+        if (ResultDataJson->ResultData.DefectType.contains("脏污")) {
             ginfo->Flaw4 =  ResultDataJson->ResultData.DefectType.count("脏污");
-        }
-        else
-        {
+        } else {
             ginfo->Flaw4 = 0;
         }
-        if (ResultDataJson->ResultData.DefectType.contains("裂纹"))
-        {
+        if (ResultDataJson->ResultData.DefectType.contains("裂纹")) {
             ginfo->Flaw5 =  ResultDataJson->ResultData.DefectType.count("裂纹");
-        }
-        else
-        {
+        } else {
             ginfo->Flaw5 = 0;
         }
-        if (ResultDataJson->ResultData.DefectType.contains("其它"))
-        {
+        if (ResultDataJson->ResultData.DefectType.contains("其它")) {
             ginfo->Flaw6 =  ResultDataJson->ResultData.DefectType.count("其它");
-        }
-        else
-        {
+        } else {
             ginfo->Flaw6 = 0;
         }
-        if (ResultDataJson->ResultData.DefectType.contains("结石"))
-        {
+        if (ResultDataJson->ResultData.DefectType.contains("结石")) {
             ginfo->Flaw7 =  ResultDataJson->ResultData.DefectType.count("结石");
-        }
-        else
-        {
+        } else {
             ginfo->Flaw7 = 0;
         }
-//                ginfo->isFlawOK=true;
-//                ginfo->isSizeOK=true;
         ginfo->Diagonal1=0;
         ginfo->Diagonal2=0;
         ginfo->FlawCount=ginfo->Flaw1 + ginfo->Flaw2 +ginfo->Flaw3 + ginfo->Flaw4 + ginfo->Flaw5 + ginfo->Flaw6 + ginfo->Flaw7;
-
-    }
-    else
-    {
-
+    } else {
         ginfo->isFlawOK=true;
         ginfo->Diagonal1=0;
         ginfo->Diagonal2=0;
@@ -878,15 +639,147 @@ void Process_Detect::Glassinfo()
     }
 
 
-    if(ginfo->isFlawOK && ginfo->isSizeOK && ErrFlag==0)
-    {ginfo->isOK =true;}
-    else
-    {
+    if(ginfo->isFlawOK && ginfo->isSizeOK && ErrFlag==0){
+        ginfo->isOK =true;
+    } else {
         ginfo->isOK =false;
-          if(ErrFlag==1)
-          {
+        if(ErrFlag==1) {
             result->exceptNum++;
-          }
+        }
     }
+}
+
+void Process_Detect::getProcessVisionResult()
+{
 
 }
+
+void Process_Detect::saveErrImage(HObject errImage1, HObject errImage2, HObject errImage3, int lastDefectCount,QDateTime currentDateTime)
+{
+    //保存缺陷小图
+    HTuple Count;
+    CountObj(errImage1, &Count);
+    qDebug()<<"Count ="<<*Count.ToDArr();
+    if (Count>0) {
+        QString folderDefectImage = QString("D:/SaveDefectImage");
+        if (!Process_Detect::isExistDir(folderDefectImage)) {
+            return;
+        }
+
+        QString folderName = folderDefectImage+ "/" + currentDateTime.toString("yyyy-MM-dd");
+        for (int i = 0; i < Count; i++) {
+            if (!Process_Detect::isExistDir(folderName)) {
+                return;
+            }
+
+            // Build the file name based on the current time
+            QString CurrentTime = currentDateTime.toString("hh-mm-ss");
+            QString strErrName = ErrName.TupleSelect(i).ToString().Text();
+            strErrName = strErrName.remove("\"");
+
+            QString strDefectLevel = DefectLevel.TupleSelect(i).ToString().Text();
+            strDefectLevel = strDefectLevel.remove("\"");
+
+            QString strErrX = ErrX.TupleSelect(i).ToString().Text();
+            strErrX = strErrX.remove("\"");
+
+            QString strErrY = ErrY.TupleSelect(i).ToString().Text();
+            strErrY = strErrY.remove("\"");
+
+            QString strErrL = ErrL.TupleSelect(i).ToString().Text();
+            strErrL = strErrL.remove("\"");
+
+            QString strErrW = ErrW.TupleSelect(i).ToString().Text();
+            strErrW = strErrW.remove("\"");
+
+            QString strErrArea = ErrArea.TupleSelect(i).ToString().Text();
+            strErrArea = strErrArea.remove("\"");
+//
+
+            ResultDataJson->ResultData.DefectID.append(QString::number(LastDefectCount+i + 1));
+            ResultDataJson->ResultData.DefectType.append(strErrName);
+            ResultDataJson->ResultData.DefectLeve.append(strDefectLevel);
+            ResultDataJson->ResultData.Y.append(strErrY);
+            ResultDataJson->ResultData.X.append(strErrX);
+            ResultDataJson->ResultData.Lenth.append(strErrL);
+            ResultDataJson->ResultData.Width.append(strErrW);
+            ResultDataJson->ResultData.Area.append(strErrArea);
+
+            QString strImageNGPath = folderName + "/" + strErrName + "/" + CurrentTime + "-" + QString::number(LastDefectCount+i + 1);
+            ResultDataJson->ResultData.ImageNGPath.append(strImageNGPath);
+            FlawPoint Point;
+            Point.x=strErrY.toDouble();
+            Point.y=strErrX.toDouble();
+            Point.FlawType=ErrType.TupleSelect(i).TupleInt();
+            Points->append(Point);
+
+            QString strErrNameDir = folderName + "/" + strErrName;
+            if (!Process_Detect::isExistDir(strErrNameDir)) {
+                return;
+            }
+            if (!Process_Detect::isExistDir(strImageNGPath)) {
+                return;
+            }
+
+            QString ImageNGPath1 = strImageNGPath + "/" + strErrName + "1.jpg";
+            QString ImageNGPath2 = strImageNGPath + "/" + strErrName + "2.jpg";
+            QString ImageNGPath3 = strImageNGPath + "/" + strErrName + "3.jpg";
+            HObject jpgImage1 = errImage1.SelectObj(i + 1);
+            HObject jpgImage2 = errImage2.SelectObj(i + 1);
+            HObject jpgImage3 = errImage3.SelectObj(i + 1);
+            std::tuple<QString, HObject> oneJpg = std::make_tuple(ImageNGPath1,jpgImage1);
+            std::tuple<QString, HObject> twoJpg = std::make_tuple(ImageNGPath2,jpgImage2);
+            std::tuple<QString, HObject> threeJpg = std::make_tuple(ImageNGPath3,jpgImage3);
+
+            threadQueue.inqueue(oneJpg);
+            threadQueue.inqueue(twoJpg);
+            threadQueue.inqueue(threeJpg);
+//            WriteImage(errImage1.SelectObj(i + 1), "jpg", 0, ImageNGPath1.toUtf8().constData());
+//            WriteImage(errImage2.SelectObj(i + 1), "jpg", 0, ImageNGPath2.toUtf8().constData());
+//            WriteImage(errImage3.SelectObj(i + 1), "jpg", 0, ImageNGPath3.toUtf8().constData());
+
+        }
+ }
+
+}
+
+void Process_Detect::funcSaveErrImage()
+{
+LOOP:
+    if(!threadQueue.empty()) {  //队列不空则获取tuple保存图片
+        std::tuple<QString, HObject> item;
+        threadQueue.dequeue(item);
+        auto imagePath = std::get<0>(item);
+        auto image = std::get<1>(item);
+        WriteImage(image, "jpg", 0, imagePath.toUtf8().constData());
+    } else { //队列为空，则停顿100微秒
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    if (!hasStopThread.load())
+        goto LOOP;
+}
+
+// 判断文件夹是否存在
+bool Process_Detect::isExistDir(QString dirpath)
+{
+    QDir folderDir(dirpath);
+    if (folderDir.exists()) {
+        qDebug() << "Folder: " << dirpath << "exists.";
+    } else {
+        if (folderDir.mkpath(dirpath)) {
+            qDebug() << "Directory created.";
+        } else {
+            qDebug() << "Failed to create directory";
+            return false;
+        }
+    }
+    return true;
+}
+
+//孔洞数据插入数据库
+bool Process_Detect::insertHoleData(GlassSizeInfo data)
+{
+    Jianbo_db::GetInstance()->openDataBase();
+    return Jianbo_db::GetInstance()->insertOneData(data);
+}
+

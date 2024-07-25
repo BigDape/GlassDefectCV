@@ -66,7 +66,7 @@ struct GlassDataBaseInfo{
     int qitaNumber;         // 其它数量
 };
 
-struct GlassInfo{
+struct GlassInfoDefect{
     size_t glassid;              // 主键id,玻璃的顺序id
     GlassDataBaseInfo baseinfo;
     std::unordered_map<size_t, GlassSizeInfo> kongdong;         // 孔洞
@@ -82,13 +82,16 @@ struct GlassInfo{
 };
 
 
+//单例模式
 class Jianbo_db {
-
+private:
+    Jianbo_db();
+    Jianbo_db(Jianbo_db&) = delete;
+    Jianbo_db& operator=(const Jianbo_db&) = delete;
 public:
-    QSqlDatabase db;
+    ~Jianbo_db(){}
+    static Jianbo_db* GetInstance();
 
-public:
-    explicit Jianbo_db();
     bool openDataBase();    // 打开数据库
     bool insertOneData(const GlassDataBaseInfo& data);   //插入数据库
     bool insertOneData(const GlassSizeInfo& data);       //插入数据库
@@ -107,6 +110,11 @@ public:
     bool queryTableData(std::vector<GlassDefect>& datas, QString querySql);       //查询数据库
     bool closeDataBase();   //关闭数据库
 
+public:
+    int getNextID(QString tableName); //获取tableName表的下一个id
+    int getNewGlassTable();
+public:
+    QSqlDatabase db;
 };
 
 #endif // JIANBO_DB_H

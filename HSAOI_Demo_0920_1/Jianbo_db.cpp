@@ -10,7 +10,7 @@
 
 Jianbo_db::Jianbo_db()
 {
-    qDebug()<<QSqlDatabase::drivers(); //查看QT支持的驱动
+    qDebug()<<QSqlDatabase::drivers();          //查看QT支持的驱动
     db = QSqlDatabase::addDatabase("QSQLITE");
     db.setHostName(HOSTNAME);                   // server name
     db.setDatabaseName(DATABASENAME);           // database name
@@ -18,6 +18,12 @@ Jianbo_db::Jianbo_db()
     db.setPassword(PASSWORD);                   // passward
 }
 
+
+Jianbo_db* Jianbo_db::GetInstance()
+{
+    static Jianbo_db instance;
+    return &instance;
+}
 
 bool Jianbo_db::openDataBase()
 {
@@ -65,8 +71,9 @@ bool Jianbo_db::openDataBase()
         }
     } else {
         //log_singleton::Write_Log(db.lastError().text(), Error);
+        qDebug()<<db.lastError().text();
+        return false;
     }
-
     return true;
 }
 
@@ -105,7 +112,7 @@ bool Jianbo_db::insertOneData(const GlassDataBaseInfo& data)
 bool Jianbo_db::insertOneData(const GlassSizeInfo& data)
 {
     QSqlQuery query(db);
-    QString sqlGlassSizeInfo = QString("INSERT INTO glass_sizeinfo (id,sizeno, time, sizeType,  sizeLevel, lengthX, widthY, marginsX, marginsY, glassid, ImagePath)"
+    QString sqlGlassSizeInfo = QString("INSERT INTO glass_sizeinfo (id, sizeno, time, sizeType, sizeLevel, lengthX, widthY, marginsX, marginsY, glassid, ImagePath)"
                                   "VALUES (%1, %2, '%3', '%4', '%5', %6, %7, %8, %9, %10, '%11')")
                                   .arg(data.id)
                                   .arg(data.sizeno)

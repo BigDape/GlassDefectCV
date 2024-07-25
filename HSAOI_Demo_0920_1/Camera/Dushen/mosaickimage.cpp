@@ -73,6 +73,7 @@ void MosaickImage::DoMosaick(QList<HObject> CameraImageList, int channel, HObjec
         overlapsiyin=(184-8192*(1-(1457.7-(siyindistance-6))/1457.700))/2;
         overlap=(184-8192*(1-(1457.7-(thickness-6))/1457.700))/2;
 
+
 //        int Thickness=thickness;
 //        switch (Thickness){
 //          case 10:
