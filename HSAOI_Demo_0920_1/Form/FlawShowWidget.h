@@ -131,16 +131,13 @@ class FlawShowWidget : public QWidget {
 
  public slots:
   void slot_resize();
-//  void slot_GetGlassSize(GLASSINFO* info);
-  void slot_GetGlassSize(GLASSINFO* info);
+  void slot_GetGlassSize(double length,double width);
   void slot_GetFlawPoints(QList<FlawPoint>* n_FlawPointList);
   void slot_ChangeFlawShow();
   void slot_GetGlassResult(ResultINFO* ResInfo);
   void slot_ButtonClearClicked();
   void slot_PlotPicker(const QPointF&pos);
   void slot_LegendChecked(const QVariant &itemInfo,bool on, int index);
-
-
 };
 
 #endif  // FLAWSHOWWIDGET_H

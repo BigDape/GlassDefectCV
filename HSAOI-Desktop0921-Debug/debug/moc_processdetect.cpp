@@ -23,8 +23,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_Process_Detect_t {
-    QByteArrayData data[16];
-    char stringdata0[195];
+    QByteArrayData data[19];
+    char stringdata0[235];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -48,14 +48,18 @@ QT_MOC_LITERAL(11, 126, 6), // "result"
 QT_MOC_LITERAL(12, 133, 17), // "sig_updateSortRes"
 QT_MOC_LITERAL(13, 151, 20), // "sig_updateSignalFlaw"
 QT_MOC_LITERAL(14, 172, 2), // "id"
-QT_MOC_LITERAL(15, 175, 19) // "slot_updateSortInfo"
+QT_MOC_LITERAL(15, 175, 15), // "sig_refreshFlaw"
+QT_MOC_LITERAL(16, 191, 7), // "glassid"
+QT_MOC_LITERAL(17, 199, 15), // "sig_refreshSize"
+QT_MOC_LITERAL(18, 215, 19) // "slot_updateSortInfo"
 
     },
     "Process_Detect\0sendData\0\0GLASSINFO*\0"
     "info\0sig_updateFlaw\0sig_Deliver\0"
     "QList<FlawPoint>*\0Points\0sig_UpdateResultInfo\0"
     "ResultINFO*\0result\0sig_updateSortRes\0"
-    "sig_updateSignalFlaw\0id\0slot_updateSortInfo"
+    "sig_updateSignalFlaw\0id\0sig_refreshFlaw\0"
+    "glassid\0sig_refreshSize\0slot_updateSortInfo"
 };
 #undef QT_MOC_LITERAL
 
@@ -65,23 +69,25 @@ static const uint qt_meta_data_Process_Detect[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-       7,   14, // methods
+       9,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       6,       // signalCount
+       8,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    1,   49,    2, 0x06 /* Public */,
-       5,    1,   52,    2, 0x06 /* Public */,
-       6,    1,   55,    2, 0x06 /* Public */,
-       9,    1,   58,    2, 0x06 /* Public */,
-      12,    1,   61,    2, 0x06 /* Public */,
-      13,    1,   64,    2, 0x06 /* Public */,
+       1,    1,   59,    2, 0x06 /* Public */,
+       5,    1,   62,    2, 0x06 /* Public */,
+       6,    1,   65,    2, 0x06 /* Public */,
+       9,    1,   68,    2, 0x06 /* Public */,
+      12,    1,   71,    2, 0x06 /* Public */,
+      13,    1,   74,    2, 0x06 /* Public */,
+      15,    1,   77,    2, 0x06 /* Public */,
+      17,    1,   80,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-      15,    0,   67,    2, 0x0a /* Public */,
+      18,    0,   83,    2, 0x0a /* Public */,
 
  // signals: parameters
     QMetaType::Void, 0x80000000 | 3,    4,
@@ -90,6 +96,8 @@ static const uint qt_meta_data_Process_Detect[] = {
     QMetaType::Void, 0x80000000 | 10,   11,
     QMetaType::Void, 0x80000000 | 10,   11,
     QMetaType::Void, QMetaType::QString,   14,
+    QMetaType::Void, QMetaType::QString,   16,
+    QMetaType::Void, QMetaType::QString,   16,
 
  // slots: parameters
     QMetaType::Void,
@@ -109,7 +117,9 @@ void Process_Detect::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _
         case 3: _t->sig_UpdateResultInfo((*reinterpret_cast< ResultINFO*(*)>(_a[1]))); break;
         case 4: _t->sig_updateSortRes((*reinterpret_cast< ResultINFO*(*)>(_a[1]))); break;
         case 5: _t->sig_updateSignalFlaw((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 6: _t->slot_updateSortInfo(); break;
+        case 6: _t->sig_refreshFlaw((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 7: _t->sig_refreshSize((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 8: _t->slot_updateSortInfo(); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
@@ -156,6 +166,20 @@ void Process_Detect::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _
                 return;
             }
         }
+        {
+            using _t = void (Process_Detect::*)(QString );
+            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&Process_Detect::sig_refreshFlaw)) {
+                *result = 6;
+                return;
+            }
+        }
+        {
+            using _t = void (Process_Detect::*)(QString );
+            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&Process_Detect::sig_refreshSize)) {
+                *result = 7;
+                return;
+            }
+        }
     }
 }
 
@@ -188,13 +212,13 @@ int Process_Detect::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 7)
+        if (_id < 9)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 7;
+        _id -= 9;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 7)
+        if (_id < 9)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 7;
+        _id -= 9;
     }
     return _id;
 }
@@ -239,6 +263,20 @@ void Process_Detect::sig_updateSignalFlaw(QString _t1)
 {
     void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))) };
     QMetaObject::activate(this, &staticMetaObject, 5, _a);
+}
+
+// SIGNAL 6
+void Process_Detect::sig_refreshFlaw(QString _t1)
+{
+    void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))) };
+    QMetaObject::activate(this, &staticMetaObject, 6, _a);
+}
+
+// SIGNAL 7
+void Process_Detect::sig_refreshSize(QString _t1)
+{
+    void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))) };
+    QMetaObject::activate(this, &staticMetaObject, 7, _a);
 }
 QT_WARNING_POP
 QT_END_MOC_NAMESPACE

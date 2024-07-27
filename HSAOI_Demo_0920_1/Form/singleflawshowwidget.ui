@@ -149,6 +149,19 @@
     <string>光场1</string>
    </property>
   </widget>
+  <widget class="QPushButton" name="pushButton">
+   <property name="geometry">
+    <rect>
+     <x>1760</x>
+     <y>10</y>
+     <width>81</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>暂停</string>
+   </property>
+  </widget>
   <widget class="QGraphicsView" name="graphicsView">
    <property name="geometry">
     <rect>

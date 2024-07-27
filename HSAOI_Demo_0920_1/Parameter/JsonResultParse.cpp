@@ -2,6 +2,7 @@
 #include <QDateTime>
 #include <QDir>
 #include<Global.h>
+#include <QTextCodec>
 //#include "log_singleton.h"
 #pragma execution_character_set("utf-8")
 
@@ -122,16 +123,10 @@ QString JsonResultParse::InterParasToQJson(DetectResult ResultData,
         {
             GlassID_INT++;
             nestedData = QJsonObject();
-
-
             qDebug() << "nestedData" <<nestedData.count();
 
         }
         Global::GlassID_INT=GlassID_INT;
-    //    int jsonlengthFirst=jsonObj.length();
-    //    QStringList jsonlist1=jsonObj.keys();
-    //    QString currentjsonkey=jsonlist1[jsonlengthFirst-1];
-    //    QJsonObject nestedData=jsonObj[currentjsonkey].toObject();
         for (int i = 0; i < DefectCount; i++) {
             QJsonObject thirdData = QJsonObject();
             thirdData["Time"] = ResultData.Time;
@@ -168,6 +163,7 @@ QString JsonResultParse::InterParasToQJson(DetectResult ResultData,
         // Write the updated JSON back to the file
         file.open(QIODevice::WriteOnly | QIODevice::Text);
         QTextStream out(&file);
+        out.setCodec(QTextCodec::codecForName("utf-8"));
         out << jsonString;
        // qDebug() << "jsonString:"<<jsonString;
         file.close();
@@ -223,10 +219,11 @@ QString JsonResultParse::InterParasToQJson(DetectResult ResultData,
         // Write the updated JSON back to the file
         file.open(QIODevice::WriteOnly | QIODevice::Text);
         QTextStream out(&file);
+        out.setCodec(QTextCodec::codecForName("utf-8"));
         out << jsonStringSK;
         file.close();
     }
-//    QString info="玻璃ID" + ResultData.GlassID + "缺陷信息写入json完成！";
-//    log_singleton::Write_Log(info, Log_Level::General);
+    QString info="玻璃ID" + ResultData.GlassID + "缺陷信息写入json完成！";
+    log_singleton::Write_Log(info, Log_Level::General);
     return ResultData.GlassID;
 }

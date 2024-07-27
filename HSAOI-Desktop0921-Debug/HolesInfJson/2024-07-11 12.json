@@ -1,0 +1,20 @@
+{
+    "000001": {
+        "GlassAngle": "000.0124322",
+        "GlassLength": "1221.58",
+        "GlassWidth": "499.716",
+        "ImageHolesLinePath": ""
+    },
+    "000002": {
+        "GlassAngle": "000.0186812",
+        "GlassLength": "1221.08",
+        "GlassWidth": "499.745",
+        "ImageHolesLinePath": ""
+    },
+    "000003": {
+        "GlassAngle": "000.0392937",
+        "GlassLength": "1220.36",
+        "GlassWidth": "499.744",
+        "ImageHolesLinePath": ""
+    }
+}

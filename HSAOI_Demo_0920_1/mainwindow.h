@@ -124,7 +124,7 @@ private slots:
 public slots:
     void slot_ChangeRecipe(QString RecipeName);
     void slot_updatePreGlassRes(bool);
-    void slot_updateSortGlassRes(ResultINFO* ResInfo);
+    void slot_updateSortGlassRes(SummaryResult Res);
     void slot_clearPreSortGlassInfo();
 
     void slot_ShowSingleFlawView(QString);

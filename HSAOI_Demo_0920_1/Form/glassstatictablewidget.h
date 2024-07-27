@@ -19,6 +19,7 @@
 #include <QWidget>
 #include <QXmlStreamReader>
 #include <QtDebug>
+#include "FlawDefine.h"
 
 class GlassStatisticTableWidget : public QWidget {
     Q_OBJECT
@@ -33,17 +34,14 @@ public:
     JsonParse2Map* RECIPE;
     double length_err;
 
-private:
-    int row = 0;
-
 public:
     void InitTable(QTableWidget* tableWidget);
     void InitTableFromXml(QTableWidget* tableWidget);
 public slots:
-    void slot_insertRowData(GLASSINFO* info);
+    void slot_insertRowData(GlassDataBaseInfo info);
     void slot_clearRowData();
 signals:
-    void sig_DeliverGlassID(QString ID);
+    void sig_DeliverGlassID(QString ID, QString date);
 };
 
 #endif // GLASSSTATICTABLEWIDGET_H

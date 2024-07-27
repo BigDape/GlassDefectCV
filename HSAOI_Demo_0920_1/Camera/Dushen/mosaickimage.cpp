@@ -73,7 +73,6 @@ void MosaickImage::DoMosaick(QList<HObject> CameraImageList, int channel, HObjec
         overlapsiyin=(184-8192*(1-(1457.7-(siyindistance-6))/1457.700))/2;
         overlap=(184-8192*(1-(1457.7-(thickness-6))/1457.700))/2;
 
-
 //        int Thickness=thickness;
 //        switch (Thickness){
 //          case 10:
@@ -106,7 +105,7 @@ void MosaickImage::DoMosaick(QList<HObject> CameraImageList, int channel, HObjec
        qDebug() << "ImageHeight :" << ImageHeight.ToString().Text();
     // + PixelDif12
        QList<HTuple> a1,a2,a3,a4;
-       a1<<100<<103<<100<<100;
+       a1<<50<<52<<50<<50;
        a2<<0<<overlap<<88<<38<<0<<overlapsiyin<<77<<88<<99;
        a3<<ImageWidth-overlap<<ImageWidth-overlap<<ImageWidth-29<<ImageWidth-29<<ImageWidth-overlapsiyin<<ImageWidth-overlapsiyin<<ImageWidth-15<<ImageWidth-15;
        a4<<ImageHeight - 200;

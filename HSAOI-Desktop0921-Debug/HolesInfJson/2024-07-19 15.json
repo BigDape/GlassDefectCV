@@ -1,0 +1,38 @@
+{
+    "000000": {
+        "GlassAngle": "000.0104396",
+        "GlassLength": "1200.7",
+        "GlassWidth": "500.232",
+        "ImageHolesLinePath": ""
+    },
+    "000001": {
+        "GlassAngle": "000.00622999",
+        "GlassLength": "1200.26",
+        "GlassWidth": "500.25",
+        "ImageHolesLinePath": ""
+    },
+    "000002": {
+        "GlassAngle": "000.00750136",
+        "GlassLength": "1200.57",
+        "GlassWidth": "500.118",
+        "ImageHolesLinePath": ""
+    },
+    "000003": {
+        "GlassAngle": "000.0132954",
+        "GlassLength": "1200.94",
+        "GlassWidth": "500.132",
+        "ImageHolesLinePath": ""
+    },
+    "000004": {
+        "GlassAngle": "000.0103936",
+        "GlassLength": "1200.5",
+        "GlassWidth": "500.133",
+        "ImageHolesLinePath": ""
+    },
+    "000005": {
+        "GlassAngle": "000.00161914",
+        "GlassLength": "1200.92",
+        "GlassWidth": "500.231",
+        "ImageHolesLinePath": ""
+    }
+}

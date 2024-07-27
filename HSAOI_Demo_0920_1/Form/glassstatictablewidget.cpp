@@ -28,11 +28,9 @@ GlassStatisticTableWidget::GlassStatisticTableWidget(QWidget* parent)
             QString firstColumnContent = tableWidget->item(item->row(), 0)->text();
             QString SecondColumnContent = tableWidget->item(item->row(), 1)->text().left(13);
             QString Deliver = firstColumnContent + "." + SecondColumnContent;
-            //            Deliver = "000001.2023-09-19";
             if (firstColumnContent != "")
-                emit sig_DeliverGlassID(Deliver);
+                emit sig_DeliverGlassID(firstColumnContent, SecondColumnContent);
             qDebug() << Deliver;
-            qDebug()<<"1111111111111111111111111111";
         });
 
 }
@@ -113,135 +111,108 @@ void GlassStatisticTableWidget::InitTableFromXml(QTableWidget* tableWidget)
     }
 }
 
-void GlassStatisticTableWidget::slot_insertRowData(GLASSINFO* info)
+void GlassStatisticTableWidget::slot_insertRowData(GlassDataBaseInfo info)
 {
-    QString glassid = info->GlassID;
     QTableWidgetItem *itemID = tableWidget->item(0, 0);
     if (itemID) {
-       if(itemID->text()!=glassid)
+       if(itemID->text().toInt() != info.id)
            tableWidget->insertRow(0);
     } else {
        tableWidget->insertRow(0);
     }
-    QTableWidgetItem* id = new QTableWidgetItem(glassid);
     //ID
+    QTableWidgetItem* id = new QTableWidgetItem(QString::number(info.id));
     id->setTextAlignment(Qt::AlignCenter);
     id->setFlags(id->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(row, 0, id);
+    tableWidget->setItem(0, 0, id);
     //时间
-    QString datetime = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss.zzz");
-    QTableWidgetItem* time = new QTableWidgetItem(datetime);
+    QTableWidgetItem* time = new QTableWidgetItem(info.time);
     time->setTextAlignment(Qt::AlignCenter);
     time->setFlags(time->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(row, 1, time);
+    tableWidget->setItem(0, 1, time);
     //OK/NG
-    QString glassisOK = info->isOK ? "OK" : "NG";
-    QTableWidgetItem* isok = new QTableWidgetItem(glassisOK);
-    if (!info->isOK)
-        isok->setForeground(QColor(255, 0, 0));
+    QTableWidgetItem* isok = new QTableWidgetItem(info.OKorNG);
     isok->setTextAlignment(Qt::AlignCenter);
     isok->setFlags(isok->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(row, 2, isok);
+    tableWidget->setItem(0, 2, isok);
     //尺寸OK/NG
-    QString glassisSizeOK = info->isSizeOK ? "OK" : "NG";
-    QTableWidgetItem* issizeok = new QTableWidgetItem(glassisSizeOK);
-    if (!info->isSizeOK)
-        issizeok->setForeground(QColor(255, 0, 0));
+    QTableWidgetItem* issizeok = new QTableWidgetItem(info.sizeOKorNG);
     issizeok->setTextAlignment(Qt::AlignCenter);
     issizeok->setFlags(issizeok->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(row, 3, issizeok);
-
+    tableWidget->setItem(0, 3, issizeok);
     RECIPE = new JsonParse2Map("Recipes/" + Global::CurrentRecipe + ".json");
     //长度
-    double  glassLength_temp = info->GlassWidth;
-    QString glasslength = QString::number(glassLength_temp,'f', 2);
-    QTableWidgetItem* length = new QTableWidgetItem(glasslength);
+    QTableWidgetItem* length = new QTableWidgetItem(QString::number(info.width,'f', 2));//??这里为啥要对调
     length->setTextAlignment(Qt::AlignCenter);
     length->setFlags(length->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(row, 4, length);
+    tableWidget->setItem(0, 4, length);
     //宽度
-    QString glasswidth = QString::number(info->GlassLength,'f', 2);
-    qDebug()<<"glasswidth"<<glassLength_temp;
-    QTableWidgetItem* width = new QTableWidgetItem(glasswidth);
+    QTableWidgetItem* width = new QTableWidgetItem(QString::number(info.length,'f', 2));//??这里为啥要对调
     width->setTextAlignment(Qt::AlignCenter);
     width->setFlags(width->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(row, 5, width);
+    tableWidget->setItem(0, 5, width);
     //对角线1
-    info->Diagonal1 = sqrt(pow(info->GlassLength,2) + pow(glassLength_temp,2));//对角线，todo
-    QString glassdiagonal1 = QString::number(info->Diagonal1,'f', 2);
-    QTableWidgetItem* diagonal1 = new QTableWidgetItem(glassdiagonal1);
+    info.duijiaoxian1 = sqrt(pow(info.length,2) + pow(info.width,2));//对角线，todo
+    QTableWidgetItem* diagonal1 = new QTableWidgetItem(QString::number(info.duijiaoxian1,'f', 2));
     diagonal1->setTextAlignment(Qt::AlignCenter);
     diagonal1->setFlags(diagonal1->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(row, 6, diagonal1);
+    tableWidget->setItem(0, 6, diagonal1);
     //对角线2
-    info->Diagonal2 = sqrt(pow(info->GlassLength,2) + pow(glassLength_temp,2));//对角线，todo
-    QString glassdiagonal2 = QString::number(info->Diagonal2,'f', 2);
-    QTableWidgetItem* diagonal2 = new QTableWidgetItem(glassdiagonal2);
+    info.duijiaoxian2 = sqrt(pow(info.length,2) + pow(info.width,2));//对角线，todo
+    QTableWidgetItem* diagonal2 = new QTableWidgetItem(QString::number(info.duijiaoxian2,'f', 2));
     diagonal2->setTextAlignment(Qt::AlignCenter);
     diagonal2->setFlags(diagonal2->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(row, 7, diagonal2);
+    tableWidget->setItem(0, 7, diagonal2);
     //缺陷数量
-    QString glassFlawCount = QString::number(info->FlawCount);
-    QTableWidgetItem* flawcount = new QTableWidgetItem(glassFlawCount);
+    QTableWidgetItem* flawcount = new QTableWidgetItem(QString::number(info.defectNumber));
     flawcount->setTextAlignment(Qt::AlignCenter);
     flawcount->setFlags(flawcount->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(row, 8, flawcount);
+    tableWidget->setItem(0, 8, flawcount);
     //缺陷OK/NG
-    QString glassisFlawOK = info->isFlawOK ? "OK" : "NG";
-    QTableWidgetItem* isflawok = new QTableWidgetItem(glassisFlawOK);
-    if (!info->isFlawOK)
-        isflawok->setForeground(QColor(255, 0, 0));
+    QTableWidgetItem* isflawok = new QTableWidgetItem(info.defectOKorNG);
     isflawok->setTextAlignment(Qt::AlignCenter);
     isflawok->setFlags(isflawok->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(row, 9, isflawok);
+    tableWidget->setItem(0, 9, isflawok);
     //划伤
-    QString glassFlaw1 = QString::number(info->Flaw1);
-    QTableWidgetItem* flaw1 = new QTableWidgetItem(glassFlaw1);
+    QTableWidgetItem* flaw1 = new QTableWidgetItem(QString::number(info.huashanNumber));
     flaw1->setTextAlignment(Qt::AlignCenter);
     flaw1->setFlags(flaw1->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(row, 10, flaw1);
+    tableWidget->setItem(0, 10, flaw1);
     //气泡
-    QString glassFlaw2 = QString::number(info->Flaw2);
-    QTableWidgetItem* flaw2 = new QTableWidgetItem(glassFlaw2);
+    QTableWidgetItem* flaw2 = new QTableWidgetItem(QString::number(info.qipaoNumber));
     flaw2->setTextAlignment(Qt::AlignCenter);
     flaw2->setFlags(flaw2->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(row, 11, flaw2);
+    tableWidget->setItem(0, 11, flaw2);
     //结石
-    QString glassFlaw7 = QString::number(info->Flaw7);
-    QTableWidgetItem* flaw7 = new QTableWidgetItem(glassFlaw7);
+    QTableWidgetItem* flaw7 = new QTableWidgetItem(QString::number(info.jieshiNumber));
     flaw7->setTextAlignment(Qt::AlignCenter);
     flaw7->setFlags(flaw7->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(row, 12, flaw7);
+    tableWidget->setItem(0, 12, flaw7);
     //崩边
-    QString glassFlaw3 = QString::number(info->Flaw3);
-    QTableWidgetItem* flaw3 = new QTableWidgetItem(glassFlaw3);
+    QTableWidgetItem* flaw3 = new QTableWidgetItem(QString::number(info.benbianNumber));
     flaw3->setTextAlignment(Qt::AlignCenter);
     flaw3->setFlags(flaw3->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(row, 13, flaw3);
+    tableWidget->setItem(0, 13, flaw3);
     //脏污
-    QString glassFlaw4 = QString::number(info->Flaw4);
-    QTableWidgetItem* flaw4 = new QTableWidgetItem(glassFlaw4);
+    QTableWidgetItem* flaw4 = new QTableWidgetItem(QString::number(info.zanwuNumber));
     flaw4->setTextAlignment(Qt::AlignCenter);
     flaw4->setFlags(flaw4->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(row, 14, flaw4);
+    tableWidget->setItem(0, 14, flaw4);
     //裂纹
-    QString glassFlaw5 = QString::number(info->Flaw5);
-    QTableWidgetItem* flaw5 = new QTableWidgetItem(glassFlaw5);
+    QTableWidgetItem* flaw5 = new QTableWidgetItem(QString::number(info.liewenNumber));
     flaw5->setTextAlignment(Qt::AlignCenter);
     flaw5->setFlags(flaw5->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(row, 15, flaw5);
+    tableWidget->setItem(0, 15, flaw5);
     //其他
-    QString glassFlaw6 = QString::number(info->Flaw6);
-    QTableWidgetItem* flaw6 = new QTableWidgetItem(glassFlaw6);
+    QTableWidgetItem* flaw6 = new QTableWidgetItem(QString::number(info.qitaNumber));
     flaw6->setTextAlignment(Qt::AlignCenter);
     flaw6->setFlags(flaw6->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(row, 16, flaw6);
+    tableWidget->setItem(0, 16, flaw6);
 
     // 设置表格内容居中显示
     for (int i = 0; i < tableWidget->columnCount(); ++i) {
         tableWidget->horizontalHeaderItem(i)->setTextAlignment(Qt::AlignCenter);
     }
-
     tableWidget->verticalHeader()->setVisible(false); // 隐藏行号
 }
 

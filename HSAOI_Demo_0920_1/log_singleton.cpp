@@ -175,11 +175,5 @@ void log_singleton::CreateWidget0()
 {
     widget0 = new QListWidget();
     widget0->setGeometry(1290, 750, 600, 300);
-    //widget0->setWindowFlags(Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint);
-    widget0->setWindowFlags(Qt::Window);
-    widget0->setWindowFlags(Qt::WindowStaysOnTopHint);
-    //设置窗口最小化按钮
-    widget0->setWindowFlags(widget0->windowFlags() & ~Qt::WindowMinimizeButtonHint);
-    //设置窗口无全屏按钮
-     widget0->setWindowFlags(widget0->windowFlags() & ~Qt::WindowMaximizeButtonHint);
+    widget0->setWindowFlags(Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint);
 }

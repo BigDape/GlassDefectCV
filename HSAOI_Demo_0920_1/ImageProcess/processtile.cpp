@@ -90,7 +90,7 @@ void ProcessTile::TileImageProcess()
                         Global::ImageHeight = 0;
                         Global::ImageWidth = 0;
                         //Err标志位
-                        ErrFlag=false;
+                        ErrFlag = false;
                     }
                     //帧信号复位
                     Global::FrameSignal = 0;
@@ -130,6 +130,7 @@ void ProcessTile::TileImageProcess()
                 HTuple isSaveOriImage;
                 GetDictTuple(UserDefinedDict,"保存原图",&isSaveOriImage);
                 if(isSaveOriImage==1) {
+                    // 获取当前时间
                     try {
                         // 获取当前时间
                         QString formattedTime = "0";
@@ -192,27 +193,36 @@ try {
      HObject RegionFLPanel,RegionOpeningFL,RegionClosingFL,RegionConnectionFL,SelectedRegionsFL;
      HObject RegionUnion2Panel,RegionOpeningPanel,RegionConnectionPanel,RegionPanel;
      GetImageSize(mosaickthread[0].MosaickResultImage, &ImageWidth, &ImageHeight);
-     if (FirstFrame==true) {
+     if(FirstFrame==true)
+     {
          HObject ImageP500;
          HObject ImageConcat;
          GenEmptyObj(&ImageConcat);
          CropPart(mosaickthread[0].MosaickResultImage,&ImageP500,0,0,ImageWidth,500);
-         for (int j=1; j <= ImageHeight/500+2; j++) {
+         for (int j=1; j <= ImageHeight/500+2; j++)
+         {
              ConcatObj(ImageConcat,ImageP500,&ImageConcat);
          }
-         TileImages(ImageConcat,&BackGroundImage,1,"vertical") ;
-         FirstFrame = false ;
-         QString info="拼图步骤"+ QString::number(FrameCount) + "亮场背景处理完成！";
-         log_singleton::Write_Log(info, Log_Level::General);
+          TileImages(ImageConcat,&BackGroundImage,1,"vertical") ;
+        FirstFrame = false ;
+        QString info="拼图步骤"+ QString::number(FrameCount) + "亮场背景处理完成！";
+        log_singleton::Write_Log(info, Log_Level::General);
      }
      CropPart(BackGroundImage,&BackGroundImage, 0, 0, ImageWidth, ImageHeight);
+     HTuple str2 = "D:/q111";
+     WriteImage(BackGroundImage,"jpg",0,str2);
      HTuple Row1,Column1,Phi1,Length1,Length2;
      HObject SubImage1,SubRegion1,RegionUnion1,RegionFillUp1,RegionOpening1,ConnectedRegions1,SelectedRegions1;
      HObject RegionLines, RegionLines1, RegionLines2;
      SubImage(BackGroundImage, mosaickthread[0].MosaickResultImage, &SubImage1, 1, 0);
+     HTuple str3 = "D:/q222";
+     WriteImage(SubImage1,"jpg",0,str3);
+
 
      //反射亮場
-     Threshold(mosaickthread[1].MosaickResultImage, &RegionFLPanel, 20, 255);
+     Threshold(mosaickthread[1].MosaickResultImage, &RegionFLPanel, 20, 255);//Threshold(mosaickthread[1].MosaickResultImage, &RegionFLPanel, 20, 255);
+
+
      HTuple RegionsWidth;
      //反射亮場找面内區域
      ClosingCircle(RegionFLPanel,&RegionClosingFL,3.5);
@@ -240,72 +250,97 @@ try {
      qDebug()<<"RegionPanelArea"<<RegionPanelArea.ToString().Text();
      HTuple Number,PanelArea,RowPanel,ColumnPanel,PhiPanel,LengthPanel1,LengthPanel2;
      CountObj(RegionPanel, &Number);
-     if (Number.TupleInt() > 0) {
-         RegionFeatures(RegionPanel,"area",&PanelArea);
-         SmallestRectangle2(RegionPanel, &RowPanel, &ColumnPanel, &PhiPanel, &LengthPanel1, &LengthPanel2);
-         HTuple a = 0.8*(4*LengthPanel1*LengthPanel2);
-         HTuple Row1, Column1,Row2,Column2;
-         SmallestRectangle1(RegionPanel,&Row1, &Column1, &Row2,&Column2);
+      if (Number.TupleInt() > 0)
+      {
+        RegionFeatures(RegionPanel,"area",&PanelArea);
+        SmallestRectangle2(RegionPanel, &RowPanel, &ColumnPanel, &PhiPanel, &LengthPanel1, &LengthPanel2);
+        HTuple a=0.8*(4*LengthPanel1*LengthPanel2);
+        HTuple Row1, Column1,Row2,Column2;
+        SmallestRectangle1(RegionPanel,&Row1, &Column1, &Row2,&Column2);
 //**************************************玻璃位置判断和截取区域提取start**********************************************************
-         HTuple RegionRow2,QKNum;
-         RegionFeatures(GlassRegion,"row2",&RegionRow2);
-         HObject RegionContours,RegionPanelMoved;
-         RegionContours=RegionPanel;
+        HTuple RegionRow2,QKNum;
+        RegionFeatures(GlassRegion,"row2",&RegionRow2);
 
-         if( Column2-Column1>3000 && Row2-Row1>500) {
-             if(Row1>0 && Row2<ImageHeight-1) {
+        HObject RegionContours,RegionPanelMoved;
+
+            RegionContours=RegionPanel;
+
+
+           if((Column2-Column1>3000) && Row2-Row1>500)
+           {
+              if(Row1>0 && Row2<ImageHeight-1)
+               {
                    //完整玻璃
-                   GlassPosition = 0;
+                   GlassPosition=0;
                    GlassRegion.GenEmptyObj();
-                   GlassRegion = RegionContours;
-             } else {
-                 if(Row1>0) {
+                   GlassRegion=RegionContours;
+               }
+               else
+               {
+                   if(Row1>0)
+                   {
                        //玻璃头部
-                       Global::CamRowsPerField = ImageHeight;
-                       GlassPosition = 1;
+                       Global::CamRowsPerField=ImageHeight;
+                       GlassPosition=1;
                        GlassRegion.GenEmptyObj();
-                       GlassRegion = RegionContours;
-                   } else {
-                       if(Row2 < ImageHeight-1) {
+                       GlassRegion=RegionContours;
+                   }
+                   else
+                   {
+                       if(Row2<ImageHeight-1)
+                       {
                            //玻璃尾部
                            GlassPosition=3;
-                       } else {
+                       }
+                       else
+                       {
                            //玻璃中部
                            GlassPosition=2;
                        }
-                   }
-             }
 
-             if(GlassPosition == 0 || GlassPosition==1 || FrameCount == 1) {
-                  if( Column1>1000 ) {
-                      TileColumn1=Column1-1000;
-                  } else {
-                      TileColumn1=0;
-                  }
-                  if( ImageWidth-Column2>1000 ){
-                      TileColumn2 = Column2+1000;
-                  } else {
-                      TileColumn2 = ImageWidth-1;
-                  }
-                  qDebug()<<"Column2"<<Column2.ToString().Text();
-                  qDebug()<<"TileColumn1"<<TileColumn1.ToString().Text();
-                  qDebug()<<"TileColumn2"<<TileColumn2.ToString().Text();
-                  qDebug()<< "ImageHeighttttt :"<< ImageHeight.ToString().Text();
+                   }
                }
-           } else {
-             GlassPosition=3;
-             QString info="拼图步骤"+ QString::number(FrameCount) + "玻璃有效区域占比小！定为玻璃尾部";
-             log_singleton::Write_Log(info, Log_Level::General);
+
+               if(GlassPosition == 0 || GlassPosition==1 || FrameCount == 1)
+               {
+                  if(Column1>1000)
+                  { TileColumn1=Column1-1000;}
+                  else
+                  {TileColumn1=0;}
+                  if(ImageWidth-Column2>1000)
+                  {
+                  TileColumn2=Column2+1000;
+                  }
+                  else
+                  {
+                  TileColumn2=ImageWidth-1;
+                  }
+                  qDebug()<<"Column2//////////////////////////////////////////"<<Column2.ToString().Text();
+                  qDebug() <<"TileColumn1"<<TileColumn1.ToString().Text();
+                  qDebug()<<"TileColumn2"<<TileColumn2.ToString().Text();
+                  qDebug() << "ImageHeighttttt :" << ImageHeight.ToString().Text();
+
+               }
+           }
+           else
+           {
+              GlassPosition=3;
+              QString info="拼图步骤"+ QString::number(FrameCount) + "玻璃有效区域占比小！定为玻璃尾部";
+              log_singleton::Write_Log(info, Log_Level::General);
            }
            //玻璃region
-           if(GlassPosition==2 || GlassPosition==3){
-               if(RegionRow2>0) {
+
+           if(GlassPosition==2 || GlassPosition==3)
+           {
+               if(RegionRow2>0)
+               {
                    MoveRegion(RegionContours,&RegionPanelMoved,RegionRow2,0);
                    Union2(GlassRegion,RegionPanelMoved,&GlassRegion);
                    RegionContours.Clear();
                    RegionPanelMoved.Clear();
                }
            }
+
 
            if(GlassPosition==3)
            {
@@ -336,6 +371,9 @@ try {
            //拼整图
           if(GlassPosition!=0)
            {
+              HTuple ImageHeight1;
+              HTuple ImageWidth1;
+              GetImageSize(ImagePart[0], &ImageWidth1, &ImageHeight1);
            //拼接前
              if(GlassPosition==1)
              {
@@ -343,9 +381,7 @@ try {
                  ImageTile2.GenEmptyObj();
                  ImageTile3.GenEmptyObj();
                  ImageTile4.GenEmptyObj();
-                     HTuple ImageHeight1;
-                     HTuple ImageWidth1;
-                     GetImageSize(ImagePart[0], &ImageWidth1, &ImageHeight1);
+
                      qDebug()<<"ImageWidth1"<<ImageWidth1.ToString().Text()<<"ImageHeight1"<<ImageHeight1.ToString().Text();
                      HObject ho_ImagePart[4],ho_ObjectsConcat[4],ho_TiledImage[4];
                   for(int i=0;i<FieldNumber;i++)
@@ -384,6 +420,10 @@ try {
              }
              else
              {
+                     CropPart(ImagePart[0],&ImagePart[0],0,0,ImageWidth1,ImageHeight1);
+                     CropPart(ImagePart[1],&ImagePart[1],0,0,ImageWidth1,ImageHeight1);
+                     CropPart(ImagePart[2],&ImagePart[2],0,0,ImageWidth1,ImageHeight1);
+                     CropPart(ImagePart[3],&ImagePart[3],0,0,ImageWidth1,ImageHeight1);
                      ConcatObj(ImageTile1, ImagePart[0], &ImageTile1);
                      ConcatObj(ImageTile2, ImagePart[1], &ImageTile2);
                      ConcatObj(ImageTile3, ImagePart[2], &ImageTile3);
@@ -556,6 +596,8 @@ try {
                                 imageunit.ImageRegion=GlassRegion;
                                 imageunit.FrameRegion=RegionFrame;
                                 ImageQueue.enqueue(imageunit);
+                                Process_Detect::VisionProcess(QQueue<ImageUnit> imageQueue)
+                                ImageQueue.dequeue(imageunit);
 
                                 for(int i=0;i<FieldNumber;i++)
                                 {

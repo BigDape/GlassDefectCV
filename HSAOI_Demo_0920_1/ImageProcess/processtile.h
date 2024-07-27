@@ -17,6 +17,7 @@
 #include <QQueue>
 #include <QString>
 #include <QtDebug>
+#include "FlawDefine.h"
 using namespace HalconCpp;
 using namespace HDevEngineCpp;
 class ProcessTile : public QObject {
@@ -63,14 +64,6 @@ public:
     static int  Cam1pixs;
     static int  Cam1Width;
     static int  Tile2Column1;
-    struct ImageUnit {
-        int ProcessStep;
-        int GlassPositionInf;
-        bool ErrorFlag;
-        HObject ImageRegion;
-        HObject FrameRegion;
-        HObject ImageList;    
-    };
     ImageUnit imageunit;
     static QQueue<ImageUnit> ImageQueue;
     static bool ErrFlag;

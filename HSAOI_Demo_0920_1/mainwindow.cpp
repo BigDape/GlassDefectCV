@@ -50,7 +50,7 @@ MainWindow::MainWindow(QWidget* parent)
     // 绑定信号和槽函数
     //
     connect(m_GlassStatisticTable, SIGNAL(sig_DeliverGlassID(QString)), this, SLOT(slot_ShowSingleFlawView(QString)));
-    connect(m_GlassStatisticTable, SIGNAL(sig_DeliverGlassID(QString)), m_SingleFlawShow, SLOT(slot_RecieveID(QString)));
+    connect(m_GlassStatisticTable, SIGNAL(sig_DeliverGlassID(QString,QString)), m_SingleFlawShow, SLOT(slot_RecieveID(QString,QString)));
     connect(m_GlassStatisticTable, SIGNAL(sig_DeliverGlassID(QString)), m_SingleSizeShow, SLOT(slot_RecieveID(QString)));
 
     //
@@ -65,10 +65,10 @@ MainWindow::MainWindow(QWidget* parent)
     //
     //  绑定信号和槽函数
     //
-    connect(Detectworker, SIGNAL(sig_UpdateResultInfo(ResultINFO*)), m_FlawShowWidget, SLOT(slot_GetGlassResult(ResultINFO*)));
-    connect(Detectworker,SIGNAL(sig_updateSignalFlaw(Qstring)), m_SingleFlawShow,SLOT(slot_RecieveID(Qstring)));
+    connect(Detectworker, SIGNAL(sig_UpdateResultInfo(SummaryResult)), m_FlawShowWidget, SLOT(slot_GetGlassResult(SummaryResult)));
+    connect(Detectworker,SIGNAL(sig_updateSignalFlaw(QString,QString)), m_SingleFlawShow,SLOT(slot_RecieveID(QString,QString)));
     connect(m_FlawShowWidget, SIGNAL(sig_updatePreGlassRes(bool)), this, SLOT(slot_updatePreGlassRes(bool)));
-    connect(Detectworker, SIGNAL(sig_updateSortRes(ResultINFO*)), this, SLOT(slot_updateSortGlassRes(ResultINFO*)));
+    connect(Detectworker, SIGNAL(sig_updateSortRes(SummaryResult)), this, SLOT(slot_updateSortGlassRes(SummaryResult)));
     connect(SigCtrlData, &SignalControlData::sig_updateSortGlassSignal,Detectworker, &Process_Detect::slot_updateSortInfo, Qt::DirectConnection);
     connect(m_FlawShowWidget, SIGNAL(sig_ClearDate()), this, SLOT(slot_clearPreSortGlassInfo()));
     connect(m_FlawShowWidget, SIGNAL(sig_ClearDate()), m_GlassStatisticTable, SLOT(slot_clearRowData()));
@@ -280,9 +280,10 @@ void MainWindow::initThread()
     connect(this, &MainWindow::destroyed, this, &MainWindow::stopThread);
     DetectImageThread->start();
     TileImageThread->start();
-    connect(Detectworker, SIGNAL(sendData(GLASSINFO*)), m_GlassStatisticTable, SLOT(slot_insertRowData(GLASSINFO*)));
-    connect(Detectworker, SIGNAL(sig_updateFlaw(GLASSINFO*)), m_FlawShowWidget, SLOT(slot_GetGlassSize(GLASSINFO*)));
+    connect(Detectworker, SIGNAL(sendData(GlassDataBaseInfo)), m_GlassStatisticTable, SLOT(slot_insertRowData(GlassDataBaseInfo)));
+    connect(Detectworker, SIGNAL(sig_updateFlaw(double,double)), m_FlawShowWidget, SLOT(slot_GetGlassSize(double,double)));
     connect(Detectworker, SIGNAL(sig_Deliver(QList<FlawPoint>*)), m_FlawShowWidget, SLOT(slot_GetFlawPoints(QList<FlawPoint>*)));
+//    connect(m_FlawShowWidget, SIGNAL(sig_ClearDate()), Detectworker, SLOT(slot_ClearDate()));
     connect(Detectworker, SIGNAL(sig_refreshFlaw(QString)), m_SingleFlawShow, SLOT(slot_refrshFlaw(QString)));
     connect(Detectworker, SIGNAL(sig_refreshSize(QString)), m_SingleSizeShow, SLOT(slot_refreshSize(QString)));
 
@@ -290,8 +291,8 @@ void MainWindow::initThread()
 
 void MainWindow::initDatabase()
 {
-    //Database = new Jianbo_db();
-    //Database->start_connect();
+    Database = new Jianbo_db();
+    Database->start_connect();
     //    for (int i = 0; i < 10; i++) {
     //        Database->start_insert(QDateTime::currentDateTime(), i * 17, i * 7, i * 11, "OK", i * 3, "400*400", 0, 0, 0, 1, 1, 0, 0, 1, 1, 1);
     //    }
@@ -379,14 +380,6 @@ void MainWindow::slot_ShowSystemSettingForm()
         connect(this, SIGNAL(sig_DeliverNewRecipe(JsonParse2Map*)), SystemSettings, SLOT(slot_JsonRecipe_Changed(JsonParse2Map*)));
     }
     SystemSettings->setWindowFlags(Qt::Window);
-
-    //点击之后不可对其他窗体操作
-    SystemSettings->setWindowModality(Qt::ApplicationModal);
-    //设置窗口无最小化按钮
-    SystemSettings->setWindowFlags(SystemSettings->windowFlags() & ~Qt::WindowMinimizeButtonHint);
-    // 设置窗口无全屏按钮
-     SystemSettings->setWindowFlags(SystemSettings->windowFlags() & ~Qt::WindowMaximizeButtonHint);
-
     SystemSettings->setWindowIcon(QIcon(":/toolbar/icons/setup.ico"));
     SystemSettings->setWindowTitle("系统设置");
     SystemSettings->show();
@@ -486,19 +479,14 @@ void MainWindow::slot_updatePreGlassRes(bool res)
     }
 }
 
-void MainWindow::slot_updateSortGlassRes(ResultINFO* ResInfo)
+void MainWindow::slot_updateSortGlassRes(SummaryResult Res)
 {
-    bool sortGlass = ResInfo->sort_result;
-    if (sortGlass) {
+    if (Res.currentOKorNG) {
         lineEdit2->setText("OK");
-        lineEdit2->setStyleSheet(
-            "color: black;border: none; background-color: green; border-radius: "
-            "20px;");
+        lineEdit2->setStyleSheet("color: black;border: none; background-color: green; border-radius: 20px;");
     } else {
         lineEdit2->setText("NG");
-        lineEdit2->setStyleSheet(
-            "color: black;border: none; background-color: red; border-radius: "
-            "20px;");
+        lineEdit2->setStyleSheet("color: black;border: none; background-color: red; border-radius: 20px;");
     }
 }
 
@@ -534,7 +522,7 @@ void MainWindow::slot_SendPoint(const FlawPoint &flawpoint)
         QString Deliver = firstColumnContent + "." + SecondColumnContent;
         if (firstColumnContent != "")
         {
-            m_SingleFlawShow->slot_RecieveID(Deliver);
+            m_SingleFlawShow->slot_RecieveID(firstColumnContent,SecondColumnContent);
             m_SingleSizeShow->slot_RecieveID(Deliver);
             m_SingleSizeShow->slot_showSizeDiagramImage();
         }

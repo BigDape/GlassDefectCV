@@ -109,5 +109,3 @@ QString Global::offlineFullPath;
 bool Global::isJpg;
 long Global::encodeAB4;
 QString Global::currenttime; //当前时间
-
-

@@ -58,26 +58,31 @@ int QImageAcquisition::WIDTH_BYTES(int BitCount, int Width)
 void QImageAcquisition::slotGrabFrames()
 {
     dvpStatus status;
+
     //pBuffer为图片缓存,在此处做多场分离
     status = dvpGetFrame(m_handle, &m_pFrame, &pBuffer, GRABTIMEOUT);
+    //qDebug()<<" status ="<< status;
     if (status == DVP_STATUS_OK) {
         try {
+
             if (m_threadMutex.tryLock()) {
-                if(Global::FrameSignal==1) {
+                if(Global::FrameSignal==1)
+                {
                   imageunit.FrameCount=1;
-                } else {
+
+                }
+                else
+                {
                    imageunit.FrameCount++;
                 }
                 // qDebug() << "FrameCount////////////////////////////////////////// " << imageunit.FrameCount;
-                strFrameCount=imageunit.FrameCount;
+                strFrameCount = imageunit.FrameCount;
 
                 int m_FramesPerTri = int(Global::FramesPerTri);
-                //帧计数
-    //            dvpGetFrameCount(m_handle, &FrameCount);
-    //            strFrameCount = FrameCount.uFrameCount;
 
 
                 if (strFrameCount % m_FramesPerTri == 0) {
+
                     qDebug() << "strFrameCountAA " << strFrameCount;
                 }
                 //单通道图像宽度
@@ -213,11 +218,14 @@ void QImageAcquisition::slotGrabFrames()
                 qDebug() << "ImageList has image count: " << imageunit.ImageList.size();
                 imageunit.ImageList.clear();
                 QString info="相机"+ QString::number(m_handle) + "图像采集完成！";
+
                 log_singleton::Write_Log(info, Log_Level::General);
             }
             emit signalDisplay();
-            } catch (EXCEPINFO e) {
-                qDebug()<<"多场分离报错！";
+
+            } catch (EXCEPINFO e)
+            {
+            qDebug()<<"多场分离报错！";
             }
     }
 }

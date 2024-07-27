@@ -410,7 +410,7 @@ void SignalControlData::TimeOut1() {
           //分拣信号
           m_pSig_comm.GetRegs(ADDR39, ADDR39, &bbb);
           if (bbb > mid2) {
-            emit sig_updateSortGlassSignal();
+            emit sig_updateSortGlassSignal();//信号平台接收到分拣
             mid2 = bbb;
           } else {
             mid2 = bbb;

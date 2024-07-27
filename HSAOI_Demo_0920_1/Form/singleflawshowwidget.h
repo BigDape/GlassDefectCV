@@ -59,13 +59,15 @@ class SingleFlawShowWidget : public QWidget {
 
   void onItemDoubleClicked(QTableWidgetItem*);
 
-  void slot_RecieveID(QString);
+  void slot_RecieveID(QString ID, QString Date);
   void slot_PickerCheckData(const FlawPoint&flawpoint);
 
   void slot_FlawTrack(QTableWidgetItem* item);
    void slot_ButtonExportClicked();
 
-   void slot_refrshFlaw(QString glassid);
+    void slot_refrshFlaw(QString glassid);
+private slots:
+  void on_pushButton_clicked();
 
 private:
   Ui::SingleFlawShowWidget* ui;

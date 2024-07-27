@@ -413,7 +413,8 @@ void DushenBasicFunc::slot_StartFunc()
                 //将定时器超时信号与槽(功能函数)联系起来
                 connect(m_timer, SIGNAL(timeout()), this, SLOT(slotDispRate()));
                 // 建立图像显示信号和槽函数的联系
-                connect(m_AcquireImage, SIGNAL(signalDisplay()), this, SLOT(slotDispImage()));
+                connect(m_AcquireImage, SIGNAL(signalDisplay()), this,
+                    SLOT(slotDispImage()));
                 IsStarted = true;
             }
         }
@@ -482,7 +483,7 @@ void DushenBasicFunc::slotDispRate()
         emit sig_DeliverFrameRate(strFrameRate);
         //        QWidget::setWindowTitle(strFrameInfo);
         //        ui->label_fps->setText(strFrameInfo);
-        qDebug() << strFrameInfo;
+        //qDebug() << strFrameInfo;
     }
 }
 

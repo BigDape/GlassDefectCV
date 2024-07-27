@@ -40,7 +40,7 @@ FlawShowWidget::FlawShowWidget(QWidget* parent, JsonParse2Map* m_recipe)
     widget = new QWidget(this);
 
 
-    plotpicker = new QwtPlotPicker(QwtPlot::xBottom,QwtPlot::yLeft,QwtPlotPicker::CrossRubberBand,QwtPicker::AlwaysOn,m_plot->canvas());
+    plotpicker=new QwtPlotPicker(QwtPlot::xBottom,QwtPlot::yLeft,QwtPlotPicker::CrossRubberBand,QwtPicker::AlwaysOn,m_plot->canvas());
     plotpicker->setTrackerMode(QwtPicker::ActiveOnly);
     plotpicker->setStateMachine(new QwtPickerDragPointMachine);
     connect(plotpicker,SIGNAL(appended(const QPointF&)),this,SLOT(slot_PlotPicker(QPointF)));
@@ -231,17 +231,21 @@ void FlawShowWidget::slot_resize()
     update();
 }
 
-void FlawShowWidget::slot_GetGlassSize(GLASSINFO* info)
+void FlawShowWidget::slot_GetGlassSize(double length,double width)
 {
     //此处添加实际坐标与显示坐标的转换
-    h = info->GlassLength;
-    w = info->GlassWidth;
+    h = length;
+    w = width;
     isGetGlassSize = true;
     isGetFlawPoints = true;
     slot_resize();
+
     int MaxLength = h * 1.1;
     int MaxWidth = w * 1.1;
+
+
     qDebug() << "length = " << MaxLength << "width = " << MaxWidth;
+
     m_plot->setAxisScale(QwtPlot::xBottom, 0, MaxWidth);
     m_plot->setAxisScale(QwtPlot::yLeft, 0, MaxLength);
 }
@@ -268,33 +272,17 @@ void FlawShowWidget::slot_ChangeFlawShow()
     m_plot->setAxisScale(QwtPlot::yLeft, 0, MaxLength);
 }
 
-void FlawShowWidget::slot_GetGlassResult(ResultINFO* ResInfo)
+void FlawShowWidget::slot_GetGlassResult(SummaryResult res)
 {
-    runninginfo = ResInfo;
-    UINT64 glassnum = ResInfo->GlassNum;
-    uint ok = ResInfo->okNum;
-    uint ng = ResInfo->ngNum;
-    double pass = ResInfo->passRate;
-    uint exceptnum = ResInfo->exceptNum;
-    uint sort = ResInfo->sorted;
-    uint unsort = ResInfo->unsorted;
-    bool preres = ResInfo->pre_result;
-    qDebug() << "glassnum" << glassnum;
-    qDebug() << "ok" << ok;
-    qDebug() << "ng" << ng;
-    qDebug() << "pass" << pass;
-    qDebug() << "exceptnum" << exceptnum;
-    qDebug() << "sort" << sort;
-    qDebug() << "unsort" << unsort;
-    lineedit1->setText(QString::number(glassnum));
-    lineedit2->setText(QString::number(ok));
-    lineedit3->setText(QString::number(ng));
-    lineedit4->setText(QString::number(pass));
-    lineedit5->setText(QString::number(exceptnum));
-    lineedit6->setText(QString::number(sort));
-    lineedit7->setText(QString::number(unsort));
-    //界面上显示OK或者NG
-    emit sig_updatePreGlassRes(preres);
+    lineedit1->setText(QString::number(res.GlassNum));//玻璃总数
+    lineedit2->setText(QString::number(res.okNum));//OK数
+    lineedit3->setText(QString::number(res.ngNum));//NG数
+    lineedit4->setText(QString::number(res.suceessRate));//合格率
+    lineedit5->setText(QString::number(res.exceptNum));//异常数
+    lineedit6->setText(QString::number(res.sorted));//已分拣
+    lineedit7->setText(QString::number(res.unsorted));//待分检
+
+    emit sig_updatePreGlassRes(preres);//更新OK/NG
 }
 
 void FlawShowWidget::slot_ButtonClearClicked()
@@ -321,10 +309,12 @@ void FlawShowWidget::slot_ButtonClearClicked()
 
 void FlawShowWidget::slot_PlotPicker(const QPointF &pos)
 {
+    qDebug()<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&";
     for(const FlawPoint&flawPoints:FlawPointList){
         QPointF flawpt(flawPoints.x,flawPoints.y);
         double distance=QLineF(flawpt,pos).length();
         if(distance<10){
+            qDebug()<<"**************************************************************************************************";
             qDebug()<<"缺陷"<<flawpt.x()<<" "<<flawpt.y();
             emit sig_sendFlawPoint(flawPoints);
         }

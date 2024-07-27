@@ -4,13 +4,15 @@
 #   @MainBuilder    chengwenjie
 #   @CreateDate     2023-06-20
 #---------------------------------------------
-QT       += core gui network xml sql
+QT       += core gui network xml
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 RC_FILE  += logo.rc
 
 CONFIG += c++11
+
+CONFIG += exception
 
 QT  +=sql
 
@@ -29,6 +31,7 @@ SOURCES += \
     Camera/Dushen/DushenBasicFunc.cpp \
     Camera/Dushen/DushenCameraWidget.cpp \
     Camera/Dushen/mosaickimage.cpp \
+    Camera/DushenSample/BasicFunction.cpp \
     Camera/DushenSample/ImageAcquisition.cpp \
     Camera/DushenSample/MyGraphicsitem.cpp \
     Form/CamerasWidget.cpp \
@@ -57,6 +60,9 @@ SOURCES += \
     Parameter/JsonRecipeWidget.cpp \
     Parameter/JsonResultParse.cpp \
     Parameter/XmlParse.cpp \
+    Parameter/json_reader.cpp \
+    Parameter/json_value.cpp \
+    Parameter/json_writer.cpp \
     SystemSettingForm.cpp \
     common_func.cpp \
     log_singleton.cpp \
@@ -67,6 +73,7 @@ HEADERS += \
     Camera/Dushen/DushenBasicFunc.h \
     Camera/Dushen/DushenCameraWidget.h \
     Camera/Dushen/mosaickimage.h \
+    Camera/DushenSample/BasicFunction.h \
     Camera/DushenSample/DVPCamera.h \
     Camera/DushenSample/ImageAcquisition.h \
     Camera/DushenSample/MyGraphicsitem.h \
@@ -98,6 +105,17 @@ HEADERS += \
     Parameter/JsonRecipeWidget.h \
     Parameter/JsonResultParse.h \
     Parameter/XmlParse.h \
+    Parameter/allocator.h \
+    Parameter/assertions.h \
+    Parameter/config.h \
+    Parameter/forwards.h \
+    Parameter/json.h \
+    Parameter/json_features.h \
+    Parameter/json_tool.h \
+    Parameter/reader.h \
+    Parameter/value.h \
+    Parameter/version.h \
+    Parameter/writer.h \
     SystemSettingForm.h \
     common_func.h \
     log_singleton.h \
@@ -105,6 +123,7 @@ HEADERS += \
 
 FORMS += \
     Camera/Dushen/DushenCameraWidget.ui \
+    Camera/DushenSample/BasicFunction.ui \
     Form/CamerasWidget.ui \
     Form/SingleSizeShowWidget.ui \
     Form/msvlcdnumclockwidget.ui \
@@ -161,13 +180,6 @@ else:win32:CONFIG(debug, debug|release): LIBS += -LC:/Qt/Qt5.14.2/5.14.2/msvc201
 INCLUDEPATH += C:/Qt/Qt5.14.2/5.14.2/msvc2017_64/include
 DEPENDPATH += C:/Qt/Qt5.14.2/5.14.2/msvc2017_64/include
 
-#添加opencv组件
-win32:CONFIG(release, debug|release): LIBS += -LC:/opencv/build/x64/vc15/lib/ -lopencv_world455
-else:win32:CONFIG(debug, debug|release): LIBS += -LC:/opencv/build/x64/vc15/lib/ -lopencv_world455d
-
-INCLUDEPATH += C:/opencv/build/include
-DEPENDPATH += C:/opencv/build/include
-
 # 在Release生成用于调试dump的信息，包括【禁用release编译优化】、【生成PDB符号表】，但是这些设置会降低程序性能，和debug差不多
 CONFIG(release, debug|release) {
     QMAKE_CXXFLAGS_RELEASE -= -O2
@@ -179,5 +191,3 @@ CONFIG(release, debug|release) {
     message(QMAKE_CXXFLAGS_RELEASE变量值：$$QMAKE_CXXFLAGS_RELEASE)
     message(QMAKE_LFLAGS_RELEASE变量值：$$QMAKE_LFLAGS_RELEASE)
 }
-
-
