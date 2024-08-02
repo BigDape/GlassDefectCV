@@ -16,12 +16,17 @@
 #include "HDevEngineCpp.h"
 #include "HalconCpp.h"
 #include "FlawDefine.h"
+#include <QThreadPool>
+#include <QDebug>
+#include <QElapsedTimer>
+#include <QMutex>
 
 using namespace HalconCpp;
 using namespace HDevEngineCpp;
 
 
-class Process_Detect : public QObject {
+class Process_Detect : public QObject,public QRunnable
+{
     Q_OBJECT
 public:
     Process_Detect();
@@ -32,27 +37,34 @@ public:
     void DetectSiYin(HoleUnit holeunit,ProcessHolesAlgorithmResults& procesHoleResult);
     void SummaryResults(GlassDataBaseInfo baseinfo);
     void SummaryFailResult();
-    void DetectData2Json(DefeteResult result);
-    void HolesData2Json(ProcessHolesAlgorithmResults procesHoleResult);
+    void DetectData2Json(DefeteResult result,QString jsonFullPath);
+    void HolesData2Json(ProcessHolesAlgorithmResults procesHoleResult,HoleResult& holeresult);
     void Glassinfo(ProcessVisionAlgorithmResults result, GlassDataBaseInfo& baseinfo);
     void saveErrImage(ProcessVisionAlgorithmResults result, DefeteResult& defect);
     void funcSaveErrImage();
     void writeHoleDataToJsonfile(HoleResult holeresult);
     bool isExistDir(QString dirpath);
 
+public:
+    virtual void run() override;
+
 signals:
     void sendData(GlassDataBaseInfo info);              // 信息统计表格中插入一行数据
     void sig_updateFlaw(double length,double width);    // 更新最外框轮廓
-    void sig_Deliver(QList<FlawPoint>* Points);         //将缺陷点传输给缺陷框架
+    void sig_sendPoint(QList<FlawPoint> Points);         //将缺陷点传输给缺陷框架
     void sig_updateSortRes(SummaryResult summaryResult);//更新标题框上的检出和分检
-    void sig_updateSignalFlaw(QString id, QString date);//更新缺陷小图信息
-    void sig_refreshFlaw(QString glassid);              //实时刷新缺陷小图
-    void sig_refreshSize(QString glassid);              //实时刷新尺寸小图
+    void sig_updateSignalFlaw(QString jsonPath65, int id);//更新缺陷小图信息
+    void sig_refreshFlaw(QString jsonFullPath,int glassid);              //实时刷新缺陷小图
+    void sig_refreshSize(QString jsonFullPath,int glassid);              //实时刷新尺寸小图
     void sig_UpdateResultInfo(SummaryResult);           //更新缺陷界面的统计信息
 
 
 public slots:
     void slot_updateSortInfo();
+
+public:
+    QList<FlawPoint> Points;          //缺陷点
+    std::atomic<bool> hasStopThread;    //线程停止
 
 private:
      int GlassPosition;                 //玻璃位置(0整1前2中3后)
@@ -70,9 +82,8 @@ private:
      HTuple YCoordIn;
      HTuple YCoordOut;
 
-     QList<FlawPoint>* Points;          //缺陷点
      SafeQueue<std::tuple<QString, HObject>> threadQueue; //线程安全的缺陷小图队列
-     std::atomic<bool> hasStopThread;    //线程停止
+
      QDateTime currentTimeJson;       //json文件名时间点
      bool onceCall;                 //只调用一次
      SummaryResult summaryResult; //玻璃总的结果

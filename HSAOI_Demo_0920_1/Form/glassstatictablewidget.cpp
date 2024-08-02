@@ -6,6 +6,7 @@
 #include <QTableWidget>
 #include <QTableWidgetItem>
 #include <QXmlStreamReader>
+#include "Global.h"
 #pragma execution_character_set("utf-8")
 
 GlassStatisticTableWidget::GlassStatisticTableWidget(QWidget* parent)
@@ -25,12 +26,12 @@ GlassStatisticTableWidget::GlassStatisticTableWidget(QWidget* parent)
     connect(tableWidget, &QTableWidget::itemDoubleClicked,
         [=](QTableWidgetItem* item) {
             // 获取所在行的第一列内容
-            QString firstColumnContent = tableWidget->item(item->row(), 0)->text();
-            QString SecondColumnContent = tableWidget->item(item->row(), 1)->text().left(13);
-            QString Deliver = firstColumnContent + "." + SecondColumnContent;
-            if (firstColumnContent != "")
-                emit sig_DeliverGlassID(firstColumnContent, SecondColumnContent);
-            qDebug() << Deliver;
+            QString glassID = tableWidget->item(item->row(), 0)->text();
+            QString jsonPath = Global::glassidTodefectjson[glassID.toInt()];
+            qDebug() << __FUNCTION__ << "glassID = " <<glassID.toInt()  <<"jsonPath = "<<jsonPath;
+            emit sig_reloadDefect(jsonPath, glassID.toInt());
+            QString holejsonPath = Global::glassidToholejson[glassID.toInt()];
+            emit sig_reloadHole(holejsonPath,glassID.toInt());
         });
 
 }
@@ -114,6 +115,7 @@ void GlassStatisticTableWidget::InitTableFromXml(QTableWidget* tableWidget)
 void GlassStatisticTableWidget::slot_insertRowData(GlassDataBaseInfo info)
 {
     QTableWidgetItem *itemID = tableWidget->item(0, 0);
+    // 同一块玻璃的多帧图片插入到表格的同一行
     if (itemID) {
        if(itemID->text().toInt() != info.id)
            tableWidget->insertRow(0);
@@ -214,6 +216,7 @@ void GlassStatisticTableWidget::slot_insertRowData(GlassDataBaseInfo info)
         tableWidget->horizontalHeaderItem(i)->setTextAlignment(Qt::AlignCenter);
     }
     tableWidget->verticalHeader()->setVisible(false); // 隐藏行号
+    qDebug()<<"123";
 }
 
 void GlassStatisticTableWidget::slot_clearRowData()

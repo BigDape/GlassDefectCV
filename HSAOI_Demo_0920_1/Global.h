@@ -13,10 +13,12 @@
 #include "log_singleton.h"
 #include "Parameter/JsonParse2Map.h"
 #include "HalconCpp.h"
-#include <unordered_map>
 #include <utility>
 #include <vector>
 #include <Qwt/qwt_plot.h>
+#include <QString>
+#include <unordered_map>
+#include <map>
 
 using namespace HalconCpp;
 typedef struct GLASSINFO {
@@ -38,11 +40,14 @@ typedef struct GLASSINFO {
     int Flaw7;
 } GLASSINFO;
 
-typedef struct FlawPoint {
+struct FlawPoint {
     double x;
     double y;
     int FlawType;
-} FlawPoint;
+    QString HoleJsonFullPath;
+    QString DefectJsonFullPath;
+    int glassid;
+};
 
 struct CourTour {
     int index;
@@ -100,14 +105,16 @@ public:
     static double encodeRollerYLength;//差分计算出来的长度
 
     static std::vector<CourTour> courtourMapXY;//轮廓点
-    static  QwtPlot* m_plot;
+    static QwtPlot* m_plot;
     static bool isOffline; //是否触发了离线模式
     static QString offlineFullPath;
     static bool isJpg;
 
     static long encodeAB4; //压轮编码器四倍频
     static QString currenttime; //当前时间
-signals:
+    static std::map<int,QString> glassidToholejson; //存储glassid->jsonPath
+    static std::map<int,QString> glassidTodefectjson; //存储glassid->jsonPath
+    static int SystemStatus; //运行中则1，停止时则0
 };
 
 #endif // GLOBAL_H

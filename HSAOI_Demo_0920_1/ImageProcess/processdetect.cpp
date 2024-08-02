@@ -5,13 +5,16 @@
 #include <fstream>
 #include <QQueue>
 #include <QDir>
+#include <QThread>
+#include "processtile.h"
+
 #pragma execution_character_set("utf-8")
 Process_Detect::Process_Detect()
 {
     ResultNotOutFlag = false;
     ErrFlag = false;
     GlassPosition=0;
-    Points = new QList<FlawPoint>();
+    Points = QList<FlawPoint>();
     ProcessStep = 0; //相机帧数
     m_FramesPerTri=0;
 
@@ -28,6 +31,7 @@ Process_Detect::Process_Detect()
     procedurecall = new HDevProcedureCall(*procedure);
     procedure2 = new HDevProcedure("ProcessHoles");
     procedurecall2 = new HDevProcedureCall(*procedure2);
+    hasStopThread.store(false);
 }
 
 Process_Detect::~Process_Detect()
@@ -44,10 +48,25 @@ Process_Detect::~Process_Detect()
     procedurecall2 = nullptr;
 }
 
+void Process_Detect::run()
+{
+PDLOOP:
+    //条件变量
+    if (!ProcessTile::preImageQueue.empty()) {
+        PDArgs args;
+        if(ProcessTile::preImageQueue.dequeue(args)) {
+            Process_Detect::VisionProcess(args.imageunit, args.holeunit);
+        }
+    }
+    if (!hasStopThread.load())
+        goto PDLOOP;
+}
+
 //算法执行
 void Process_Detect::VisionProcess(ImageUnit imageunit, HoleUnit holeunit)
 {
-    QString glassID;
+    if (Global::isOffline == false && Global::SystemStatus == 0) return;
+    int glassID;
     //recipe切换
     if(Global::RecChangeSignal) {
         Global::RecChangeSignal=false;
@@ -74,6 +93,7 @@ void Process_Detect::VisionProcess(ImageUnit imageunit, HoleUnit holeunit)
     HTuple EnableDefect;
     GetDictTuple(UserDefinedDict,"缺陷检测启用",&EnableDefect);
     ProcessVisionAlgorithmResults processvisionresult;//算法执行结果
+    DefeteResult outResult;//解析出来的结果
     if( EnableDefect==1 ) {
         //图像正常执行算法or输出异常提醒
         if(imageunit.ImageList.CountObj()>0 && imageunit.ErrorFlag==false) {
@@ -102,6 +122,7 @@ void Process_Detect::VisionProcess(ImageUnit imageunit, HoleUnit holeunit)
                     procedurecall->SetInputCtrlParamTuple("DetectDict", Global::RecipeDict);
                     procedurecall->Execute();
                     //获取算法结果
+                    processvisionresult.GlassID = Global::GlassID_INT;
                     processvisionresult.ErrImage1 = procedurecall->GetOutputIconicParamObject("ErrImage1");
                     processvisionresult.ErrImage2 = procedurecall->GetOutputIconicParamObject("ErrImage2");
                     processvisionresult.ErrImage3 = procedurecall->GetOutputIconicParamObject("ErrImage3");
@@ -132,18 +153,17 @@ void Process_Detect::VisionProcess(ImageUnit imageunit, HoleUnit holeunit)
                             Global::courtourMapXY.push_back(tour);
                         }
                     }
-                    DefeteResult outResult;
+
                     Process_Detect::saveErrImage(processvisionresult, outResult);
+                    processvisionresult.time = currentTimeJson.toString("yyyy-MM-dd hh:mm:ss");
                     glassID = outResult.GlassID; //更新GlassID，给后面程序使用
-                    Process_Detect::DetectData2Json(outResult);
-                    qDebug()<<"GlassPosition: "<<GlassPosition;
+                    Process_Detect::DetectData2Json(outResult,outResult.jsonFullPath);
+                    qDebug()<<"GlassPosition: "<<GlassPosition;qDebug()<<"Points.size(): "<<Points.size();
 
-
-                    emit sig_Deliver(Points);   //发送显示缺陷点位置信号
-                    emit sig_updateSignalFlaw(QString::number(outResult.GlassID),outResult.currentTime.toString("yyyy-MM-dd HH"));//更新缺陷小图信息
+                    emit sig_sendPoint(Points);   //发送显示缺陷点位置信号
+                    //emit sig_updateSignalFlaw(outResult.jsonFullPath, outResult.GlassID);//更新缺陷小图信息
                     qDebug()<<"ProcessStep"<<ProcessStep;
                     qDebug()<<"m_FramesPerTri"<<Global::FramesPerTri;
-                    emit sig_updateFlaw(outResult.GlassLength.toDouble(),outResult.GlassWidth.toDouble());//画出最外围轮廓
                     QString info="ProcessStep" + QString::number(ProcessStep)  + "算法执行完成！";
                     log_singleton::Write_Log(info, Log_Level::General);
                 } catch (HalconCpp::HException& Except) {
@@ -163,26 +183,30 @@ void Process_Detect::VisionProcess(ImageUnit imageunit, HoleUnit holeunit)
     //
     // 尺寸測量
     //
+    ProcessHolesAlgorithmResults procesHoleResult;
+    HoleResult holeresult;
     if (GlassPosition==0 || GlassPosition==3 ) {
         HTuple EnableMeasure;
         GetDictTuple(UserDefinedDict,"尺寸测量启用",&EnableMeasure);
         qDebug() << "EnableMeasure :" << EnableMeasure.ToString().Text();
         if(EnableMeasure==1) {
-            ProcessHolesAlgorithmResults procesHoleResult;
             procesHoleResult.GlassID = glassID;
+            procesHoleResult.HolesImage.GenEmptyObj();
+            procesHoleResult.OutLineImage.GenEmptyObj();
             Process_Detect::DetectSiYin(holeunit, procesHoleResult);
-            Process_Detect::HolesData2Json(procesHoleResult);
+            Process_Detect::HolesData2Json(procesHoleResult,holeresult);
+            emit sig_updateFlaw(procesHoleResult.GlassWidth.D(),procesHoleResult.GlassLength.D());//画出最外围轮廓
         }
     }
     ResultNotOutFlag = true;
     GlassDataBaseInfo baseinfo;
     Process_Detect::Glassinfo(processvisionresult,baseinfo);
+
     emit sendData(baseinfo); //信息统计表格中插入一行数据
     QString glassidAndTime = QString::number(baseinfo.id) + "." + currentTimeJson.toString("yyyy-MM-dd HH");
-    qDebug()<<"glassidAndTime = "<<glassidAndTime;
     //更新缺陷小图
-    emit sig_refreshFlaw(glassidAndTime); //刷新缺陷
-    emit sig_refreshSize(glassidAndTime); //刷新尺寸
+    emit sig_refreshFlaw(outResult.jsonFullPath,outResult.GlassID); //刷新缺陷
+    emit sig_refreshSize(holeresult.jsonFullPath,holeresult.GlassID); //刷新尺寸
     if (GlassPosition==0 || GlassPosition==3 ) {
         Process_Detect::SummaryResults(baseinfo);
         ResultNotOutFlag = false;
@@ -233,8 +257,8 @@ void Process_Detect::DetectSiYin(HoleUnit holeunit, ProcessHolesAlgorithmResults
             procesHoleResult.GlassLength = 0;
             qDebug() << "HalconHalconErr:" << Except.ErrorMessage().Text();
         }
-        qDebug() << "GlassWidthttttttttttttttt"<<procesHoleResult.GlassWidth.ToString().Text();
-        qDebug() << "GlassWidthttttttttttttttttt"<<procesHoleResult.GlassLength.ToString().Text();
+        qDebug() << "Current used GlassWidth ="<<procesHoleResult.GlassWidth.ToString().Text();
+        qDebug() << "Current used GlassLenth ="<<procesHoleResult.GlassLength.ToString().Text();
    } else {
         //无测量结果
         qDebug() << "Error : NumTile = "<<NumTile.I();
@@ -279,68 +303,65 @@ void Process_Detect::SummaryResults(GlassDataBaseInfo baseinfo)
     Global::GlassID_INT = Global::GlassID_INT + 1; //玻璃id加1
 
     // 发送数据
-    Points->clear();
+    Points.clear();
     QString info="玻璃ID" + QString::number(baseinfo.id)  + "算法执行完成！";
     log_singleton::Write_Log(info, Log_Level::General);
 }
 
-void Process_Detect::DetectData2Json(DefeteResult result)
+void Process_Detect::DetectData2Json(DefeteResult result,QString jsonFullPath)
 {
-    //
-    // 先将文件中已有的数据读出来
-    //
-    Json::Value root;
-    QDir folderDir(result.jsonFullPath);
-    qDebug()<<"result.jsonFullPath  = "<<result.jsonFullPath;
-    if (folderDir.exists()) {
-        std::ifstream ifs;
-        ifs.open(result.jsonFullPath.toStdString()); // Windows自己注意路径吧
-        if (ifs.is_open()) {
-             Json::Reader reader;
-             // 解析到root，root将包含Json里所有子元素
-             reader.parse(ifs, root, false);
-             ifs.close();
-        } else {
-            qDebug()<<"[Process_Detect::DetectData2Json] ifs.is_open() =  false";
-        }
-    } else {
-        qDebug()<<"[Process_Detect::DetectData2Json] "<<result.jsonFullPath<<" is not exit.";
-    }
-    //
-    // 将数据追加在文件末尾上
-    //
-    Json::FastWriter writer;
-    Json::Value glassdata;
-    for(int i=0; i<(int)result.defetes.size(); ++i) {
-        DefeteData temp = result.defetes[i];
-        Json::Value defectdata;
-        defectdata["Area"] = temp.Area.toStdString();
-        defectdata["DefectID"] = temp.DefectID.toStdString();
-        defectdata["DefectType"] = temp.DefectType.toStdString();
-        defectdata["DetectLeve"] = temp.DetectLeve.toStdString();
-        defectdata["ImageNGPath"] = temp.ImageNGPath.toStdString();
-        defectdata["Lenth"] = temp.Lenth.toStdString();
-        defectdata["Time"] = temp.Time.toStdString();
-        defectdata["Width"] = temp.Width.toStdString();
-        defectdata["X"] = temp.X.toStdString();
-        defectdata["Y"] = temp.Y.toStdString();
-        glassdata[temp.DefectID.toStdString().c_str()] = defectdata;
-    }
-    glassdata["GlassAngle"] = result.GlassAngle.toStdString();
-    glassdata["GlassLength"] = result.GlassLength.toStdString();
-    glassdata["GlassWidth"] = result.GlassWidth.toStdString();
-    root[QString::number(result.GlassID).toStdString().c_str()] = glassdata;
+    qDebug()<<"[Process_Detect::DetectData2Json] DefeteResult{"
+            <<"GlassID="<<result.GlassID
+            <<",std::vector<DefeteData> defetes.size()="<<result.defetes.size()
+            <<",GlassWidth="<<result.GlassWidth
+            <<",GlassLength="<<result.GlassLength
+            <<",GlassAngle="<<result.GlassAngle
+            <<",jsonFullPath="<<result.jsonFullPath
+            <<",currentTime="<<result.currentTime.toString()<<"}";
 
-    std::string json_content = writer.write(root);
-    std::ofstream ofs;
-    ofs.open(result.jsonFullPath.toStdString().data());
-    if (ofs.is_open()) {
-        ofs<<json_content;
-        ofs.close();
+    //
+    // 一块玻璃一个json文件
+    //
+    try{
+        Json::Value root;
+        Json::Value glassdata;
+        for(int i=0; i<(int)result.defetes.size(); ++i) {
+            DefeteData temp = result.defetes[i];
+            Json::Value defectdata;
+            defectdata["Area"] = temp.Area;
+            defectdata["DefectID"] = i;
+            defectdata["DefectType"] = temp.DefectType.toStdString().c_str();
+            defectdata["DetectLeve"] = temp.DetectLeve.toStdString().c_str();
+            defectdata["ImageNGPath"] = temp.ImageNGPath.toStdString().c_str();
+            defectdata["Lenth"] = temp.Lenth;
+            defectdata["Time"] = temp.Time.toStdString().c_str();
+            defectdata["Width"] = temp.Width;
+            defectdata["X"] = temp.X;
+            defectdata["Y"] = temp.Y;
+            glassdata[QString::number(i).toStdString().c_str()] = defectdata;
+        }
+        glassdata["GlassLength"] = result.GlassLength;
+        glassdata["GlassAngle"] = result.GlassAngle;
+        glassdata["GlassWidth"] = result.GlassWidth;
+        root[QString::number(result.GlassID).toStdString().c_str()] = glassdata;
+
+        Json::StreamWriterBuilder jswBuilder;
+        jswBuilder["emitUTF8"] = true;//中文转换
+        std::unique_ptr<Json::StreamWriter> jsWriter(jswBuilder.newStreamWriter());
+        std::ofstream ofs;
+        ofs.open(jsonFullPath.toStdString().data());
+        if (ofs.is_open()) {
+            jsWriter->write(root, &ofs);
+            ofs.close();
+        }
+    } catch(std::exception e) {
+        qDebug()<<"[Process_Detect::DetectData2Json] Error"<<e.what();
+    } catch(...) {
+        qDebug()<<"[Process_Detect::DetectData2Json] Error";
     }
 }
 
-void Process_Detect::HolesData2Json(ProcessHolesAlgorithmResults procesHoleResult)
+void Process_Detect::HolesData2Json(ProcessHolesAlgorithmResults procesHoleResult,HoleResult& holeresult)
 {
     //
     // 判断外层文件是否存在
@@ -359,7 +380,6 @@ void Process_Detect::HolesData2Json(ProcessHolesAlgorithmResults procesHoleResul
     //
     // 解析算法结果数据
     //
-    HoleResult holeresult;
     holeresult.GlassID = procesHoleResult.GlassID;
     HTuple CountSK;
     CountObj(procesHoleResult.HolesImage, &CountSK);
@@ -381,21 +401,21 @@ void Process_Detect::HolesData2Json(ProcessHolesAlgorithmResults procesHoleResul
                 && procesHoleResult.HolesWidth.Length()==CountSK
                 && procesHoleResult.HolesHeight.Length()==CountSK ) {
             QString strDistanceHorizontal = procesHoleResult.DistanceHorizontal.TupleSelect(i).ToString().Text();
-            hole.DistanceHorizontal = strDistanceHorizontal.remove("\"");
+            hole.DistanceHorizontal = strDistanceHorizontal.toDouble();
 
             QString strDistanceVertical = procesHoleResult.DistanceVertical.TupleSelect(i).ToString().Text();
-            hole.DistanceVertical = strDistanceVertical.remove("\"");
+            hole.DistanceVertical = strDistanceVertical.toDouble();
 
             QString strHolesWidth = procesHoleResult.HolesWidth.TupleSelect(i).ToString().Text();
-            hole.HolesWidth = strHolesWidth.remove("\"");
+            hole.HolesWidth = strHolesWidth.toDouble();
 
             QString strHolesHeight = procesHoleResult.HolesHeight.TupleSelect(i).ToString().Text();
-            hole.HolesHeight = strHolesHeight.remove("\"");
+            hole.HolesHeight = strHolesHeight.toDouble();
         } else {
-            hole.DistanceHorizontal = "0";
-            hole.DistanceVertical = "0";
-            hole.HolesWidth = "0";
-            hole.HolesHeight = "0";
+            hole.DistanceHorizontal = 0;
+            hole.DistanceVertical = 0;
+            hole.HolesWidth = 0;
+            hole.HolesHeight = 0;
         }
 
         QString strImageHolesPath = folderName + "/" + "孔" + "/" + currentTimeJson.toString("yyyy-MM-dd");
@@ -414,6 +434,9 @@ void Process_Detect::HolesData2Json(ProcessHolesAlgorithmResults procesHoleResul
         QString ImageHolesPath2 = strImageHolesPath + "/" + QString::number(i) + ".jpg";
         WriteImage(procesHoleResult.HolesImage.SelectObj(i + 1), "jpg", 0, ImageHolesPath2.toUtf8().constData());
     }//for (int i = 0; i < CountSK; i++)
+    holeresult.GlassWidth = procesHoleResult.GlassWidth.D();
+    holeresult.GlassLength = procesHoleResult.GlassLength.D();
+    holeresult.GlassAngle = 0;
     //
     // 写入轮廓图
     //
@@ -429,13 +452,15 @@ void Process_Detect::HolesData2Json(ProcessHolesAlgorithmResults procesHoleResul
     //
     // 写入json文件的地址
     //
-    QString jsonFilePath = QDir::currentPath() + "/HolesInfJson/" + currentTimeJson.toString("yyyy-MM-dd HH") + ".json";
+    QString jsonFilePath = QDir::currentPath() + "/HolesInfJson/" + QString::number(currentTimeJson.toTime_t()) + ".json";
     holeresult.jsonFullPath = jsonFilePath;
     Process_Detect::writeHoleDataToJsonfile(holeresult);
 }
 
 void Process_Detect::Glassinfo(ProcessVisionAlgorithmResults result, GlassDataBaseInfo& baseinfo)
 {
+    baseinfo.id = result.GlassID;
+    baseinfo.time = currentTimeJson.toString("yyyy-MM-dd hh:mm:ss");
     baseinfo.sizeOKorNG = "NG";
     HTuple Count;
     CountObj(result.ErrImage1, &Count);
@@ -457,38 +482,37 @@ void Process_Detect::Glassinfo(ProcessVisionAlgorithmResults result, GlassDataBa
             baseinfo.OKorNG = "NG";
         }
 
-        HTuple huashan;
-        TupleFind(result.ErrType, "划伤", &huashan);
-        baseinfo.huashanNumber = huashan.TupleLength().I();
-
-        HTuple qipao;
-        TupleFind(result.ErrType, "气泡", &qipao);
-        baseinfo.qipaoNumber = qipao.TupleLength().I();
-
-        HTuple benbian;
-        TupleFind(result.ErrType, "崩边", &benbian);
-        baseinfo.benbianNumber = benbian.TupleLength().I();
-
-        HTuple zanwu;
-        TupleFind(result.ErrType, "脏污", &zanwu);
-        baseinfo.zanwuNumber = zanwu.TupleLength().I();
-
-        HTuple liewen;
-        TupleFind(result.ErrType, "裂纹", &liewen);
-        baseinfo.liewenNumber = liewen.TupleLength().I();
-
-        HTuple qita;
-        TupleFind(result.ErrType, "其它", &qita);
-        baseinfo.qitaNumber = qita.TupleLength().I();
-
-        HTuple jieshi;
-        TupleFind(result.ErrType, "结石", &jieshi);
-        baseinfo.qitaNumber = jieshi.TupleLength().I();
-
+        baseinfo.length = result.GlassLength.D();
+        baseinfo.width = result.GlassWidth.D();
         baseinfo.duijiaoxian1 = 0;
         baseinfo.duijiaoxian2 = 0;
+        baseinfo.huashanNumber = 0;
+        baseinfo.qipaoNumber = 0;
+        baseinfo.benbianNumber = 0;
+        baseinfo.zanwuNumber = 0;
+        baseinfo.liewenNumber = 0;
+        baseinfo.qitaNumber = 0;
+        baseinfo.jieshiNumber = 0;
+        baseinfo.defectNumber = 0;
 
-        baseinfo.defectNumber = baseinfo.huashanNumber+baseinfo.qipaoNumber+baseinfo.benbianNumber+baseinfo.zanwuNumber+baseinfo.liewenNumber+baseinfo.qitaNumber+baseinfo.jieshiNumber;
+        baseinfo.defectNumber = result.ErrName.Length();
+        for(int i=0; i<result.ErrName.Length(); ++i) {
+            if ( result.ErrName[i] == "划伤") {
+                ++baseinfo.huashanNumber;
+            } else if(result.ErrName[i] == "气泡") {
+                ++baseinfo.qipaoNumber;
+            } else if(result.ErrName[i] == "崩边") {
+                ++baseinfo.benbianNumber;
+            } else if(result.ErrName[i] == "脏污") {
+                ++baseinfo.zanwuNumber;
+            } else if(result.ErrName[i] == "裂纹") {
+                ++baseinfo.liewenNumber;
+            } else if(result.ErrName[i] == "结石") {
+                ++baseinfo.jieshiNumber;
+            } else if(result.ErrName[i] == "其它") {
+                ++baseinfo.qitaNumber;
+            }
+        }
     } else {
         baseinfo.defectOKorNG = "OK";
         baseinfo.OKorNG = "OK";
@@ -498,11 +522,12 @@ void Process_Detect::Glassinfo(ProcessVisionAlgorithmResults result, GlassDataBa
         baseinfo.zanwuNumber = 0;
         baseinfo.liewenNumber = 0;
         baseinfo.qitaNumber = 0;
-        baseinfo.qitaNumber = 0;
+        baseinfo.jieshiNumber = 0;
         baseinfo.duijiaoxian1 = 0;
         baseinfo.duijiaoxian2 = 0;
         baseinfo.width = 2500;
         baseinfo.length = 1200;
+        baseinfo.defectNumber = 0;
     }
 }
 
@@ -516,7 +541,7 @@ void Process_Detect::saveErrImage(ProcessVisionAlgorithmResults result, DefeteRe
     QDateTime currentDateTime = QDateTime::currentDateTime();
     currentTimeJson = currentDateTime; //实时更新使用到
     defect.currentTime = currentDateTime;
-    QString fileName = currentDateTime.toString("yyyy-MM-dd HH") + ".json";
+    QString fileName = QString::number(currentDateTime.toTime_t()) + ".json";
     QString projectFolder = QDir::currentPath();// 获取当前项目文件夹路径
     QString jsonFilePath = projectFolder + "/DefectInfJson/" + fileName;
     defect.jsonFullPath = jsonFilePath;
@@ -544,32 +569,25 @@ void Process_Detect::saveErrImage(ProcessVisionAlgorithmResults result, DefeteRe
          data.Time = CurrentTime;
 
          QString strErrName = result.ErrName.TupleSelect(i).ToString().Text();
-         strErrName = strErrName.remove("\"");
-         data.DefectType = strErrName;
+         data.DefectType = strErrName.remove("\"");//去除双层双引号
 
          QString strDefectLevel = result.DefectLevel.TupleSelect(i).ToString().Text();
-         strDefectLevel = strDefectLevel.remove("\"");
-         data.DetectLeve = strDefectLevel;
+         data.DetectLeve = strDefectLevel.remove("\"");;
 
          QString strErrX = result.ErrX.TupleSelect(i).ToString().Text();
-         strErrX = strErrX.remove("\"");
-         data.X = strErrX;
+         data.X = strErrX.toDouble();
 
          QString strErrY = result.ErrY.TupleSelect(i).ToString().Text();
-         strErrY = strErrY.remove("\"");
-         data.Y = strErrY;
+         data.Y = strErrY.toDouble();
 
          QString strErrL = result.ErrL.TupleSelect(i).ToString().Text();
-         strErrL = strErrL.remove("\"");
-         data.Lenth = strErrL;
+         data.Lenth = strErrL.toDouble();
 
          QString strErrW = result.ErrW.TupleSelect(i).ToString().Text();
-         strErrW = strErrW.remove("\"");
-         data.Width = strErrW;
+         data.Width = strErrW.toDouble();
 
          QString strErrArea = result.ErrArea.TupleSelect(i).ToString().Text();
-         strErrArea = strErrArea.remove("\"");
-         data.Area = strErrArea;
+         data.Area = strErrArea.toDouble();
 
          QString strImageNGPath = folderName + "/" + strErrName + "/" + CurrentTime + "-" + QString::number(i + 1);
          data.ImageNGPath = strImageNGPath;
@@ -582,7 +600,10 @@ void Process_Detect::saveErrImage(ProcessVisionAlgorithmResults result, DefeteRe
          Point.x=strErrY.toDouble();
          Point.y=strErrX.toDouble();
          Point.FlawType= result.ErrType.TupleSelect(i).TupleInt();
-         Points->append(Point);
+         Point.HoleJsonFullPath = QDir::currentPath() + "/HolesInfJson/" + fileName;;
+         Point.DefectJsonFullPath = jsonFilePath;
+         Point.glassid = defect.GlassID;
+         Points.append(Point);
 
          QString strErrNameDir = folderName + "/" + strErrName;
          if (!Process_Detect::isExistDir(strErrNameDir)) {
@@ -594,9 +615,9 @@ void Process_Detect::saveErrImage(ProcessVisionAlgorithmResults result, DefeteRe
              throw std::exception(errorMessage.toStdString().c_str());
          }
 
-         QString ImageNGPath1 = strImageNGPath + "/" + strErrName + "1.jpg";
-         QString ImageNGPath2 = strImageNGPath + "/" + strErrName + "2.jpg";
-         QString ImageNGPath3 = strImageNGPath + "/" + strErrName + "3.jpg";
+         QString ImageNGPath1 = strImageNGPath + "/" + "1.jpg";
+         QString ImageNGPath2 = strImageNGPath + "/" + "2.jpg";
+         QString ImageNGPath3 = strImageNGPath + "/" + "3.jpg";
 
          WriteImage(result.ErrImage1.SelectObj(i + 1), "jpg", 0, ImageNGPath1.toUtf8().constData());
          WriteImage(result.ErrImage2.SelectObj(i + 1), "jpg", 0, ImageNGPath2.toUtf8().constData());
@@ -616,16 +637,14 @@ void Process_Detect::saveErrImage(ProcessVisionAlgorithmResults result, DefeteRe
     }
 
     QString strGlassWidth = result.GlassWidth.ToString().Text();
-    strGlassWidth = strGlassWidth.remove("\"");
-    defect.GlassWidth = strGlassWidth;
+    defect.GlassWidth = strGlassWidth.toDouble();
 
     QString strGlassLength = result.GlassLength.ToString().Text();
-    strGlassLength = strGlassLength.remove("\"");
-    defect.GlassLength = strGlassLength;
+    defect.GlassLength = strGlassLength.toDouble();
 
     QString strGlassAngle = result.GlassAngle.ToString().Text();
     Global::RollerAngle = strGlassAngle.toDouble();
-    defect.GlassAngle = strGlassAngle;
+    defect.GlassAngle = strGlassAngle.toDouble();
 }
 
 void Process_Detect::funcSaveErrImage()
@@ -648,13 +667,9 @@ LOOP:
 bool Process_Detect::isExistDir(QString dirpath)
 {
     QDir folderDir(dirpath);
-    if (folderDir.exists()) {
-        qDebug() << "Folder: " << dirpath << "exists.";
-    } else {
-        if (folderDir.mkpath(dirpath)) {
-            qDebug() << "Directory created.";
-        } else {
-            qDebug() << "Failed to create directory";
+    if (!folderDir.exists()) {
+        if (!folderDir.mkpath(dirpath)) {
+            qDebug() << "Failed to create directory"<<dirpath;
             return false;
         }
     }
@@ -664,57 +679,46 @@ bool Process_Detect::isExistDir(QString dirpath)
 void Process_Detect::writeHoleDataToJsonfile(HoleResult holeresult)
 {
     //
-    // 先将文件中已有的数据读出来
+    // 每块玻璃单独一个文件
     //
-    Json::Value root;
-    QDir folderDir(holeresult.jsonFullPath);
-    qDebug()<<"result.jsonFullPath  = "<<holeresult.jsonFullPath;
-    if (folderDir.exists()) {
-        std::ifstream ifs;
-        ifs.open(holeresult.jsonFullPath.toStdString()); // Windows自己注意路径吧
-        if (ifs.is_open()) {
-             Json::Reader reader;
-             // 解析到root，root将包含Json里所有子元素
-             reader.parse(ifs, root, false);
-             ifs.close();
-        } else {
-            qDebug()<<"[Process_Detect::DetectData2Json] ifs.is_open() =  false";
+    try{
+        Json::Value root;
+        Json::Value glassholedata;
+        for(int i=0; i<(int)holeresult.holes.size(); ++i) {
+            HoleData temp = holeresult.holes[i];
+            Json::Value holeData;
+            holeData["DistanceHorizontal"] = temp.DistanceHorizontal;
+            holeData["DistanceVertical"] = temp.DistanceVertical;
+            holeData["HolesHeight"] = temp.HolesHeight;
+            holeData["HolesID"] = i;
+            holeData["HolesLeve"] = temp.HolesLeve.toStdString().c_str();
+            holeData["HolesWidth"] = temp.HolesWidth;
+            holeData["ImageHolesPath"] = temp.ImageHolesPath.toStdString().c_str();
+            holeData["Time"] = temp.Time.toStdString().c_str();
+            holeData["Type"] = temp.Type.toStdString().c_str();
+            glassholedata[QString::number(i).toStdString().c_str()] = holeData;
         }
-    } else {
-        qDebug()<<"[Process_Detect::DetectData2Json] "<<holeresult.jsonFullPath<<" is not exit.";
-    }
-    //
-    // 将数据追加在文件末尾上
-    //
-    Json::FastWriter writer;
-    Json::Value glassholedata;
-    for(int i=0; i<(int)holeresult.holes.size(); ++i) {
-        HoleData temp = holeresult.holes[i];
-        Json::Value holeData;
-        holeData["DistanceHorizontal"] = temp.DistanceHorizontal.toStdString();
-        holeData["DistanceVertical"] = temp.DistanceVertical.toStdString();
-        holeData["HolesHeight"] = temp.HolesHeight.toStdString();
-        holeData["HolesID"] = temp.HolesID.toStdString();
-        holeData["HolesLeve"] = temp.HolesLeve.toStdString();
-        holeData["HolesWidth"] = temp.HolesWidth.toStdString();
-        holeData["ImageHolesPath"] = temp.ImageHolesPath.toStdString();
-        holeData["Time"] = temp.Time.toStdString();
-        holeData["Type"] = temp.Type.toStdString();
-        glassholedata[temp.HolesID.toStdString().c_str()] = holeData;
-    }
-    glassholedata["GlassAngle"] = holeresult.GlassAngle.toStdString();
-    glassholedata["GlassLength"] = holeresult.GlassLength.toStdString();
-    glassholedata["GlassWidth"] = holeresult.GlassWidth.toStdString();
-    glassholedata["ImageHolesLinePath"] = holeresult.ImageHolesLinePath.toStdString();
-    root[holeresult.GlassID.toStdString().c_str()] = glassholedata;
+        glassholedata["GlassLength"] = holeresult.GlassLength;
+        glassholedata["GlassAngle"] = holeresult.GlassAngle;
+        glassholedata["GlassWidth"] = holeresult.GlassWidth;
+        glassholedata["ImageHolesLinePath"] = holeresult.ImageHolesLinePath.toStdString().c_str();
+        root[QString::number(holeresult.GlassID).toStdString().c_str()] = glassholedata;
 
-    std::string json_content = writer.write(root);
-    std::ofstream ofs;
-    ofs.open(holeresult.jsonFullPath.toStdString().data());
-    if (ofs.is_open()) {
-        ofs<<json_content;
-        ofs.close();
+        Json::StreamWriterBuilder jswBuilder;
+        jswBuilder["emitUTF8"] = true;//中文转换
+        std::unique_ptr<Json::StreamWriter> jsWriter(jswBuilder.newStreamWriter());
+        std::ofstream ofs;
+        ofs.open(holeresult.jsonFullPath.toStdString().data());
+        if (ofs.is_open()) {
+            jsWriter->write(root, &ofs);
+            ofs.close();
+        }
+    } catch(std::exception e) {
+        qDebug()<<"Process_Detect::writeHoleDataToJsonfile Error"<<e.what();
+    } catch(...) {
+        qDebug()<<"Process_Detect::writeHoleDataToJsonfile Error";
     }
+
 }
 
 void Process_Detect::SummaryFailResult()

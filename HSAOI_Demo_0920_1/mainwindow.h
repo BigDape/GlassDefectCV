@@ -57,15 +57,9 @@ public:
 
 private:
     Ui::MainWindow* ui;
-
-    QThread* DetectImageThread;
-    QThread* TileImageThread;
-    QThread* SignalControlThread;
     Process_Detect* Detectworker;
     ProcessTile* Tileworker;
     SignalControlData* SigCtrlData;
-
-    void initCamera();
 
     QAction* m_pExit;
     QAction* m_pSettings;
@@ -77,16 +71,15 @@ private:
     QAction* m_offline; //离线模式
 
     QLabel* label1;
-      QLabel* label2;
-      QLineEdit* lineEdit1;
-      QLineEdit* lineEdit2;
+    QLabel* label2;
+    QLineEdit* lineEdit1;
+    QLineEdit* lineEdit2;
 
     QWidget* GlassInfoWidget;
 
     QProcess* DB;
 
     void initMenu();
-    void initWindow();
     void initLayout();
     void initSignalPlatform();
     void initThread();
@@ -126,20 +119,18 @@ public slots:
     void slot_updatePreGlassRes(bool);
     void slot_updateSortGlassRes(SummaryResult Res);
     void slot_clearPreSortGlassInfo();
-
-    void slot_ShowSingleFlawView(QString);
-//    void slot_FromDetect(QList<FlawPoint>* points);
-
     void slot_SendPoint(const FlawPoint&flawpoint);
+    void slot_test();
 signals:
     void sig_DeliverNewRecipe(JsonParse2Map* NewRecipe);
     void sig_FlawWidgetChange();
-
-    void sig_DeliverGlassInfo2Table(GLASSINFO* info);
     void sig_DeliverFlawPoints2Widget(QList<FlawPoint>* points);
     void sig_DeliverGlasses2Widget(QList<QRectF>* Glasses);
 
     void sig_StartButton2CameraStart();
     void sig_StopButton2CameraStop();
+
+private:
+    QThreadPool* _pool;
 };
 #endif // MAINWINDOW_H

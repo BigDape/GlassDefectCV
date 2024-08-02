@@ -505,9 +505,9 @@ void QBasicFunction::slotDispRate()
 void QBasicFunction::slotDispImage()
 {
     if (m_AcquireImage != NULL) {
-        if (!m_AcquireImage->m_ShowImage.isNull() && m_AcquireImage->m_threadMutex.tryLock()) {
+        if (!m_AcquireImage->m_ShowImage.isNull() ) {
+            std::unique_lock<std::mutex> sbguard(m_AcquireImage->m_threadMutex);
             loadedPixmapItem->loadImage(m_AcquireImage->m_ShowImage);
-            m_AcquireImage->m_threadMutex.unlock();
         } else {
             return;
         }

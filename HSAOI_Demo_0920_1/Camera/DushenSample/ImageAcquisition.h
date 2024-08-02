@@ -25,10 +25,12 @@
 #include <QWaitCondition>
 #include <halconcpp/HalconCpp.h>
 #include <hdevengine/HDevEngineCpp.h>
+#include "FlawDefine.h"
 #define GRABTIMEOUT 3000 // 图像获取的超时时间 ms
 using namespace HalconCpp;
 
-class QImageAcquisition : public QObject {
+class QImageAcquisition : public QObject
+{
     Q_OBJECT
 public:
     QImageAcquisition(dvpHandle& handle, QObject* parent = nullptr, int FieldCount = 0);
@@ -37,29 +39,23 @@ public:
     dvpHandle m_handle;
     QImage m_ShowImage;
     QImage m_ShowImage1;
-    //    bool         m_bAcquireImg;              // 采集线程是否结束的标志：true 运行；false 退出
-    //    bool         ThreadSoftTriggerFlag;      // 软触发标志
 
     dvpFrame m_pFrame; // 采集到的图像的结构体指针
     void* pBuffer; // 采集到的图像的内存首地址
 
-    QMutex m_threadMutex; // 互斥量
+    std::mutex m_threadMutex; // 互斥量
     QTimer* m_timer;
     int strFrameCount = 0;
     int WIDTH_BYTES(int BitCount, int Width);
     int m_FieldCount; //场计数
-//    QList<HObject> ImageList;
-//    QQueue<QList<HObject>> ImageQueue;
-//    int FrameCount;
     struct ImageUnit {
         int FrameCount;
         QList<HObject> ImageList;
     };
     ImageUnit imageunit;
-    QQueue<ImageUnit> ImageQueue;
+//    QQueue<ImageUnit> ImageQueue;
+    SafeQueue<ImageUnit> ImageQueue;
 
-//    dvpFrameCount
-//    dvpCameraInfo * m_dvpCameraInfo;
     byte* Src_Buffer;
     byte* View_Buffer;
     int FrameWidth = 8192;

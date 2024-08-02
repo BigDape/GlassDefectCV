@@ -41,6 +41,7 @@ void Global::InitGlobalParam()
     ReadDict("Recipes/"+ CurrentRecipeHT +".json", HTuple(), HTuple(), &RecipeDict);
     ReadCameraParam();
     currenttime = "0";
+    SystemStatus = 0;
 }
 
 void Global::SaveXml()
@@ -109,3 +110,6 @@ QString Global::offlineFullPath;
 bool Global::isJpg;
 long Global::encodeAB4;
 QString Global::currenttime; //当前时间
+std::map<int,QString> Global::glassidToholejson;
+std::map<int,QString> Global::glassidTodefectjson;
+int Global::SystemStatus;

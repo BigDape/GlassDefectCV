@@ -42,64 +42,53 @@
 #include "Qwt/qwt_plot_picker.h"
 #include <Qwt/qwt_plot_curve.h>
 
-class FlawShowWidget : public QWidget {
-  Q_OBJECT
- public:
-  explicit FlawShowWidget(QWidget* parent = nullptr,
-                          JsonParse2Map* recipe = nullptr);
-  virtual ~FlawShowWidget();
+class FlawShowWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    explicit FlawShowWidget(QWidget* parent = nullptr, JsonParse2Map* recipe = nullptr);
+    virtual ~FlawShowWidget();
 
-  enum FlawMoveWay {
-    LeftToRightUp = 0,
-    RightToLeftUp = 1,
-    LeftToRightDown = 2,
-    RightToLeftDown = 3
-  };
+    enum FlawMoveWay {
+        LeftToRightUp = 0,
+        RightToLeftUp = 1,
+        LeftToRightDown = 2,
+        RightToLeftDown = 3
+    };
 
- private:
-  int w = 300, h = 200;
-  int x = 10, y = 10;
- // QPainter* m_painter;
+private:
+    int w = 300, h = 200;
+    int x = 10, y = 10;
+    bool isGetGlassSize = false;
+    bool isGetFlawPoints = false;
+    JsonParse2Map* RECIPE;
+    MsvLCDNumClockWidget* clock;
+    QWidget* widget;
 
-  bool isGetGlassSize = false;
-  bool isGetFlawPoints = false;
-  JsonParse2Map* RECIPE;
-
-  MsvLCDNumClockWidget* clock;
-
-  QWidget* widget;
-
- public:
-  void drawGlass(double x_length, double y_length);
-  void drawFlaw(QList<FlawPoint>* m_FlawPointList);
-  void reDrawFlaw(QList<FlawPoint>* m_FlawPointList);
-  void drawLegend(); //画出图例
-
-  QLabel* label1;
-  QLabel* label2;
-  QLabel* label3;
-  QLabel* label4;
-  QLabel* label5;
-  QLabel* label6;
-  QLabel* label7;
-
-  QLineEdit* lineedit1;
-  QLineEdit* lineedit2;
-  QLineEdit* lineedit3;
-  QLineEdit* lineedit4;
-  QLineEdit* lineedit5;
-  QLineEdit* lineedit6;
-  QLineEdit* lineedit7;
-
-  QPushButton* buttonClear;
-  QPushButton* buttonExport;
-
-  QList<FlawPoint> FlawPointList;
-
-  QwtPlot* m_plot;
-  QwtPlotPicker* plotpicker;
-
-  ResultINFO* runninginfo;
+public:
+    void drawGlass(double x_length, double y_length);
+    void drawFlaw(QList<FlawPoint>* m_FlawPointList);
+    void reDrawFlaw(QList<FlawPoint>* m_FlawPointList);
+    void drawLegend(); //画出图例
+    QLabel* label1;
+    QLabel* label2;
+    QLabel* label3;
+    QLabel* label4;
+    QLabel* label5;
+    QLabel* label6;
+    QLabel* label7;
+    QLineEdit* lineedit1;
+    QLineEdit* lineedit2;
+    QLineEdit* lineedit3;
+    QLineEdit* lineedit4;
+    QLineEdit* lineedit5;
+    QLineEdit* lineedit6;
+    QLineEdit* lineedit7;
+    QPushButton* buttonClear;  //清除按钮
+    QPushButton* buttonExport;
+    QList<FlawPoint> FlawPointList;
+    QwtPlot* m_plot;
+    QwtPlotPicker* plotpicker;
 
   QwtSymbol* symbol1;
   QwtSymbol* symbol2;
@@ -127,14 +116,14 @@ class FlawShowWidget : public QWidget {
  signals:
   void sig_updatePreGlassRes(bool);
   void sig_ClearDate();
-  void sig_sendFlawPoint(const FlawPoint&flawpoint);
+  void sig_sendFlawPoint(const FlawPoint& flawpoint);
 
- public slots:
+public slots:
   void slot_resize();
   void slot_GetGlassSize(double length,double width);
-  void slot_GetFlawPoints(QList<FlawPoint>* n_FlawPointList);
+  void slot_GetFlawPoints(QList<FlawPoint> n_FlawPointList);
   void slot_ChangeFlawShow();
-  void slot_GetGlassResult(ResultINFO* ResInfo);
+  void slot_GetGlassResult(SummaryResult res);
   void slot_ButtonClearClicked();
   void slot_PlotPicker(const QPointF&pos);
   void slot_LegendChecked(const QVariant &itemInfo,bool on, int index);

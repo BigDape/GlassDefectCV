@@ -18,15 +18,22 @@
 #include <QString>
 #include <QtDebug>
 #include "FlawDefine.h"
+#include <QThreadPool>
 using namespace HalconCpp;
 using namespace HDevEngineCpp;
-class ProcessTile : public QObject {
+
+struct PDArgs{
+    ImageUnit imageunit;    //缺陷算子参数
+    HoleUnit holeunit;      //尺寸算子参数
+};
+
+class ProcessTile : public QObject,public QRunnable
+{
     Q_OBJECT
+public:
     int MosaickNum;
-    ThreadDo* mosaickthread;
-
     HObject* MosaickHobject;
-
+    std::atomic<bool> hasStopThread;    //线程停止
 public:
     ProcessTile(QList<DushenBasicFunc*> Cameras);
     void OfflineTileImageProcess(QString fullpath);
@@ -34,6 +41,7 @@ private:
     QList<DushenBasicFunc*> m_Cameras;
     void init_ProcessTile();
     void PreProceeTile();
+    void run() ;
 public:
     int FieldNumber;
     bool stopFlag_Tile;
@@ -64,10 +72,12 @@ public:
     static int  Cam1pixs;
     static int  Cam1Width;
     static int  Tile2Column1;
-    ImageUnit imageunit;
-    static QQueue<ImageUnit> ImageQueue;
+    PDArgs _args;
     static bool ErrFlag;
     static bool LastErrFlag;
+    std::mutex _mutex; // 互斥量
+    static SafeQueue<PDArgs> preImageQueue;
+    std::vector<HObject> mosaickResult;
 public slots:
     void TileImageProcess();
 

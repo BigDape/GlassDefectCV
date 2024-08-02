@@ -39,8 +39,6 @@ private slots:
 
     void slot_updateCode();
 
-signals:
-
 private:
     RegParasComm& m_pSig_comm;
     JsonParse2Map* JSONRECIPE;

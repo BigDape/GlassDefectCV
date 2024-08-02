@@ -138,21 +138,25 @@ typedef struct SignalControl {
 
 } SignalControl;
 
-//class XianCheng :public QThread
-//{
-//    Q_OBJECT
-//public:
-//    XianCheng();
-//     void run() override;
-//};
 
-class SignalControlData : public QObject {
-  Q_OBJECT
- public:
-  SignalControlData(RegParasComm& sig_comm);
-  ~SignalControlData();
+class SignalControlData : public QObject,public QRunnable
+{
+    Q_OBJECT
+public:
+    SignalControlData(RegParasComm& sig_comm);
+    ~SignalControlData();
+    void InitData();
+    void GetData();
+    void SetData();
+    void SaveData();
+    void Trigger();
 
 private:
+    virtual void run() override;
+
+public:
+    std::atomic<bool> hasStopThread;    //线程停止
+
  RegParasComm& m_pSig_comm;
  JsonParse2Map* JSONRECIPE;
  QString str[63];
@@ -168,14 +172,6 @@ private:
  unsigned int ggg = 0;
  unsigned int temp1 = 0;
  unsigned int temp2 = 1;
-
- public:
-  void InitData();
-  void GetData();
-  void SetData();
-  void SaveData();
-  void Trigger();
-
 
   SignalControl* sigctrl;
   QTimer* timer;

@@ -56,16 +56,18 @@ public:
     bool matchHoleMode(QString holesHeight, QString holesWidth, QString distanceHorizontal,QString distanceVertical);
 
     bool matchMenjiaMode(QString distanceHorizontal,QString distanceVertica);
+
+    void showSizeDiagramImage(QString jsonFullPath,int glassid);
 public slots:
-    void slot_RecieveID(QString IDandDate);
+    void slot_RecieveID(QString jsonFullPath,int glassid);
 
     void slot_showSizeSmallImage(QTableWidgetItem* item);
 
-    void slot_showSizeDiagramImage();
+
 
     void slot_onItemDoubleClicked(QTableWidgetItem *);
 
-    void slot_refreshSize(QString glassid);
+    void slot_refreshSize(QString jsonFilePath, int glassid);
 private:
     Ui::SingleSizeShowWidget *ui;
     Qt::Orientation m_orientation;
@@ -77,10 +79,10 @@ private:
     QGraphicsScene* scene;
     MyGraphicsItem* loadedPixmapItem2;
     QGraphicsScene* scene2;
-    QString fileName;
-    QString GlassID;
+    QString jsonFileName;  //json文件目录
+    int GlassID;   //玻璃id
     QString Date;
-    QString LastGlassID;
+    int LastGlassID; //玻璃id
     std::vector<holeData> holes;
     std::vector<menjiaData> menjias;
 };

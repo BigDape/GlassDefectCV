@@ -14,6 +14,10 @@
 #include <QFileDialog>
 #include <iostream>
 #include <stdlib.h>
+#include <QThreadPool>
+#include <thread>
+
+
 #pragma execution_character_set("utf-8")
 using namespace HalconCpp;
 
@@ -34,45 +38,77 @@ MainWindow::MainWindow(QWidget* parent)
     // 获取配置文件
     QString RecipePath = "Recipes/" + Global::CurrentRecipe + ".json";
     JsonRecipe = new JsonParse2Map(RecipePath);
-    //
-    // 初始化相关参数
-    //
-    initCamera();           //初始化相机
-    initSignalPlatform();   //初始化信号平台
-    initMenu();             //初始化菜单栏
-    initWindow();           //初始化窗口
+    //注册自定义类型，供connect调用
+    qRegisterMetaType<GlassDataBaseInfo>("GlassDataBaseInfo");//注册类型，否则不能调用
+    qRegisterMetaType<QList<FlawPoint>>("QList<FlawPoint>");//注册类型，否则不能调用
+    qRegisterMetaType<SummaryResult>("SummaryResult");//注册类型，否则不能调用
+    //初始化相机
+    for(int i=0; i<Global::camDefineNum; i++){
+        Cameras.append(new DushenBasicFunc(this,i,JsonRecipe));
+    }
+    //初始化信号平台
+    initSignalPlatform();
+    //初始化菜单栏
+    initMenu();
+    // 创建缺陷显示图
+    Create_FlawShowWidget();
+    // 创建玻璃统计表
+    Create_GlassStatisticsTable();
+    // 创建单个缺陷界面
+    Create_SingleFlawShow();
+    // 尺寸信息
+    Create_SingleSizeShow();
+    // 相机
+    Create_CameraShow();
     initLayout();           //初始化布局
     initThread();           //初始化多线程
     initDatabase();         //初始化数据库
 
     this->showMaximized();
     //
+    // 标题栏
+    //
+    connect(m_pExit, SIGNAL(triggered()), this, SLOT(slot_CloseSystem()));                  //点击退出响应事件
+    connect(m_pSettings, SIGNAL(triggered()), this,SLOT(slot_ShowSystemSettingForm()));     //点击设置响应事件
+    connect(m_pStart, SIGNAL(triggered()), this, SLOT(slot_ActionStart()));                 //点击开始响应事件
+    connect(m_pStop, SIGNAL(triggered()), this, SLOT(slot_ActionStop()));                   //点击停止响应事件
+    connect(m_pCameraSettings, SIGNAL(triggered()), this, SLOT(slot_CameraShow()));         //点击相机响应事件
+    connect(m_pDB, SIGNAL(triggered()), this, SLOT(slot_DB()));                             //点击数据查询响应事件
+    connect(m_pRunningInfo, SIGNAL(triggered()), this, SLOT(slot_RunningInfo()));           //点击日志响应事件
+    connect(m_offline, SIGNAL(triggered()), this, SLOT(slot_Offline()));                    //点击离线模式响应事件
+
+    connect(this, SIGNAL(sig_FlawWidgetChange()), m_FlawShowWidget, SLOT(slot_ChangeFlawShow()));
+    connect(m_FlawShowWidget,SIGNAL(sig_sendFlawPoint(FlawPoint)),this,SLOT(slot_SendPoint(FlawPoint)));
+
+    connect(this, &MainWindow::sig_StartButton2CameraStart, Camera_widget, &CamerasWidget::slot_CameraStart);
+    connect(this, &MainWindow::sig_StopButton2CameraStop, Camera_widget, &CamerasWidget::slot_CameraStop);
+
+    connect(Detectworker, SIGNAL(sendData(GlassDataBaseInfo)), m_GlassStatisticTable, SLOT(slot_insertRowData(GlassDataBaseInfo)));
+    connect(Detectworker, SIGNAL(sig_updateFlaw(double,double)), m_FlawShowWidget, SLOT(slot_GetGlassSize(double,double)));
+    connect(Detectworker, SIGNAL(sig_sendPoint(QList<FlawPoint> )), m_FlawShowWidget, SLOT(slot_GetFlawPoints(QList<FlawPoint>)));
+
+
+    connect(Detectworker, SIGNAL(sig_refreshFlaw(QString,int)), m_SingleFlawShow, SLOT(slot_refrshFlaw(QString,int)));
+    connect(Detectworker, SIGNAL(sig_refreshSize(QString, int)), m_SingleSizeShow, SLOT(slot_refreshSize(QString, int)));
+    //
     // 绑定信号和槽函数
     //
-    connect(m_GlassStatisticTable, SIGNAL(sig_DeliverGlassID(QString)), this, SLOT(slot_ShowSingleFlawView(QString)));
-    connect(m_GlassStatisticTable, SIGNAL(sig_DeliverGlassID(QString,QString)), m_SingleFlawShow, SLOT(slot_RecieveID(QString,QString)));
-    connect(m_GlassStatisticTable, SIGNAL(sig_DeliverGlassID(QString)), m_SingleSizeShow, SLOT(slot_RecieveID(QString)));
-
-    //
-    // 信号平台线程
-    //
-    SigCtrlData = new SignalControlData(*sig_comm);
-    SignalControlThread = new QThread(this);
-    SigCtrlData->moveToThread(SignalControlThread);
-    connect(SignalControlThread, &QThread::started, SigCtrlData, &SignalControlData::TimeOut1); // 超时循环触发
+    connect(m_GlassStatisticTable, SIGNAL(sig_reloadDefect(QString,int)), m_SingleFlawShow, SLOT(slot_refrshFlaw(QString,int)));
+    connect(m_GlassStatisticTable, SIGNAL(sig_reloadHole(QString,int)), m_SingleSizeShow, SLOT(slot_refreshSize(QString,int)));
     connect(this, &MainWindow::destroyed, this, &MainWindow::stopThread);                       // 关闭时，结束线程
 
     //
     //  绑定信号和槽函数
     //
     connect(Detectworker, SIGNAL(sig_UpdateResultInfo(SummaryResult)), m_FlawShowWidget, SLOT(slot_GetGlassResult(SummaryResult)));
-    connect(Detectworker,SIGNAL(sig_updateSignalFlaw(QString,QString)), m_SingleFlawShow,SLOT(slot_RecieveID(QString,QString)));
+    connect(Detectworker,SIGNAL(sig_updateSignalFlaw(QString,int)), m_SingleFlawShow,SLOT(slot_RecieveID(QString,int)));
     connect(m_FlawShowWidget, SIGNAL(sig_updatePreGlassRes(bool)), this, SLOT(slot_updatePreGlassRes(bool)));
     connect(Detectworker, SIGNAL(sig_updateSortRes(SummaryResult)), this, SLOT(slot_updateSortGlassRes(SummaryResult)));
     connect(SigCtrlData, &SignalControlData::sig_updateSortGlassSignal,Detectworker, &Process_Detect::slot_updateSortInfo, Qt::DirectConnection);
-    connect(m_FlawShowWidget, SIGNAL(sig_ClearDate()), this, SLOT(slot_clearPreSortGlassInfo()));
-    connect(m_FlawShowWidget, SIGNAL(sig_ClearDate()), m_GlassStatisticTable, SLOT(slot_clearRowData()));
-    connect(m_SingleFlawShow, SIGNAL(sig_paintFlawPoint(QString x,QString y)), m_FlawShowWidget, SLOT(slot_FlawTrack(QString x, QString y)));
+    connect(m_FlawShowWidget, SIGNAL(sig_ClearDate()), this, SLOT(slot_clearPreSortGlassInfo()));//清除标题栏上分检核检出两个按钮
+    connect(m_FlawShowWidget, SIGNAL(sig_ClearDate()), m_GlassStatisticTable, SLOT(slot_clearRowData()));//清除统计表上的数据
+
+    connect(m_SingleFlawShow, SIGNAL(sig_test()), this, SLOT(slot_test()));
 }
 
 MainWindow::~MainWindow()
@@ -86,52 +122,43 @@ void MainWindow::initMenu()
     m_pExit->setShortcut(QKeySequence::Quit);
     m_pExit->setToolTip(tr("Exit System."));
     m_pExit->setIcon(QIcon(":/toolbar/icons/exit.png"));
-    connect(m_pExit, SIGNAL(triggered()), this, SLOT(slot_CloseSystem()));
     ui->toolBar->addAction(m_pExit);
 
     m_pSettings = new QAction("&设置", this);
     m_pSettings->setToolTip(tr("Device Settings."));
     m_pSettings->setIcon(QIcon(":/toolbar/icons/setup.png"));
-    connect(m_pSettings, SIGNAL(triggered()), this,SLOT(slot_ShowSystemSettingForm()));
     ui->toolBar->addAction(m_pSettings);
 
     m_pStart = new QAction("&开始", this);
     m_pStart->setToolTip(tr("Start."));
     m_pStart->setIcon(QIcon(":/toolbar/icons/start_icon.png"));
-    connect(m_pStart, SIGNAL(triggered()), this, SLOT(slot_ActionStart()));
     ui->toolBar->addAction(m_pStart);
 
     m_pStop = new QAction("&停止", this);
     m_pStop->setToolTip(tr("Stop."));
     m_pStop->setIcon(QIcon(":/toolbar/icons/Stop.png"));
-    connect(m_pStop, SIGNAL(triggered()), this, SLOT(slot_ActionStop()));
     ui->toolBar->addAction(m_pStop);
     m_pStop->setEnabled(false);
 
     m_pCameraSettings = new QAction("&相机", this);
     m_pCameraSettings->setToolTip(tr("CameraSet."));
     m_pCameraSettings->setIcon(QIcon(":/toolbar/icons/cameraIcon.png"));
-    connect(m_pCameraSettings, SIGNAL(triggered()), this,
-        SLOT(slot_CameraShow()));
     ui->toolBar->addAction(m_pCameraSettings);
 
     m_pDB = new QAction("&数据查询", this);
     m_pDB->setShortcut(QKeySequence::Quit);
     m_pDB->setToolTip(tr("Database."));
     m_pDB->setIcon(QIcon(":/toolbar/icons/analysis.png"));
-    connect(m_pDB, SIGNAL(triggered()), this, SLOT(slot_DB()));
     ui->toolBar->addAction(m_pDB);
 
     m_pRunningInfo = new QAction("&运行日志", this);
     m_pRunningInfo->setToolTip(tr("RunningInfo."));
     m_pRunningInfo->setIcon(QIcon(":/toolbar/icons/check_mark.png"));
-    connect(m_pRunningInfo, SIGNAL(triggered()), this, SLOT(slot_RunningInfo()));
     ui->toolBar->addAction(m_pRunningInfo);
 
     m_offline = new QAction("&离线模式", this);
     m_offline->setToolTip(tr("Offline."));
     m_offline->setIcon(QIcon(":/toolbar/icons/switch.png"));
-    connect(m_offline, SIGNAL(triggered()), this, SLOT(slot_Offline()));
     ui->toolBar->addAction(m_offline);
 
     GlassInfoWidget = new QWidget();
@@ -153,30 +180,18 @@ void MainWindow::initMenu()
 
     lineEdit1->setReadOnly(true);
     lineEdit2->setReadOnly(true);
-    lineEdit1->setStyleSheet(
-        "color: black;border: none; background-color: #FFFFFF; border-radius: "
-        "20px;");
-    lineEdit2->setStyleSheet(
-        "color: black;border: none; background-color: #FFFFFF; border-radius: "
-        "20px;");
+    lineEdit1->setStyleSheet("color: black;border: none; background-color: #FFFFFF; border-radius: 20px;");
+    lineEdit2->setStyleSheet("color: black;border: none; background-color: #FFFFFF; border-radius: 20px;");
 
     QFont font1;
     font1.setPointSize(18);
     lineEdit1->setFont(font1);
     lineEdit1->setAlignment(Qt::AlignCenter);
     lineEdit1->setText("");
-    //  lineEdit1->setText("OK");
-    //  lineEdit1->setStyleSheet(
-    //      "color: black;border: none; background-color: green; border-radius: "
-    //      "20px;");
 
     lineEdit2->setFont(font1);
     lineEdit2->setAlignment(Qt::AlignCenter);
     lineEdit2->setText("");
-    //  lineEdit2->setText("NG");
-    //  lineEdit2->setStyleSheet(
-    //      "color: black;border: none; background-color: red; border-radius: "
-    //      "20px;");
 
     // 创建水平布局用于左侧和右侧的控件
     QVBoxLayout* leftLayout = new QVBoxLayout();
@@ -214,15 +229,6 @@ void MainWindow::initMenu()
     ui->toolBar->setMovable(false);
 }
 
-void MainWindow::initWindow()
-{
-    Create_FlawShowWidget();        // 缺陷显示图
-    Create_GlassStatisticsTable();  // 玻璃统计表
-    Create_SingleFlawShow();        // 单个缺陷
-    Create_SingleSizeShow();        // 尺寸信息
-    Create_CameraShow();            // 相机
-}
-
 void MainWindow::initLayout()
 {
     addDockWidget(Qt::TopDockWidgetArea, Dock_FlawShowView);
@@ -254,9 +260,8 @@ void MainWindow::initLayout()
     Dock_SingleSizeShowView->setMaximumHeight(450);
     Dock_SingleSizeShowView->setAllowedAreas(Qt::BottomDockWidgetArea);
     tabifyDockWidget(Dock_GlassStatisticsTableView, Dock_SingleSizeShowView);
-
+    Dock_SingleSizeShowView->raise();
     Dock_GlassStatisticsTableView->raise();
-
 }
 
 void MainWindow::initSignalPlatform()
@@ -269,30 +274,28 @@ void MainWindow::initSignalPlatform()
 
 void MainWindow::initThread()
 {
-    TileImageThread = new QThread(this);
-    DetectImageThread = new QThread(this);
+    _pool = QThreadPool::globalInstance();
+    int maxThreadcount = 4;//std::thread::hardware_concurrency();
+    qDebug() <<"maxThreadcount =" <<maxThreadcount;
+    _pool->setMaxThreadCount(maxThreadcount);
+    // 调用halcon算法模块
     Detectworker = new Process_Detect();
+    Detectworker->setAutoDelete(false);
+    _pool->start(Detectworker);
+    // 数据预处理模块
     Tileworker = new ProcessTile(Cameras);
-    Detectworker->moveToThread(DetectImageThread);
-    Tileworker->moveToThread(TileImageThread);
-    connect(TileImageThread, &QThread::started, Tileworker, &ProcessTile::TileImageProcess);
-    connect(DetectImageThread, &QThread::started, Detectworker, &Process_Detect::VisionProcess);
-    connect(this, &MainWindow::destroyed, this, &MainWindow::stopThread);
-    DetectImageThread->start();
-    TileImageThread->start();
-    connect(Detectworker, SIGNAL(sendData(GlassDataBaseInfo)), m_GlassStatisticTable, SLOT(slot_insertRowData(GlassDataBaseInfo)));
-    connect(Detectworker, SIGNAL(sig_updateFlaw(double,double)), m_FlawShowWidget, SLOT(slot_GetGlassSize(double,double)));
-    connect(Detectworker, SIGNAL(sig_Deliver(QList<FlawPoint>*)), m_FlawShowWidget, SLOT(slot_GetFlawPoints(QList<FlawPoint>*)));
-//    connect(m_FlawShowWidget, SIGNAL(sig_ClearDate()), Detectworker, SLOT(slot_ClearDate()));
-    connect(Detectworker, SIGNAL(sig_refreshFlaw(QString)), m_SingleFlawShow, SLOT(slot_refrshFlaw(QString)));
-    connect(Detectworker, SIGNAL(sig_refreshSize(QString)), m_SingleSizeShow, SLOT(slot_refreshSize(QString)));
-
+    Tileworker->setAutoDelete(false);
+    _pool->start(Tileworker);
+    // 信号平台模块
+    SigCtrlData = new SignalControlData(*sig_comm);
+    SigCtrlData->setAutoDelete(false);
+    _pool->start(SigCtrlData);
 }
 
 void MainWindow::initDatabase()
 {
-    Database = new Jianbo_db();
-    Database->start_connect();
+//    Database = new Jianbo_db();
+//    Database->start_connect();
     //    for (int i = 0; i < 10; i++) {
     //        Database->start_insert(QDateTime::currentDateTime(), i * 17, i * 7, i * 11, "OK", i * 3, "400*400", 0, 0, 0, 1, 1, 0, 0, 1, 1, 1);
     //    }
@@ -307,9 +310,7 @@ void MainWindow::Create_FlawShowWidget()
     m_FlawShowWidget = new FlawShowWidget(Dock_FlawShowView, JsonRecipe);
     Dock_FlawShowView->setWidget(m_FlawShowWidget);
     Dock_FlawShowView->setFeatures(QDockWidget::DockWidgetFloatable);
-    connect(this, SIGNAL(sig_FlawWidgetChange()), m_FlawShowWidget, SLOT(slot_ChangeFlawShow()));
-    connect(this, SIGNAL(sig_DeliverGlassInfo2Table(GLASSINFO*)), m_FlawShowWidget, SLOT(slot_GetGlassSize(GLASSINFO*)));
-    connect(m_FlawShowWidget,SIGNAL(sig_sendFlawPoint(FlawPoint)),this,SLOT(slot_SendPoint(FlawPoint)));
+
 }
 
 void MainWindow::Create_GlassStatisticsTable()
@@ -321,7 +322,6 @@ void MainWindow::Create_GlassStatisticsTable()
     m_GlassStatisticTable = new GlassStatisticTableWidget(Dock_GlassStatisticsTableView);
     Dock_GlassStatisticsTableView->setWidget(m_GlassStatisticTable);
     Dock_GlassStatisticsTableView->setFeatures(QDockWidget::DockWidgetFloatable);
-    connect(this, SIGNAL(sig_DeliverGlassInfo2Table(GLASSINFO*)), m_GlassStatisticTable, SLOT(slot_insertRowData(GLASSINFO*)));
 }
 
 void MainWindow::Create_SingleFlawShow()
@@ -355,15 +355,7 @@ void MainWindow::Create_CameraShow()
     Camera_widget = new CamerasWidget(Dock_CameraShow, Cameras, Global::camDefineNum);
     Dock_CameraShow->setWidget(Camera_widget);
     Dock_CameraShow->setFeatures(QDockWidget::DockWidgetFloatable);
-    connect(this, &MainWindow::sig_StartButton2CameraStart, Camera_widget, &CamerasWidget::slot_CameraStart);
-    connect(this, &MainWindow::sig_StopButton2CameraStop, Camera_widget, &CamerasWidget::slot_CameraStop);
-}
 
-void MainWindow::initCamera()
-{
-    for(int i=0; i<Global::camDefineNum; i++){
-        Cameras.append(new DushenBasicFunc(this,i,JsonRecipe));
-    }
 }
 
 void MainWindow::slot_CloseSystem()
@@ -380,6 +372,9 @@ void MainWindow::slot_ShowSystemSettingForm()
         connect(this, SIGNAL(sig_DeliverNewRecipe(JsonParse2Map*)), SystemSettings, SLOT(slot_JsonRecipe_Changed(JsonParse2Map*)));
     }
     SystemSettings->setWindowFlags(Qt::Window);
+    SystemSettings->setWindowModality(Qt::ApplicationModal); //点击之后不可对其它窗体操作
+    SystemSettings->setWindowFlags(SystemSettings->windowFlags() & ~Qt::WindowMinMaxButtonsHint);//设置窗口无最小化按钮
+    SystemSettings->setWindowFlags(SystemSettings->windowFlags() & ~Qt::WindowMaximizeButtonHint);//设置窗口无全屏按钮
     SystemSettings->setWindowIcon(QIcon(":/toolbar/icons/setup.ico"));
     SystemSettings->setWindowTitle("系统设置");
     SystemSettings->show();
@@ -400,7 +395,7 @@ void MainWindow::slot_ActionStart()
         QString RecipePath = "Recipes/" + Global::CurrentRecipe + ".json";
         JsonParse2Map *JsonRecipe = new JsonParse2Map(RecipePath);
         JsonRecipe->getParameter("相机0.帧次",Global::FramesPerTri);
-        SignalControlThread->start();
+        Global::SystemStatus = 1; //系统运行
     }
 }
 
@@ -414,7 +409,7 @@ void MainWindow::slot_ActionStop()
         m_pStop->setEnabled(false);
         m_pExit->setEnabled(true);
         m_pSettings->setEnabled(true);
-        SignalControlThread->quit();
+        Global::SystemStatus = 0; //系统停止
     }
 }
 
@@ -434,23 +429,15 @@ void MainWindow::slot_RunningInfo()
 void MainWindow::slot_DB()
 {
     //    Database->start_connect();
-    DB = new QProcess(this);
-    DB->start("JianboDB/Glass_DB_Model.exe");
+//    DB = new QProcess(this);
+//    DB->start("JianboDB/Glass_DB_Model.exe");
 }
 
 void MainWindow::stopThread()
 {
-    Detectworker->stopFlag_Detect = true;
-    Tileworker->stopFlag_Tile = true;
-    SigCtrlData->StopFlag_sig = true;
-    // 停止线程的事件循环
-    DetectImageThread->quit();
-    TileImageThread->quit();
-    SignalControlThread->quit();
-    // 等待线程结束
-    DetectImageThread->wait();
-    TileImageThread->wait();
-    SignalControlThread->wait();
+    Detectworker->hasStopThread.store(false);
+    Tileworker->hasStopThread.store(false);
+    SigCtrlData->hasStopThread.store(false);
 }
 
 void MainWindow::slot_ChangeRecipe(QString RecipeName)
@@ -494,12 +481,8 @@ void MainWindow::slot_clearPreSortGlassInfo()
 {
     lineEdit1->setText("");
     lineEdit2->setText("");
-    lineEdit1->setStyleSheet(
-        "color: black;border: none; background-color: #FFFFFF; border-radius: "
-        "20px;");
-    lineEdit2->setStyleSheet(
-        "color: black;border: none; background-color: #FFFFFF; border-radius: "
-        "20px;");
+    lineEdit1->setStyleSheet( "color: black;border: none; background-color: #FFFFFF; border-radius: 20px;");
+    lineEdit2->setStyleSheet("color: black;border: none; background-color: #FFFFFF; border-radius: 20px;");
 }
 
 int OriginNum = 0;
@@ -508,28 +491,21 @@ GLASSINFO* newInfo = new GLASSINFO();
 QList<FlawPoint>* FlawPointList = new QList<FlawPoint>();
 QList<QRectF>* rectangles = new QList<QRectF>();
 
-void MainWindow::slot_ShowSingleFlawView(QString)
-{
-    Dock_SingleSizeShowView->raise();
- //   Dock_SingleFlawShowView->raise();
-}
 
 void MainWindow::slot_SendPoint(const FlawPoint &flawpoint)
 {
     if(m_GlassStatisticTable->tableWidget->item(0, 0) != nullptr) {
-        QString firstColumnContent = m_GlassStatisticTable->tableWidget->item(0, 0)->text();
-        QString SecondColumnContent = m_GlassStatisticTable->tableWidget->item(0, 1)->text().left(13);
-        QString Deliver = firstColumnContent + "." + SecondColumnContent;
-        if (firstColumnContent != "")
-        {
-            m_SingleFlawShow->slot_RecieveID(firstColumnContent,SecondColumnContent);
-            m_SingleSizeShow->slot_RecieveID(Deliver);
-            m_SingleSizeShow->slot_showSizeDiagramImage();
-        }
-
+        m_SingleFlawShow->slot_RecieveID(flawpoint.DefectJsonFullPath, flawpoint.glassid);      //更新缺陷小图
+        m_SingleFlawShow->PickerCheckData(flawpoint);                                           //更新缺陷小图
+//        m_SingleSizeShow->slot_RecieveID(flawpoint.HoleJsonFullPath,flawpoint.glassid);         //更新尺寸信息
+//        m_SingleSizeShow->showSizeDiagramImage(flawpoint.HoleJsonFullPath,flawpoint.glassid);   //更新尺寸轮廓图
         Dock_SingleFlawShowView->raise();
-         m_SingleFlawShow->slot_PickerCheckData(flawpoint);
     }
+}
+
+void MainWindow::slot_test()
+{
+    Dock_SingleFlawShowView->raise();
 }
 
 void MainWindow::slot_Offline()

@@ -490,9 +490,9 @@ void DushenBasicFunc::slotDispRate()
 void DushenBasicFunc::slotDispImage()
 {
     if (m_AcquireImage != NULL) {
-        if (!m_AcquireImage->m_ShowImage.isNull() && m_AcquireImage->m_threadMutex.tryLock()) {
+        if (!m_AcquireImage->m_ShowImage.isNull() ) {
+            std::unique_lock<std::mutex> sbguard(m_AcquireImage->m_threadMutex);
             emit sig_DeliverImage(m_AcquireImage->m_ShowImage); //图像数据到显示控件
-            m_AcquireImage->m_threadMutex.unlock();
         } else {
             return;
         }

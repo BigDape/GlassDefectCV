@@ -41,7 +41,8 @@ public slots:
     void slot_insertRowData(GlassDataBaseInfo info);
     void slot_clearRowData();
 signals:
-    void sig_DeliverGlassID(QString ID, QString date);
+    void sig_reloadDefect(QString jsonFullPath,int glassid);
+    void sig_reloadHole(QString jsonFullPath,int glassid);
 };
 
 #endif // GLASSSTATICTABLEWIDGET_H

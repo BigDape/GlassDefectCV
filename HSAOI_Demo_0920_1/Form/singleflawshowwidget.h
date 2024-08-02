@@ -38,36 +38,32 @@ class SingleFlawShowWidget : public QWidget {
 
  signals:
       void sig_paintFlawPoint(QString x, QString y);
+      void sig_test();
  private:
   JsonParse2Map* JSONRECIPE;
 
-  QString fileName;
-  QString GlassID;
+  QString jsonFileName;
+  int GlassID;
   QString Date;
-  QString LastGlassID;
-
-  bool insertStatus;
-//  FlawShowWidget *flawshowWidget;
-
+  int LastGlassID;
 
  public:
   void initLayout();
   QString _selectedDir;
+  void PickerCheckData(const FlawPoint& flawpoint);
 
  public slots:
   void showFlawImage(QTableWidgetItem* item);
 
   void onItemDoubleClicked(QTableWidgetItem*);
 
-  void slot_RecieveID(QString ID, QString Date);
-  void slot_PickerCheckData(const FlawPoint&flawpoint);
+  void slot_RecieveID(QString jsonFullPath, int glassid);
+
 
   void slot_FlawTrack(QTableWidgetItem* item);
    void slot_ButtonExportClicked();
 
-    void slot_refrshFlaw(QString glassid);
-private slots:
-  void on_pushButton_clicked();
+    void slot_refrshFlaw(QString jsonFullPath,int glassid);
 
 private:
   Ui::SingleFlawShowWidget* ui;
@@ -81,7 +77,6 @@ private:
   MyGraphicsItem* loadedPixmapItem3;
   QGraphicsScene* scene3;
   std::unordered_map<int,std::pair<QString,QString>> rowMapXY;
-  std::vector<QString> singleFlawData;
 };
 
 #endif  // SINGLEFLAWSHOWWIDGET_H

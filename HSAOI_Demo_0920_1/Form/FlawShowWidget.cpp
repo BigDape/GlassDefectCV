@@ -43,7 +43,7 @@ FlawShowWidget::FlawShowWidget(QWidget* parent, JsonParse2Map* m_recipe)
     plotpicker=new QwtPlotPicker(QwtPlot::xBottom,QwtPlot::yLeft,QwtPlotPicker::CrossRubberBand,QwtPicker::AlwaysOn,m_plot->canvas());
     plotpicker->setTrackerMode(QwtPicker::ActiveOnly);
     plotpicker->setStateMachine(new QwtPickerDragPointMachine);
-    connect(plotpicker,SIGNAL(appended(const QPointF&)),this,SLOT(slot_PlotPicker(QPointF)));
+    connect(plotpicker,SIGNAL(appended(const QPointF&)),this,SLOT(slot_PlotPicker(QPointF)));//鼠标点击坐标发生的动作
 
     QHBoxLayout* layout0 = new QHBoxLayout(this);
     QVBoxLayout* layout1 = new QVBoxLayout(this);
@@ -140,15 +140,9 @@ FlawShowWidget::FlawShowWidget(QWidget* parent, JsonParse2Map* m_recipe)
     buttonClear = new QPushButton(widget);
     buttonClear->setGeometry(200, 170, 80, 30);
     buttonClear->setText("清除");
-    buttonClear->setFont(font1);
-
-    runninginfo = new ResultINFO();
-    
+    buttonClear->setFont(font1); 
     connect(buttonClear, SIGNAL(clicked()), this, SLOT(slot_ButtonClearClicked()));
-
-
     slot_ChangeFlawShow();
-
 }
 
 FlawShowWidget::~FlawShowWidget()
@@ -157,13 +151,15 @@ FlawShowWidget::~FlawShowWidget()
 
 void FlawShowWidget::drawGlass(double x_length, double y_length)
 {
-//    QwtPlotShapeItem* rectangleItem = new QwtPlotShapeItem;
-//    rectangleItem->setPen(QPen(Qt::black));
-//    rectangleItem->setBrush(QBrush(Qt::lightGray));
-//    QRectF rectangleRect(0, 0, x_length, y_length);
+#if false
+    QwtPlotShapeItem* rectangleItem = new QwtPlotShapeItem;
+    rectangleItem->setPen(QPen(Qt::black));
+    rectangleItem->setBrush(QBrush(Qt::lightGray));
+    QRectF rectangleRect(0, 0, x_length, y_length);
 
-//    rectangleItem->setRect(rectangleRect);
-//    rectangleItem->attach(m_plot);
+    rectangleItem->setRect(rectangleRect);
+    rectangleItem->attach(m_plot);
+#endif
     int count = Global::courtourMapXY.size();
     qDebug()<<"Global::courtourMapXY.size() ="<<count;
     for (int i =0; i < count; ++i) {
@@ -184,7 +180,6 @@ void FlawShowWidget::drawFlaw(QList<FlawPoint>* m_FlawPointList)
         switch (m_FlawPointList->at(i).FlawType) {
         case 1:
             maker->setSymbol(new QwtSymbol(QwtSymbol::Cross, QBrush(Qt::blue), QPen(Qt::blue), QSize(10, 10)));
-
             break;
         case 2:
             maker->setSymbol(new QwtSymbol(QwtSymbol::Rect, QBrush(Qt::red), QPen(Qt::red), QSize(10, 10)));
@@ -239,20 +234,16 @@ void FlawShowWidget::slot_GetGlassSize(double length,double width)
     isGetGlassSize = true;
     isGetFlawPoints = true;
     slot_resize();
-
     int MaxLength = h * 1.1;
     int MaxWidth = w * 1.1;
-
-
     qDebug() << "length = " << MaxLength << "width = " << MaxWidth;
-
     m_plot->setAxisScale(QwtPlot::xBottom, 0, MaxWidth);
     m_plot->setAxisScale(QwtPlot::yLeft, 0, MaxLength);
 }
 
-void FlawShowWidget::slot_GetFlawPoints(QList<FlawPoint>* n_FlawPointList)
+void FlawShowWidget::slot_GetFlawPoints(QList<FlawPoint> n_FlawPointList)
 {
-    FlawPointList = *n_FlawPointList;
+    FlawPointList = n_FlawPointList;
     isGetFlawPoints = true;
 }
 
@@ -264,10 +255,8 @@ void FlawShowWidget::slot_ChangeFlawShow()
     RECIPE->getParameter(Keyword4Length, length);
     double width;
     RECIPE->getParameter(Keyword4Width, width);
-
     int MaxLength = length * 1.1;
     int MaxWidth = width * 1.1;
-
     m_plot->setAxisScale(QwtPlot::xBottom, 0, MaxWidth);
     m_plot->setAxisScale(QwtPlot::yLeft, 0, MaxLength);
 }
@@ -281,8 +270,7 @@ void FlawShowWidget::slot_GetGlassResult(SummaryResult res)
     lineedit5->setText(QString::number(res.exceptNum));//异常数
     lineedit6->setText(QString::number(res.sorted));//已分拣
     lineedit7->setText(QString::number(res.unsorted));//待分检
-
-    emit sig_updatePreGlassRes(preres);//更新OK/NG
+    emit sig_updatePreGlassRes(res.currentOKorNG);//更新OK/NG
 }
 
 void FlawShowWidget::slot_ButtonClearClicked()
@@ -294,31 +282,21 @@ void FlawShowWidget::slot_ButtonClearClicked()
     lineedit5->setText("0");
     lineedit6->setText("0");
     lineedit7->setText("0");
-    runninginfo->ngNum=0;
-    runninginfo->ngNum=0;
-    runninginfo->okNum=0;
-    runninginfo->sorted=0;
-    runninginfo->GlassNum=0;
-    runninginfo->passRate=0;
-    runninginfo->unsorted=0;
-    runninginfo->exceptNum=0;
-    runninginfo->pre_result="OK";
-    runninginfo->sort_result="OK";
     emit sig_ClearDate();
 }
 
 void FlawShowWidget::slot_PlotPicker(const QPointF &pos)
 {
-    qDebug()<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&";
-    for(const FlawPoint&flawPoints:FlawPointList){
+    for (const FlawPoint& flawPoints: FlawPointList) {
+        //
+        // 鼠标点击的坐标再缺陷距离10以内
+        //
         QPointF flawpt(flawPoints.x,flawPoints.y);
-        double distance=QLineF(flawpt,pos).length();
+        double distance = QLineF(flawpt,pos).length();
         if(distance<10){
-            qDebug()<<"**************************************************************************************************";
-            qDebug()<<"缺陷"<<flawpt.x()<<" "<<flawpt.y();
+            qDebug()<<"鼠标点击缺陷=>("<<flawpt.x()<<","<<flawpt.y()<<"}";
             emit sig_sendFlawPoint(flawPoints);
         }
-
     }
 }
 

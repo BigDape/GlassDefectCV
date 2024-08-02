@@ -2,21 +2,24 @@
 #pragma execution_character_set("utf-8")
 
 SignalControlData::SignalControlData(RegParasComm& sig_comm)
-    : m_pSig_comm(sig_comm) {
-//  AlmLightOutThread=new QThread();
-  sigctrl = new SignalControl();
-  mid1 = 0;
-  mid2 = 0;
-  mid3 = 0;
-  StopFlag_sig = false;
-
-  Global::FrameSignal = 0;
-  Global::CodeCount = 0;
-//  this->moveToThread(AlmLightOutThread);
-//  connect(AlmLightOutThread,SIGNAL(&QThread::started),this ,SLOT(updateSignalLight));
+    : m_pSig_comm(sig_comm)
+{
+    sigctrl = new SignalControl();
+    mid1 = 0;
+    mid2 = 0;
+    mid3 = 0;
+    StopFlag_sig = false;
+    Global::FrameSignal = 0;
+    Global::CodeCount = 0;
+    hasStopThread.store(false);
 }
 
 SignalControlData::~SignalControlData() {}
+
+void SignalControlData::run()
+{
+    SignalControlData::TimeOut1();
+}
 
 void SignalControlData::InitData() {
   JSONRECIPE = new JsonParse2Map("Recipes/" + Global::CurrentRecipe + ".json");
@@ -452,7 +455,7 @@ void SignalControlData::TimeOut1() {
               m_pSig_comm.SetRegs(ADDR41, ADDR41, &lightnum);
           }
 
-          if(StopFlag_sig)
+          if(!hasStopThread.load())
               break;
 
           //差分编码器压轮编码值

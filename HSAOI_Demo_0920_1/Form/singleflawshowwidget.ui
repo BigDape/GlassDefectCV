@@ -149,19 +149,6 @@
     <string>光场1</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton">
-   <property name="geometry">
-    <rect>
-     <x>1760</x>
-     <y>10</y>
-     <width>81</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>暂停</string>
-   </property>
-  </widget>
   <widget class="QGraphicsView" name="graphicsView">
    <property name="geometry">
     <rect>
@@ -195,7 +182,7 @@
   <widget class="QPushButton" name="buttonExport">
    <property name="geometry">
     <rect>
-     <x>1620</x>
+     <x>1810</x>
      <y>10</y>
      <width>75</width>
      <height>23</height>
