@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="GatherInfo_Chamfer">
+<interface>
+<io>
+<par name="Roi" base_type="iconic" dimension="0"/>
+<par name="Image1" base_type="iconic" dimension="0"/>
+<par name="Image2" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="RoiImage" base_type="iconic" dimension="0"/>
+<par name="TransRoi" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+<par name="TypeName" base_type="ctrl" dimension="0"/>
+<par name="DisPlayImageIndex" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="ErrName" base_type="ctrl" dimension="0"/>
+<par name="W" base_type="ctrl" dimension="0"/>
+<par name="H" base_type="ctrl" dimension="0"/>
+<par name="X" base_type="ctrl" dimension="0"/>
+<par name="Y" base_type="ctrl" dimension="0"/>
+<par name="Area" base_type="ctrl" dimension="0"/>
+<par name="MapIndex" base_type="ctrl" dimension="0"/>
+<par name="ParIndex" base_type="ctrl" dimension="0"/>
+<par name="ErrImageIndex" base_type="ctrl" dimension="0"/>
+<par name="OK" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>gen_empty_obj (RoiImage)</l>
+<l>gen_empty_obj (TransRoi)</l>
+<l>*gen_empty_obj (SelectRegion)</l>
+<l>ErrName := []</l>
+<l>W:=[]</l>
+<l>H:=[]</l>
+<l>X:=[]</l>
+<l>Y:=[]</l>
+<l>Area:=[]</l>
+<l>MapIndex:=[]</l>
+<l>ParIndex:=[]</l>
+<l>ErrImageIndex:=[]</l>
+<c></c>
+<l>offsetRow := 0</l>
+<l>columns:=0</l>
+<l>pix:=0.0177</l>
+<l>pixH:=0.0177</l>
+<l>OK:=[]</l>
+<l>get_dict_tuple (DetectDict, '系统参数', SysParadDict)</l>
+<l>*get_dict_tuple (FenDict, 'Pass_L', Pass_L)</l>
+<l>*get_dict_tuple (FenDict, 'Pass_W', Pass_W)</l>
+<c></c>
+<l>*get_dict_tuple (SysParadDict, 'SaveImageMode', SaveImageMode)</l>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<l>count_obj (Roi, Number)</l>
+<c></c>
+<l>a:=0</l>
+<l>*set_system ('clip_region', 'false')</l>
+<l>for Index := 1 to Number by 1</l>
+<l>    select_obj (Roi, ObjectSelected,Index)</l>
+<l>    smallest_rectangle1 (ObjectSelected, Row1, Column1, Row2, Column2)</l>
+<l>    smallest_rectangle2 (ObjectSelected,Row21, Column21, Phi, Length1, Length2)    </l>
+<c>                  </c>
+<l>            crop_rectangle1 (Image1, ImagePart1, Row1, Column1, Row2, Column2)</l>
+<l>            crop_rectangle1 (Image2, ImagePart2, Row1, Column1, Row2, Column2)</l>
+<l>            compose2 (ImagePart1, ImagePart2, MultiChannelImage)</l>
+<c>    </c>
+<l>        concat_obj (TransRoi, ObjectSelected, TransRoi)</l>
+<l>        concat_obj (RoiImage, MultiChannelImage, RoiImage)</l>
+<c>      </c>
+<c>      </c>
+<l>        area:=0</l>
+<l>ErrName := [ErrName,TypeName]</l>
+<l>        W:=[W,0]</l>
+<l>        H:=[H,0]</l>
+<c>        *计算实际坐标后续添加</c>
+<l>        x:= Column1*0.0177</l>
+<l>        y:= Row1*0.0177</l>
+<c>        *计算实际坐标</c>
+<l>        X:=[X,x]</l>
+<l>        Y:=[Y,y]</l>
+<l>        Area:=[Area,area]</l>
+<l>        MapIndex:=[MapIndex,Row1]</l>
+<l>        ParIndex:=[ParIndex,Column1] </l>
+<l>        OK:=[OK,'NG']</l>
+<l>*         if((w&gt;Pass_W)and(h&gt;Pass_L)) </l>
+<l>*         OK:=[OK,'NG']</l>
+<l>*         else</l>
+<l>*             OK:=[OK,'Pass']</l>
+<l>*         endif</l>
+<l>        ErrImageIndex := [ErrImageIndex,DisPlayImageIndex[Index-1]]  </l>
+<l>        a:=a+1</l>
+<c>    </c>
+<c>     </c>
+<l>endfor</l>
+<l>return ()</l>
+</body>
+<docu id="GatherInfo_Chamfer">
+<parameters>
+<parameter id="Area"/>
+<parameter id="DetectDict"/>
+<parameter id="DisPlayImageIndex"/>
+<parameter id="ErrImageIndex"/>
+<parameter id="ErrName"/>
+<parameter id="H"/>
+<parameter id="Image1"/>
+<parameter id="Image2"/>
+<parameter id="MapIndex"/>
+<parameter id="OK"/>
+<parameter id="ParIndex"/>
+<parameter id="Roi"/>
+<parameter id="RoiImage"/>
+<parameter id="TransRoi"/>
+<parameter id="TypeName"/>
+<parameter id="W"/>
+<parameter id="X"/>
+<parameter id="Y"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

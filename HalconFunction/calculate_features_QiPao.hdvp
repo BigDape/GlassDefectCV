@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="calculate_features_QiPao">
+<interface>
+<io>
+<par name="Region" base_type="iconic" dimension="0"/>
+</io>
+<oc>
+<par name="Features" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>closing_circle (Region, ObjectSelected1, 6)</l>
+<l>smallest_rectangle1 (ObjectSelected1, Row1, Column1, Row2, Column2)</l>
+<l>LineCount:=round((Row2-Row1)/1.2)</l>
+<l>region_features (ObjectSelected1, 'rect2_len1', Value)</l>
+<l>if (Value&gt;100)</l>
+<l>    LineCount:=round((Row2-Row1)/2.5) </l>
+<l>endif</l>
+<c></c>
+<c></c>
+<l>get_region_points (ObjectSelected1, Rows, Columns)</l>
+<l>MaxRow:=max(Rows)</l>
+<l>Columns:=mean(Columns)</l>
+<l>rows:=[MaxRow:-1:MaxRow-LineCount+1]</l>
+<l>tuple_gen_const (LineCount, Columns-10, cols1)</l>
+<l>tuple_gen_const (LineCount, Columns+10, cols2)</l>
+<l>gen_region_line (RegionLines, rows, cols1, rows, cols2)</l>
+<l>closing_rectangle1 (Region, RegionClosing4,12, 1)</l>
+<l>intersection (RegionLines, RegionClosing4, RegionIntersection)</l>
+<c></c>
+<l>region_features (RegionIntersection, 'area', Value1)</l>
+<c></c>
+<c></c>
+<c></c>
+<c>************************特征0**************元素平均面积***********</c>
+<l>MeanArea:=mean(Value1)</l>
+<c></c>
+<c>************************特征1**************元素面积波动幅度***********</c>
+<l>MaxDisCol:=[]</l>
+<l>a:=round( (Row2-Row1)/14)</l>
+<l>for Index := a to |Value1|-6 by 1</l>
+<l>    r1:=Value1[Index:Index+4]</l>
+<l>    MaxDisCol1:=max(r1)-min(r1)</l>
+<l>    if (MaxDisCol1&gt;0) </l>
+<l>        MaxDisCol:=[MaxDisCol,MaxDisCol1]</l>
+<l>    endif</l>
+<l>endfor</l>
+<l>if (|MaxDisCol|)</l>
+<l>  Train_MaxDisCol:= mean(MaxDisCol)/MeanArea  </l>
+<l>else</l>
+<l>    Train_MaxDisCol:=0</l>
+<l>endif</l>
+<c></c>
+<c>************************特征2*************元素最下面积************</c>
+<l>c:=round( LineCount/1.2)</l>
+<l>Train_Area1minArea:=min(Value1[LineCount-c:LineCount-1])</l>
+<c></c>
+<c></c>
+<l>Value2:=Value1[1:|Value1|-1]</l>
+<l>Value1:=Value1[0:|Value1|-2]</l>
+<c></c>
+<c>************************特征3***************元素正增长与负增长的差值**********               </c>
+<l>s11:= (Value2-Value1)[&gt;]0</l>
+<l>s12:= (Value2-Value1)[&lt;]0</l>
+<l>q1:=|find(s11,1)|</l>
+<l>q2:=|find(s12,1)|</l>
+<l>Train_q1q2dis:=q1-q2</l>
+<c></c>
+<c>************************特征4************列变化幅值与面积平均值的比值*************</c>
+<l>region_features (RegionIntersection, 'column1', column1Value)</l>
+<c></c>
+<l>col1change:=[]</l>
+<l>a:=round(|column1Value|/14)</l>
+<l>for Index := a to |column1Value|-6 by 1</l>
+<l>    r1:=column1Value[Index:Index+4]</l>
+<l>    s11:=max(r1)-min(r1)</l>
+<l>    if (s11&gt;0) </l>
+<l>        col1change:=[col1change,s11]</l>
+<l>    endif</l>
+<l>endfor</l>
+<l>if (|col1change|)  </l>
+<l>    col1change:=mean(col1change) </l>
+<l>endif</l>
+<c></c>
+<l>region_features (RegionIntersection, 'column2', column2Value)</l>
+<l>col2change:=[]</l>
+<l>a:=round( |column2Value|/14)</l>
+<l>for Index := a to |column2Value|-6 by 1</l>
+<l>    r1:=column2Value[Index:Index+4]</l>
+<l>    s11:=max(r1)-min(r1)</l>
+<l>    if (s11&gt;0) </l>
+<l>        col2change:=[col2change,s11]</l>
+<l>    endif</l>
+<l>endfor</l>
+<l>if (|col2change|)  </l>
+<l>    col2change:=mean(col2change) </l>
+<l>endif</l>
+<c></c>
+<c></c>
+<l>Train_colchange:=0</l>
+<l>if (|col1change| and |col2change|)</l>
+<l>    Train_colchange:=(col1change+col2change)/2</l>
+<l>elseif (|col1change| )</l>
+<l>    Train_colchange:=col1change</l>
+<l>elseif (|col2change| )</l>
+<l>    Train_colchange:=col2change     </l>
+<l>endif</l>
+<c></c>
+<l>Train_colchange:=Train_colchange/MeanArea</l>
+<c></c>
+<c>************************特征5*********每列中心值差值****************</c>
+<l>region_features (RegionIntersection, 'column', ColValue)</l>
+<l>Train_ColDis:=max(ColValue)-min(ColValue)</l>
+<c></c>
+<c>************************特征6*********高度****************</c>
+<l>Hight:=round(Row2-Row1)</l>
+<c></c>
+<c></c>
+<c></c>
+<l>Features:=real([MeanArea,Train_MaxDisCol,Train_Area1minArea,Train_q1q2dis,Train_colchange,Train_ColDis,Hight])</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="calculate_features_QiPao">
+<parameters>
+<parameter id="Features"/>
+<parameter id="Region"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

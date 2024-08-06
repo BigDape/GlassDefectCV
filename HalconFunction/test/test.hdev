@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>read_image (Image, 'D:/长玻璃（前）/qqqqqqqq6.bmp')</l>
+<l>invert_image (Image, ImageInvert)</l>
+<l>binary_threshold (Image, Region, 'smooth_histo', 'dark', UsedThreshold)</l>
+<l>binary_threshold (Image, Region, 'max_separability', 'dark', UsedThreshold)</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="22.05.0.0">
+<procedure name="GatherDetect_Chamfer">
+<interface>
+<io>
+<par name="ImageReduced_Dark" base_type="iconic" dimension="0"/>
+<par name="ImageReduced_Light" base_type="iconic" dimension="0"/>
+<par name="SelectedRegions_Edge" base_type="iconic" dimension="0"/>
+<par name="Rectangle" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="chamferAbnormal" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+<par name="Phi_Glass" base_type="ctrl" dimension="0"/>
+<par name="Length_w_Glass" base_type="ctrl" dimension="0"/>
+<par name="Length_h_Glass" base_type="ctrl" dimension="0"/>
+</ic>
+</interface>
+<body>
+<c>**倒角判断</c>
+<l>    gen_empty_obj (chamferAbnormal)</l>
+<l>try</l>
+<c>**************************************提取左上倒角开始************************************************</c>
+<l>smallest_rectangle1 (SelectedRegions_Edge, Row1, Col1, Row2, Col2)</l>
+<l>smallest_rectangle2 (SelectedRegions_Edge, Row5, Column5, Phi3, Length13, Length23)</l>
+<c></c>
+<l>deg1:=deg(Phi3)</l>
+<c></c>
+<l>get_region_polygon (Rectangle, 5, Rows, Columns)</l>
+<l>gen_cross_contour_xld (Cross, Rows, Columns, 60, 0.785398)</l>
+<l>area_center_xld (Cross, Area2, Row_ChamferPoint, Column_ChamferPoint, PointOrder)</l>
+<l>count_obj (Cross, Number)</l>
+<c></c>
+<l>c:=(Row_ChamferPoint[&lt;=]3000 ) and (Column_ChamferPoint[&lt;=]3000) </l>
+<l>d:= find(c, 1)</l>
+<l>y:=Row_ChamferPoint[d]</l>
+<l>x:=Column_ChamferPoint[d]</l>
+<l>point_y:=y</l>
+<l>point_x:=x</l>
+<c></c>
+<c></c>
+<c></c>
+<l>gen_rectangle2 (Rectangle_xy, y, x, Phi_Glass, 5000, 5000)</l>
+<l>intersection (Rectangle_xy, SelectedRegions_Edge, RegionIntersection)</l>
+<c></c>
+<l>rake (ImageReduced_Dark, Regions, 30, 1000, 50, 1, 50, 'positive', 'first', y, x,y+5000, x,  ResultRow, ResultColumn)</l>
+<l> pts_to_best_line (Line1, ResultRow, ResultColumn, 10, Row11, Col11, Row12,Col12)</l>
+<c>            </c>
+<l>rake (ImageReduced_Dark, Regions, 30, 1000, 20, 1, 30, 'negative', 'first', y, x ,y , x+5000,  ResultRow, ResultColumn)</l>
+<l> pts_to_best_line (Line2, ResultRow, ResultColumn, 10, Row21, Col21, Row22,Col22)</l>
+<l>intersection_lines (Row11, Col11, Row12,Col12, Row21, Col21, Row22,Col22, intersectionRow1, intersectionColumn1, IsOverlapping)</l>
+<l>gen_region_line (RegionLines3, intersectionRow1+30, intersectionColumn1+10, intersectionRow1+10, intersectionColumn1+30)   </l>
+<l>*intersection_lines (Row11, Col11, Row12,Col12, Height, 0, Height,Width, intersectionRow2, intersectionColumn2, IsOverlapping)</l>
+<c>  </c>
+<l>  *  gen_region_line (RegionLines1, intersectionRow1+5, intersectionColumn1+a, intersectionRow2+5, intersectionColumn2)</l>
+<l>gen_region_line (RegionLinesC1, intersectionRow1, intersectionColumn1, Row12, Col12)</l>
+<c>        </c>
+<l>  *      intersection_lines (Row21, Col21, Row22,Col22, 0, Width, Height, Width, intersectionRow2, intersectionColumn2, IsOverlapping)</l>
+<l>     *   gen_region_line (RegionLines2, intersectionRow1+a, intersectionColumn1+5, intersectionRow2, intersectionColumn2+5)</l>
+<l>   gen_region_line (RegionLinesC2, intersectionRow1, intersectionColumn1, Row22, Col22)</l>
+<l>   union2 (RegionLinesC1, RegionLinesC2, RegionUnion)</l>
+<c>   </c>
+<l>   union2 (RegionUnion, RegionIntersection, RegionUnion1)</l>
+<l>  fill_up (RegionUnion1, RegionFillUp3)</l>
+<l>  difference (RegionFillUp3, RegionUnion1, RegionDifference2)</l>
+<l>  connection (RegionDifference2, ConnectedRegions6)</l>
+<c>  </c>
+<c>  </c>
+<l>  select_shape_std (ConnectedRegions6, SelectedRegions6, 'max_area', 70)</l>
+<l>  opening_circle (SelectedRegions6, RegionOpening3, 1.5)</l>
+<l>  gen_contour_region_xld (RegionOpening3, Contours, 'border')</l>
+<c>  </c>
+<l>  segment_contours_xld (Contours, ContoursSplit, 'lines_circles', 5, 4, 2)</l>
+<l>  union_collinear_contours_xld (ContoursSplit, UnionContours, 20, 1, 20, 0.5, 'attr_keep')</l>
+<l>elliptic_axis_xld (UnionContours, Ra, Rb, Phi)</l>
+<l>fit_line_contour_xld (UnionContours, 'tukey', -1, 0, 5, 2, RowBegin, ColBegin, RowEnd, ColEnd, Nr, Nc, Dist)</l>
+<l> gen_region_line (RegionLinesL, RowBegin, ColBegin, RowEnd,ColEnd)</l>
+<c> </c>
+<l>elliptic_axis (RegionLinesL, Ra1, Rb1, Phi1)</l>
+<c></c>
+<c></c>
+<l>rake (ImageReduced_Dark, Regions, 30, 1000, 20, 1, 50, 'negative', 'first', y+500, x, y+5000, x,  ResultRow, ResultColumn)</l>
+<l> pts_to_best_line (Line1, ResultRow, ResultColumn, 10, Row11, Col11, Row12,Col12)</l>
+<c>            </c>
+<l>rake (ImageReduced_Dark, Regions, 30, 1000, 20, 1, 50, 'positive', 'first', y, x+500 ,y , x+5000,  ResultRow, ResultColumn)</l>
+<l> pts_to_best_line (Line2, ResultRow, ResultColumn, 10, Row21, Col21, Row22,Col22)</l>
+<l>intersection_lines (Row11, Col11, Row12,Col12, Row21, Col21, Row22,Col22, intersectionRow1, intersectionColumn1, IsOverlapping)</l>
+<l>gen_region_line (RegionLines3, intersectionRow1+30, intersectionColumn1+10, intersectionRow1+10, intersectionColumn1+30)   </l>
+<l>*intersection_lines (Row11, Col11, Row12,Col12, Height, 0, Height,Width, intersectionRow2, intersectionColumn2, IsOverlapping)</l>
+<c>  </c>
+<l>  *  gen_region_line (RegionLines1, intersectionRow1+5, intersectionColumn1+a, intersectionRow2+5, intersectionColumn2)</l>
+<l>        gen_region_line (RegionLinesC1, intersectionRow1, intersectionColumn1, Row12, Col12)</l>
+<c>        </c>
+<l>     *   intersection_lines (Row21, Col21, Row22,Col22, 0, Width, Height, Width, intersectionRow3, intersectionColumn3, IsOverlapping)</l>
+<l>     *   gen_region_line (RegionLines2, intersectionRow1+a, intersectionColumn1+5, intersectionRow2, intersectionColumn2+5)</l>
+<l>        gen_region_line (RegionLinesC2, intersectionRow1, intersectionColumn1, Row22, Col22)</l>
+<l>   gen_region_line (RegionLinesC3, Row12, Col12, Row22, Col22)</l>
+<c>  </c>
+<l>        union2 (RegionLinesC1, RegionLinesC2, RegionUnion)</l>
+<l>         union2 (RegionUnion, RegionLinesC3, RegionUnion1)</l>
+<l>         fill_up (RegionUnion1, RegionFillUp1)</l>
+<c>  </c>
+<l>   intersection(RegionFillUp1, RegionIntersection, RegionUnion2)</l>
+<l>   opening_rectangle1 (RegionUnion2, RegionOpening5, 3, 1)</l>
+<l>   opening_rectangle1 (RegionOpening5, RegionOpening6, 1, 3)</l>
+<c>   </c>
+<l>   connection (RegionOpening6, ConnectedRegions2)</l>
+<l>   select_shape (ConnectedRegions2, SelectedRegions3, 'area', 'and', 100, 99999)</l>
+<l>   area_center (SelectedRegions3, Area3, Row3, Column3)</l>
+<c>*选择与xy坐标最近的点</c>
+<l>   tuple_abs(y-Row3,Absy)</l>
+<l>   tuple_abs(x-Column3,Absx)   </l>
+<l>   tuple_min (Absy+Absx, Min)</l>
+<l>   c:=Absy+Absx[=]Min</l>
+<l>   d:= find(c, 1)</l>
+<c>   </c>
+<c>   </c>
+<l>*    c:=Row3+Column3   </l>
+<l>*    tuple_min (c, Min)</l>
+<l>*    c:=(Row3+Column3[=]Min) </l>
+<l>*    d:= find(c, 1)</l>
+<l>   select_obj (SelectedRegions3, ObjectSelected, d+1)</l>
+<l>   union2 (RegionUnion, ObjectSelected, RegionUnion3)</l>
+<l>   fill_up (RegionUnion3, RegionFillUp2)</l>
+<l>   difference (RegionFillUp2, RegionUnion, RegionDifference)</l>
+<c></c>
+<c>   </c>
+<l>gen_contour_region_xld (RegionDifference, Contours, 'border')</l>
+<c>  </c>
+<c></c>
+<c>  </c>
+<l>  segment_contours_xld (Contours, ContoursSplit, 'lines_circles', 5, 4, 2)</l>
+<l>  union_collinear_contours_xld (ContoursSplit, UnionContours, 20, 1, 20, 0.5, 'attr_keep')</l>
+<l>  elliptic_axis_xld (UnionContours, Ra, Rb, Phi)</l>
+<l>  fit_line_contour_xld (UnionContours, 'tukey', -1, 0, 5, 2, RowBegin, ColBegin, RowEnd, ColEnd, Nr, Nc, Dist)</l>
+<l>  gen_region_line (RegionLinesL, RowBegin, ColBegin, RowEnd,ColEnd)</l>
+<c> </c>
+<l>elliptic_axis (RegionLinesL, Ra1, Rb1, Phi1)</l>
+<l>deg1:=deg(Phi1)</l>
+<l>deg2:=deg(Phi_Glass)</l>
+<l>c:=(deg1[&gt;=](45+deg2-10) and deg1[&lt;=](45+deg2+10))</l>
+<c></c>
+<l>   d:= find(c, 1)</l>
+<l>select_obj (RegionLinesL, ObjectSelected1, d+1)</l>
+<c></c>
+<l>gen_contour_region_xld (ObjectSelected1, Contours1, 'border')</l>
+<l> segment_contours_xld (Contours1, ContoursSplit, 'lines_circles', 5, 4, 2)</l>
+<l> elliptic_axis_xld (ContoursSplit, Ra, Rb, Phi)</l>
+<l> select_obj (ContoursSplit, ObjectSelected2, 1)</l>
+<l>fit_line_contour_xld (ObjectSelected2, 'tukey', -1, 0, 5, 2, RowBegin1, ColBegin1, RowEnd1, ColEnd1, Nr, Nc, Dist)</l>
+<c></c>
+<l>gen_region_line (ObjectSelected2, RowBegin1, ColBegin1, RowEnd1,ColEnd1)</l>
+<c> </c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<l>intersection_lines (RowBegin1, ColBegin1, RowEnd1,ColEnd1, intersectionRow1, intersectionColumn1, Row12,Col12, intersectionRow_LT_Inside1, intersectionColumn__LT_Inside1, IsOverlapping)</l>
+<l>intersection_lines (RowBegin1, ColBegin1, RowEnd1,ColEnd1, intersectionRow1, intersectionColumn1, Row22,Col22, intersectionRow_LT_Inside2, intersectionColumn__LT_Inside2, IsOverlapping)</l>
+<l>gen_region_line (RegionLines_LT_Inside, intersectionRow_LT_Inside1, intersectionColumn__LT_Inside1, intersectionRow_LT_Inside2, intersectionColumn__LT_Inside2)</l>
+<c></c>
+<l>union2 (RegionUnion, RegionLines_LT_Inside, RegionUnion3)</l>
+<l>fill_up (RegionUnion3, RegionFillUp4)</l>
+<l>difference (RegionFillUp4, RegionUnion, RegionDifference1)</l>
+<c>**********最后根据明暗场的不同来判断水滴或崩角*******************************</c>
+<c></c>
+<c>**************************************提取左上倒角结束*********************************************</c>
+<l>stop()</l>
+<c>**************************************提取左下倒角开始************************************************</c>
+<c></c>
+<c></c>
+<l>c:=(Row_ChamferPoint[&gt;=](2*Length_h_Glass-3000)) and (Column_ChamferPoint[&lt;=]3000) </l>
+<l>d:= find(c, 1)</l>
+<l>y:=Row_ChamferPoint[d]</l>
+<l>x:=Column_ChamferPoint[d]</l>
+<c></c>
+<l>gen_rectangle2 (Rectangle_xy, y, x, Phi_Glass, 5000, 5000)</l>
+<l>intersection (Rectangle_xy, SelectedRegions_Edge, RegionIntersection)</l>
+<c></c>
+<l>rake (ImageReduced_Dark, Regions, 30, 1000, 50, 1, 50, 'positive', 'first', y-5000, x, y, x,  ResultRow, ResultColumn)</l>
+<l> pts_to_best_line (Line1, ResultRow, ResultColumn, 10, Row11, Col11, Row12,Col12)</l>
+<c>            </c>
+<l>rake (ImageReduced_Dark, Regions, 30, 1000, 20, 1, 30, 'positive', 'first', y, x ,y , x+5000,  ResultRow, ResultColumn)</l>
+<l> pts_to_best_line (Line2, ResultRow, ResultColumn, 10, Row21, Col21, Row22,Col22)</l>
+<l>intersection_lines (Row11, Col11, Row12,Col12, Row21, Col21, Row22,Col22, intersectionRow1, intersectionColumn1, IsOverlapping)</l>
+<l>*gen_region_line (RegionLines3, intersectionRow1+30, intersectionColumn1+10, intersectionRow1+10, intersectionColumn1+30)   </l>
+<l>*intersection_lines (Row11, Col11, Row12,Col12, Height, 0, Height,Width, intersectionRow2, intersectionColumn2, IsOverlapping)</l>
+<c>  </c>
+<l>  *  gen_region_line (RegionLines1, intersectionRow1+5, intersectionColumn1+a, intersectionRow2+5, intersectionColumn2)</l>
+<l>gen_region_line (RegionLinesC1, intersectionRow1, intersectionColumn1, Row11, Col11)</l>
+<c>        </c>
+<l>  *      intersection_lines (Row21, Col21, Row22,Col22, 0, Width, Height, Width, intersectionRow2, intersectionColumn2, IsOverlapping)</l>
+<l>     *   gen_region_line (RegionLines2, intersectionRow1+a, intersectionColumn1+5, intersectionRow2, intersectionColumn2+5)</l>
+<l>   gen_region_line (RegionLinesC2, intersectionRow1, intersectionColumn1, Row22, Col22)</l>
+<l>   union2 (RegionLinesC1, RegionLinesC2, RegionUnion)</l>
+<c>   </c>
+<l>   union2 (RegionUnion, RegionIntersection, RegionUnion1)</l>
+<l>  fill_up (RegionUnion1, RegionFillUp3)</l>
+<l>  difference (RegionFillUp3, RegionUnion1, RegionDifference2)</l>
+<l>  connection (RegionDifference2, ConnectedRegions6)</l>
+<c>  </c>
+<c>  </c>
+<l>  select_shape_std (ConnectedRegions6, SelectedRegions6, 'max_area', 70)</l>
+<l>  opening_circle (SelectedRegions6, RegionOpening3, 1.5)</l>
+<c>  </c>
+<l>  connection (RegionOpening3, ConnectedRegions3)</l>
+<l>  select_shape_std (ConnectedRegions3, SelectedRegions1, 'max_area', 70)</l>
+<l>  gen_contour_region_xld (SelectedRegions1, Contours, 'border')</l>
+<c>  </c>
+<l>  segment_contours_xld (Contours, ContoursSplit, 'lines_circles', 5, 4, 2)</l>
+<l>  union_collinear_contours_xld (ContoursSplit, UnionContours, 20, 1, 20, 0.5, 'attr_keep')</l>
+<l>elliptic_axis_xld (UnionContours, Ra, Rb, Phi)</l>
+<l>fit_line_contour_xld (UnionContours, 'tukey', -1, 0, 5, 2, RowBegin, ColBegin, RowEnd, ColEnd, Nr, Nc, Dist)</l>
+<l> gen_region_line (RegionLinesL, RowBegin, ColBegin, RowEnd,ColEnd)</l>
+<c> </c>
+<l>elliptic_axis (RegionLinesL, Ra1, Rb1, Phi1)</l>
+<c></c>
+<c></c>
+<l>rake (ImageReduced_Dark, Regions, 30, 1000, 50, 1, 50, 'negative', 'first', y-5000, x, y, x,  ResultRow, ResultColumn)</l>
+<l> pts_to_best_line (Line1, ResultRow, ResultColumn, 10, Row11, Col11, Row12,Col12)</l>
+<c>            </c>
+<l>rake (ImageReduced_Dark, Regions, 30, 1000, 20, 1, 30, 'negative', 'first', y, x ,y , x+5000,  ResultRow, ResultColumn)</l>
+<l> pts_to_best_line (Line2, ResultRow, ResultColumn, 10, Row21, Col21, Row22,Col22)</l>
+<l>intersection_lines (Row11, Col11, Row12,Col12, Row21, Col21, Row22,Col22, intersectionRow1, intersectionColumn1, IsOverlapping)</l>
+<l>*gen_region_line (RegionLines3, intersectionRow1+30, intersectionColumn1+10, intersectionRow1+10, intersectionColumn1+30)   </l>
+<l>*intersection_lines (Row11, Col11, Row12,Col12, Height, 0, Height,Width, intersectionRow2, intersectionColumn2, IsOverlapping)</l>
+<c>  </c>
+<l>  *  gen_region_line (RegionLines1, intersectionRow1+5, intersectionColumn1+a, intersectionRow2+5, intersectionColumn2)</l>
+<l>        gen_region_line (RegionLinesC1, intersectionRow1, intersectionColumn1, Row11, Col11)</l>
+<c>        </c>
+<l>     *   intersection_lines (Row21, Col21, Row22,Col22, 0, Width, Height, Width, intersectionRow3, intersectionColumn3, IsOverlapping)</l>
+<l>     *   gen_region_line (RegionLines2, intersectionRow1+a, intersectionColumn1+5, intersectionRow2, intersectionColumn2+5)</l>
+<l>        gen_region_line (RegionLinesC2, intersectionRow1, intersectionColumn1, Row22, Col22)</l>
+<l>   gen_region_line (RegionLinesC3, Row11, Col11, Row22, Col22)</l>
+<c>  </c>
+<l>        union2 (RegionLinesC1, RegionLinesC2, RegionUnion)</l>
+<l>         union2 (RegionUnion, RegionLinesC3, RegionUnion1)</l>
+<l>         fill_up (RegionUnion1, RegionFillUp1)</l>
+<c>  </c>
+<l>   intersection(RegionFillUp1, RegionIntersection, RegionUnion2)</l>
+<l>   opening_rectangle1 (RegionUnion2, RegionOpening5, 3, 1)</l>
+<l>   opening_rectangle1 (RegionOpening5, RegionOpening6, 1, 3)</l>
+<c>   </c>
+<l>   connection (RegionOpening6, ConnectedRegions2)</l>
+<l>   select_shape (ConnectedRegions2, SelectedRegions3, 'area', 'and', 100, 99999)</l>
+<l>   area_center (SelectedRegions3, Area3, Row3, Column3)</l>
+<c>   </c>
+<l>   tuple_abs(y-Row3,Absy)</l>
+<l>   tuple_abs(x-Column3,Absx)   </l>
+<l>   tuple_min (Absy+Absx, Min)</l>
+<l>   c:=Absy+Absx[=]Min</l>
+<l>   d:= find(c, 1)</l>
+<l>   select_obj (SelectedRegions3, ObjectSelected, d+1)</l>
+<l>   union2 (RegionUnion, ObjectSelected, RegionUnion3)</l>
+<l>   fill_up (RegionUnion3, RegionFillUp2)</l>
+<l>   difference (RegionFillUp2, RegionUnion, RegionDifference)</l>
+<c></c>
+<c>   </c>
+<l>gen_contour_region_xld (RegionDifference, Contours, 'border')</l>
+<c>  </c>
+<c></c>
+<c>  </c>
+<l>  segment_contours_xld (Contours, ContoursSplit, 'lines_circles', 5, 4, 2)</l>
+<l>  union_collinear_contours_xld (ContoursSplit, UnionContours, 20, 1, 20, 0.5, 'attr_keep')</l>
+<l>elliptic_axis_xld (UnionContours, Ra, Rb, Phi)</l>
+<l>fit_line_contour_xld (UnionContours, 'tukey', -1, 0, 5, 2, RowBegin, ColBegin, RowEnd, ColEnd, Nr, Nc, Dist)</l>
+<l> gen_region_line (RegionLinesL, RowBegin, ColBegin, RowEnd,ColEnd)</l>
+<c> </c>
+<l>elliptic_axis (RegionLinesL, Ra1, Rb1, Phi1)</l>
+<l>deg1:=deg(Phi1)</l>
+<l>deg2:=deg(Phi_Glass)</l>
+<l>c:=(deg1[&gt;=](-45-deg2-10) and deg1[&lt;=](-45-deg2+10))</l>
+<c></c>
+<l>   d:= find(c, 1)</l>
+<l>select_obj (RegionLinesL, ObjectSelected1, d+1)</l>
+<c></c>
+<l>gen_contour_region_xld (ObjectSelected1, Contours1, 'border')</l>
+<l> segment_contours_xld (Contours1, ContoursSplit, 'lines_circles', 5, 4, 2)</l>
+<l> elliptic_axis_xld (ContoursSplit, Ra, Rb, Phi)</l>
+<l> select_obj (ContoursSplit, ObjectSelected2, 1)</l>
+<l>fit_line_contour_xld (ObjectSelected2, 'tukey', -1, 0, 5, 2, RowBegin1, ColBegin1, RowEnd1, ColEnd1, Nr, Nc, Dist)</l>
+<c></c>
+<l>gen_region_line (ObjectSelected2, RowBegin1, ColBegin1, RowEnd1,ColEnd1)</l>
+<c> </c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<l>intersection_lines (RowBegin1, ColBegin1, RowEnd1,ColEnd1, intersectionRow1, intersectionColumn1, Row12,Col12, intersectionRow_LB_Inside1, intersectionColumn__LB_Inside1, IsOverlapping)</l>
+<l>intersection_lines (RowBegin1, ColBegin1, RowEnd1,ColEnd1, intersectionRow1, intersectionColumn1, Row22,Col22, intersectionRow_LB_Inside2, intersectionColumn__LB_Inside2, IsOverlapping)</l>
+<l>gen_region_line (RegionLines_LB_Inside, intersectionRow_LB_Inside1, intersectionColumn__LB_Inside1, intersectionRow_LB_Inside2, intersectionColumn__LB_Inside2)</l>
+<c></c>
+<l>union2 (RegionUnion, RegionLines_LB_Inside, RegionUnion3)</l>
+<l>fill_up (RegionUnion3, RegionFillUp4)</l>
+<l>difference (RegionFillUp4, RegionUnion, RegionDifference1)</l>
+<c>**********最后更具明暗场的不同来判断水滴或崩角*******************************</c>
+<c></c>
+<c>**************************************提取左下倒角结束*********************************************</c>
+<l>stop()  </l>
+<c>    </c>
+<l>catch (Exception )</l>
+<l>endtry</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="GatherDetect_Chamfer">
+<parameters>
+<parameter id="DetectDict"/>
+<parameter id="ImageReduced_Dark"/>
+<parameter id="ImageReduced_Light"/>
+<parameter id="Length_h_Glass"/>
+<parameter id="Length_w_Glass"/>
+<parameter id="Phi_Glass"/>
+<parameter id="Rectangle"/>
+<parameter id="SelectedRegions_Edge"/>
+<parameter id="chamferAbnormal"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

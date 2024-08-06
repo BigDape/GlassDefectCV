@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="22.05.0.0">
+<procedure name="QiPao_Detect">
+<interface>
+<io>
+<par name="Image1" base_type="iconic" dimension="0"/>
+<par name="Image2" base_type="iconic" dimension="0"/>
+<par name="Image3" base_type="iconic" dimension="0"/>
+<par name="RegionPanel" base_type="iconic" dimension="0"/>
+<par name="DetectRoi" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="ErrImage1" base_type="iconic" dimension="0"/>
+<par name="ErrImage2" base_type="iconic" dimension="0"/>
+<par name="ErrImage3" base_type="iconic" dimension="0"/>
+<par name="ErrRoi" base_type="iconic" dimension="0"/>
+<par name="OriginalErrRoi" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+<par name="VisionProcessStep" base_type="ctrl" dimension="0"/>
+<par name="GlassPositionInf" base_type="ctrl" dimension="0"/>
+<par name="YCoordIn" base_type="ctrl" dimension="0"/>
+<par name="pixX" base_type="ctrl" dimension="0"/>
+<par name="pixY" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="ErrName" base_type="ctrl" dimension="0"/>
+<par name="ErrType" base_type="ctrl" dimension="0"/>
+<par name="ErrW" base_type="ctrl" dimension="0"/>
+<par name="ErrH" base_type="ctrl" dimension="0"/>
+<par name="ErrArea" base_type="ctrl" dimension="0"/>
+<par name="ErrX" base_type="ctrl" dimension="0"/>
+<par name="ErrY" base_type="ctrl" dimension="0"/>
+<par name="MapIndex" base_type="ctrl" dimension="0"/>
+<par name="ParIndex" base_type="ctrl" dimension="0"/>
+<par name="ErrImageIndex" base_type="ctrl" dimension="0"/>
+<par name="YCoordOut" base_type="ctrl" dimension="0"/>
+<par name="OK" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>OK:=[]</l>
+<l>try</l>
+<l>    gen_empty_obj (ErrRoi) </l>
+<l>    gen_empty_obj (ErrImage1)</l>
+<l>    gen_empty_obj (ErrImage2)</l>
+<l>    gen_empty_obj (ErrImage3)</l>
+<l>    gen_empty_obj (OriginalErrRoi)</l>
+<l>    ErrName:=[]</l>
+<l>    ErrType:=[]</l>
+<l>    ErrW:=[]</l>
+<l>    ErrH:=[]</l>
+<l>    ErrArea:=[]</l>
+<l>    ErrX:=[]</l>
+<l>    ErrY:=[]</l>
+<l>    MapIndex:=[]</l>
+<l>    ParIndex:=[]</l>
+<l>    ErrImageIndex:=[]</l>
+<l>    gen_empty_obj (XObject)</l>
+<l>    gen_empty_obj (BObject)</l>
+<l>    gen_empty_obj (VObject)</l>
+<l>    gen_empty_obj (jieshi)</l>
+<l>    qijieAreaThreshold:=10</l>
+<l>    huahenAreaThreshold:=50</l>
+<l>    get_dict_tuple (DetectDict,'缺陷面积阈值', DefectAreaThreshold)</l>
+<l>    get_dict_tuple (DefectAreaThreshold,'气结面积阈值', qijieAreaThreshold)</l>
+<l>    get_dict_tuple (DefectAreaThreshold,'划痕面积阈值', huahenAreaThreshold)</l>
+<l>    reduce_domain (Image1, DetectRoi, Image1Reduced)</l>
+<l>    reduce_domain (Image2, DetectRoi, Image2Reduced)</l>
+<l>    reduce_domain (Image3, DetectRoi, Image3Reduced)   </l>
+<c>    </c>
+<c></c>
+<l>    mean_image (Image1Reduced, ImageMeanqj, 1, 200)</l>
+<l>    dyn_threshold (Image1Reduced, ImageMeanqj, RegionDynThreshqj, 30, 'dark')</l>
+<l>    closing_circle (RegionDynThreshqj, RegionClosingqj, 1.5)</l>
+<l>    connection (RegionClosingqj, ConnectedRegionsqj)</l>
+<l>    select_shape (ConnectedRegionsqj, SelectedRegionsqj, 'area', 'and', qijieAreaThreshold, 999999999)</l>
+<c>    </c>
+<c></c>
+<c>    </c>
+<l>    region_features (SelectedRegionsqj, 'anisometry', Aniqj)</l>
+<l>    region_features (SelectedRegionsqj, 'circularity', Cirqj)</l>
+<l>    region_features (SelectedRegionsqj, 'area', Areaqj)</l>
+<l>    count_obj (SelectedRegionsqj, Numberqj)</l>
+<l>    intensity (SelectedRegionsqj, Image1Reduced, Meanqj, Deviationqj)</l>
+<l>    for Index1 := 1 to Numberqj by 1</l>
+<l>        if((Meanqj[Index1-1]&lt;90 and Cirqj[Index1-1]&gt;0.3 and Areaqj[Index1-1]&lt;1000) or (Meanqj[Index1-1]&lt;100 and Cirqj[Index1-1]&gt;0.7 and Areaqj[Index1-1]&lt;20) or (Meanqj[Index1-1]&lt;140 and Cirqj[Index1-1]&gt;0.6 and Areaqj[Index1-1]&lt;100) or (Meanqj[Index1-1]&lt;100 and Cirqj[Index1-1]&gt;0.4 and Areaqj[Index1-1]&lt;300))</l>
+<l>            select_obj (SelectedRegionsqj, ObjectSelectedqj, Index1)</l>
+<l>            concat_obj (jieshi, ObjectSelectedqj, jieshi)</l>
+<l>        endif</l>
+<c>        </c>
+<l>    endfor</l>
+<c>    </c>
+<c></c>
+<c>    </c>
+<l>  select_shape (jieshi, jieshi, 'area', 'and', 1, 999999999)</l>
+<l>            count_obj (jieshi,Number)</l>
+<l>            if (Number&gt;0)</l>
+<l>                ImageIndex:=1</l>
+<l>                tuple_gen_const (Number, 1, Newtuple)</l>
+<l>              tuple_gen_const (Number, 7, TypeTuple)</l>
+<l>        GatherInfo_OkNG (jieshi, Image1, Image2, Image3, RegionPanel, TransRoi, RoiImage1, RoiImage2, RoiImage3, DetectDict, DetectDict, '结石', TypeTuple, VisionProcessStep, GlassPositionInf, Newtuple, 0, 0, 0, 0, YCoordIn, pixX, pixY, Name, Type, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK1)</l>
+<l>                if (OK1!=[])</l>
+<l>                    concat_obj (ErrImage1, RoiImage1, ErrImage1)</l>
+<l>                    concat_obj (ErrImage2, RoiImage2, ErrImage2)</l>
+<l>                    concat_obj (ErrImage3, RoiImage3, ErrImage3)</l>
+<l>                    concat_obj (ErrRoi,TransRoi,  ErrRoi)</l>
+<l>                    ErrName:=[ErrName,Name]</l>
+<l>                    ErrType:=[ErrType,Type]</l>
+<l>                    ErrW:=[ErrW,W]</l>
+<l>                    ErrH:=[ErrH,H]</l>
+<l>                    ErrArea:=[ErrArea,Area]</l>
+<l>                    ErrX:=[ErrX,X]</l>
+<l>                    ErrY:=[ErrY,Y]</l>
+<l>                    MapIndex:=[MapIndex,mapIndex]</l>
+<l>                    ParIndex:=[ParIndex,parIndex]  </l>
+<l>                    ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>                    OK:=[OK,OK1]</l>
+<l>                endif</l>
+<c>              </c>
+<l>            endif</l>
+<c>     </c>
+<l>    union1 (jieshi, RegionUnionqijie)</l>
+<l>    dilation_circle (RegionUnionqijie, RegionDilationqijie, 10.5)            </l>
+<l>    difference (DetectRoi, RegionDilationqijie, DetectRoi)</l>
+<l>    reduce_domain (Image1, DetectRoi, Image1Reduced)</l>
+<l>reduce_domain (Image2, DetectRoi, Image2Reduced)</l>
+<l>reduce_domain (Image3, DetectRoi, Image3Reduced)  </l>
+<c></c>
+<l>mean_image (Image1Reduced, ImageMean1qt, 50, 50)</l>
+<l>dyn_threshold (Image1Reduced, ImageMean1qt, RegionDynThresh1qt, 20, 'dark')</l>
+<c></c>
+<c></c>
+<l>connection (RegionDynThresh1qt, ConnectedRegions1qt)</l>
+<l>select_shape (ConnectedRegions1qt, SelectedRegions1qt, 'area', 'and', qijieAreaThreshold, 999999999)</l>
+<c></c>
+<l>threshold (Image3Reduced, Region3, 20, 255)</l>
+<l>connection (Region3, ConnectedRegions3qt)</l>
+<l>select_shape (ConnectedRegions3qt, SelectedRegions3qt, 'area', 'and', huahenAreaThreshold, 99999)</l>
+<c></c>
+<l>intensity (SelectedRegions3qt, Image3Reduced, Mean3qt, Deviation3qt)</l>
+<l>gen_empty_obj (ObjectsConcat3qt)</l>
+<c></c>
+<l>      c:=(Mean3qt[&gt;]20)</l>
+<l>      d:=find(c,1)</l>
+<l>      if(d!=-1)</l>
+<l>        count:=|d| </l>
+<l>      if(count&gt;0)</l>
+<l>          select_obj (SelectedRegions3qt, ObjectSelected3qt, d+1)</l>
+<l>          concat_obj (ObjectsConcat3qt, ObjectSelected3qt, ObjectsConcat3qt)</l>
+<l>      endif</l>
+<l>      endif</l>
+<l> union2 (SelectedRegions1qt, ObjectsConcat3qt, RegionUnion3qt)</l>
+<c></c>
+<l> union1 (RegionUnion3qt, RegionUnionqt)</l>
+<l> closing_circle (RegionUnionqt, RegionClosingqt, 10.5)</l>
+<l> connection (RegionClosingqt, ConnectedRegionsqt)</l>
+<l> select_shape (ConnectedRegionsqt, qita, 'area', 'and', 10, 9999999)</l>
+<c> </c>
+<c> </c>
+<c> </c>
+<l>  count_obj (qita,Numberqt)</l>
+<l>            if (Numberqt&gt;0)</l>
+<l>                ImageIndex:=4</l>
+<l>                tuple_gen_const (Numberqt, 1, Newtuple)</l>
+<l>                tuple_gen_const (Numberqt, 6, TypeTuple)</l>
+<l>        GatherInfo_OkNG (qita, Image1, Image2, Image3, RegionPanel, TransRoi, RoiImage1, RoiImage2, RoiImage3, DetectDict, DetectDict, '其它', TypeTuple, VisionProcessStep, GlassPositionInf, Newtuple, 0, 0, 0, 0, YCoordIn, pixX, pixY, Name, Type, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK3)</l>
+<l>                if (OK3!=[])</l>
+<l>                    concat_obj (ErrImage1, RoiImage1, ErrImage1)</l>
+<l>                    concat_obj (ErrImage2, RoiImage2, ErrImage2)</l>
+<l>                    concat_obj (ErrImage3, RoiImage3, ErrImage3)</l>
+<l>                    concat_obj (ErrRoi,TransRoi,  ErrRoi)</l>
+<l>                    ErrName:=[ErrName,Name]</l>
+<l>                    ErrType:=[ErrType,Type]</l>
+<l>                    ErrW:=[ErrW,W]</l>
+<l>                    ErrH:=[ErrH,H]</l>
+<l>                    ErrArea:=[ErrArea,Area]</l>
+<l>                    ErrX:=[ErrX,X]</l>
+<l>                    ErrY:=[ErrY,Y]</l>
+<l>                    MapIndex:=[MapIndex,mapIndex]</l>
+<l>                    ParIndex:=[ParIndex,parIndex]  </l>
+<l>                    ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>                    OK:=[OK,OK3]</l>
+<l>                endif</l>
+<l>           endif  </l>
+<c>                     </c>
+<l>        union2 (jieshi, qita, RegionUnionQx)</l>
+<l>            dilation_circle (RegionUnionQx, RegionDilationQx, 10.5)</l>
+<l>            union1 (RegionDilationQx, RegionUnionQx)</l>
+<l>            concat_obj (OriginalErrRoi, RegionUnionQx, OriginalErrRoi)     </l>
+<c>     </c>
+<c></c>
+<l>catch (Exception )</l>
+<l>    return ()  </l>
+<l>endtry</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="QiPao_Detect">
+<parameters>
+<parameter id="DetectDict"/>
+<parameter id="DetectRoi"/>
+<parameter id="ErrArea"/>
+<parameter id="ErrH"/>
+<parameter id="ErrImage1"/>
+<parameter id="ErrImage2"/>
+<parameter id="ErrImage3"/>
+<parameter id="ErrImageIndex"/>
+<parameter id="ErrName"/>
+<parameter id="ErrRoi"/>
+<parameter id="ErrType"/>
+<parameter id="ErrW"/>
+<parameter id="ErrX"/>
+<parameter id="ErrY"/>
+<parameter id="GlassPositionInf"/>
+<parameter id="Image1"/>
+<parameter id="Image2"/>
+<parameter id="Image3"/>
+<parameter id="MapIndex"/>
+<parameter id="OK"/>
+<parameter id="OriginalErrRoi"/>
+<parameter id="ParIndex"/>
+<parameter id="RegionPanel"/>
+<parameter id="VisionProcessStep"/>
+<parameter id="YCoordIn"/>
+<parameter id="YCoordOut"/>
+<parameter id="pixX"/>
+<parameter id="pixY"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

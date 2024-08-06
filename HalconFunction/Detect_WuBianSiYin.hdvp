@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="Detect_WuBianSiYin">
+<interface>
+<io>
+<par name="SiYin1" base_type="iconic" dimension="0"/>
+<par name="SiYin2" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="ErrRoi" base_type="iconic" dimension="0"/>
+<par name="AlarmRoi" base_type="iconic" dimension="0"/>
+<par name="ErrImage" base_type="iconic" dimension="0"/>
+<par name="AlarmImage" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+<par name="VisionProcessStep" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="SiYiErrName" base_type="ctrl" dimension="0"/>
+<par name="SiYiAlarmName" base_type="ctrl" dimension="0"/>
+<par name="SiYiErrW" base_type="ctrl" dimension="0"/>
+<par name="SiYiErrH" base_type="ctrl" dimension="0"/>
+<par name="SiYiErrArea" base_type="ctrl" dimension="0"/>
+<par name="SiYiErrX" base_type="ctrl" dimension="0"/>
+<par name="SiYiErrY" base_type="ctrl" dimension="0"/>
+<par name="SiYiAlarmW" base_type="ctrl" dimension="0"/>
+<par name="SiYiAlarmH" base_type="ctrl" dimension="0"/>
+<par name="SiYiAlarmArea" base_type="ctrl" dimension="0"/>
+<par name="SiYiAlarmX" base_type="ctrl" dimension="0"/>
+<par name="SiYiAlarmY" base_type="ctrl" dimension="0"/>
+<par name="MapIndex" base_type="ctrl" dimension="0"/>
+<par name="ParIndex" base_type="ctrl" dimension="0"/>
+<par name="OK" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<c>*********************************缺陷名关键字********************************************开口泡 = 0;</c>
+<c>*开口泡 开口泡_A 线泡  线泡_A 圆泡 圆泡_A 结石 结石_A 划伤 划伤_A 裂纹 裂纹_A 脏污 脏污_A  凹凸 凹凸_A 压痕 压痕_A 辊伤 辊伤_A;</c>
+<c>*凉印 凉印_A 崩边 崩边_A 崩角 崩角_A 导角 导角_A 边裂纹 边裂纹_A ;</c>
+<c>*膜脏污 膜脏污_A 漏镀膜 漏镀膜_A 辊印 辊印_A 拉丝 拉丝_A 溅液点 溅液点_A 异色 异色_A ;</c>
+<c>*漏印 漏印_A 针孔 针孔_A 孔崩边 孔崩边_A</c>
+<c>*************************参数设置关键字*******************************</c>
+<c>*'Type', </c>
+<c>* 'XianPao_W',  'XianPao_L','XianPao_Enabled','KaiKouPao_W','KaiKouPao_L', 'KaiKouPao_Enabled','YuanPao_Dia'</c>
+<c>*'YuanPao_W','YuanPao_Enabled','JieShi_L','JieShi_W','JieShi_Enabled','HuaShang_L','HuaShang_W','HuaShang_Enabled'</c>
+<c>*'LieWen_L',  'LieWen_W','LieWen_Enabled','ZangWu_L','ZangWu_W',  'ZangWu_Enabled','AoTu_L', 'AoTu_W'</c>
+<c>*'AoTu_Enabled','YaHeng_L','YaHeng_W','YaHeng_Enabled',KongBengBian_L','KongBengBian_W','KongBengBian_Enabled'</c>
+<c></c>
+<c>*'BengBian_L','BengBian_W', 'BengBian_Enabled','BengJiao_L','BengJiao_W','BengJiao_Enabled'</c>
+<c>*'DaoJiao_L','DaoJiao_W', 'DaoJiao_Enabled','LiangBian_L','LiangBian_W','LiangBian_Enabled','BianLieWen_L'</c>
+<c>*'BianLieWen_W','BianLieWen_Enabled',</c>
+<c></c>
+<c>*MoZangWu_L','MoZangWu_W','MoZangWu_Enabled','LoDuMo_L','LoDuMo_W','LoDuMo_Enabled','MoMianGunYing_L'</c>
+<c>*'MoMianGunYing_W','MoMianGunYing_Enabled','LaSi_L','LaSi_W','LaSi_Enabled','DuMoSeCha_L'</c>
+<c>*'DuMoSeCha_W','DuMoSeCha_Enabled','JianYeDian_L','JianYeDian_W','JianYeDian_Enabled','LouYing_L'</c>
+<c>*'ZhenKong_L','ZhenKong_W','ZhenKong_Enabled','LouYing_W','LouYing_Enabled'</c>
+<c>*****************************************************************************************************</c>
+<l>try</l>
+<l>    pix:=0.09</l>
+<l>    OK:=[]</l>
+<l>    gen_empty_obj (ErrRoi) </l>
+<l>    gen_empty_obj (AlarmRoi)</l>
+<l>    gen_empty_obj (ErrImage) </l>
+<l>    gen_empty_obj (AlarmImage)</l>
+<l>    SiYiErrName:=[]</l>
+<l>    SiYiErrW:=[]</l>
+<l>    SiYiErrH:=[]</l>
+<l>    SiYiErrArea:=[]</l>
+<l>    SiYiErrX:=[]</l>
+<l>    SiYiErrY:=[]  </l>
+<c>    </c>
+<c>    </c>
+<l>    SiYiAlarmName:=[]</l>
+<l>    SiYiAlarmW:=[]</l>
+<l>    SiYiAlarmH:=[]</l>
+<l>    SiYiAlarmArea:=[]</l>
+<l>    SiYiAlarmX:=[]</l>
+<l>    SiYiAlarmY:=[] </l>
+<c>    </c>
+<c>    </c>
+<l>    offsetRow := 100</l>
+<l>    columns:=0</l>
+<l>    MapIndex:=[]</l>
+<l>    ParIndex:=[]</l>
+<l>    get_dict_tuple (DetectDict, '系统参数', SpLouYingDict)</l>
+<l>    get_dict_tuple (SpLouYingDict, 'ImageHight', ImageHight)</l>
+<l>    get_dict_tuple (SpLouYingDict, 'ImageWidth', ImageWidth)</l>
+<l>*     get_dict_tuple (DetectDict, 'OffsetCol', OffsetCol)</l>
+<c>    </c>
+<l>    global object Globalobject </l>
+<c>    </c>
+<l>    if (VisionProcessStep==0)</l>
+<l>        gen_empty_obj (Globalobject)</l>
+<l>    endif</l>
+<l>    if (VisionProcessStep!=0)</l>
+<l>        offsetRow := VisionProcessStep*(ImageHight/4)</l>
+<l>    endif</l>
+<c>    </c>
+<c>    ***********************************************************************************  </c>
+<l>    get_dict_tuple (DetectDict, '丝印', LouYingDict)</l>
+<l>    get_dict_tuple (LouYingDict, 'LouYing_L', LLimit)</l>
+<l>    get_dict_tuple (LouYingDict, 'LouYing_W',WLimit)</l>
+<c>    </c>
+<l>*     get_dict_tuple (DetectDict, 'LargeVerticalStrip_L',LargeVerticalStrip_L)</l>
+<l>*     get_dict_tuple (DetectDict, 'LargeVerticalStrip_W',LargeVerticalStrip_W)</l>
+<l>*     get_dict_tuple (DetectDict, 'LargeVerticalStripCount',LargeVerticalStripCount)</l>
+<c>    </c>
+<l>*     get_dict_tuple (DetectDict, 'SmallVerticalStrip_L',SmallVerticalStrip_L)</l>
+<l>*     get_dict_tuple (DetectDict, 'SmallVerticalStrip_W',SmallVerticalStrip_W)</l>
+<l>*     get_dict_tuple (DetectDict, 'SmallVerticalStripCount',SmallVerticalStripCount)</l>
+<c>    </c>
+<l>*     get_dict_tuple (DetectDict, 'LargeHorizontalStrip_L',LargeHorizontalStrip_L)</l>
+<l>*     get_dict_tuple (DetectDict, 'LargeHorizontalStrip_W',LargeHorizontalStrip_W)</l>
+<l>*     get_dict_tuple (DetectDict, 'LargeHorizontalStripCount',LargeHorizontalStripCount)</l>
+<c>    </c>
+<l>*     get_dict_tuple (DetectDict, 'SmallHorizontalStrip_L',SmallHorizontalStrip_L)</l>
+<l>*     get_dict_tuple (DetectDict, 'SmallHorizontalStrip_W',SmallHorizontalStrip_W)</l>
+<l>*     get_dict_tuple (DetectDict, 'SmallHorizontalStripCount',SmallHorizontalStripCount)</l>
+<c>    </c>
+<l>*     get_dict_tuple (DetectDict, 'ViaCount',ViaCount)</l>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<l>    move_region (SiYin1, RegionMoved1, offsetRow, ImageWidth)</l>
+<l>    move_region (SiYin2, RegionMoved2, offsetRow, 0)</l>
+<l>    union2 (RegionMoved2,RegionMoved1,  RegionUnion)</l>
+<l>    union2 (Globalobject, RegionUnion, Globalobject)</l>
+<c>    </c>
+<c>    </c>
+<l>    if (VisionProcessStep&gt;=9)</l>
+<c>         </c>
+<l>*            read_region (Globalobject, 'C:/Users/Administrator/Desktop/wubiankuangsiyin.reg')</l>
+<l>     region_features (Globalobject, 'area', Globalobjectarea)</l>
+<l>        dev_update_off ()</l>
+<l>        opening_rectangle1 (Globalobject, RegionOpeningv, 600, 1)</l>
+<l>        opening_rectangle1 (Globalobject, RegionOpeningh, 1, 600)</l>
+<c>        </c>
+<l>        intersection (RegionOpeningh, RegionOpeningv, RegionIntersection)</l>
+<l>        dilation_rectangle1 (RegionIntersection, RegionDilation, 200, 200)</l>
+<c>        </c>
+<c>        </c>
+<c>        </c>
+<l>        union2 (RegionOpeningv, RegionOpeningh, RegionUnion)</l>
+<l>        dilation_rectangle1 (RegionOpeningv, RegionDilationv, 30, 1)</l>
+<l>        dilation_rectangle1 (RegionOpeningh, RegionDilationh, 1, 30)</l>
+<l>        union2 (RegionDilationv, RegionDilationh, RegionUnionhv)</l>
+<l>        difference (RegionUnionhv, RegionUnion, RegionDifference)</l>
+<l>        opening_rectangle1 (RegionDifference, RegionOpening, 10, 10)</l>
+<l>        dilation_rectangle1 (RegionOpening, RegionDilation1, 250, 250)</l>
+<c>        </c>
+<c>        </c>
+<c>        ***********************多印**************************</c>
+<c>        </c>
+<l>        difference (Globalobject,RegionUnion,  RegionDifference7)</l>
+<l>        difference (RegionDifference7, RegionDilation, RegionDifference8)</l>
+<l>        difference (RegionDifference8, RegionDilation1, RegionDifference8)</l>
+<l>        opening_circle (RegionDifference8, DuoYin1, 5.5)</l>
+<l>        connection (DuoYin1, ConnectedRegions)</l>
+<l>        select_shape (ConnectedRegions, DuoYin1, ['rect2_len2','rect2_len1'], 'and', [15,15], [999999,999999])</l>
+<c>        </c>
+<c></c>
+<c>        *****************************************************************</c>
+<c>        </c>
+<c>        </c>
+<c>        ******************************漏印*****************************************</c>
+<c></c>
+<l>        connection (Globalobject, ConnectedRegions1)</l>
+<l>        connection (RegionOpeningh, ConnectedRegionsh)</l>
+<c>        </c>
+<c>        </c>
+<l>        select_obj (ConnectedRegions1, SelectedRegions, 1)</l>
+<l>        select_shape_proto (ConnectedRegionsh, SelectedRegions, SelectedRegions1, 'overlaps_rel', 10, 999999999999999)</l>
+<l>        union1 (SelectedRegions1, RegionUnion1)</l>
+<l>        closing_rectangle1 (RegionUnion1, RegionClosingh, 1, 1000)</l>
+<l>        difference (RegionClosingh, SelectedRegions1, RegionDifference5)</l>
+<l>        opening_circle (RegionDifference5,LouYin1, 5.5)</l>
+<c>        </c>
+<l>        select_obj (ConnectedRegions1, SelectedRegions, 2)</l>
+<l>        select_shape_proto (ConnectedRegionsh, SelectedRegions, SelectedRegions1, 'overlaps_rel', 10, 999999999999999)</l>
+<l>        union1 (SelectedRegions1, RegionUnion2)</l>
+<l>        closing_rectangle1 (RegionUnion2, RegionClosingh, 1, 1000)</l>
+<l>        difference (RegionClosingh, SelectedRegions1, RegionDifference5)</l>
+<l>        opening_circle (RegionDifference5,LouYin2, 5.5)</l>
+<c>        </c>
+<c>        </c>
+<l>        closing_rectangle1 (RegionOpeningv, RegionClosingv, 1000, 1)</l>
+<l>        difference (RegionClosingv, RegionOpeningv, RegionDifference6)</l>
+<l>        opening_circle (RegionDifference6, LouYin3, 5.5)</l>
+<c>       </c>
+<l>        fill_up_shape (Globalobject, RegionFillUp, 'area', 1, 400)</l>
+<l>        difference (RegionFillUp, Globalobject, differenceLouYin3)</l>
+<l>        opening_circle (differenceLouYin3, LouYin4, 3.5)</l>
+<c>        </c>
+<l>          opening_circle (Globalobject, RegionOpening1, 3.5)</l>
+<l>        closing_rectangle1 (RegionOpening1, RegionClosing, 60, 60)   </l>
+<l>        difference (RegionClosing, Globalobject, RegionDifference2)</l>
+<l>        opening_rectangle1 (RegionDifference2, LouYin5, 8,8)</l>
+<c>        ****************************************************************</c>
+<c>        </c>
+<c>           </c>
+<c>        </c>
+<l>        closing_circle (DuoYin1, RegionClosing2, 3.5)</l>
+<l>        connection (RegionClosing2, duoyin)</l>
+<l>        select_shape (duoyin, Selecteduoyin, 'area', 'and', 20, 999999)</l>
+<l>        select_shape_std (Selecteduoyin, Selecteduoyin, 'max_area', 70)</l>
+<l>        count_obj (Selecteduoyin, Number)</l>
+<l>        if (Number&gt;0)</l>
+<l>            tuple_gen_const (Number, 1, Newtuple)</l>
+<l>            GatherInfoSiYin (Selecteduoyin, Globalobject, ErrImage, ErrRoi, DetectDict, '多印', LLimit, WLimit, 1,\ 
+                             Newtuple, SiYiErrName, SiYiErrW, SiYiErrH, SiYiErrX, SiYiErrY, SiYiErrArea, MapIndex, ParIndex,\
+                             OK, ErrImageIndex) </l>
+<l>        endif</l>
+<c>        </c>
+<c>        </c>
+<c>        </c>
+<l>        union2 (LouYin1, LouYin2, LouYinUnion1)</l>
+<l>        union2 (LouYin3, LouYin4, LouYinUnion2)</l>
+<l>        union2 (LouYin4, LouYinUnion2, LouYinUnion2)</l>
+<l>        union2 (LouYinUnion1, LouYinUnion2, LouYinUnionz)</l>
+<c></c>
+<l>        closing_circle (LouYinUnionz, RegionClosing1, 3.5)</l>
+<l>        connection (RegionClosing1, DuoYin)</l>
+<l>        select_shape (DuoYin, SelectedDuoYin, 'area', 'and', 20, 99999)</l>
+<l>        select_shape_std (SelectedDuoYin, SelectedDuoYin, 'max_area', 70)</l>
+<l>        count_obj (SelectedDuoYin, Number)</l>
+<l>        if (Number&gt;0)</l>
+<l>            tuple_gen_const (Number, 1, Newtuple)</l>
+<l>            GatherInfoSiYin (SelectedDuoYin, Globalobject, ErrImage, ErrRoi, DetectDict, '漏印', LLimit, WLimit, 1,\ 
+                             Newtuple, SiYiErrName, SiYiErrW, SiYiErrH, SiYiErrX, SiYiErrY, SiYiErrArea, MapIndex, ParIndex,\
+                             OK, ErrImageIndex)  </l>
+<l>        endif</l>
+<c>  </c>
+<l>        if (OK!=[])</l>
+<l>*             tuple_rand (1, Rand)</l>
+<l>*             write_region (Globalobject, 'E:/'+Rand+'eeeeeGoReg.reg')</l>
+<l>        endif</l>
+<c>        </c>
+<c>        </c>
+<l>        if (Globalobjectarea&lt;999999)</l>
+<l>            gen_image_const (RoiImage, 'byte', 2000, 2000)</l>
+<l>            compose4 (RoiImage, RoiImage, RoiImage, RoiImage, RoiImage1)</l>
+<l>            concat_obj (ErrImage, RoiImage1, ErrImage)</l>
+<l>            gen_rectangle1 (ErrRoi1, 0, 0, 2000, 2000)</l>
+<l>            concat_obj (ErrRoi, ErrRoi1, ErrRoi)</l>
+<l>            SiYiErrName:=[SiYiErrName,'无丝印1']</l>
+<l>            SiYiErrX:=[SiYiErrX,0]</l>
+<l>            SiYiErrY:=[SiYiErrY,0]</l>
+<l>            SiYiErrW:=[SiYiErrW,0]</l>
+<l>            SiYiErrH:=[SiYiErrH,0]</l>
+<l>            SiYiErrArea:=[SiYiErrArea,0]</l>
+<l>            MapIndex:=[MapIndex,0]</l>
+<l>            ParIndex:=[ParIndex,0]</l>
+<l>            ErrImageIndex:=[ErrImageIndex,1]</l>
+<l>            OK:=[OK,'NG']</l>
+<l>        endif</l>
+<l>    endif</l>
+<c>*************************************************************************************</c>
+<l>catch (Exception )</l>
+<l>*     write_tuple (Exception, 'C:/Users/Admin/Desktop/swer/ee.tup')</l>
+<l>endtry</l>
+<l>return ()</l>
+</body>
+<docu id="Detect_WuBianSiYin">
+<parameters>
+<parameter id="AlarmImage"/>
+<parameter id="AlarmRoi"/>
+<parameter id="DetectDict"/>
+<parameter id="ErrImage"/>
+<parameter id="ErrRoi"/>
+<parameter id="MapIndex"/>
+<parameter id="OK"/>
+<parameter id="ParIndex"/>
+<parameter id="SiYiAlarmArea"/>
+<parameter id="SiYiAlarmH"/>
+<parameter id="SiYiAlarmName"/>
+<parameter id="SiYiAlarmW"/>
+<parameter id="SiYiAlarmX"/>
+<parameter id="SiYiAlarmY"/>
+<parameter id="SiYiErrArea"/>
+<parameter id="SiYiErrH"/>
+<parameter id="SiYiErrName"/>
+<parameter id="SiYiErrW"/>
+<parameter id="SiYiErrX"/>
+<parameter id="SiYiErrY"/>
+<parameter id="SiYin1"/>
+<parameter id="SiYin2"/>
+<parameter id="VisionProcessStep"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

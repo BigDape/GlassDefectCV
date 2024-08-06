@@ -42,6 +42,7 @@ void Global::InitGlobalParam()
     ReadCameraParam();
     currenttime = "0";
     SystemStatus = 0;
+    jsonTime = QDateTime::currentDateTime();
 }
 
 void Global::SaveXml()
@@ -113,3 +114,5 @@ QString Global::currenttime; //当前时间
 std::map<int,QString> Global::glassidToholejson;
 std::map<int,QString> Global::glassidTodefectjson;
 int Global::SystemStatus;
+std::mutex Global::GlobalLock; //全局锁
+QDateTime Global::jsonTime;

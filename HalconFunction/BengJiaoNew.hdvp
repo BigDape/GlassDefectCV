@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="BengJiaoNew">
+<interface>
+<io>
+<par name="Image" base_type="iconic" dimension="0"/>
+<par name="DetectArea" base_type="iconic" dimension="0"/>
+<par name="RegionUnionLine" base_type="iconic" dimension="0"/>
+<par name="RoiDetect" base_type="iconic" dimension="0"/>
+<par name="NoDetect" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="ErrRegion" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="SelectDir" base_type="ctrl" dimension="0"/>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+</ic>
+</interface>
+<body>
+<l>gen_empty_obj (ErrRegion)</l>
+<l>try</l>
+<l>    get_dict_tuple (DetectDict, '使能',EnabledDict)</l>
+<l>    get_dict_tuple (EnabledDict,'UpLeft_BengJiao_Enabled', UpLeft_BengJiao_Enabled)</l>
+<l>    get_dict_tuple (EnabledDict,'UpRight_BengJiao_Enabled', UpRight_BengJiao_Enabled)</l>
+<l>    get_dict_tuple (EnabledDict,'DownLeft_BengJiao_Enabled', DownLeft_BengJiao_Enabled)</l>
+<l>    get_dict_tuple (EnabledDict,'DownRight_BengJiao_Enabled', DownRight_BengJiao_Enabled)</l>
+<c>    </c>
+<l>    get_dict_tuple (DetectDict, '边角类',BJDict)</l>
+<l>    get_dict_tuple (BJDict, 'BengJiao_threshold_Min', BengJiao_threshold_Min)</l>
+<l>    get_dict_tuple (BJDict, 'BengJiao_threshold_Max',BengJiao_threshold_Max)</l>
+<c>    </c>
+<c>    </c>
+<l>    if ((UpLeft_BengJiao_Enabled and (SelectDir=='UpLeft')) or \
+        (UpRight_BengJiao_Enabled and (SelectDir=='UpRight'))  or \
+        (DownLeft_BengJiao_Enabled and (SelectDir=='DownLeft'))  or \
+        (DownRight_BengJiao_Enabled and (SelectDir=='DownRight')) )</l>
+<c>        </c>
+<l>        gen_empty_obj (RectangleBj) </l>
+<l>        union1 (DetectArea, RegionUnion)</l>
+<l>        select_obj (DetectArea, ObjectSelected1, 3)</l>
+<l>        count_obj (ObjectSelected1, Number1)</l>
+<l>        if (Number1==0)</l>
+<l>            smallest_rectangle2 (Image, Row3, Column3, Phi, Length1, Length2)</l>
+<l>            gen_rectangle2 (Rectangle1, Row3, Column3, 0, Length1-50, Length2-50)</l>
+<l>            concat_obj (ErrRegion, Rectangle1, ErrRegion)</l>
+<l>            return ()   </l>
+<l>        else</l>
+<l>            try</l>
+<l>                smallest_rectangle1 (RoiDetect, Row1, Column1, Row2, Column2)</l>
+<l>                if (SelectDir=='DownRight')</l>
+<l>                    gen_rectangle2 (RectangleBj, Row2, Column2, 0, 300, 300)</l>
+<l>                endif</l>
+<l>                if (SelectDir=='UpLeft')</l>
+<l>                    gen_rectangle2 (RectangleBj, Row1, Column1, 0, 300, 300)</l>
+<l>                endif</l>
+<l>                if (SelectDir=='UpRight')</l>
+<l>                    gen_rectangle2 (RectangleBj, Row1, Column2, 0, 300, 300)</l>
+<l>                endif</l>
+<l>                if (SelectDir=='DownLeft')</l>
+<l>                    gen_rectangle2 (RectangleBj, Row2, Column1, 0,300, 300)</l>
+<l>                endif    </l>
+<c>                </c>
+<l>            catch (Exception)</l>
+<l>            endtry             </l>
+<l>        endif</l>
+<c>        </c>
+<l>        area_center (ObjectSelected1, Area, Row, Column)</l>
+<l>        gen_rectangle2 (Rectangle, Row, Column, 0,200,200)</l>
+<c>        </c>
+<l>        smallest_rectangle2 (ObjectSelected1, Row4, Column4, Phi1, Length11, Length21)</l>
+<l>        gen_rectangle2 (Rectangle2, Row4, Column4, Phi1, Length11+50, Length21+50)</l>
+<c>        </c>
+<l>        union2 (Rectangle2, RegionUnion, RegionUnion1)</l>
+<l>        reduce_domain (Image, RegionUnion1, ImageReduced)</l>
+<l>        threshold (ImageReduced, Regions2, BengJiao_threshold_Min, BengJiao_threshold_Max)</l>
+<l>        difference (Regions2, NoDetect, Regions2)</l>
+<l>        closing_circle (Regions2, RegionClosing, 1)</l>
+<l>        connection (RegionClosing, ConnectedRegions)</l>
+<l>        select_shape (ConnectedRegions, SelectedRegions, 'area', 'and', 500, 99999999)</l>
+<l>        intersection (SelectedRegions, Rectangle, RegionIntersection)</l>
+<l>        select_shape (RegionIntersection, SelectedRegions1, 'area', 'and', 15, 99999)</l>
+<l>        count_obj (SelectedRegions1, Number2)</l>
+<l>        if (Number2 !=1)</l>
+<l>            concat_obj (ErrRegion, RectangleBj, ErrRegion) </l>
+<l>            return ()</l>
+<l>        endif</l>
+<c>        </c>
+<l>        select_obj (DetectArea, ObjectSelected,2)</l>
+<l>        erosion_rectangle1 (ObjectSelected, RegionErosion1, 1, 40)</l>
+<l>        intersection (RegionErosion1, RegionIntersection, RegionIntersection2)</l>
+<l>        select_shape (RegionIntersection2, SelectedRegions3, 'rect2_len1', 'and',10, 500)</l>
+<l>        count_obj (SelectedRegions3, Number)</l>
+<l>        if (Number&lt;1 )</l>
+<l>            concat_obj (ErrRegion, RectangleBj, ErrRegion)   </l>
+<l>            return ()</l>
+<l>        endif</l>
+<c>        </c>
+<c>        </c>
+<l>        select_obj (DetectArea, ObjectSelected,1)</l>
+<l>        erosion_rectangle1 (ObjectSelected, RegionErosion, 40, 1)</l>
+<l>        intersection (RegionErosion, RegionIntersection, RegionIntersection2)</l>
+<l>        select_shape (RegionIntersection2, SelectedRegions4, 'rect2_len1', 'and', 10, 500)</l>
+<l>        count_obj (SelectedRegions4, Number)</l>
+<l>        if (Number&lt;1 )</l>
+<l>            concat_obj (ErrRegion, RectangleBj, ErrRegion)</l>
+<l>            return ()</l>
+<l>        endif</l>
+<c>        </c>
+<l>    endif  </l>
+<l>catch (Exception)</l>
+<l>    return ()</l>
+<l>endtry</l>
+<l>return ()</l>
+<c></c>
+</body>
+<docu id="BengJiaoNew">
+<parameters>
+<parameter id="DetectArea"/>
+<parameter id="DetectDict"/>
+<parameter id="ErrRegion"/>
+<parameter id="Image"/>
+<parameter id="NoDetect"/>
+<parameter id="RegionUnionLine"/>
+<parameter id="RoiDetect"/>
+<parameter id="SelectDir"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

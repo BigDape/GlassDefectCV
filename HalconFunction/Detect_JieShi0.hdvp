@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="Detect_JieShi0">
+<interface>
+<io>
+<par name="Image1" base_type="iconic" dimension="0"/>
+<par name="Image2" base_type="iconic" dimension="0"/>
+<par name="Image3" base_type="iconic" dimension="0"/>
+<par name="Image4" base_type="iconic" dimension="0"/>
+<par name="DetectRoi" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="ErrRoi" base_type="iconic" dimension="0"/>
+<par name="AlarmRoi" base_type="iconic" dimension="0"/>
+<par name="ErrImage" base_type="iconic" dimension="0"/>
+<par name="AlarmImage" base_type="iconic" dimension="0"/>
+<par name="OriginalErrRoi" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+<par name="VisionProcessStep" base_type="ctrl" dimension="0"/>
+<par name="ImageIndex" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="ErrName" base_type="ctrl" dimension="0"/>
+<par name="AlarmName" base_type="ctrl" dimension="0"/>
+<par name="ErrW" base_type="ctrl" dimension="0"/>
+<par name="ErrH" base_type="ctrl" dimension="0"/>
+<par name="ErrArea" base_type="ctrl" dimension="0"/>
+<par name="ErrX" base_type="ctrl" dimension="0"/>
+<par name="ErrY" base_type="ctrl" dimension="0"/>
+<par name="AlarmW" base_type="ctrl" dimension="0"/>
+<par name="AlarmH" base_type="ctrl" dimension="0"/>
+<par name="AlarmArea" base_type="ctrl" dimension="0"/>
+<par name="AlarmX" base_type="ctrl" dimension="0"/>
+<par name="AlarmY" base_type="ctrl" dimension="0"/>
+<par name="MapIndex" base_type="ctrl" dimension="0"/>
+<par name="ParIndex" base_type="ctrl" dimension="0"/>
+<par name="ErrImageIndex" base_type="ctrl" dimension="0"/>
+<par name="OK" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>OK:=[]</l>
+<l>try</l>
+<c>    </c>
+<l>    gen_empty_obj (ErrRoi) </l>
+<l>    gen_empty_obj (AlarmRoi)</l>
+<l>    gen_empty_obj (ErrImage) </l>
+<l>    gen_empty_obj (AlarmImage)</l>
+<l>    gen_empty_obj (OriginalErrRoi)</l>
+<l>    ErrName:=[]</l>
+<l>    AlarmName:=[]</l>
+<l>    ErrW:=[]</l>
+<l>    ErrH:=[]</l>
+<l>    ErrArea:=[]</l>
+<l>    ErrX:=[]</l>
+<l>    ErrY:=[]</l>
+<l>    AlarmW:=[]</l>
+<l>    AlarmH:=[]</l>
+<l>    AlarmArea:=[]</l>
+<l>    AlarmX:=[]</l>
+<l>    AlarmY:=[]</l>
+<l>    MapIndex:=[]</l>
+<l>    ParIndex:=[]</l>
+<l>    ErrImageIndex:=[]</l>
+<c>    </c>
+<c>    </c>
+<l>    get_dict_tuple (DetectDict,'结石' , JieShiDict)</l>
+<l>    get_dict_tuple (JieShiDict, 'JieShi_threshold_Min1', JieShi_threshold_Min1) </l>
+<l>    get_dict_tuple (JieShiDict, 'JieShi_threshold_Max1', JieShi_threshold_Max1) </l>
+<l>    get_dict_tuple (JieShiDict, 'JieShi_threshold_Min2', JieShi_threshold_Min2) </l>
+<l>    get_dict_tuple (JieShiDict, 'JieShi_threshold_Max2', JieShi_threshold_Max2) </l>
+<l>    get_dict_tuple (JieShiDict, 'JieShi_threshold_Min3', JieShi_threshold_Min3) </l>
+<l>    get_dict_tuple (JieShiDict, 'JieShi_threshold_Max3', JieShi_threshold_Max3) </l>
+<l>    get_dict_tuple (JieShiDict, 'JieShi_L', JieShi_L)</l>
+<l>    get_dict_tuple (JieShiDict, 'JieShi_W', JieShi_W)</l>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<l>    erosion_rectangle1 (DetectRoi, RegionErosion, 5, 5)</l>
+<l>    reduce_domain (Image1, RegionErosion, ImageReduced)</l>
+<l>    threshold (ImageReduced, Regions1, JieShi_threshold_Min1, JieShi_threshold_Max1)</l>
+<l>    closing_circle (Regions1, RegionClosing1, 3.5)</l>
+<l>    dilation_circle (RegionClosing1, RegionDilation, 6)</l>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<l>    reduce_domain (Image2, RegionDilation, ImageReduced)</l>
+<l>    threshold (ImageReduced, Regions2, JieShi_threshold_Min2, JieShi_threshold_Max2)</l>
+<l>    closing_circle (Regions2, RegionClosing2, 5)</l>
+<l>    connection (RegionClosing2, ConnectedRegions4)</l>
+<l>    select_shape (ConnectedRegions4, r2, 'area', 'and', 30, 99999)</l>
+<l>    union1 (r2, r2)</l>
+<c>    </c>
+<l>    reduce_domain (Image3, RegionDilation, ImageReduced)</l>
+<l>    threshold (ImageReduced, Regions3, JieShi_threshold_Min3, JieShi_threshold_Max3)</l>
+<l>    closing_circle (Regions3, RegionClosing3, 3.5)</l>
+<l>    connection (RegionClosing3, ConnectedRegions3)</l>
+<l>    select_shape (ConnectedRegions3, SelectedRegions, 'area', 'and', 20, 99999)</l>
+<l>    union1 (SelectedRegions, RegionClosing3)</l>
+<c>    </c>
+<l>    intersection (RegionClosing1, r2, RegionIntersection)</l>
+<l>    intersection (RegionIntersection, RegionClosing3, RegionIntersection)</l>
+<c>    </c>
+<l>    connection (RegionClosing2, ConnectedRegions1)</l>
+<l>    select_shape_proto (ConnectedRegions1,RegionIntersection,  RegionIntersection,\
+                        'overlaps_rel', 1, 999999999999999)</l>
+<l>    select_shape (RegionIntersection, RegionIntersection, 'area', 'and', 10, 99999)</l>
+<c>    </c>
+<l>    gen_empty_obj (jieshi)</l>
+<l>    count_obj (RegionIntersection, Number1)</l>
+<l>    for Index := 1 to Number1 by 1</l>
+<l>        select_obj (RegionIntersection, ObjectSelected, Index)</l>
+<l>        intersection (Regions2,ObjectSelected,  RegionIntersection1)</l>
+<l>        connection (RegionIntersection1, ConnectedRegions2)</l>
+<l>        count_obj (ConnectedRegions2, Number2)</l>
+<l>        if (Number2&lt;=2)</l>
+<l>            union2 (jieshi, ObjectSelected, jieshi) </l>
+<l>        endif</l>
+<l>    endfor</l>
+<c>    </c>
+<l>    connection (jieshi, ConnectedRegions)</l>
+<l>    select_shape (ConnectedRegions, jieshi, 'area', 'and', 20, 9000)</l>
+<l>    count_obj ( jieshi,Number)</l>
+<l>    if (Number&gt;0)</l>
+<c>        </c>
+<l>        tuple_gen_const (Number, 3, Newtuple)</l>
+<l>        GatherInfo_OkNG (jieshi, Image1, Image2, Image3, RoiImage, TransRoi, SelectRegion, DetectDict, JieShiDict, '结石', VisionProcessStep, ImageIndex, JieShi_W, JieShi_L, Newtuple, Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK1)</l>
+<l>        if (OK1!=[])</l>
+<l>            dilation_circle (jieshi, OriginalErrRoi, 10)</l>
+<l>            ErrImage:=RoiImage</l>
+<l>            ErrRoi:=TransRoi</l>
+<l>            ErrName:=Name</l>
+<l>            ErrW:=W</l>
+<l>            ErrH:=H</l>
+<l>            ErrArea:=Area</l>
+<l>            ErrX:=X</l>
+<l>            ErrY:=Y</l>
+<l>            MapIndex:=mapIndex</l>
+<l>            ParIndex:=parIndex</l>
+<l>            ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>            OK:=[OK,OK1] </l>
+<l>        endif</l>
+<l>    endif</l>
+<c>    </c>
+<c>    **************************************************************************************</c>
+<l>catch (Exception )</l>
+<l>endtry</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="Detect_JieShi0">
+<parameters>
+<parameter id="AlarmArea"/>
+<parameter id="AlarmH"/>
+<parameter id="AlarmImage"/>
+<parameter id="AlarmName"/>
+<parameter id="AlarmRoi"/>
+<parameter id="AlarmW"/>
+<parameter id="AlarmX"/>
+<parameter id="AlarmY"/>
+<parameter id="DetectDict"/>
+<parameter id="DetectRoi"/>
+<parameter id="ErrArea"/>
+<parameter id="ErrH"/>
+<parameter id="ErrImage"/>
+<parameter id="ErrImageIndex"/>
+<parameter id="ErrName"/>
+<parameter id="ErrRoi"/>
+<parameter id="ErrW"/>
+<parameter id="ErrX"/>
+<parameter id="ErrY"/>
+<parameter id="Image1"/>
+<parameter id="Image2"/>
+<parameter id="Image3"/>
+<parameter id="Image4"/>
+<parameter id="ImageIndex"/>
+<parameter id="MapIndex"/>
+<parameter id="OK"/>
+<parameter id="OriginalErrRoi"/>
+<parameter id="ParIndex"/>
+<parameter id="VisionProcessStep"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

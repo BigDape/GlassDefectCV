@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>read_image (Image1, 'E:/NG/ImageD1.bmp')</l>
+<l>read_image (Image2, 'E:/NG/ImageD2.bmp')</l>
+<l>read_image (Image3, 'E:/NG/ImageD3.bmp')</l>
+<l>read_image (Image4, 'E:/NG/ImageD4.bmp')</l>
+<l>get_image_size (Image1, Width, Height)</l>
+<l>gen_region_line (RegionLinesC1, 1, Width-1, Height, Width-1)</l>
+<l>threshold (Image1, Region, 200, 255)</l>
+<l>connection (Region, ConnectedRegions)</l>
+<l>select_shape_std (ConnectedRegions, SelectedRegions, 'max_area', 70)</l>
+<l>area_center (SelectedRegions, Area, Row, Column)</l>
+<l>if(Area&gt;10000)</l>
+<l>    intersection (SelectedRegions, RegionLinesC1, RegionIntersection)</l>
+<l>    smallest_rectangle1 (RegionIntersection, Row1, Column1, Row2, Column2)</l>
+<c>    </c>
+<l>    x1:=Row1</l>
+<c>    </c>
+<l>endif</l>
+<c></c>
+<c></c>
+<l>gen_region_line (RegionLinesC2, 1, 1, Height, 1)</l>
+<l>threshold (Image2, Region1, 200, 255)</l>
+<l>connection (Region1, ConnectedRegions1)</l>
+<l>select_shape (ConnectedRegions1, SelectedRegions1, 'area', 'and', 10000, 999999999)</l>
+<c></c>
+<l>intersection (SelectedRegions1, RegionLinesC2, RegionIntersection)</l>
+<l>smallest_rectangle1 (RegionIntersection, Row11, Column11, Row12, Column12)</l>
+<l>tuple_min (Row11, x2)</l>
+<l>dif:=x1-x2</l>
+<c>    </c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="Detect_MingHua">
+<interface>
+<io>
+<par name="Image1" base_type="iconic" dimension="0"/>
+<par name="Image2" base_type="iconic" dimension="0"/>
+<par name="DetectRoi" base_type="iconic" dimension="0"/>
+<par name="NoDetectRoi" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="ErrImage" base_type="iconic" dimension="0"/>
+<par name="ErrRoi" base_type="iconic" dimension="0"/>
+<par name="OriginalErrRoi" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="ErrName" base_type="ctrl" dimension="0"/>
+<par name="ErrW" base_type="ctrl" dimension="0"/>
+<par name="ErrH" base_type="ctrl" dimension="0"/>
+<par name="ErrArea" base_type="ctrl" dimension="0"/>
+<par name="ErrX" base_type="ctrl" dimension="0"/>
+<par name="ErrY" base_type="ctrl" dimension="0"/>
+<par name="MapIndex" base_type="ctrl" dimension="0"/>
+<par name="ParIndex" base_type="ctrl" dimension="0"/>
+<par name="ErrImageIndex" base_type="ctrl" dimension="0"/>
+<par name="OK" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>OK:=[]</l>
+<l>try</l>
+<c>    </c>
+<l>    gen_empty_obj (ErrRoi) </l>
+<l>    gen_empty_obj (ErrImage) </l>
+<l>    gen_empty_obj (OriginalErrRoi)</l>
+<l>    gen_empty_obj (minghua1)</l>
+<l>    gen_empty_obj (maoxu)</l>
+<l>    gen_empty_obj (shuizi)</l>
+<l>    gen_empty_obj (OriginalErrRoi_A)</l>
+<l>    ErrName:=[]</l>
+<l>    ErrW:=[]</l>
+<l>    ErrH:=[]</l>
+<l>    ErrArea:=[]</l>
+<l>    ErrX:=[]</l>
+<l>    ErrY:=[]</l>
+<l>    MapIndex:=[]</l>
+<l>    ParIndex:=[]</l>
+<l>    ErrImageIndex:=[]</l>
+<c>    </c>
+<c>    </c>
+<l>   * get_dict_tuple (DetectDict,'结石' , JieShiDict)</l>
+<l>  *  get_dict_tuple (JieShiDict, 'JieShi_threshold_Min1', JieShi_threshold_Min1) </l>
+<l>   get_dict_tuple (DetectDict,'明划' , MinHuaDict)</l>
+<c>    </c>
+<l>    get_dict_tuple (DetectDict,'使能' , EnabledDict)</l>
+<l>    get_dict_tuple (EnabledDict,'亮印记Pass显示' , LYJpass_enable)</l>
+<l>    get_dict_tuple (EnabledDict,'毛絮Pass显示' , MXpass_enable)</l>
+<l>  *  get_dict_tuple (EnabledDict, 'JieShi2_Enabled', JieShi_Enabled2)  </l>
+<l>   get_dict_tuple (EnabledDict, '明划', minghua_Enabled)  </l>
+<c>    </c>
+<l>     get_dict_tuple (DetectDict,'算法初筛' , AlgoPreDict)</l>
+<l>     get_dict_tuple (AlgoPreDict,'明划初筛灰度' , minghua_pregray)</l>
+<l>    get_dict_tuple (AlgoPreDict,'明划初筛像素长度' , minghua_prepixel)</l>
+<l>    get_dict_tuple (DetectDict,'系统参数', EnabledDict)</l>
+<l>   * get_dict_tuple (EnabledDict,'siyinclass' , siyinclass)  </l>
+<c>   </c>
+<l>  *  erosion_rectangle1 (DetectRoi, RegionErosion, 10, 10)</l>
+<l>    difference (DetectRoi, NoDetectRoi, RegionErosion)    </l>
+<l>    reduce_domain (Image1, RegionErosion, ImageReducedD)   </l>
+<l>    reduce_domain (Image2, RegionErosion, ImageReducedL)   </l>
+<c>    </c>
+<c>    </c>
+<l>    if (minghua_Enabled=1 or minghua_Enabled=true)  </l>
+<l>        threshold (ImageReducedD, Regions, 30, 255)</l>
+<l>        closing_circle (Regions, RegionClosing, 3.5)</l>
+<l>        connection (RegionClosing, ConnectedRegions)</l>
+<l>        select_shape (ConnectedRegions, SelectedRegions, 'rect2_len1', 'and', minghua_prepixel, 9999999) </l>
+<l>        intensity (SelectedRegions, ImageReducedD, Mean, Deviation)</l>
+<c></c>
+<l>        c:=Mean[&gt;=]minghua_pregray</l>
+<l>        d:= find(c, 1)</l>
+<l>        if(d!=-1)</l>
+<l>        select_obj (SelectedRegions, ObjectSelected, d+1)                                     </l>
+<l>        select_shape (ObjectSelected, SelectedRegions, 'circularity', 'and', 0, 0.2)  </l>
+<l>        count_obj (SelectedRegions, Number)</l>
+<c>        </c>
+<l>*         region_features (SelectedRegions, 'anisometry', Anisometry)</l>
+<l>        region_features (SelectedRegions, 'bulkiness', Bulkiness)</l>
+<l>        region_features (SelectedRegions, 'area', Area)</l>
+<l>        smallest_rectangle2 (SelectedRegions, Row, Column, Phi, Length1, Length2)</l>
+<l>        contlength (SelectedRegions, ContLength)   </l>
+<l>        radio_1:=Length1/(Length2+0.01)        </l>
+<l>        width_1:=2*Area/(ContLength+0.01)          </l>
+<c>        </c>
+<c>        </c>
+<l>        for Index := 1 to Number by 1              </l>
+<l>             select_obj (SelectedRegions, ObjectSelected11, Index)  </l>
+<l>             region_features (ObjectSelected11, 'bulkiness', bul_v)</l>
+<l>             region_features (ObjectSelected11, 'anisometry', ani_v)</l>
+<l>             region_features (ObjectSelected11, 'circularity', cir_v)</l>
+<l>             dilation_circle (ObjectSelected11, RegionDilation11, 10.5)</l>
+<l>             reduce_domain (ImageReducedD, RegionDilation11, ImageReduced11_d)   </l>
+<l>             reduce_domain (ImageReducedL, RegionDilation11, ImageReduced11_l)</l>
+<l>             threshold (ImageReduced11_d, Region11, 200, 255)</l>
+<l>             connection (Region11, ConnectedRegions11)</l>
+<l>             select_shape_std (ConnectedRegions11, SelectedRegions11, 'max_area', 70)</l>
+<l>             intensity (SelectedRegions11, ImageReduced11_l, Mean11, Deviation11)</l>
+<l>             smallest_rectangle1 (ObjectSelected11, Row1, Column1, Row2, Column2)</l>
+<l>             gen_rectangle1 (Rectangle11, Row1, Column1, Row2, Column2)</l>
+<l>             intensity (Rectangle11, ImageReducedL, Mean12, Deviation12)</l>
+<c>             </c>
+<l>             read_class_mlp ('d:/HalconFunction/ClassHandleHMS.gsc', ClassHandle)</l>
+<l>             calculate_features_HMS (ObjectSelected11, ImageReduced11_d,ImageReduced11_l, Features)</l>
+<l>             classify_class_mlp (ClassHandle, Features, 1, Class, Confidence)</l>
+<l>             a:=0</l>
+<l>             if(Class=1 and Confidence&gt;0.9)</l>
+<c>                 *明划</c>
+<l>               if(Mean[Index-1]&gt;minghua_pregray+20)</l>
+<l>                concat_obj (minghua1, ObjectSelected11, minghua1)</l>
+<l>                a:=1</l>
+<l>               endif</l>
+<l>             else</l>
+<l>                 if((Class=0 and Confidence&gt;0.9))</l>
+<c>                     *毛絮  </c>
+<l>                     if((Mean11&gt;Mean12+5 and bul_v&lt;3 and ani_v&gt;5) or (Mean11&gt;Mean12+1 and cir_v&lt;0.05))</l>
+<l>                       concat_obj (minghua1, ObjectSelected11, minghua1)   </l>
+<l>                     else</l>
+<l>                 concat_obj (maoxu, ObjectSelected11, maoxu)</l>
+<l>                     endif</l>
+<l>                  a:=1</l>
+<l>                 else</l>
+<l>                    if((Class=2 and Confidence&gt;0.9)) </l>
+<c>                        *水渍</c>
+<l>                         concat_obj (shuizi, ObjectSelected11, shuizi)  </l>
+<l>                         a:=1</l>
+<l>                    else</l>
+<l>                       if(Bulkiness[Index-1]&lt;1.2 and Length2[Index-1]&lt;5)</l>
+<l>                         concat_obj (minghua1, ObjectSelected11, minghua1)</l>
+<l>                       else</l>
+<l>                          concat_obj (maoxu, ObjectSelected11, maoxu)</l>
+<l>                       endif</l>
+<l>                       a:=1</l>
+<l>                    endif</l>
+<l>                 endif</l>
+<c>                 </c>
+<l>             endif</l>
+<c>          </c>
+<c>            * 屏蔽反射影子  </c>
+<l>            if(a=1)</l>
+<l>            area_center (ObjectSelected11, Area11, Row11, Column11)             </l>
+<l>            gen_rectangle1 (Rectangle11, Row11-200, Column11-200, Row11+200, Column11+200)            </l>
+<l>            reduce_domain (Image1, Rectangle11, ImageReduced11)</l>
+<l>            threshold (ImageReduced11, Region11, 30, 255)</l>
+<l>            closing_circle (Region11, RegionClosing12, 200.5)</l>
+<l>            connection (RegionClosing12, ConnectedRegions11)</l>
+<l>            select_shape_std (ConnectedRegions11, SelectedRegions11, 'max_area', 70)                    </l>
+<l>            concat_obj (OriginalErrRoi_A, SelectedRegions11, OriginalErrRoi_A)  </l>
+<l>            endif</l>
+<l>        endfor</l>
+<c>    </c>
+<c>        </c>
+<c>        </c>
+<l>        select_shape (minghua1, minghua1, 'area', 'and', 1, 999999999) </l>
+<l>        count_obj (minghua1, Number14)</l>
+<l>        if(Number14&gt;0)</l>
+<c>        *Newtuple缺陷显示图序号</c>
+<l>                    tuple_gen_const (Number14, 1, Newtuple) </l>
+<l>              get_dict_tuple (MinHuaDict,'明划宽度最小值' , Pass_W)</l>
+<l>              get_dict_tuple (MinHuaDict,'明划长度最小值' , Pass_L)</l>
+<l>         get_dict_tuple (MinHuaDict,'明划灰度最小值' , Pass_Gray)</l>
+<l>            GatherInfo_OkNG (minghua1, Image1, Image2, RoiImage, TransRoi, DetectDict, MinHuaDict, '明划', Newtuple, Pass_L, Pass_W, Pass_Gray, 10000, Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK1)</l>
+<c>                   </c>
+<l>         if (OK1!=[])</l>
+<l>                        concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                        concat_obj (ErrRoi, TransRoi, ErrRoi)</l>
+<l>                        ErrName:=[ErrName,Name]</l>
+<l>                        ErrW:=[ErrW,W]</l>
+<l>                        ErrH:=[ErrH,H]</l>
+<l>                        ErrArea:=[ErrArea,Area]</l>
+<l>                        ErrX:=[ErrX,X]</l>
+<l>                        ErrY:=[ErrY,Y]</l>
+<l>                        MapIndex:=[MapIndex,mapIndex]</l>
+<l>                        ParIndex:=[ParIndex,parIndex]</l>
+<l>                        ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>                        OK:=[OK,OK1]</l>
+<l>         endif</l>
+<c></c>
+<l>    endif</l>
+<l>   if( MXpass_enable=1 or MXpass_enable=true)</l>
+<l>     select_shape (maoxu, maoxu, 'area', 'and', 1, 999999999) </l>
+<l>        count_obj (maoxu, Number15)</l>
+<l>        if(Number15&gt;0)</l>
+<c>        *Newtuple缺陷显示图序号</c>
+<l>                    tuple_gen_const (Number15, 1, Newtuple)   </l>
+<l>                     get_dict_tuple (MinHuaDict,'毛絮宽度最小值' , Pass_W)</l>
+<l>              get_dict_tuple (MinHuaDict,'毛絮长度最小值' , Pass_L)</l>
+<l>               get_dict_tuple (MinHuaDict,'毛絮灰度最小值' , Pass_Gray)</l>
+<l>                GatherInfo_OkNG (maoxu, Image1, Image2, RoiImage, TransRoi, DetectDict, MinHuaDict, '毛絮', Newtuple, Pass_L, Pass_W, Pass_Gray, 10000, Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK2)</l>
+<c>                   </c>
+<l>         if (OK2!=[])                        </l>
+<l>                        concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                        concat_obj (ErrRoi, TransRoi, ErrRoi)</l>
+<l>                        ErrName:=[ErrName,Name]</l>
+<l>                        ErrW:=[ErrW,W]</l>
+<l>                        ErrH:=[ErrH,H]</l>
+<l>                        ErrArea:=[ErrArea,Area]</l>
+<l>                        ErrX:=[ErrX,X]</l>
+<l>                        ErrY:=[ErrY,Y]</l>
+<l>                        MapIndex:=[MapIndex,mapIndex]</l>
+<l>                        ParIndex:=[ParIndex,parIndex]</l>
+<l>                        ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>                        OK:=[OK,OK2]</l>
+<l>         endif</l>
+<c>       </c>
+<l>    endif</l>
+<l>   endif</l>
+<l>if(LYJpass_enable=1 or LYJpass_enable=true)</l>
+<l>    select_shape (shuizi, shuizi, 'area', 'and', 1, 9999999999)</l>
+<l>    count_obj (shuizi,Number16)</l>
+<l>    if (Number16&gt;0)</l>
+<c>                </c>
+<c>                    *Newtuple缺陷显示图序号</c>
+<l>                    tuple_gen_const (Number16, 1, Newtuple)   </l>
+<l>              get_dict_tuple (MinHuaDict,'亮印记宽度最小值' , Pass_W)</l>
+<l>              get_dict_tuple (MinHuaDict,'亮印记长度最小值' , Pass_L)</l>
+<l>              get_dict_tuple (MinHuaDict,'亮印记灰度最小值' , Pass_Gray)</l>
+<c>          </c>
+<l>                GatherInfo_OkNG (shuizi, Image1, Image2, RoiImage, TransRoi, DetectDict, MinHuaDict, '亮印记', Newtuple, Pass_L, Pass_W, Pass_Gray, 10000, Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK3)</l>
+<l>                    if (OK3!=[])                        </l>
+<l>                        concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                        concat_obj (ErrRoi, TransRoi, ErrRoi)</l>
+<l>                        ErrName:=[ErrName,Name]</l>
+<l>                        ErrW:=[ErrW,W]</l>
+<l>                        ErrH:=[ErrH,H]</l>
+<l>                        ErrArea:=[ErrArea,Area]</l>
+<l>                        ErrX:=[ErrX,X]</l>
+<l>                        ErrY:=[ErrY,Y]</l>
+<l>                        MapIndex:=[MapIndex,mapIndex]</l>
+<l>                        ParIndex:=[ParIndex,parIndex]</l>
+<l>                        ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>                        OK:=[OK,OK3]                     </l>
+<l>                    endif                            </l>
+<l>            endif </l>
+<l>endif</l>
+<l>    if(Number14+Number15+Number16&gt;0)</l>
+<l>    dilation_circle (OriginalErrRoi_A, OriginalErrRoi, 30)</l>
+<l>    endif</l>
+<c>    </c>
+<l>    endif</l>
+<l>    endif</l>
+<c>    </c>
+<c>    </c>
+<c>    **************************************************************************************</c>
+<l>catch (Exception )</l>
+<l>endtry</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="Detect_MingHua">
+<parameters>
+<parameter id="DetectDict"/>
+<parameter id="DetectRoi"/>
+<parameter id="ErrArea"/>
+<parameter id="ErrH"/>
+<parameter id="ErrImage"/>
+<parameter id="ErrImageIndex"/>
+<parameter id="ErrName"/>
+<parameter id="ErrRoi"/>
+<parameter id="ErrW"/>
+<parameter id="ErrX"/>
+<parameter id="ErrY"/>
+<parameter id="Image1"/>
+<parameter id="Image2"/>
+<parameter id="MapIndex"/>
+<parameter id="NoDetectRoi"/>
+<parameter id="OK"/>
+<parameter id="OriginalErrRoi"/>
+<parameter id="ParIndex"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

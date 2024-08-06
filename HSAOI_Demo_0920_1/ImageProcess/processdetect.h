@@ -38,7 +38,7 @@ public:
     void SummaryResults(GlassDataBaseInfo baseinfo);
     void SummaryFailResult();
     void DetectData2Json(DefeteResult result,QString jsonFullPath);
-    void HolesData2Json(ProcessHolesAlgorithmResults procesHoleResult,HoleResult& holeresult);
+    void HolesData2Json(ProcessHolesAlgorithmResults& procesHoleResult,HoleResult& holeresult);
     void Glassinfo(ProcessVisionAlgorithmResults result, GlassDataBaseInfo& baseinfo);
     void saveErrImage(ProcessVisionAlgorithmResults result, DefeteResult& defect);
     void funcSaveErrImage();
@@ -67,9 +67,6 @@ public:
     std::atomic<bool> hasStopThread;    //线程停止
 
 private:
-     int GlassPosition;                 //玻璃位置(0整1前2中3后)
-     int ProcessStep;                   //当前执行帧步
-     int m_FramesPerTri;                //帧次
      bool ResultNotOutFlag;             //记录上一次输出结果
      bool ErrFlag;                      //是否发生错误
 
@@ -84,9 +81,10 @@ private:
 
      SafeQueue<std::tuple<QString, HObject>> threadQueue; //线程安全的缺陷小图队列
 
-     QDateTime currentTimeJson;       //json文件名时间点
      bool onceCall;                 //只调用一次
      SummaryResult summaryResult; //玻璃总的结果
+     HTuple aaa;
+
 };
 
 #endif // PROCESS_DETECT_H

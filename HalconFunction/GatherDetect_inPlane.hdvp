@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="GatherDetect_inPlane">
+<interface>
+<io>
+<par name="ImageReduced_inPlane_d" base_type="iconic" dimension="0"/>
+<par name="ImageReduced_inPlane_l" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="scratchDefectBright" base_type="iconic" dimension="0"/>
+<par name="scratchDefect" base_type="iconic" dimension="0"/>
+<par name="imprintDefect" base_type="iconic" dimension="0"/>
+<par name="pointDefect" base_type="iconic" dimension="0"/>
+<par name="dirtyDefect" base_type="iconic" dimension="0"/>
+<par name="dirtyDefectRegiment" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+</ic>
+</interface>
+<body>
+<c>**面检参数</c>
+<l>get_dict_tuple (DetectDict, 'base_threshold', base_threshold)</l>
+<l>get_dict_tuple (DetectDict, 'region_area_for_primaryElect', region_area_for_primaryElect)</l>
+<l>get_dict_tuple (DetectDict, 'aspect_ratio_1', aspect_ratio_1)</l>
+<l>get_dict_tuple (DetectDict, 'aspect_ratio_2', aspect_ratio_2)</l>
+<c>*BendingScratchAreaRatio弯划痕面积比</c>
+<l>get_dict_tuple (DetectDict, 'BendingScratchAreaRatio', BendingScratchAreaRatio)</l>
+<c>*BendingScratchWidth_threshold弯划痕宽度阈值</c>
+<l>get_dict_tuple (DetectDict, 'BendingScratchWidth_threshold', BendingScratchWidth_threshold)</l>
+<c>*BendingScratchWidth_threshold弯刮伤宽度阈值</c>
+<l>get_dict_tuple (DetectDict, 'BendingScratchBrightWidth_threshold', BendingScratchBrightWidth_threshold)</l>
+<c>*新增********************************************************************************************************</c>
+<c>*BendingScratchBrightAreaRatio弯刮伤面积比</c>
+<l>get_dict_tuple (DetectDict, 'BendingScratchBrightAreaRatio', BendingScratchBrightAreaRatio)</l>
+<c></c>
+<c></c>
+<l>get_dict_tuple (DetectDict, 'scratchDefectBright_grayValue', scratchDefectBright_grayValue)</l>
+<l>get_dict_tuple (DetectDict, 'scratchDefectBright_lengthValue', scratchDefectBright_lengthValue)</l>
+<l>get_dict_tuple (DetectDict, 'scratchDefectBright_lengthValue_Max', scratchDefectBright_lengthValue_Max)</l>
+<l>get_dict_tuple (DetectDict, 'scratchDefectBright_widthValue', scratchDefectBright_widthValue)</l>
+<l>get_dict_tuple (DetectDict, 'scratchDefectBright_widthValue_Max', scratchDefectBright_widthValue_Max)</l>
+<l>get_dict_tuple (DetectDict, 'scratchDefectBright_Enabled', scratchDefectBright_Enabled)</l>
+<l>get_dict_tuple (DetectDict, 'scratchDefect_grayValue', scratchDefect_grayValue)</l>
+<l>get_dict_tuple (DetectDict, 'scratchDefect_lengthValue', scratchDefect_lengthValue)</l>
+<l>get_dict_tuple (DetectDict, 'scratchDefect_lengthValue_Max', scratchDefect_lengthValue_Max)</l>
+<l>get_dict_tuple (DetectDict, 'scratchDefect_widthValue', scratchDefect_widthValue)</l>
+<l>get_dict_tuple (DetectDict, 'scratchDefect_widthValue_Max', scratchDefect_widthValue_Max)</l>
+<l>get_dict_tuple (DetectDict, 'scratchDefect_Enabled', scratchDefect_Enabled)</l>
+<l>get_dict_tuple (DetectDict, 'imprintDefect_grayValue', imprintDefect_grayValue)</l>
+<l>get_dict_tuple (DetectDict, 'imprintDefect_lengthValue', imprintDefect_lengthValue)</l>
+<l>get_dict_tuple (DetectDict, 'imprintDefect_widthValue', imprintDefect_widthValue)</l>
+<l>get_dict_tuple (DetectDict, 'imprintDefect_Enabled', imprintDefect_Enabled)</l>
+<l>get_dict_tuple (DetectDict, 'region_size_for_primaryElect', region_size_for_primaryElect)</l>
+<l>get_dict_tuple (DetectDict, 'Circularity_littlePointDefect', Circularity_littlePointDefect)</l>
+<l>get_dict_tuple (DetectDict, 'pointDefect_grayValue', pointDefect_grayValue)</l>
+<l>get_dict_tuple (DetectDict, 'Roundness_middlePointDefect', Roundness_middlePointDefect)</l>
+<l>get_dict_tuple (DetectDict, 'Area_middlePointDefect', Area_middlePointDefect)</l>
+<c></c>
+<l>get_dict_tuple (DetectDict, 'pointDefect_sizeValue', pointDefect_sizeValue)</l>
+<l>get_dict_tuple (DetectDict, 'pointDefect_sizeValueMax', pointDefect_sizeValueMax)</l>
+<l>get_dict_tuple (DetectDict, 'pointDefect_Enabled', pointDefect_Enabled)</l>
+<l>get_dict_tuple (DetectDict, 'dirtyDefect_grayValue', dirtyDefect_grayValue)</l>
+<l>get_dict_tuple (DetectDict, 'dirtyDefect_sizeValue', dirtyDefect_sizeValue)</l>
+<l>get_dict_tuple (DetectDict, 'dirtyDefect_Enabled', dirtyDefect_Enabled)</l>
+<l>get_dict_tuple (DetectDict, 'dirtyDefectRegiment_grayValue', dirtyDefectRegiment_grayValue)</l>
+<l>get_dict_tuple (DetectDict, 'dirtyDefectRegiment_sizeValue', dirtyDefectRegiment_sizeValue)</l>
+<l>get_dict_tuple (DetectDict, 'dirtyDefectRegiment_Enabled', dirtyDefectRegiment_Enabled)</l>
+<l>get_dict_tuple (DetectDict, 'PolishedLiquidContaminant_grayValue', PolishedLiquidContaminant_grayValue)</l>
+<l>get_dict_tuple (DetectDict, 'PolishedLiquidContaminant_sizeValue', PolishedLiquidContaminant_sizeValue)</l>
+<l>get_dict_tuple (DetectDict, 'PolishedLiquidContaminant_Enabled', PolishedLiquidContaminant_Enabled)</l>
+<c></c>
+<c>*新增********************************************************************************************************</c>
+<c>*闭运算参数</c>
+<l>get_dict_tuple (DetectDict, 'Closing_value', Closing_value)</l>
+<c>*</c>
+<c>     *刮伤</c>
+<l>    gen_empty_obj (scratchDefectBright)</l>
+<c>    *划痕</c>
+<l>    gen_empty_obj (scratchDefect)</l>
+<c>    *印记</c>
+<l>    gen_empty_obj (imprintDefect)</l>
+<c>    *点缺陷</c>
+<l>    gen_empty_obj (pointDefect)</l>
+<c>    *脏污</c>
+<l>    gen_empty_obj (dirtyDefect)</l>
+<c>    *团状脏污</c>
+<l>    gen_empty_obj (dirtyDefectRegiment)</l>
+<c>    *抛光液污染</c>
+<l>    gen_empty_obj (PolishedLiquidContaminant)</l>
+<c>    </c>
+<c>    </c>
+<l>try</l>
+<l>              threshold (ImageReduced_inPlane_d, Region_inPlane, base_threshold, 255)</l>
+<c>              </c>
+<l>            *  closing_rectangle1 (ConnectedRegions_inPlane, RegionClosing_inPlane,Closing_value, Closing_value)</l>
+<l>              closing_circle (Region_inPlane, RegionClosing_inPlane, Closing_value)</l>
+<l>              connection (RegionClosing_inPlane, ConnectedRegions_inPlane)</l>
+<c>              *region_area_for_primaryElect</c>
+<l>              select_shape (ConnectedRegions_inPlane, SelectedRegions, 'area', 'and', region_area_for_primaryElect, 2e+10)</l>
+<l>              count_obj (SelectedRegions, defect_count)</l>
+<c>              *区域平均灰度值统计</c>
+<l>              intensity (SelectedRegions, ImageReduced_inPlane_d, Mean, Deviation)</l>
+<c>              *圆度特征计算</c>
+<l>              circularity(SelectedRegions, Circularity)</l>
+<c>              *圆度特征2</c>
+<l>              roundness (SelectedRegions, Distance, Sigma, Roundness, Sides)</l>
+<c>              *区域面积统计</c>
+<l>              area_center (SelectedRegions, Area, Row1, Column1)</l>
+<l>              smallest_rectangle2 (SelectedRegions, Row2, Column2, Phi1, Length11, Length21)</l>
+<l>              smallest_rectangle1 (SelectedRegions, Row12, Column12, Row22, Column22)</l>
+<c>              </c>
+<l>              contlength (SelectedRegions, ContLength)</l>
+<c>                         </c>
+<l>              if (defect_count&gt;0)</l>
+<l>                  for Index1 := 1 to defect_count by 1</l>
+<c>                    </c>
+<l>                 if (Length11[Index1-1]/Length21[Index1-1] &gt; aspect_ratio_2 and Length21[Index1-1]&lt;(BendingScratchWidth_threshold+2)  and Mean[Index1-1]&gt;scratchDefect_grayValue and 2*Length11[Index1-1]&gt;(scratchDefect_lengthValue/0.02) and 2*Length21[Index1-1]&gt;(scratchDefect_widthValue/0.02) )</l>
+<c>                      *直细划痕</c>
+<l>                      select_obj (SelectedRegions, SelectedRegions1,Index1) </l>
+<l>                      concat_obj (scratchDefect, SelectedRegions1, scratchDefect)</l>
+<l>                 else </l>
+<l>                          if(Length11[Index1-1]/Length21[Index1-1] &gt; (aspect_ratio_2+5) and ContLength[Index1-1]/Length11[Index1-1]&lt;5 and Length21[Index1-1]&gt;=(BendingScratchWidth_threshold+2)  )</l>
+<c>                                *长划痕</c>
+<l>                                  select_obj (SelectedRegions, SelectedRegions1,Index1) </l>
+<l>                                  concat_obj (scratchDefect, SelectedRegions1, scratchDefect)</l>
+<l>                            else</l>
+<l>                               if(4*Length11[Index1-1]*Length21[Index1-1]/Area[Index1-1]&gt;BendingScratchAreaRatio and Length21[Index1-1]&gt;100 and ContLength[Index1-1]/Length11[Index1-1]&lt;5 and Mean[Index1-1]&gt;scratchDefect_grayValue and 2*Length11[Index1-1]&gt;scratchDefect_lengthValue/0.02 and 2*Length21[Index1-1]&gt;scratchDefect_widthValue/0.02)</l>
+<c>                                   *弯划痕</c>
+<l>                                  select_obj (SelectedRegions, SelectedRegions1,Index1) </l>
+<l>                                  concat_obj (scratchDefect, SelectedRegions1, scratchDefect)</l>
+<l>                                else</l>
+<c>                      </c>
+<c>                      </c>
+<c>                      *第一次长宽比筛选</c>
+<l>                      if (Length11[Index1-1]/Length21[Index1-1] &gt; aspect_ratio_1)</l>
+<c>                          *第一次长宽比筛选---&gt;划伤、划痕/印记</c>
+<l>                         if(Mean[Index1-1]&gt;scratchDefectBright_grayValue)</l>
+<c>                           *长亮缺陷 </c>
+<l>                             if (4*Length11[Index1-1]*Length21[Index1-1]/Area[Index1-1]&gt;BendingScratchBrightAreaRatio and Length11[Index1-1]&gt;100)</l>
+<c>                              *弯刮伤       </c>
+<l>                               select_obj (SelectedRegions,SelectedRegions1,Index1)  </l>
+<l>                               concat_obj (scratchDefectBright, SelectedRegions1, scratchDefectBright)</l>
+<l>                             else</l>
+<l>                                 if(2*Length11[Index1-1]&gt;scratchDefectBright_lengthValue/0.02 and 2*Length21[Index1-1]&gt;(scratchDefectBright_widthValue/0.02) and Length11[Index1-1]/Length21[Index1-1] &gt; aspect_ratio_2)</l>
+<c>                                   *直刮伤   </c>
+<l>                                   select_obj (SelectedRegions,SelectedRegions1,Index1)  </l>
+<l>                                   concat_obj (scratchDefectBright, SelectedRegions1, scratchDefectBright)  </l>
+<l>                                 else</l>
+<c>                                    </c>
+<l>                                    if(2*Length11[Index1-1]&gt;=(imprintDefect_lengthValue/0.02) and 2*Length21[Index1-1]&gt;=(imprintDefect_widthValue/0.02))</l>
+<c>                                     *印记</c>
+<l>                                     select_obj (SelectedRegions, SelectedRegions1,Index1)  </l>
+<l>                                     concat_obj (imprintDefect, SelectedRegions1, imprintDefect)</l>
+<l>                                    elseif((Length11[Index1-1] + Length21[Index1-1])&gt;(dirtyDefect_sizeValue/0.02))</l>
+<c>                                     *脏污</c>
+<l>                                      select_obj (SelectedRegions, SelectedRegions1,Index1) </l>
+<l>                                      concat_obj (dirtyDefect, SelectedRegions1, dirtyDefect)</l>
+<l>                                    endif </l>
+<c>                                     </c>
+<l>                                 endif                              </l>
+<l>                             endif</l>
+<c>                           </c>
+<l>                         else                         </l>
+<c>                              </c>
+<l>                            if (Mean[Index1-1]&gt;imprintDefect_grayValue and 2*Length11[Index1-1]&gt;=(imprintDefect_lengthValue/0.02) and 2*Length21[Index1-1]&gt;=(imprintDefect_widthValue/0.02))</l>
+<c>                                *印记</c>
+<l>                                select_obj (SelectedRegions, SelectedRegions1,Index1)  </l>
+<l>                                concat_obj (imprintDefect, SelectedRegions1, imprintDefect)</l>
+<l>                            elseif(Mean[Index1-1]&gt;dirtyDefect_grayValue and (Length11[Index1-1] + Length21[Index1-1])&gt;(dirtyDefect_sizeValue/0.02))</l>
+<c>                               *脏污</c>
+<l>                               select_obj (SelectedRegions, SelectedRegions1,Index1) </l>
+<l>                               concat_obj (dirtyDefect, SelectedRegions1, dirtyDefect) </l>
+<c>                               </c>
+<l>                            endif                                     </l>
+<l>                         endif</l>
+<c>                          </c>
+<l>                      else</l>
+<c>                          *第一次长宽比筛选---&gt;点缺陷/脏污</c>
+<c>                          *尺寸初筛                           </c>
+<l>                          if ((Length11[Index1-1] + Length21[Index1-1])&gt;region_size_for_primaryElect)                              </l>
+<c>                             *灰度均值 点缺陷和脏污分类</c>
+<l>                             if (Mean[Index1-1] &gt; pointDefect_grayValue)</l>
+<l>                                if(Area[Index1-1]&lt;Area_middlePointDefect and Circularity[Index1-1] &gt; Circularity_littlePointDefect and Mean[Index1-1]&gt;=pointDefect_grayValue and (Length11[Index1-1] + Length21[Index1-1])&gt;(pointDefect_sizeValue/0.02))                                   </l>
+<c>                                       *小点缺陷 </c>
+<l>                                       select_obj (SelectedRegions,SelectedRegions1,Index1)  </l>
+<l>                                       concat_obj (pointDefect, SelectedRegions1, pointDefect)</l>
+<l>                                else</l>
+<l>                                    if(Mean[Index1-1]&gt;pointDefect_grayValue and Roundness[Index1-1] &gt; Roundness_middlePointDefect and (Length11[Index1-1] + Length21[Index1-1])&lt;(pointDefect_sizeValueMax/0.02) )</l>
+<c>                                        *大点缺陷</c>
+<l>                                        select_obj (SelectedRegions,SelectedRegions1,Index1)  </l>
+<l>                                        concat_obj (pointDefect, SelectedRegions1, pointDefect)</l>
+<c>                                        </c>
+<l>                                    elseif((Length11[Index1-1] + Length21[Index1-1])&gt;(dirtyDefect_sizeValue/0.02))</l>
+<c>                                          *脏污</c>
+<l>                                          select_obj (SelectedRegions, SelectedRegions1,Index1) </l>
+<l>                                          concat_obj (dirtyDefect, SelectedRegions1, dirtyDefect)                                                                                 </l>
+<l>                                    endif                                    </l>
+<l>                                endif                                                          </l>
+<l>                             else</l>
+<c>                                *脏污与团状脏污dirtyDefectRegiment_sizeValue</c>
+<l>                                if (Mean[Index1-1]&gt;dirtyDefectRegiment_grayValue and Mean[Index1-1]&lt;dirtyDefect_grayValue and (Length11[Index1-1] + Length21[Index1-1])&gt;(dirtyDefectRegiment_sizeValue/0.02))</l>
+<c>                                *团状脏污 dirtyDefect_sizeValue</c>
+<l>                                select_obj (SelectedRegions, SelectedRegions1,Index1)</l>
+<l>                                concat_obj (dirtyDefectRegiment, SelectedRegions1, dirtyDefectRegiment)</l>
+<l>                                elseif(Mean[Index1-1]&gt;dirtyDefect_grayValue and (Length11[Index1-1] + Length21[Index1-1])&gt;(dirtyDefect_sizeValue/0.02))</l>
+<c>                                *脏污    </c>
+<l>                               select_obj (SelectedRegions, SelectedRegions1,Index1) </l>
+<l>                               concat_obj (dirtyDefect, SelectedRegions1, dirtyDefect)  </l>
+<l>                                endif                           </l>
+<l>                             endif                             </l>
+<l>                          endif   </l>
+<l>                      endif  </l>
+<l>                        endif                             </l>
+<l>                          endif </l>
+<c>                     </c>
+<c>                          </c>
+<l>                      endif</l>
+<l>                  endfor                            </l>
+<l>              endif   </l>
+<l>catch (Exception )</l>
+<l>endtry</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="GatherDetect_inPlane">
+<parameters>
+<parameter id="DetectDict"/>
+<parameter id="ImageReduced_inPlane_d"/>
+<parameter id="ImageReduced_inPlane_l"/>
+<parameter id="dirtyDefect"/>
+<parameter id="dirtyDefectRegiment"/>
+<parameter id="imprintDefect"/>
+<parameter id="pointDefect"/>
+<parameter id="scratchDefect"/>
+<parameter id="scratchDefectBright"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

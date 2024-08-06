@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>  read_image (Image2_EdgeB, 'C:/Users/Admin/Desktop/下崩边.bmp')</l>
+<c>          </c>
+<l>      gen_rectangle1 (Region, 28000, 2000, 30000, 23600)</l>
+<l>      reduce_domain (Image2_EdgeB, Region, ImageReduced)</l>
+<l>       threshold (ImageReduced, Region, 0, 90)</l>
+<l>       closing_circle (Region, RegionClosing1, 3.5)</l>
+<l>        fill_up (RegionClosing1, RegionFillUp)</l>
+<l>          connection (RegionFillUp, ConnectedRegions)</l>
+<l>        select_shape_std (ConnectedRegions, SelectedRegions, 'max_area', 70)</l>
+<l>        closing_rectangle1 (SelectedRegions, RegionClosing, 20, 1)</l>
+<c>        </c>
+<c>        </c>
+<l>        opening_rectangle1 (RegionClosing, RegionOpening1, 200, 3)</l>
+<l>        difference (RegionClosing, RegionOpening1, RegionDifference)</l>
+<l>        opening_rectangle1 (RegionDifference, RegionOpening2, 1, 3)</l>
+<c>        </c>
+<l>        connection (RegionDifference, ConnectedRegions1)</l>
+<c>       </c>
+<c>         </c>
+<l>        select_shape (ConnectedRegions1, SelectedRegions_BT, 'area', 'and', 80, 9999999)</l>
+<l>        select_shape (SelectedRegions_BT, SelectedRegions_BT, 'compactness', 'and', 0, 4)        </l>
+<l>        select_shape (SelectedRegions_BT, SelectedRegions_BT, 'circularity', 'and', 0.1, 1)       </l>
+<l>        count_obj (SelectedRegions_BT, Number_B)</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>set_system ('parallelize_operators', 'true')</l>
+<l>read_image (Image1_1, 'G:/test1/结石/521/2/1.bmp')</l>
+<l>read_image (Image1_2, 'G:/test1/结石/521/2/2.bmp')</l>
+<l>read_image (Image1_3, 'G:/test1/结石/521/2/1.bmp')</l>
+<l>read_image (Image1_4, 'G:/test1/结石/521/2/1.bmp')</l>
+<c></c>
+<c></c>
+<c></c>
+<l>read_dict ('d:/HalconFunction/DuMo3.2.hdict', [], [], DictHandle)</l>
+<l>DetectProcess_DuMo (Image1_1, DetectRoi1, circularityRoi, DictHandle,0,1)</l>
+<c></c>
+<c></c>
+<c></c>
+<l>ZiJi_Detect (Image1_1, Image1_2, Image1_3, Image1_4, DetectRoi1, ErrRoi_Q, AlarmRoi_Q, ErrImage_Q, AlarmImage_Q,\
+Roi, DictHandle, 0,1,ErrName_Q, AlarmName_Q, ErrW_Q, ErrH_Q, ErrArea_Q, ErrX_Q,\
+ErrY_Q, AlarmW_Q, AlarmH_Q, AlarmArea_Q, AlarmX_Q, AlarmY_Q, MapIndex_Q, ParIndex_Q,ex, OK9)</l>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

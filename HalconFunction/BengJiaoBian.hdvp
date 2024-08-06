@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="BengJiaoBian">
+<interface>
+<io>
+<par name="Image1" base_type="iconic" dimension="0"/>
+<par name="Image2" base_type="iconic" dimension="0"/>
+<par name="Image3" base_type="iconic" dimension="0"/>
+<par name="DetectArea" base_type="iconic" dimension="0"/>
+<par name="RegionUnionLine" base_type="iconic" dimension="0"/>
+<par name="NoDetect" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="ErrRegion" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="SelectDir" base_type="ctrl" dimension="0"/>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+<par name="VisionProcessStep" base_type="ctrl" dimension="0"/>
+<par name="ImageIndex" base_type="ctrl" dimension="0"/>
+<par name="L" base_type="ctrl" dimension="0"/>
+<par name="W" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="ErrImageIndexArr" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>gen_empty_obj (ErrRegion)</l>
+<l>ErrImageIndexArr:=[]</l>
+<l>try</l>
+<l>    select_obj (DetectArea, ObjectSelected1, 3)</l>
+<l>    area_center (ObjectSelected1, Area, Row, Column)</l>
+<l>    gen_rectangle2 (Rectangle, Row, Column, 0, 50, 50)</l>
+<l>    gen_rectangle2 (Rectangle1, Row, Column, 0,40,30)</l>
+<l>    union1 (DetectArea, RegionUnion)</l>
+<c>    </c>
+<l>    get_dict_tuple (DetectDict, '使能',EnabledDict)</l>
+<l>    get_dict_tuple (EnabledDict,'Up_Bian_Enabled', Up_Bian_Enabled)</l>
+<l>    get_dict_tuple (EnabledDict,'Right_Bian_Enabled', Right_Bian_Enabled)</l>
+<l>    get_dict_tuple (EnabledDict,'Left_Bian_Enabled', Left_Bian_Enabled)</l>
+<l>    get_dict_tuple (EnabledDict,'Down_Bian_Enabled', Down_Bian_Enabled)</l>
+<c>    </c>
+<l>    get_dict_tuple (DetectDict, '边角类',BJDict)</l>
+<l>    get_dict_tuple (BJDict, 'BengBian_threshold_Min', BengBian_threshold_Min)</l>
+<l>    get_dict_tuple (BJDict, 'BengBian_threshold_Max',BengBian_threshold_Max)</l>
+<l>    get_dict_tuple (BJDict, 'BengBian_threshold2_Min', BengBian_threshold2_Min)</l>
+<l>    get_dict_tuple (BJDict, 'BengBian_threshold2_Max',BengBian_threshold2_Max)</l>
+<c>    </c>
+<c>    </c>
+<l>    reduce_domain (Image1, RegionUnion, ImageReduced)</l>
+<l>    threshold (ImageReduced, Regions2, BengBian_threshold_Min, BengBian_threshold_Max)</l>
+<l>    closing_circle (Regions2, Regions2, 1)</l>
+<l>    if ((Up_Bian_Enabled and (SelectDir=='UpLeft')) or \
+        (Up_Bian_Enabled and (SelectDir=='UpRight'))  or \
+        (Down_Bian_Enabled and (SelectDir=='DownLeft'))  or \
+        (Down_Bian_Enabled and (SelectDir=='DownRight')) )</l>
+<c>        ***********************横边***************************************</c>
+<l>        select_obj (DetectArea, ObjectSelected, 1)</l>
+<c>        </c>
+<c>        </c>
+<l>        opening_rectangle1 (Regions2, RegionOpening3,40, 1)</l>
+<l>        connection (RegionOpening3, ConnectedRegions4)</l>
+<l>        select_shape_std (ConnectedRegions4, SelectedRegions1, 'max_area', 70)</l>
+<l>        region_features (SelectedRegions1, 'rect2_len1', Value)</l>
+<l>        w:=Value*2</l>
+<l>        if (w&lt;W-40)   </l>
+<l>            union1 (RegionOpening3, RegionUnion2)</l>
+<l>            dilation_rectangle1 (RegionUnion2, RegionDilation, 1, 80)</l>
+<l>            difference (ObjectSelected, RegionDilation, RegionDifference3)</l>
+<l>            connection (RegionDifference3, ConnectedRegions6)</l>
+<l>            select_shape (ConnectedRegions6, SelectedRegions5, ['row','column'], 'and', [0,0],\
+                          [2500,8192])            </l>
+<l>            select_shape_std (SelectedRegions5, SelectedRegions6, 'max_area', 70)</l>
+<l>            concat_obj (ErrRegion, SelectedRegions6, ErrRegion)</l>
+<l>            ErrImageIndexArr:=[ErrImageIndexArr,1]</l>
+<l>            return ()</l>
+<l>        endif</l>
+<l>        gen_rectangle2 (RectangleD, Row, Column, 0, 300,300)</l>
+<l>        intersection (ObjectSelected, Regions2, RegionIntersection)</l>
+<c>        </c>
+<l>*         closing_circle (RegionIntersection, RegionClosing8, 3.5)</l>
+<l>*         opening_rectangle1 (RegionClosing8, RegionOpening, 600, 1)</l>
+<l>*         difference (RegionClosing8,RegionOpening,  RegionDifference6)</l>
+<l>*         opening_circle (RegionDifference6, RegionOpening6, 1.5)</l>
+<l>*         difference (RegionOpening6, RectangleD, RegionDifference7)</l>
+<l>*         connection (RegionDifference7, ConnectedRegions8)</l>
+<l>*         select_shape (ConnectedRegions8, SelectedRegions10, 'area', 'and', 1500, 99999)</l>
+<l>*         select_shape (SelectedRegions10, SelectedRegions11, 'anisometry', 'and', 0, 50)</l>
+<l>*         count_obj (SelectedRegions11, Number4)</l>
+<l>*         if (Number4&gt;0)</l>
+<l>*             dilation_rectangle1 (SelectedRegions11, SelectedRegions8, 1, 10)</l>
+<l>*             count_obj (SelectedRegions8, Number)</l>
+<l>*             if (Number&gt;0)   </l>
+<l>*                 area_center (SelectedRegions8, Area1, Row1, Column1)</l>
+<l>*                 gen_region_line (RegionLines, Row1-50, Column1, Row1+50, Column1)</l>
+<l>*                 intersection (RegionLines, RegionOpening, RegionIntersection1)</l>
+<l>*                 region_features (RegionIntersection1, 'row', Rows)</l>
+<l>*                 if (VisionProcessStep==0)</l>
+<l>*                     Temp:=Rows[&lt;]Row1</l>
+<l>*                     select_mask_obj (SelectedRegions8, SelectedObjects, Temp)</l>
+<l>*                     count_obj (SelectedObjects, Number3)</l>
+<l>*                     if (Number3&gt;0)</l>
+<l>*                         concat_obj (ErrRegion, SelectedObjects, ErrRegion)</l>
+<l>*                         tuple_gen_const (Number3, 1, Newtuple)</l>
+<l>*                         ErrImageIndexArr:=[ErrImageIndexArr,Newtuple]  </l>
+<l>*                         return ()</l>
+<l>*                     endif</l>
+<l>*                 endif</l>
+<l>*                 if (VisionProcessStep==9)</l>
+<l>*                     Temp:=Rows[&gt;]Row1</l>
+<l>*                     select_mask_obj (SelectedRegions8, SelectedObjects, Temp)</l>
+<l>*                     count_obj (SelectedObjects, Number3)</l>
+<l>*                     if (Number3&gt;0)</l>
+<l>*                         concat_obj (ErrRegion, SelectedObjects, ErrRegion)</l>
+<l>*                         tuple_gen_const (Number3, 1, Newtuple)</l>
+<l>*                         ErrImageIndexArr:=[ErrImageIndexArr,Newtuple]  </l>
+<l>*                         return ()</l>
+<l>*                     endif</l>
+<l>*                 endif</l>
+<l>*             endif  </l>
+<l>*         endif  </l>
+<c>        </c>
+<c>        </c>
+<c>        </c>
+<l>        opening_rectangle1 (Regions2, RegionOpening, 150, 1)</l>
+<l>        closing_rectangle1 (RegionOpening, RegionClosing, 300, 1)</l>
+<l>        difference (RegionClosing, RegionOpening, RegionDifferenceB)</l>
+<l>        connection (RegionDifferenceB, ConnectedRegions1)</l>
+<l>        select_shape (ConnectedRegions1, A3, ['rect2_len2','rect2_len1'], 'and',\
+                      [1.5,15], [9999,9999])</l>
+<c>        ***************屏蔽崩内边***************************</c>
+<l>        count_obj (A3, Number)</l>
+<l>        if (Number&gt;0)   </l>
+<l>            area_center (A3, Area1, Row1, Column1)</l>
+<l>            gen_region_line (RegionLines, Row1-50, Column1, Row1+50, Column1)</l>
+<l>            intersection (RegionLines, RegionOpening, RegionIntersection1)</l>
+<l>            region_features (RegionIntersection1, 'row', Rows)</l>
+<l>            if (VisionProcessStep==0)</l>
+<l>                Temp:=Rows[&lt;]Row1</l>
+<l>                select_mask_obj (A3, SelectedObjects, Temp)</l>
+<l>                select_shape (SelectedObjects, SelectedRegions4, 'anisometry', 'and', 0, 6)</l>
+<l>                count_obj (SelectedRegions4, Number3)</l>
+<l>                if (Number3&gt;0)</l>
+<l>                    concat_obj (ErrRegion, SelectedRegions4, ErrRegion)</l>
+<l>                    tuple_gen_const (Number3, 1, Newtuple)</l>
+<l>                    ErrImageIndexArr:=[ErrImageIndexArr,Newtuple]  </l>
+<l>                    return ()</l>
+<l>                endif</l>
+<l>            elseif (VisionProcessStep==9)</l>
+<l>                Temp:=Rows[&gt;]Row1</l>
+<l>                select_mask_obj (A3, SelectedObjects, Temp)</l>
+<l>                select_shape (SelectedObjects, SelectedRegions4, 'anisometry', 'and', 0, 6)</l>
+<l>                count_obj (SelectedRegions4, Number3)</l>
+<l>                if (Number3&gt;0)</l>
+<l>                    concat_obj (ErrRegion, SelectedRegions4, ErrRegion)</l>
+<l>                    tuple_gen_const (Number3, 1, Newtuple)</l>
+<l>                    ErrImageIndexArr:=[ErrImageIndexArr,Newtuple] </l>
+<l>                    return ()</l>
+<l>                endif</l>
+<l>            endif</l>
+<l>        endif</l>
+<c>        </c>
+<c>        </c>
+<c>        </c>
+<l>        fill_up (RegionOpening3, RegionFillUp1)</l>
+<l>        closing_rectangle1 (RegionFillUp1, RegionClosing4, 200, 1)</l>
+<l>        difference (RegionClosing4, RegionFillUp1, RegionDifference5)</l>
+<l>        connection (RegionDifference5, ConnectedRegions5)</l>
+<l>        select_shape (ConnectedRegions5, A41, ['rect2_len2','rect2_len1'], 'and',\
+                      [0.5,15], [9999,9999])</l>
+<c>        </c>
+<l>        select_shape (A41, A4, 'anisometry', 'and', 0, 15)</l>
+<l>        count_obj (A4, Number)</l>
+<l>        if (Number&gt;0)  </l>
+<l>            area_center (A4, Area1, Row1, Column1)</l>
+<l>            gen_region_line (RegionLines, Row1-50, Column1, Row1+50, Column1)</l>
+<l>            intersection (RegionLines, RegionOpening3, RegionIntersection1)</l>
+<l>            region_features (RegionIntersection1, 'row', Rows)</l>
+<l>            if (VisionProcessStep==0)</l>
+<l>                Temp:=Rows[&gt;]Row1</l>
+<l>                select_mask_obj (A4, SelectedObjects, Temp)</l>
+<l>                count_obj (SelectedObjects, Number)</l>
+<l>                if (Number&gt;0)</l>
+<l>                    concat_obj (ErrRegion, SelectedObjects, ErrRegion)</l>
+<l>                    tuple_gen_const (Number, 1, Newtuple)</l>
+<l>                    ErrImageIndexArr:=[ErrImageIndexArr,Newtuple]</l>
+<l>                    return ()</l>
+<l>                endif        </l>
+<l>            elseif (VisionProcessStep==9)</l>
+<l>                Temp:=Rows[&lt;]Row1</l>
+<l>                select_mask_obj (A4, SelectedObjects, Temp)</l>
+<l>                count_obj (SelectedObjects, Number)</l>
+<l>                if (Number&gt;0)</l>
+<l>                    concat_obj (ErrRegion, SelectedObjects, ErrRegion)</l>
+<l>                    tuple_gen_const (Number, 1, Newtuple)</l>
+<l>                    ErrImageIndexArr:=[ErrImageIndexArr,Newtuple]  </l>
+<l>                    return ()</l>
+<l>                endif</l>
+<c>                </c>
+<l>            endif</l>
+<l>        endif</l>
+<c>        </c>
+<c>        </c>
+<c>        </c>
+<l>        difference (ObjectSelected, Rectangle, RegionDifference1)</l>
+<l>        dilation_rectangle1 (RegionDifference1, RegionDilation, 1, 80)</l>
+<l>        reduce_domain (Image2, RegionDilation, ImageReduced1)</l>
+<l>        binary_threshold (ImageReduced1, Region1, 'max_separability', 'dark', UsedThreshold1)</l>
+<l>        fill_up_shape (Region1, RegionFillUp, 'area', 1, 100)</l>
+<l>        connection (RegionFillUp, ConnectedRegions5)</l>
+<l>        select_shape_std (ConnectedRegions5, SelectedRegions5, 'max_area', 70)</l>
+<l>        opening_rectangle1 (SelectedRegions5, RegionOpening, 30,1 )</l>
+<l>        dilation_rectangle1 (RegionOpening, RegionDilation2, 1,5)</l>
+<l>        difference (SelectedRegions5, RegionDilation2, RegionDifference1)</l>
+<l>        difference (RegionDifference1, NoDetect, RegionDifference2)</l>
+<c>        </c>
+<l>        closing_circle (RegionDifference2, RegionClosing3, 5.5)</l>
+<l>        opening_rectangle1 (RegionClosing3, RegionOpening4, 1,4)</l>
+<l>        connection (RegionOpening4, ConnectedRegions4)</l>
+<l>        select_shape (ConnectedRegions4, SelectedRegions4, 'area', 'and', 150, 9999)</l>
+<l>        count_obj (SelectedRegions4, Number1)</l>
+<l>        if (Number1&gt;0)</l>
+<l>            concat_obj (ErrRegion, SelectedRegions4, ErrRegion)  </l>
+<l>            tuple_gen_const (Number1, 2, Newtuple)</l>
+<l>            ErrImageIndexArr:=[ErrImageIndexArr,Newtuple]</l>
+<l>            return ()</l>
+<l>        endif       </l>
+<l>    endif</l>
+<c>    </c>
+<l>    if ((Left_Bian_Enabled and (SelectDir=='UpLeft')) or \
+        (Right_Bian_Enabled and (SelectDir=='UpRight'))  or \
+        (Left_Bian_Enabled and (SelectDir=='DownLeft'))  or \
+        (Right_Bian_Enabled and (SelectDir=='DownRight')) )</l>
+<c>        *****************************竖边**********************************  </c>
+<l>        select_obj (DetectArea, ObjectSelected, 2)</l>
+<c>        </c>
+<l>        opening_rectangle1 (Regions2, RegionOpening4, 1, 40)</l>
+<l>        connection (RegionOpening4, ConnectedRegions4)</l>
+<l>        select_shape_std (ConnectedRegions4, SelectedRegions1, 'max_area', 70)</l>
+<l>        region_features (SelectedRegions1, 'rect2_len1', Value)</l>
+<l>        l:=Value*2</l>
+<l>        if (l&lt;L-50)</l>
+<l>            union1 (RegionOpening4, RegionUnion4)</l>
+<l>            dilation_rectangle1 (RegionUnion4, RegionDilation, 80, 1)</l>
+<l>            difference (ObjectSelected, RegionDilation, RegionDifference3)</l>
+<l>            connection (RegionDifference3, ConnectedRegions6)</l>
+<l>            select_shape (ConnectedRegions6, SelectedRegions5, ['row','column'], 'and', [0,0],\
+                          [2500,8192])</l>
+<l>            select_shape_std (SelectedRegions5, SelectedRegions7, 'max_area', 70)</l>
+<l>            concat_obj (ErrRegion, SelectedRegions7, ErrRegion)</l>
+<l>            ErrImageIndexArr:=[ErrImageIndexArr,1]</l>
+<l>            return ()</l>
+<l>        endif</l>
+<c>        </c>
+<l>        opening_rectangle1 (Regions2, RegionOpening, 1, 100)  </l>
+<l>        closing_rectangle1 (RegionOpening, RegionClosing, 1, 100)</l>
+<l>        difference (RegionClosing, RegionOpening, RegionDifferenceB)</l>
+<l>        connection (RegionDifferenceB, ConnectedRegions1)</l>
+<l>        select_shape (ConnectedRegions1, A2, ['rect2_len2','rect2_len1'], 'and',\
+                      [1.5,15], [9999,9999])</l>
+<c>        ***************屏蔽崩内边***************************</c>
+<l>        count_obj (A2, Number2)</l>
+<l>        if (Number2&gt;0)</l>
+<l>            area_center (A2, Area1, Row1, Column1)</l>
+<l>            gen_region_line (RegionLines, Row1, Column1-50, Row1, Column1+50)</l>
+<l>            intersection (RegionLines, RegionOpening, RegionIntersection1)</l>
+<l>            region_features (RegionIntersection1, 'column',Cols)</l>
+<l>            if (ImageIndex==0)</l>
+<l>                Temp:=Cols[&gt;]Column1</l>
+<l>                select_mask_obj (A2, SelectedObjects, Temp)</l>
+<l>                select_shape (SelectedObjects, SelectedRegions4, ['rect2_len2','anisometry'], 'or',\
+                              [2,0], [20,9])</l>
+<c>                </c>
+<l>                select_shape (SelectedRegions4, SelectedRegions4, 'anisometry', 'and', 0, 10)</l>
+<l>                count_obj (SelectedRegions4, Number)</l>
+<l>                if (Number&gt;0)</l>
+<l>                    concat_obj (ErrRegion, SelectedRegions4, ErrRegion)</l>
+<l>                    tuple_gen_const (Number, 1, Newtuple)</l>
+<l>                    ErrImageIndexArr:=[ErrImageIndexArr,Newtuple] </l>
+<l>                    return ()</l>
+<l>                endif</l>
+<c>                </c>
+<l>            elseif (ImageIndex==1)</l>
+<l>                Temp:=Cols[&lt;]Column1</l>
+<l>                select_mask_obj (A2, SelectedObjects, Temp)</l>
+<l>                select_shape (SelectedObjects, SelectedRegions4, ['rect2_len2','anisometry'], 'or',\
+                              [2,0], [20,9])</l>
+<l>                select_shape (SelectedRegions4, SelectedRegions4, 'anisometry', 'and', 0, 10)</l>
+<l>                count_obj (SelectedRegions4, Number)</l>
+<l>                if (Number&gt;0)</l>
+<l>                    concat_obj (ErrRegion, SelectedRegions4, ErrRegion)              </l>
+<l>                    tuple_gen_const (Number, 1, Newtuple)</l>
+<l>                    ErrImageIndexArr:=[ErrImageIndexArr,Newtuple] </l>
+<l>                    return ()</l>
+<l>                endif</l>
+<c>                </c>
+<l>            endif </l>
+<l>        endif</l>
+<c>        </c>
+<l>        fill_up (RegionOpening4, RegionFillUp2)</l>
+<l>        closing_rectangle1 (RegionFillUp2, RegionClosing5, 1,200)      </l>
+<l>        difference (RegionClosing5,RegionFillUp2,  RegionDifference)</l>
+<l>        connection (RegionDifference, ConnectedRegions2)   </l>
+<l>        select_shape (ConnectedRegions2, A3, ['rect2_len2','rect2_len1'], 'and',\
+                      [1.5,15], [9999,9999])</l>
+<l>        count_obj (A3, Number2)</l>
+<l>        if (Number2&gt;0)</l>
+<l>            area_center (A3, Area1, Row1, Column1)</l>
+<l>            gen_region_line (RegionLines, Row1, Column1-50, Row1, Column1+50)</l>
+<l>            intersection (RegionLines, RegionOpening4, RegionIntersection1)</l>
+<l>            region_features (RegionIntersection1, 'column',Cols)</l>
+<l>            if (ImageIndex==0)</l>
+<l>                Temp:=Cols[&lt;]Column1</l>
+<l>                select_mask_obj (A3, SelectedObjects, Temp)</l>
+<l>                count_obj (SelectedObjects, Number)</l>
+<l>                if (Number&gt;0)</l>
+<l>                    concat_obj (ErrRegion, SelectedObjects, ErrRegion)</l>
+<l>                    tuple_gen_const (Number, 1, Newtuple)</l>
+<l>                    ErrImageIndexArr:=[ErrImageIndexArr,Newtuple]</l>
+<l>                    return ()</l>
+<l>                endif</l>
+<c>                </c>
+<l>            elseif (ImageIndex==1)</l>
+<l>                Temp:=Cols[&gt;]Column1</l>
+<l>                select_mask_obj (A3, SelectedObjects, Temp)</l>
+<l>                count_obj (SelectedObjects, Number)</l>
+<l>                if (Number&gt;0)</l>
+<l>                    concat_obj (ErrRegion, SelectedObjects, ErrRegion)</l>
+<l>                    tuple_gen_const (Number, 1, Newtuple)</l>
+<l>                    ErrImageIndexArr:=[ErrImageIndexArr,Newtuple]</l>
+<l>                    return ()</l>
+<l>                endif</l>
+<c>                </c>
+<l>            endif </l>
+<l>        endif</l>
+<c>        </c>
+<c>        </c>
+<l>        if (SelectDir=='UpLeft' or SelectDir=='DownLeft')</l>
+<l>            difference (ObjectSelected, Rectangle, ObjectSelected)</l>
+<l>            reduce_domain (Image2, ObjectSelected, ImageReduced2)</l>
+<l>            binary_threshold (ImageReduced2, Region1, 'max_separability', 'dark', UsedThreshold1)</l>
+<l>            opening_rectangle1 (Region1, RegionOpening2, 1, 80)</l>
+<l>            dilation_rectangle1 (RegionOpening2, RegionDilation1, 8, 1)</l>
+<l>            move_region (RegionOpening2, RegionMoved2, 0,60)</l>
+<l>            union2 (RegionOpening2, RegionMoved2, RegionUnion1)</l>
+<l>            shape_trans (RegionUnion1, RegionTrans, 'convex')</l>
+<l>            difference (RegionTrans, RegionDilation1, RegionTrans)</l>
+<l>        elseif(SelectDir=='UpRight' or SelectDir=='DownRight')       </l>
+<l>            difference (ObjectSelected, Rectangle, ObjectSelected)</l>
+<l>            reduce_domain (Image2, ObjectSelected, ImageReduced2)</l>
+<l>            binary_threshold (ImageReduced2, Region1, 'max_separability', 'dark', UsedThreshold1)</l>
+<l>            opening_rectangle1 (Region1, RegionOpening2, 1, 80)</l>
+<l>            dilation_rectangle1 (RegionOpening2, RegionDilation1, 8, 1)</l>
+<l>            move_region (RegionOpening2, RegionMoved2, 0,-60)</l>
+<l>            union2 (RegionOpening2, RegionMoved2, RegionUnion1)</l>
+<l>            shape_trans (RegionUnion1, RegionTrans, 'convex')</l>
+<l>            difference (RegionTrans, RegionDilation1, RegionTrans)</l>
+<l>        endif</l>
+<c>        </c>
+<l>        connection (Region1, ConnectedRegions7)</l>
+<l>        select_shape_std (ConnectedRegions7, SelectedRegions12, 'max_area', 70)</l>
+<l>        closing_circle (SelectedRegions12, RegionClosing1, 5.5)</l>
+<l>        opening_rectangle1 (RegionClosing1, RegionOpening9, 1, 30)</l>
+<l>        difference (RegionClosing1, RegionOpening9, RegionDifference9)</l>
+<l>        opening_rectangle1 (RegionDifference9, RegionOpening10, 3, 1)</l>
+<l>        connection (RegionOpening10, ConnectedRegions9)</l>
+<l>        select_shape (ConnectedRegions9, SelectedRegions13, 'rect2_len2', 'and', 5, 30)</l>
+<l>        select_shape (SelectedRegions13, SelectedRegions14, 'area', 'and', 200, 99999)</l>
+<l>        count_obj (SelectedRegions14, Number1)</l>
+<l>        if (Number1&gt;0)</l>
+<l>            concat_obj (ErrRegion, SelectedRegions14, ErrRegion)</l>
+<l>            tuple_gen_const (Number1, 2, Newtuple)</l>
+<l>            ErrImageIndexArr:=[ErrImageIndexArr,Newtuple]</l>
+<c>            </c>
+<l>        endif  </l>
+<c>        </c>
+<c>        </c>
+<c>        </c>
+<c>        </c>
+<c>        </c>
+<c>        </c>
+<l>        difference (RegionTrans, NoDetect, RegionTrans)</l>
+<l>        reduce_domain (Image2, RegionTrans, ImageReduced)</l>
+<l>        threshold (ImageReduced, Regions, BengBian_threshold2_Min, BengBian_threshold2_Max)</l>
+<l>        closing_circle (Regions, RegionClosing1, 5.5)</l>
+<l>        connection (RegionClosing1, ConnectedRegions)</l>
+<l>        select_shape (ConnectedRegions, SelectedRegions, 'area', 'and', 60, 999999)</l>
+<l>        select_shape (SelectedRegions, SelectedRegions3, 'anisometry', 'and', 0, 12)</l>
+<l>        opening_rectangle1 (SelectedRegions3, RegionOpening11, 4, 1)</l>
+<l>        connection (RegionOpening11, ConnectedRegions10)</l>
+<l>        select_shape (ConnectedRegions10, SelectedRegions3, 'area', 'and', 60, 999999)</l>
+<c>        </c>
+<l>        union1 (SelectedRegions3, RegionUnion3)</l>
+<l>        closing_circle (RegionUnion3, RegionClosing3, 10)</l>
+<l>        connection (RegionClosing3, ConnectedRegions3)</l>
+<l>        select_shape (ConnectedRegions3, SelectedRegions, 'area', 'and', 100, 999999)</l>
+<l>        select_shape (SelectedRegions, SelectedRegions3, 'anisometry', 'and', 0, 12)</l>
+<l>        count_obj (SelectedRegions3, Number1)</l>
+<l>        if (Number1&gt;0)</l>
+<l>            concat_obj (ErrRegion, SelectedRegions3, ErrRegion)</l>
+<l>            tuple_gen_const (Number1, 2, Newtuple)</l>
+<l>            ErrImageIndexArr:=[ErrImageIndexArr,Newtuple]</l>
+<l>            return ()</l>
+<l>        endif  </l>
+<l>    endif   </l>
+<c>    </c>
+<l>catch (Exception)</l>
+<l>    return ()</l>
+<l>endtry</l>
+<l>return ()</l>
+</body>
+<docu id="BengJiaoBian">
+<parameters>
+<parameter id="DetectArea"/>
+<parameter id="DetectDict"/>
+<parameter id="ErrImageIndexArr"/>
+<parameter id="ErrRegion"/>
+<parameter id="Image1"/>
+<parameter id="Image2"/>
+<parameter id="Image3"/>
+<parameter id="ImageIndex"/>
+<parameter id="L"/>
+<parameter id="NoDetect"/>
+<parameter id="RegionUnionLine"/>
+<parameter id="SelectDir"/>
+<parameter id="VisionProcessStep"/>
+<parameter id="W"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

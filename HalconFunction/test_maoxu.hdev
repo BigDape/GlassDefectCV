@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>read_image (Image, 'C:/Users/Admin/Desktop/截图/毛絮d19.tif')</l>
+<c></c>
+<l>threshold (Image, Region, 128, 255)</l>
+<l>connection (Region, ConnectedRegions)</l>
+<l>select_shape_std (ConnectedRegions, SelectedRegions, 'max_area', 70)</l>
+<l>dilation_circle (SelectedRegions, RegionDilation, 3.5)</l>
+<l>reduce_domain (Image, RegionDilation, ImageReduced)</l>
+<l>area_center (RegionDilation, Area, Row, Column)</l>
+<l>gen_rectangle1 (Rectangle, Row-200, Column-200, Row+200, Column+200)</l>
+<c></c>
+<l>difference (Rectangle, RegionDilation, RegionDifference)</l>
+<l>reduce_domain (Image, RegionDifference, ImageReduced1)</l>
+<l>threshold (ImageReduced1, Region1, 30, 255)</l>
+<l>connection (Region1, ConnectedRegions1)</l>
+<l>select_shape_std (ConnectedRegions1, SelectedRegions1, 'max_area', 70)</l>
+<l>area_center (SelectedRegions1, Area1, Row1, Column1)</l>
+<c></c>
+<c></c>
+<l>move_region (SelectedRegions1, RegionMoved, Row-Row1, Column-Column1)</l>
+<l>difference (RegionMoved, RegionDilation, RegionDifference1)</l>
+<c></c>
+<c></c>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

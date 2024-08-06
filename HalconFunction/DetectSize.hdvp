@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="22.05.0.0">
+<procedure name="DetectSize">
+<interface>
+<io>
+<par name="GlassRegion" base_type="iconic" dimension="0"/>
+</io>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="GlassHeight" base_type="ctrl" dimension="0"/>
+<par name="GlassWidth" base_type="ctrl" dimension="0"/>
+<par name="GlassAngle" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>try</l>
+<l>* set_system ('parallelize_operators', 'true')</l>
+<l>dev_update_off ()</l>
+<l>* dev_update_time ('off')</l>
+<l>* dev_update_pc ('off')</l>
+<l>* dev_update_var ('off')</l>
+<l>dev_update_window ('on')</l>
+<l>set_system ('clip_region', 'false')</l>
+<c>**********************初始化输出*****************************</c>
+<l>GlassWidth:=[]</l>
+<l>GlassHeight:=[]</l>
+<l>GlassAngle:=[]</l>
+<c></c>
+<c></c>
+<c></c>
+<l>gen_empty_obj (SiYin)</l>
+<l>gen_empty_obj (SiYinDefect)</l>
+<l>     typeSiYin:=[]</l>
+<l>     SiYinOK:=[]</l>
+<l>     SiYinDistanceHorizontal:=[]</l>
+<l>     SiYinDistanceVertical:=[]</l>
+<c> </c>
+<l>siyinWidth:=[]</l>
+<l>siyinHeight:=[]</l>
+<l>pingjieposition:=0 </l>
+<l>NumberH:=0</l>
+<l>NumberMJ:=0</l>
+<l>dev_set_draw ('fill')</l>
+<l>GlassOK:=[]</l>
+<l>QKOK:=[]</l>
+<l>MJOK:=[]</l>
+<l>QKWidth:=[]</l>
+<l>QKHeight:=[]</l>
+<l>siyinRow:=[]</l>
+<l>siyinColumn:=[]</l>
+<c></c>
+<l>Type:=[]</l>
+<l>QKOK:=[]</l>
+<l>DistanceHorizontal:=[]</l>
+<l>DistanceVertical:=[]</l>
+<c>            </c>
+<c></c>
+<c></c>
+<l>gen_empty_obj (HolesImage)</l>
+<l>gen_empty_obj (QKImage)</l>
+<l>gen_empty_obj (TransformedRegion)</l>
+<l>gen_empty_obj (OutLineImage)</l>
+<l>gen_empty_obj(LinesVContours)</l>
+<l>gen_empty_obj(LinesHContours)</l>
+<l>gen_empty_obj(SelectedRegionsHoles)</l>
+<l>gen_empty_obj(SelectedRegionsMJ)</l>
+<l>gen_empty_obj(ObjectsConcatQK)</l>
+<l>gen_empty_obj (siyinrImage)</l>
+<l>gen_empty_obj (menjiarImage)</l>
+<l>gen_empty_obj (rImage)</l>
+<c></c>
+<l>pixValueBottom:=0.102796558</l>
+<c></c>
+<c></c>
+<c></c>
+<l>Cam1pixSetValue:=0</l>
+<l>Cam2pixSetValue:=0</l>
+<c>*0.10226235</c>
+<l>get_dict_tuple (DetectDict,'尺寸测量', MersureDict)</l>
+<l>get_dict_tuple (MersureDict,'相机1像素0精度', Cam1pixSetValue)</l>
+<l>get_dict_tuple (MersureDict,'相机2与相机1精度比值', CamPixRatio)</l>
+<l>get_dict_tuple (MersureDict,'相机1像素k值', KxCam1)</l>
+<l>get_dict_tuple (MersureDict,'相机2像素k值', KxCam2)</l>
+<l>get_dict_tuple (DetectDict,'缺陷检测', detectDict)</l>
+<l>get_dict_tuple (detectDict,'玻璃厚度' , thickness)</l>
+<l>get_dict_tuple (detectDict,'丝印离辊道距离' , siyindistance)</l>
+<c>*计算相机1和相机2的平均像素精度</c>
+<l>Cam1Width:=8000</l>
+<l>Cam1pixSetValue:=Cam1pixSetValue*(1457.7-(thickness-6))/1457.700</l>
+<l>pixValueC1:=(2*Cam1pixSetValue+KxCam1*Cam1Width)/2.000000</l>
+<l>pixValueC2:=(2*Cam1pixSetValue*CamPixRatio+KxCam2*Cam1Width)/2.000000</l>
+<c></c>
+<l>pixValueSetV:=(pixValueC1+pixValueC2)/2.000000</l>
+<l>Cam2pixSetValue:=CamPixRatio*Cam1pixSetValue</l>
+<c></c>
+<c></c>
+<c></c>
+<l>get_dict_tuple (DetectDict,'编码器参数', CodeDict)</l>
+<l>get_dict_tuple (CodeDict,'编码器转数', CodeNumPr)</l>
+<l>get_dict_tuple (CodeDict,'辊道周长', RollerPer)</l>
+<l>get_dict_tuple (CodeDict,'每行对应的编码计数', CodeCountPerLine)</l>
+<c></c>
+<c>*平均像素精度下的上表面和丝印位置精度</c>
+<l>pixValue:=pixValueSetV</l>
+<l>pixValuesiyin:=pixValueSetV</l>
+<c></c>
+<l>DistanceHorizontal:=[]</l>
+<l>DistanceVertical:=[]</l>
+<l>HolesHeight:=[]</l>
+<l>HolesWidth:=[]</l>
+<l>GlassWidth:=[]</l>
+<l>GlassHeight:=[]</l>
+<c></c>
+<l>fill_up (GlassRegion, RegionFillUp)</l>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<l>PixelAccuracyX:=pixValue</l>
+<l>pixYValueCal:=(RollerPer/1000.000000)/((CodeNumPr*4)/(CodeCountPerLine+0.000001))</l>
+<c></c>
+<l>get_dict_tuple (MersureDict,'Y方向精度K', Ky)</l>
+<l>get_dict_tuple (MersureDict,'Y方向精度B', By)</l>
+<c></c>
+<l>PixelAccuracyY:=Ky*pixYValueCal</l>
+<c>*0.10902//2190</c>
+<c>*0.10899318</c>
+<c>*21404</c>
+<c>* 0.09419454</c>
+<c>*0.92191781</c>
+<c>*0.10231732</c>
+<c></c>
+<c>* // 定义缩小比例</c>
+<l>ScaleFactorX := 1</l>
+<l>ScaleFactorY := PixelAccuracyY/(PixelAccuracyX+0.0000001)</l>
+<c>* // 根据需要调整这个比例</c>
+<l>zoom_region (RegionFillUp, RegionFillUpZoom, ScaleFactorX, ScaleFactorY)</l>
+<c></c>
+<c></c>
+<c>***************************角度计算开始****************************************</c>
+<l>smallest_rectangle2 (RegionFillUpZoom, Row1, Column1, Phi1, Length11, Length21)</l>
+<l>AngleRadiansH:=[]</l>
+<l>tuple_abs(Phi1,AngleRadians1)</l>
+<l>if(AngleRadians1&gt;0.785)</l>
+<l>    AngleRadians2 :=3.1415926/2-AngleRadians1</l>
+<l>    AngleRadiansH:=[AngleRadiansH,AngleRadians1]</l>
+<l>    AngleRadiansH:=[AngleRadiansH,AngleRadians2]</l>
+<c></c>
+<l>  if(Phi1&gt;0 and AngleRadians1&gt;0.785)</l>
+<c></c>
+<l>    AngleRadians:=min(AngleRadiansH)</l>
+<l>  else</l>
+<l>    AngleRadians:=-min(AngleRadiansH)</l>
+<l>  endif</l>
+<l>else</l>
+<l>  if(Phi1&gt;0)</l>
+<l>    AngleRadians:=-Phi1</l>
+<l>  else</l>
+<l>    AngleRadians:=AngleRadians1</l>
+<l>  endif</l>
+<l>endif</l>
+<c>*************************************角度计算结束********************************************</c>
+<c>* 创建仿射变换矩阵 </c>
+<l>hom_mat2d_identity(HomMat2D) </l>
+<c></c>
+<l>hom_mat2d_rotate(HomMat2D, AngleRadians, 0, 0, HomMat2DRotated) </l>
+<c></c>
+<c>* 应用仿射变换 </c>
+<l>affine_trans_region(RegionFillUpZoom, TransformedRegion, HomMat2DRotated, 'nearest_neighbor')</l>
+<c>*******缩小展示开始**********************************</c>
+<c>* </c>
+<c></c>
+<l>* if(RegionWidth&lt;RegionHeight)</l>
+<l>* hom_mat2d_rotate(HomMat2D, AngleRadians+3.1415926/2, 0, 0, HomMat2DRotated1) </l>
+<l>* affine_trans_region(RegionFillUpZoom, TransformedRegion1, HomMat2DRotated1, 'nearest_neighbor')</l>
+<l>* else</l>
+<l>*   TransformedRegion1:= TransformedRegion</l>
+<l>* endif</l>
+<l>* zoom_region (TransformedRegion1, RegionZoom, 0.1, 0.1)</l>
+<l>* area_center (RegionZoom, Area, Row, Column)</l>
+<l>* region_features (RegionZoom, 'width', ValueW)</l>
+<l>* region_features (RegionZoom, 'height', ValueH)</l>
+<l>* RowMove:=((ValueH+400)/2-Row)</l>
+<l>* ColumMove:=((ValueW+600)/2-Column)</l>
+<l>* move_region (RegionZoom, RegionMoved, RowMove, ColumMove)</l>
+<l>* dilation_circle (RegionMoved, RegionDilation, 1.5)</l>
+<l>* region_to_bin (RegionDilation, OutLineImage, 255, 0, ValueW+600, ValueH+400)</l>
+<c>*******缩小展示结束**********************************</c>
+<l>height_width_ratio (TransformedRegion, RegionHeight, RegionWidth, RegionRatio)</l>
+<l>region_features (TransformedRegion, 'column1', Regionfullcolumn1)</l>
+<l>region_features (TransformedRegion, 'column2', Regionfullcolumn2)</l>
+<c></c>
+<c>***外围轮廓提取************** </c>
+<l>opening_circle (TransformedRegion, RegionContour, 3.5)</l>
+<l>GlassOutline:=RegionContour</l>
+<c></c>
+<l>region_features (TransformedRegion, 'row1', row1_Regionfull)</l>
+<l>region_features (TransformedRegion, 'row2', row2_Regionfull)</l>
+<c></c>
+<l>closing_rectangle1 (TransformedRegion, RegionClosing, 1000, 1)</l>
+<l>closing_rectangle1 (RegionClosing, RegionClosing, 1, 1000)</l>
+<l>num:=RegionHeight/10</l>
+<l>width_Regionfull:=[]</l>
+<l>for i := 1 to 9 by 1</l>
+<l>    gen_region_line (RegionLinesV, num*i+row1_Regionfull, 0, num*i+row1_Regionfull, Regionfullcolumn2+1000)</l>
+<l>    intersection (RegionLinesV, RegionClosing, RegionIntersectionV)</l>
+<l>    region_features (RegionIntersectionV, 'area', Value)</l>
+<l>    width_Regionfull:=[width_Regionfull,Value]</l>
+<l>endfor</l>
+<c></c>
+<c></c>
+<l>* c:=width_Regionfull[&gt;]Mean-10 and width_Regionfull[&lt;]Mean+10</l>
+<c></c>
+<c>*防止平均值有一个落入了门夹内，去除掉最小两个值</c>
+<l>* tuple_min(width_Regionfull, Min)</l>
+<l>* width_Regionfull_new := []</l>
+<l>* for i := 0 to |width_Regionfull|-1 by 1</l>
+<l>*     if (width_Regionfull[i] != Min)</l>
+<l>*         temp := width_Regionfull[i]</l>
+<l>*         width_Regionfull_new := [width_Regionfull_new, temp]</l>
+<l>*     endif</l>
+<l>* endfor</l>
+<l>* tuple_min(width_Regionfull_new, Min_two)</l>
+<l>* width_Regionfull_two := []</l>
+<l>* for i := 0 to |width_Regionfull_new|-1 by 1</l>
+<l>*     if (width_Regionfull_new[i] != Min_two)</l>
+<l>*         temp := width_Regionfull_new[i]</l>
+<l>*         width_Regionfull_two := [width_Regionfull_two, temp]</l>
+<l>*     endif</l>
+<l>* endfor</l>
+<l>tuple_length (width_Regionfull, LengthLinesV)</l>
+<l>tuple_mean (width_Regionfull, width_Mean)</l>
+<l>* tuple_length (width_Regionfull_two, LengthLinesV)</l>
+<l>* tuple_mean (width_Regionfull_two, width_Mean)</l>
+<c></c>
+<c></c>
+<l>region_features (TransformedRegion, 'column1', column1_Regionfull)</l>
+<l>numW:=RegionWidth/10</l>
+<l>height_Regionfull:=[]</l>
+<l>for i := 1 to 9 by 1</l>
+<l>    gen_region_line (RegionLinesH, 0, numW*i+column1_Regionfull, row2_Regionfull+1000, numW*i+column1_Regionfull)</l>
+<l>    intersection (RegionLinesH, RegionClosing, RegionIntersectionH)</l>
+<l>    region_features (RegionIntersectionH, 'area', Value)</l>
+<l>    height_Regionfull:=[height_Regionfull,Value] </l>
+<l>endfor</l>
+<l>tuple_length (height_Regionfull, LengthLinesH)</l>
+<l>tuple_mean (height_Regionfull, height_Mean)</l>
+<c></c>
+<c></c>
+<c></c>
+<l> Cam1pixValue:=0     </l>
+<l> Cam2pixValue:=0</l>
+<c>*相机1像素宽度</c>
+<c>*待修改</c>
+<l>cam1pix:=Cam1Width-Regionfullcolumn1</l>
+<l>if(cam1pix&lt;0)</l>
+<l>   cam1pix:=0 </l>
+<l>   cam2pix:=width_Mean</l>
+<l>   Cam2pixValue:=(2*Cam2pixSetValue+KxCam2*(Regionfullcolumn1-Cam1Width)+KxCam2*(Regionfullcolumn2-Cam1Width))/2.000000 </l>
+<l>else</l>
+<l>    if(cam1pix&gt;width_Mean)</l>
+<l>        cam1pix:=width_Mean</l>
+<l>        cam2pix:=0</l>
+<l>        Cam1pixValue:=Cam1pixSetValue+(KxCam1*(Regionfullcolumn1+Regionfullcolumn2))/2.000000              </l>
+<l>    else        </l>
+<l>        cam2pix:=width_Mean-cam1pix</l>
+<l>        Cam1pixValue:=Cam1pixSetValue+(KxCam1*(Regionfullcolumn1)+KxCam1*Cam1Width)/2.000000</l>
+<l>        Cam2pixValue:=Cam2pixSetValue+(KxCam2*(Regionfullcolumn2-Cam1Width))/2.000000       </l>
+<l>    endif</l>
+<l>endif</l>
+<c></c>
+<c>       </c>
+<l> tuple_abs (AngleRadians, AngleAbs)</l>
+<l> GlassWidth:=[GlassWidth,cam1pix*Cam1pixValue+cam2pix*Cam2pixValue]</l>
+<l> GlassHeight:=[GlassHeight,height_Mean*pixValue]</l>
+<l> GlassAngle:=[GlassAngle,AngleAbs]</l>
+<c></c>
+<c></c>
+<l>return ()</l>
+<l>catch (Exception)</l>
+<c> </c>
+<l>GlassWidth:=[GlassWidth,0]</l>
+<l> GlassHeight:=[GlassHeight,0]</l>
+<l> GlassAngle:=[GlassAngle,0]</l>
+<l>endtry</l>
+</body>
+<docu id="DetectSize">
+<parameters>
+<parameter id="DetectDict"/>
+<parameter id="GlassAngle"/>
+<parameter id="GlassHeight"/>
+<parameter id="GlassRegion"/>
+<parameter id="GlassWidth"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

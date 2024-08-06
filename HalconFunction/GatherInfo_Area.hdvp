@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="GatherInfo_Area">
+<interface>
+<io>
+<par name="Roi" base_type="iconic" dimension="0"/>
+<par name="Image1" base_type="iconic" dimension="0"/>
+<par name="Image2" base_type="iconic" dimension="0"/>
+<par name="Image3" base_type="iconic" dimension="0"/>
+<par name="Image4" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="RoiImage" base_type="iconic" dimension="0"/>
+<par name="TransRoi" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+<par name="TypeName" base_type="ctrl" dimension="0"/>
+<par name="VisionProcessStep" base_type="ctrl" dimension="0"/>
+<par name="ColIndex" base_type="ctrl" dimension="0"/>
+<par name="SelectArea" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="ArrName" base_type="ctrl" dimension="0"/>
+<par name="W" base_type="ctrl" dimension="0"/>
+<par name="H" base_type="ctrl" dimension="0"/>
+<par name="X" base_type="ctrl" dimension="0"/>
+<par name="Y" base_type="ctrl" dimension="0"/>
+<par name="Area" base_type="ctrl" dimension="0"/>
+<par name="MapIndex" base_type="ctrl" dimension="0"/>
+<par name="ParIndex" base_type="ctrl" dimension="0"/>
+<par name="OK" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>gen_empty_obj (RoiImage)</l>
+<l>gen_empty_obj (TransRoi)</l>
+<l>ArrName:=[]</l>
+<l>W:=[]</l>
+<l>H:=[]</l>
+<l>X:=[]</l>
+<l>Y:=[]</l>
+<l>Area:=[]</l>
+<l>MapIndex:=[]</l>
+<l>ParIndex:=[]</l>
+<l>offsetRow := 0</l>
+<l>columns:=0</l>
+<l>pix:=0.09</l>
+<l>OK:='OK'</l>
+<l>get_dict_tuple (DetectDict, 'ImageHight', ImageHight)</l>
+<l>get_dict_tuple (DetectDict, 'ImageWidth', ImageWidth)</l>
+<l>get_dict_tuple (DetectDict, 'OffsetCol', OffsetCol)</l>
+<l>get_dict_tuple (DetectDict, 'startCol', startCol)</l>
+<l>get_dict_tuple (DetectDict, 'startRow', startRow)</l>
+<c></c>
+<l>imageh:=2500</l>
+<l>if (VisionProcessStep!=0)</l>
+<l>    offsetRow := VisionProcessStep*(ImageHight/4)</l>
+<l>    imageh:=2600</l>
+<l>endif</l>
+<c></c>
+<l>if (ColIndex==0)</l>
+<l>    columns:= ImageWidth   </l>
+<l>endif</l>
+<c></c>
+<l>count_obj (Roi, Number)</l>
+<c></c>
+<l>for Index := 1 to Number by 1</l>
+<l>    select_obj (Roi, ObjectSelected, Index)</l>
+<l>    smallest_rectangle2 (ObjectSelected,Row2, Column2, Phi, Length1, Length2)</l>
+<l>    Rows1:=Row2+offsetRow</l>
+<l>    Columns1:=Column2+columns</l>
+<l>    gen_rectangle2 (Rectangle, Rows1, Columns1, 0, Length1+100, Length2+100)</l>
+<c></c>
+<l>    region_features (ObjectSelected, 'area', Value)</l>
+<l>    h:=Length1*pix*2</l>
+<l>    w:=Length2*pix*2</l>
+<l>    Area:= Value*pix*2</l>
+<l>    if (Area&gt;SelectArea)</l>
+<l>        get_dict_tuple (DetectDict, 'SaveImageMode', SaveImageMode)</l>
+<l>        if (SaveImageMode==1)</l>
+<l>            smallest_rectangle1 (ObjectSelected, Row1, Column1, Row2, Column2)</l>
+<l>            Row1:=Row1-200</l>
+<l>            if (Row1&lt;=0)</l>
+<l>                Row1:=1</l>
+<l>            endif</l>
+<l>            Column1:=Column1-200</l>
+<l>            if (Column1&lt;=0)</l>
+<l>                Column1:=1</l>
+<l>            endif</l>
+<l>            Row2:=Row2+200</l>
+<l>            if (Row2&gt;imageh-1)</l>
+<l>                Row2:=imageh-1</l>
+<l>            endif</l>
+<l>            Column2:=Column2+200</l>
+<l>            if (Column2&gt;8190)</l>
+<l>                Column2:=8190</l>
+<l>            endif</l>
+<l>            crop_rectangle1 (Image1, ImagePart1, Row1, Column1, Row2, Column2)</l>
+<l>            crop_rectangle1 (Image2, ImagePart2, Row1, Column1, Row2, Column2)</l>
+<l>            crop_rectangle1 (Image3, ImagePart3, Row1, Column1, Row2, Column2)</l>
+<l>            crop_rectangle1 (Image4, ImagePart4, Row1, Column1, Row2, Column2)</l>
+<l>            compose4 (ImagePart1, ImagePart2, ImagePart3, ImagePart4, MultiChannelImage)</l>
+<l>        else</l>
+<l>            compose4 (Image1, Image2, Image3, Image4, MultiChannelImage) </l>
+<l>        endif  </l>
+<l>        concat_obj (TransRoi, Rectangle, TransRoi)</l>
+<l>        concat_obj (RoiImage, MultiChannelImage, RoiImage)</l>
+<l>        area:=Value*pix</l>
+<l>        ArrName:=[ArrName,TypeName]</l>
+<l>        W:=[W,w]</l>
+<l>        H:=[H,h]</l>
+<l>        x:= (Columns1-startCol)*pix</l>
+<l>        y:= (Rows1-startRow)*pix</l>
+<l>        X:=[X,x]</l>
+<l>        Y:=[Y,y]</l>
+<l>        Area:=[Area,area]</l>
+<l>*         MapIndex:=[MapIndex,ColIndex]</l>
+<l>*         ParIndex:=[ParIndex,VisionProcessStep]</l>
+<l>        MapIndex:=[MapIndex,Row2]</l>
+<l>        ParIndex:=[ParIndex,Column2]   </l>
+<l>        OK:='NG'</l>
+<l>    endif</l>
+<c>    </c>
+<c>    </c>
+<l>endfor</l>
+<l>return ()</l>
+</body>
+<docu id="GatherInfo_Area">
+<parameters>
+<parameter id="Area"/>
+<parameter id="ArrName"/>
+<parameter id="ColIndex"/>
+<parameter id="DetectDict"/>
+<parameter id="H"/>
+<parameter id="Image1"/>
+<parameter id="Image2"/>
+<parameter id="Image3"/>
+<parameter id="Image4"/>
+<parameter id="MapIndex"/>
+<parameter id="OK"/>
+<parameter id="ParIndex"/>
+<parameter id="Roi"/>
+<parameter id="RoiImage"/>
+<parameter id="SelectArea"/>
+<parameter id="TransRoi"/>
+<parameter id="TypeName"/>
+<parameter id="VisionProcessStep"/>
+<parameter id="W"/>
+<parameter id="X"/>
+<parameter id="Y"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="22.05.0.0">
+<procedure name="Detect_Image">
+<interface>
+<io>
+<par name="Image1" base_type="iconic" dimension="0"/>
+<par name="Image2" base_type="iconic" dimension="0"/>
+<par name="Image3" base_type="iconic" dimension="0"/>
+<par name="FrameRegion" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="ErrRoi" base_type="iconic" dimension="0"/>
+<par name="ErrImage1" base_type="iconic" dimension="0"/>
+<par name="ErrImage2" base_type="iconic" dimension="0"/>
+<par name="ErrImage3" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+<par name="VisionProcessStep" base_type="ctrl" dimension="0"/>
+<par name="GlassPositionInf" base_type="ctrl" dimension="0"/>
+<par name="YCoordIn" base_type="ctrl" dimension="0"/>
+<par name="pixX" base_type="ctrl" dimension="0"/>
+<par name="pixY" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="ErrName" base_type="ctrl" dimension="0"/>
+<par name="ErrType" base_type="ctrl" dimension="0"/>
+<par name="OK" base_type="ctrl" dimension="0"/>
+<par name="ErrW" base_type="ctrl" dimension="0"/>
+<par name="ErrH" base_type="ctrl" dimension="0"/>
+<par name="ErrArea" base_type="ctrl" dimension="0"/>
+<par name="ErrX" base_type="ctrl" dimension="0"/>
+<par name="ErrY" base_type="ctrl" dimension="0"/>
+<par name="MapIndex" base_type="ctrl" dimension="0"/>
+<par name="ParIndex" base_type="ctrl" dimension="0"/>
+<par name="ErrImageIndex" base_type="ctrl" dimension="0"/>
+<par name="YCoordOut" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<c>*********************************缺陷名关键字********************************************开口泡 = 0;</c>
+<c>*气泡、结石、划伤、崩边、裂纹</c>
+<c></c>
+<c>*************************参数设置关键字*******************************</c>
+<c></c>
+<c>*****************************************************************************************************</c>
+<c></c>
+<l>OK:=[]</l>
+<l>OK1:=[]</l>
+<l>OK2:=[]</l>
+<l>OK3:=[]</l>
+<l>OK4:=[]</l>
+<l>OK5:=[]</l>
+<l>OK6:=[]</l>
+<l>OK7:=[]</l>
+<l>OK8:=[]</l>
+<l>OK9:=[]</l>
+<l>OK10:=[]</l>
+<l>gen_empty_obj (ErrRoi) </l>
+<l>gen_empty_obj (ErrImage1) </l>
+<l>gen_empty_obj (ErrImage2) </l>
+<l>gen_empty_obj (ErrImage3) </l>
+<l>gen_empty_obj (OriginalErrRoi_qipao)</l>
+<l>gen_empty_obj (OriginalErrRoi_jieshi)</l>
+<l>gen_empty_obj (OriginalErrRoi_huashang)</l>
+<l>gen_empty_obj (OriginalErrRoi_zangwu)</l>
+<l>gen_empty_obj (OriginalErrRoi_shuidi)</l>
+<l>gen_empty_obj (DetectROI)</l>
+<c></c>
+<c></c>
+<l>ErrName:=[]</l>
+<l>ErrType:=[]</l>
+<l>ErrW:=[]</l>
+<l>ErrH:=[]</l>
+<l>ErrArea:=[]</l>
+<l>ErrX:=[]</l>
+<l>ErrY:=[]</l>
+<l>MapIndex:=[]</l>
+<l>ParIndex:=[]</l>
+<l>ErrImageIndex:=[]</l>
+<l>get_dict_tuple (DetectDict, '缺陷检测', DetectParadDict)</l>
+<c></c>
+<c></c>
+<l>*get_dict_tuple (SysParadDict, 'BaiDao_threshold_Min',BaiDao_threshold_Min)</l>
+<c></c>
+<l>*union2 (DetectROI, OriginalErrRoi_zangwu, DetectROI)</l>
+<l>* threshold (Image1, Region, 128, 255)</l>
+<l>* closing_circle (Region, RegionClosing, 3.5)</l>
+<l>* connection (RegionClosing, ConnectedRegions)</l>
+<l>* select_shape (ConnectedRegions, SelectedRegions, 'area', 'and', 100000, 999999999)</l>
+<l>* smallest_rectangle1 (SelectedRegions, Row1, Column1, Row2, Column2)</l>
+<l>* gen_rectangle1 (Rectangle, Row1, Column1, Row2, Column2)</l>
+<l>* smallest_rectangle2 (SelectedRegions, Row, Column, Phi, Length1, Length2)</l>
+<l>* gen_rectangle2 (Rectangle1, Row, Column, Phi, Length1, Length2)</l>
+<l>* intersection (Rectangle, Rectangle1, RegionPanel)</l>
+<c></c>
+<l>reduce_domain (Image2, FrameRegion, ImageReduced2)</l>
+<l>crop_domain (ImageReduced2, ImagePart2)</l>
+<c></c>
+<l>write_image (ImagePart2, 'jpg', 0, 'D:/tt'+ VisionProcessStep+'.jpg')</l>
+<c></c>
+<l>get_image_size (Image1, Width, Height)</l>
+<l>gen_rectangle1 (Region_image, 0, 0, Height-1, Width-1)</l>
+<l>gen_empty_obj (RegionPanel)</l>
+<l>* threshold (Image1, Region1, 230, 255)</l>
+<l>* connection (Region1, ConnectedRegions1)</l>
+<l>* select_shape (ConnectedRegions1, SelectedRegions1, 'area', 'and', 10000, 99999999)</l>
+<c></c>
+<l>* mean_image (Image2, ImageMean2, 50, 50)</l>
+<l>* dyn_threshold (Image2, ImageMean2, RegionDynThresh2, 30, 'light')</l>
+<l>* connection (RegionDynThresh2, ConnectedRegions2)</l>
+<l>* select_shape (ConnectedRegions2, SelectedRegions2, 'area', 'and', 10000, 99999999)</l>
+<c></c>
+<c></c>
+<l>smallest_rectangle2 (FrameRegion, Row, Column, Phi, Length1, Length2)</l>
+<l>reduce_domain (Image1, FrameRegion, ImageGlass1)</l>
+<l>reduce_domain (Image2, FrameRegion, ImageGlass2)</l>
+<l>reduce_domain (Image3, FrameRegion, ImageGlass3)</l>
+<l>intensity (FrameRegion, ImageGlass1, Mean1, Deviation1)</l>
+<c></c>
+<c></c>
+<l>mean_image (ImageGlass1, ImageMean1, 50, 50)</l>
+<l>dyn_threshold (ImageGlass1, ImageMean1, RegionDynThresh, 10, 'dark')</l>
+<l>connection (RegionDynThresh, ConnectedRegionsN)</l>
+<l>select_shape (ConnectedRegionsN, SelectedRegionsN, 'area', 'and', 5000, 999999999)</l>
+<l>erosion_circle (FrameRegion, RegionErosion, 30.5)</l>
+<l>difference (FrameRegion, RegionErosion, RegionDifferenceN)</l>
+<l>intersection (SelectedRegionsN, RegionDifferenceN, RegionIntersectionN1)</l>
+<l>connection (RegionIntersectionN1, ConnectedRegionsN1)</l>
+<l>select_shape (ConnectedRegionsN1, SelectedRegionsN1, 'area', 'and', 20000, 999999999)</l>
+<l>union1 (SelectedRegionsN1, RegionEdge)</l>
+<c></c>
+<c></c>
+<c></c>
+<l>difference (FrameRegion, RegionEdge, RegionDiff)</l>
+<l>connection (RegionDiff, ConnectedRegionsDiff)</l>
+<l>select_shape_std (ConnectedRegionsDiff, RegionPanel, 'max_area', 70)</l>
+<c></c>
+<c></c>
+<l>threshold (ImageGlass2, RegionL, 20, 255)</l>
+<l>fill_up (RegionL, RegionFillUpL)</l>
+<l>connection (RegionFillUpL, ConnectedRegionsL)</l>
+<l>select_shape_std (ConnectedRegionsL, SelectedRegionsL, 'max_area', 70)</l>
+<l>intersection (SelectedRegionsL, RegionPanel, DetectROI)</l>
+<l>union1 (DetectROI, RegionUnion)</l>
+<l>opening_circle (RegionUnion, RegionOpening, 3.5)</l>
+<l>erosion_circle (RegionOpening, RegionErosion1, 3.5)</l>
+<l>connection (RegionErosion1, ConnectedRegions)</l>
+<l>select_shape_std (ConnectedRegions, DetectROI, 'max_area', 70)</l>
+<c></c>
+<c></c>
+<l>intersection (SelectedRegionsL, RegionEdge, RegionIntersection)</l>
+<l>opening_circle (RegionIntersection, RegionOpening1, 1.5)</l>
+<l>connection (RegionOpening1, ConnectedRegions2)</l>
+<l>select_shape (ConnectedRegions2, SelectedRegionsIntersection, 'area', 'and', 5000, 999999999)</l>
+<l>count_obj (SelectedRegionsIntersection, Number)</l>
+<c>*亮边/磨砂边</c>
+<l>isFrostedEdge:=0</l>
+<l>if(Number&gt;0)</l>
+<c>    *亮边</c>
+<l>    isFrostedEdge:=0</l>
+<l>else</l>
+<c>    *磨砂边</c>
+<l>    isFrostedEdge:=1</l>
+<l>endif</l>
+<c></c>
+<c></c>
+<l>benbian_Detect (Image1, Image2, Image3, FrameRegion, RegionPanel, RegionEdge, DetectROI, ErrImage1_Q, ErrImage2_Q, ErrImage3_Q, ErrRoi_Q, OriginalErrRoi_bengbian, DetectDict, VisionProcessStep, GlassPositionInf, YCoordIn, pixX, pixY, ErrName_Q, ErrType_Q, ErrW_Q, ErrH_Q, ErrArea_Q, ErrX_Q, ErrY_Q, MapIndex_Q, ParIndex_Q, ErrImageIndex_Q, YCoordOut, OK1)</l>
+<l>    if (OK1!=[])</l>
+<l>    concat_obj (ErrImage1, ErrImage1_Q, ErrImage1)</l>
+<l>    concat_obj (ErrImage2, ErrImage2_Q, ErrImage2)</l>
+<l>    concat_obj (ErrImage3, ErrImage3_Q, ErrImage3)</l>
+<l>        concat_obj (ErrRoi,ErrRoi_Q,  ErrRoi)</l>
+<l>        ErrName:=[ErrName,ErrName_Q]</l>
+<l>        ErrType:=[ErrType,ErrType_Q]</l>
+<l>        ErrW:=[ErrW,ErrW_Q]</l>
+<l>        ErrH:=[ErrH,ErrH_Q]</l>
+<l>        ErrArea:=[ErrArea,ErrArea_Q]</l>
+<l>        ErrX:=[ErrX,ErrX_Q]</l>
+<l>        ErrY:=[ErrY,ErrY_Q]</l>
+<l>        MapIndex:=[MapIndex,MapIndex_Q]</l>
+<l>        ParIndex:=[ParIndex,ParIndex_Q]</l>
+<l>        ErrImageIndex := [ErrImageIndex,ErrImageIndex_Q]</l>
+<l>        OK:=[OK,OK1]</l>
+<l>    endif </l>
+<c></c>
+<c></c>
+<l>* connection (Region, ConnectedRegions)</l>
+<l>* select_shape (ConnectedRegions, SelectedRegions, 'area', 'and', 10000, 99999999)</l>
+<c></c>
+<c></c>
+<l>* union1 (SelectedRegions, RegionUnion)</l>
+<c>* </c>
+<l>* gen_rectangle2 (Rectangle, Row, Column, Phi, Length1, Length2)</l>
+<l>* area_center (RegionUnion, Area_ROI, Row_ROI, Column_ROI)</l>
+<l>* select_shape_std (ConnectedRegions, SelectedRegionMax, 'max_area', 70)</l>
+<l>* dilation_circle (SelectedRegionMax, RegionDilation, 30.5)</l>
+<c></c>
+<l>* FrameCount:=10</l>
+<l>* if(FrameCount&gt;1)</l>
+<l>*   if(VisionProcessStep=1 or VisionProcessStep=FrameCount)</l>
+<l>*       if(VisionProcessStep=1)</l>
+<l>*           gen_region_line (RegionLines, 0, 0, 0, Width-1)</l>
+<l>*           union2 (RegionLines, RegionUnion, RegionUnion1)</l>
+<l>*           fill_up (RegionUnion1, RegionFillUp)</l>
+<l>*           opening_circle (RegionFillUp, RegionOpening, 1.5)</l>
+<c>                              </c>
+<l>*       else</l>
+<l>*           gen_region_line (RegionLines, Height-1, 0, Height-1, Width-1)</l>
+<l>*           union2 (RegionLines, RegionUnion, RegionUnion1)</l>
+<l>*           fill_up (RegionUnion1, RegionFillUp)</l>
+<l>*           opening_circle (RegionFillUp, RegionOpening, 1.5) </l>
+<c>          </c>
+<l>*       endif</l>
+<l>*   else</l>
+<l>*       gen_region_line (RegionLines1, 0, 0, 0, Width-1)     </l>
+<l>*       gen_region_line (RegionLines2, Height-1, 0, Height-1, Width-1)</l>
+<l>*       union2 (RegionLines1, RegionLines2, RegionUnion1)</l>
+<l>*       union2 (RegionUnion1, RegionUnion, RegionUnion2)</l>
+<l>*       fill_up (RegionUnion2, RegionFillUp)</l>
+<l>*       opening_circle (RegionFillUp, RegionOpening, 1.5)                 </l>
+<l>*   endif</l>
+<l>* else</l>
+<l>*     fill_up (RegionUnion, RegionFillUp)</l>
+<l>*     opening_circle (RegionFillUp, RegionOpening, 1.5)      </l>
+<c>    </c>
+<l>* endif</l>
+<l>* intersection (RegionOpening, RegionDilation, RegionIntersection)</l>
+<l>* difference (RegionOpening, RegionIntersection, RegionPanel)</l>
+<c></c>
+<l>* area_center (RegionPanel, Area_Panel, Row_Panel, Column_Panel)</l>
+<l>* if(Area_Panel&lt;0.8*Area_ROI)</l>
+<l>*     erosion_circle (Rectangle, RegionPanel, 100.5)</l>
+<l>* endif</l>
+<c></c>
+<c></c>
+<c>    </c>
+<c>    </c>
+<l>if(VisionProcessStep=1)</l>
+<l>   YCoordOut:=YCoordIn+2*Length2</l>
+<l>else</l>
+<l>   YCoordOut:=YCoordIn+ Height</l>
+<l>endif</l>
+<c></c>
+<l> difference (DetectROI, OriginalErrRoi_bengbian, DetectROI)</l>
+<c> </c>
+<l> reduce_domain (ImageGlass1, DetectROI, ImageReduced1)</l>
+<l>  reduce_domain (ImageGlass2, DetectROI, ImageReduced2)</l>
+<l>  reduce_domain (ImageGlass3, DetectROI, ImageReduced3)</l>
+<c>  </c>
+<l>  threshold (ImageReduced1, RegionSYK, 0, 30)</l>
+<l>  closing_circle (RegionSYK, RegionClosingSYK, 20.5)</l>
+<l>  connection (RegionClosingSYK, ConnectedRegionsSYK)</l>
+<l>  select_shape (ConnectedRegionsSYK, SelectedRegionsSYK, 'area', 'and', 2000, 999999999)</l>
+<l>  dilation_circle (SelectedRegionsSYK, RegionDilationSYK, 30.5)</l>
+<l>  difference (DetectROI, RegionDilationSYK, DetectROI)</l>
+<l>  erosion_circle (DetectROI, DetectROI, 15.5)</l>
+<c>  </c>
+<l>  dilation_circle (RegionEdge, RegionDilation, 10.5)</l>
+<l>  difference (DetectROI, RegionDilation, RegionDifferenceROI)</l>
+<l>  erosion_circle (RegionDifferenceROI, RegionErosion, 3.5)</l>
+<l>  connection (RegionErosion, ConnectedRegionsROI)</l>
+<l>  select_shape_std (ConnectedRegionsROI, DetectROI, 'max_area', 70)</l>
+<c>  </c>
+<c>  </c>
+<l>* reduce_domain (Image3, RegionPanel, ImageReduced)</l>
+<c></c>
+<l>* threshold (ImageReduced, Region, 0, 30)</l>
+<l>* mean_image (ImageSub, ImageMean, 100, 100)</l>
+<l>* dyn_threshold (ImageSub, ImageMean, RegionDynThresh, 50, 'light')</l>
+<l>* union2 (Region, RegionDynThresh, RegionUnion)</l>
+<l>* closing_circle (RegionUnion, RegionClosing, 10.5)</l>
+<l>* connection (RegionClosing, ConnectedRegions1)</l>
+<l>* select_shape (ConnectedRegions1, SelectedRegions1, 'area', 'and', 5000, 999999999)</l>
+<l>* difference (RegionPanel, SelectedRegions1, Region_PanelM)</l>
+<l>* connection (Region_PanelM, ConnectedRegions3)</l>
+<l>* select_shape_std (ConnectedRegions3, RegionPanel, 'max_area', 70)</l>
+<c></c>
+<l>HuaHen_Detect (ImageGlass1, ImageGlass2, ImageGlass3, RegionPanel, DetectROI, ErrImage1_Q, ErrImage2_Q, ErrImage3_Q, ErrRoi_Q, OriginalErrRoi_huahen, DetectDict, VisionProcessStep, GlassPositionInf, YCoordIn, pixX, pixY, ErrName_Q, ErrType_Q, ErrW_Q, ErrH_Q, ErrArea_Q, ErrX_Q, ErrY_Q, MapIndex_Q, ParIndex_Q, ErrImageIndex_Q, YCoordOut, OK3)</l>
+<l>    if (OK3!=[])</l>
+<l>    concat_obj (ErrImage1, ErrImage1_Q, ErrImage1)</l>
+<l>    concat_obj (ErrImage2, ErrImage2_Q, ErrImage2)</l>
+<l>    concat_obj (ErrImage3, ErrImage3_Q, ErrImage3)</l>
+<l>        concat_obj (ErrRoi,ErrRoi_Q,  ErrRoi)</l>
+<l>        ErrName:=[ErrName,ErrName_Q]</l>
+<l>        ErrType:=[ErrType,ErrType_Q]</l>
+<l>        ErrW:=[ErrW,ErrW_Q]</l>
+<l>        ErrH:=[ErrH,ErrH_Q]</l>
+<l>        ErrArea:=[ErrArea,ErrArea_Q]</l>
+<l>        ErrX:=[ErrX,ErrX_Q]</l>
+<l>        ErrY:=[ErrY,ErrY_Q]</l>
+<l>        MapIndex:=[MapIndex,MapIndex_Q]</l>
+<l>        ParIndex:=[ParIndex,ParIndex_Q]</l>
+<l>        ErrImageIndex := [ErrImageIndex,ErrImageIndex_Q]</l>
+<l>        OK:=[OK,OK3]</l>
+<l>    endif </l>
+<c>    </c>
+<l>difference (DetectROI, OriginalErrRoi_huahen, DetectROI)</l>
+<c></c>
+<l>QiPao_Detect (ImageGlass1, ImageGlass2, ImageGlass3, RegionPanel, DetectROI, ErrImage1_Q, ErrImage2_Q, ErrImage3_Q, ErrRoi_Q, OriginalErrRoi_qipao, DetectDict, VisionProcessStep, GlassPositionInf, YCoordIn, pixX, pixY, ErrName_Q, ErrType_Q, ErrW_Q, ErrH_Q, ErrArea_Q, ErrX_Q, ErrY_Q, MapIndex_Q, ParIndex_Q, ErrImageIndex_Q, YCoordOut, OK2)</l>
+<l>    if (OK2!=[])</l>
+<l>    concat_obj (ErrImage1, ErrImage1_Q, ErrImage1)</l>
+<l>    concat_obj (ErrImage2, ErrImage2_Q, ErrImage2)</l>
+<l>    concat_obj (ErrImage3, ErrImage3_Q, ErrImage3)</l>
+<l>        concat_obj (ErrRoi,ErrRoi_Q,  ErrRoi)</l>
+<l>        ErrName:=[ErrName,ErrName_Q]</l>
+<l>        ErrType:=[ErrType,ErrType_Q]</l>
+<l>        ErrW:=[ErrW,ErrW_Q]</l>
+<l>        ErrH:=[ErrH,ErrH_Q]</l>
+<l>        ErrArea:=[ErrArea,ErrArea_Q]</l>
+<l>        ErrX:=[ErrX,ErrX_Q]</l>
+<l>        ErrY:=[ErrY,ErrY_Q]</l>
+<l>        MapIndex:=[MapIndex,MapIndex_Q]</l>
+<l>        ParIndex:=[ParIndex,ParIndex_Q]</l>
+<l>        ErrImageIndex := [ErrImageIndex,ErrImageIndex_Q]</l>
+<l>        OK:=[OK,OK2]</l>
+<l>    endif  </l>
+<c>    </c>
+<c></c>
+<c>    </c>
+<c></c>
+<c>    </c>
+<l>return ()</l>
+</body>
+<docu id="Detect_Image">
+<parameters>
+<parameter id="DetectDict"/>
+<parameter id="ErrArea"/>
+<parameter id="ErrH"/>
+<parameter id="ErrImage1"/>
+<parameter id="ErrImage2"/>
+<parameter id="ErrImage3"/>
+<parameter id="ErrImageIndex"/>
+<parameter id="ErrName"/>
+<parameter id="ErrRoi"/>
+<parameter id="ErrType"/>
+<parameter id="ErrW"/>
+<parameter id="ErrX"/>
+<parameter id="ErrY"/>
+<parameter id="FrameRegion"/>
+<parameter id="GlassPositionInf"/>
+<parameter id="Image1"/>
+<parameter id="Image2"/>
+<parameter id="Image3"/>
+<parameter id="MapIndex"/>
+<parameter id="OK"/>
+<parameter id="ParIndex"/>
+<parameter id="VisionProcessStep"/>
+<parameter id="YCoordIn"/>
+<parameter id="YCoordOut"/>
+<parameter id="pixX"/>
+<parameter id="pixY"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

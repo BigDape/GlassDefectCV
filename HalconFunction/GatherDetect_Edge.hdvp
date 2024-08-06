@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="GatherDetect_Edge">
+<interface>
+<io>
+<par name="ImageReduced_Dark" base_type="iconic" dimension="0"/>
+<par name="ImageReduced_Light" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="chipping" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+<par name="Edge_length" base_type="ctrl" dimension="0"/>
+<par name="edge_threshold" base_type="ctrl" dimension="0"/>
+<par name="op_width" base_type="ctrl" dimension="0"/>
+<par name="op_height" base_type="ctrl" dimension="0"/>
+<par name="op1_width" base_type="ctrl" dimension="0"/>
+<par name="op1_height" base_type="ctrl" dimension="0"/>
+</ic>
+</interface>
+<body>
+<c>**崩边判断</c>
+<l>gen_empty_obj (chipping)</l>
+<l>try        </l>
+<l>       * get_dict_tuple (DetectDict, 'edge_threshold', edge_threshold)</l>
+<l>        threshold (ImageReduced_Dark, Region, edge_threshold, 255)</l>
+<l>        connection (Region, ConnectedRegions)        </l>
+<l>        select_shape_std (ConnectedRegions, SelectedRegions, 'max_area', 70)</l>
+<l>        smallest_rectangle1 (SelectedRegions, Row1, Column1, Row2, Column2)</l>
+<c>        </c>
+<l>        opening_rectangle1 (SelectedRegions, RegionOpening, op_width, op_height)        </l>
+<l>        connection (RegionOpening, ConnectedRegions1)        </l>
+<l>        select_shape_std (ConnectedRegions1, SelectedRegions1, 'max_area', 70)</l>
+<c>        </c>
+<l>        difference (SelectedRegions, SelectedRegions1, RegionDifference)</l>
+<l>        opening_rectangle1 (RegionDifference, RegionOpening1, op1_width, op1_height)</l>
+<l>        connection (RegionOpening1, ConnectedRegions2)</l>
+<l>        select_shape (ConnectedRegions2, SelectedRegions2, 'area', 'and', 500, 10000)</l>
+<l>        if(Column2-Column1&gt;Row2-Row1)</l>
+<l>           if(((Column2-Column1)+10)&lt;Edge_length) </l>
+<l>             select_obj (SelectedRegions, chipping, Index1)  </l>
+<l>           endif</l>
+<c>           </c>
+<l>        else</l>
+<l>            if(((Row2-Row1)+10)&lt;Edge_length) </l>
+<l>             select_obj (SelectedRegions, chipping, Index1)  </l>
+<l>           endif</l>
+<l>        endif                       </l>
+<l>           circularity (SelectedRegions2, Circularity_edge)</l>
+<l>           compactness (SelectedRegions2, Compactness_edge)</l>
+<l>           count_obj (SelectedRegions2, Number)</l>
+<l>           if(Number&gt;0)</l>
+<l>             for Index1 := 1 to Number by 1</l>
+<l>               if(Compactness_edge[Index1-1]&gt;3 and Circularity_edge[Index1-1]&gt;0.2)</l>
+<l>                  select_obj (SelectedRegions2, chipping, Index1)   </l>
+<l>               endif</l>
+<l>             endfor</l>
+<l>           endif</l>
+<c>       </c>
+<c>    </c>
+<l>catch (Exception )</l>
+<l>endtry</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="GatherDetect_Edge">
+<parameters>
+<parameter id="DetectDict"/>
+<parameter id="Edge_length"/>
+<parameter id="ImageReduced_Dark"/>
+<parameter id="ImageReduced_Light"/>
+<parameter id="chipping"/>
+<parameter id="edge_threshold"/>
+<parameter id="op1_height"/>
+<parameter id="op1_width"/>
+<parameter id="op_height"/>
+<parameter id="op_width"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

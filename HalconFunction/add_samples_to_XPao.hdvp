@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="add_samples_to_XPao">
+<interface>
+<ic>
+<par name="ClassNames" base_type="ctrl" dimension="0"/>
+<par name="ClassHandle" base_type="ctrl" dimension="0"/>
+<par name="ReadPath" base_type="ctrl" dimension="0"/>
+<par name="ClassNumber" base_type="ctrl" dimension="0"/>
+<par name="thresholdmin" base_type="ctrl" dimension="0"/>
+</ic>
+</interface>
+<body>
+<c></c>
+<l>list_files (ReadPath + ClassNumber, 'files', Files)</l>
+<l>    Selection := regexp_select(Files,'.*[.]bmp')</l>
+<l>    for Index := 0 to |Selection| - 1 by 1</l>
+<l>        read_image (Image, Selection[Index])</l>
+<l>        threshold (Image, Regions2, thresholdmin, 255)</l>
+<l>        closing_rectangle1 (Regions2, Regionrectangle, 1, 5)</l>
+<l>        connection (Regionrectangle, ConnectedRegions5)</l>
+<l>        select_shape (ConnectedRegions5, SelectedRegions, 'rect2_len1', 'and',10, 999)</l>
+<l>        select_shape (SelectedRegions, SelectedRegions1, 'rect2_len2', 'and', 0, 6)</l>
+<l>        select_shape (SelectedRegions1, SelectedRegions2, ['rect2_phi','rect2_phi'], 'or', [1.4,-1.7], [1.7,-1.4])</l>
+<l>        count_obj (SelectedRegions2, Number)</l>
+<l>        for Index1 := 1 to Number by 1    </l>
+<l>            select_obj (SelectedRegions2, ObjectSelected1, Index1)  </l>
+<l>            intersection (ObjectSelected1, Regions2, RegionIntersection2)</l>
+<l>            closing_circle (RegionIntersection2, RegionClosing4,2)</l>
+<l>            connection (RegionClosing4, ConnectedRegions8)</l>
+<l>            select_shape_std (ConnectedRegions8, SelectedRegions3, 'max_area', 70)</l>
+<l>            select_shape (SelectedRegions3, SelectedRegions5, 'rect2_len1', 'and', 10, 9999)</l>
+<l>            count_obj (SelectedRegions5, Number4)</l>
+<l>            if (Number4&gt;0)</l>
+<l>                connection (RegionIntersection2, ConnectedRegions3)</l>
+<l>                count_obj (ConnectedRegions3, Number3)</l>
+<l>                if (Number3&lt;20 ) </l>
+<l>                    calculate_features_XPao (SelectedRegions5, Image, Features)</l>
+<l>                    add_sample_class_mlp (ClassHandle, Features, ClassNames)</l>
+<l>                endif</l>
+<l>            endif</l>
+<l>        endfor</l>
+<l>    endfor  </l>
+<l>return ()</l>
+<c></c>
+<c></c>
+</body>
+<docu id="add_samples_to_XPao">
+<parameters>
+<parameter id="ClassHandle"/>
+<parameter id="ClassNames"/>
+<parameter id="ClassNumber"/>
+<parameter id="ReadPath"/>
+<parameter id="thresholdmin"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

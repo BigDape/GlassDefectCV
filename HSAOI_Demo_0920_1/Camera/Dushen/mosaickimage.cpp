@@ -6,30 +6,53 @@ MosaickImage::MosaickImage()
 {
 }
 
-MosaickImage::MosaickImage( const MosaickImage& mo)
+//拼接四张图到一张图里面
+void MosaickImage::DoMosaick(HObject CameraImage1,
+                             HObject CameraImage2,
+                             HObject CameraImage3,
+                             HObject CameraImage4,
+                             HObject PrepareImage,
+                             HObject& FiledImage)
 {
-    mosaickQueue = mo.mosaickQueue;
-    MosaickResultImage = mo.MosaickResultImage;
-}
+   try{
+        QElapsedTimer timer;
+        timer.start();
+        HTuple RecipeDict;
+        HTuple CurrentRecipe=  Global::CurrentRecipe.toUtf8().constData();
+        ReadDict("Recipes/"+ CurrentRecipe +".json", HTuple(), HTuple(), &RecipeDict);
+        HTuple DefectDict;
+        GetDictTuple(RecipeDict,"缺陷检测",&DefectDict);
+        HTuple PixelDif12,PixelDif23,PixelDif24;
+        GetDictTuple(DefectDict,"12相机像素偏差",&PixelDif12);
+        GetDictTuple(DefectDict,"23相机像素偏差",&PixelDif23);
+        GetDictTuple(DefectDict,"24相机像素偏差",&PixelDif24);
+        qDebug()<<"1-2相机像素偏差"<<PixelDif12.ToString().Text();
 
-MosaickImage& MosaickImage::operator=(const MosaickImage& mo)
-{
-    if(this != &mo) {
-        mosaickQueue = mo.mosaickQueue;
-        MosaickResultImage = mo.MosaickResultImage;
+        HTuple ImageHeight;
+        HTuple ImageWidth;
+
+        GetImageSize(CameraImage1, &ImageWidth, &ImageHeight);
+        // + PixelDif12
+        CropPart(CameraImage1, &CameraImage1, 100, 93, ImageWidth-186, ImageHeight - 200); //裁切图片
+        CropPart(CameraImage2, &CameraImage2, 100, 93, ImageWidth-186, ImageHeight - 200); //裁切图片
+        CropPart(CameraImage3, &CameraImage3, 100, 88, ImageWidth-186, ImageHeight - 200); //裁切图片
+        CropPart(CameraImage4, &CameraImage4, 100, 38, ImageWidth-186, ImageHeight - 200); //裁切图片
+        GenEmptyObj(&PrepareImage);
+        ConcatObj(CameraImage1, CameraImage2, &PrepareImage);
+        ConcatObj(PrepareImage, CameraImage3, &PrepareImage);
+        ConcatObj(PrepareImage, CameraImage4, &PrepareImage);
+        qDebug() << "ImageWidth :" << ImageWidth.ToString().Text();
+        qDebug() << "ImageHeight :" << ImageHeight.ToString().Text();
+        GenEmptyObj(&FiledImage);
+        TileImages(PrepareImage, &FiledImage, 4, "horizontal"); //对待拼接对象进行拼接操作，拼接结果放在FiledImage中
+        timer.elapsed();
+        qDebug() << "Function time : " << timer.elapsed() << " ms";
     }
-    return *this;
-}
-
-
-HObject MosaickImage::run()
-{
-    if (!mosaickQueue.empty()){
-         MosaickArg arg;
-         mosaickQueue.dequeue(arg);
-         MosaickImage::DoMosaick(arg.CameraImageList, arg.channel, arg.PrepareImage, MosaickResultImage);
+    catch (HException e)
+    {
+        qDebug()<<"HException"<<"拼图算法出错！";
     }
-    return MosaickResultImage;
+
 }
 
 void MosaickImage::DoMosaick(QList<HObject> CameraImageList, int channel, HObject PrepareImage, HObject& FiledImage)
@@ -49,7 +72,7 @@ void MosaickImage::DoMosaick(QList<HObject> CameraImageList, int channel, HObjec
 
         overlapsiyin=(184-8192*(1-(1457.7-(siyindistance-6))/1457.700))/2;
         overlap=(184-8192*(1-(1457.7-(thickness-6))/1457.700))/2;
-
+        overlap=75+12+2;
 //        int Thickness=thickness;
 //        switch (Thickness){
 //          case 10:
@@ -82,14 +105,17 @@ void MosaickImage::DoMosaick(QList<HObject> CameraImageList, int channel, HObjec
        qDebug() << "ImageHeight :" << ImageHeight.ToString().Text();
     // + PixelDif12
        QList<HTuple> a1,a2,a3,a4;
-       a1<<50<<52<<50<<50;
+       a1<<100<<96<<100<<100;
+       int VerPix12 = PixelDif12.I();
+       int VerPix23 = PixelDif23.I();
+       a1<<VerPix12<<VerPix23<<100<<100;
        a2<<0<<overlap<<88<<38<<0<<overlapsiyin<<77<<88<<99;
        a3<<ImageWidth-overlap<<ImageWidth-overlap<<ImageWidth-29<<ImageWidth-29<<ImageWidth-overlapsiyin<<ImageWidth-overlapsiyin<<ImageWidth-15<<ImageWidth-15;
        a4<<ImageHeight - 200;
        if(channel==0) {
             for(int i=0;i<Global::camDefineNum;i++)
                 CropPart(CameraImageList[i],&CameraImageList[i],a1[i],a2[i],a3[i],a4[0]);
-        } else {//最后一帧
+        } else {
             for(int i=0;i<Global::camDefineNum;i++)
                 CropPart(CameraImageList[i],&CameraImageList[i],a1[i],a2[i+4],a3[i+4],a4[0]);
         }
@@ -111,4 +137,18 @@ void MosaickImage::DoMosaick(QList<HObject> CameraImageList, int channel, HObjec
     {
         qDebug()<<"HException"<<"拼图算法出错！";
     }
+}
+
+ThreadDo::ThreadDo(QObject* parent)
+    : QThread(parent)
+{
+    MosaickProcess = new MosaickImage();
+}
+
+void ThreadDo::run()
+{
+   //     CameraImageList<<CameraImage1<<CameraImage2<<CameraImage3<<CameraImage4;
+    //执行图片拼接操作
+   // MosaickProcess->DoMosaick(CameraImage1, CameraImage2, CameraImage3, CameraImage4, PrepareImage, MosaickResultImage);
+        MosaickProcess->DoMosaick(CameraImageList, channel, PrepareImage, MosaickResultImage);
 }

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="DetectProcess_WuBianKuangSiyin">
+<interface>
+<io>
+<par name="Image" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="SiyiRoi" base_type="iconic" dimension="0"/>
+<par name="circularityRoi" base_type="iconic" dimension="0"/>
+<par name="DetectRoi" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="VisionProcess" base_type="ctrl" dimension="0"/>
+</ic>
+</interface>
+<body>
+<c></c>
+<l>gen_empty_obj (SiyiRoi)</l>
+<l>gen_empty_obj (circularityRoi)</l>
+<l>get_image_size (Image, Width, Height)</l>
+<l>threshold (Image, Regions, 100, 255)</l>
+<l>fill_up_shape (Regions, RegionFillUp, 'area', 10000, 20000)</l>
+<l>difference (RegionFillUp, Regions, RegionDifference)</l>
+<l>dilation_circle (RegionDifference, circularityRoi, 25)</l>
+<c></c>
+<c></c>
+<c></c>
+<l>connection (Regions, ConnectedRegions)</l>
+<l>select_shape (ConnectedRegions, SelectedRegions, 'area', 'and',40, 2e+07)</l>
+<c></c>
+<c></c>
+<l>if (VisionProcess==0)</l>
+<l>    region_features (SelectedRegions, 'height', Value)</l>
+<l>    MaxIndex:=   inverse(sort_index(Value))[0]+1</l>
+<l>    select_obj (SelectedRegions, bianyuan, MaxIndex)</l>
+<l>    opening_rectangle1 (bianyuan, RegionOpening1, 50, 1)</l>
+<l>    smallest_rectangle2 (RegionOpening1, Row, Column, Phi, Length1, Length2)</l>
+<l>    gen_rectangle2 (Rectangle, Row-70, Column, Phi, Length1, 75)</l>
+<l>    union2 (bianyuan, Rectangle, bianyuan) </l>
+<l>elseif (VisionProcess==9)</l>
+<l>    region_features (SelectedRegions, 'height', Value)</l>
+<l>    MaxIndex:=   inverse(sort_index(Value))[0]+1</l>
+<l>    select_obj (SelectedRegions, bianyuan, MaxIndex)</l>
+<l>else  </l>
+<l>    select_shape (SelectedRegions, bianyuan, ['height','width'], 'and', [2407.82,0], [2842.92,331.86])</l>
+<l>endif</l>
+<c></c>
+<c></c>
+<l>difference (SelectedRegions, circularityRoi, RegionDifference1)</l>
+<l>difference (RegionDifference1, bianyuan,SiYinArea)</l>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<l>select_shape_std (SiYinArea, SelectedRegions1, 'max_area', 70)</l>
+<l>opening_rectangle1 (SelectedRegions1, RegionOpening, 1, 300)</l>
+<l>difference (SiYinArea, SelectedRegions1, RegionDifference2)</l>
+<l>union1 (RegionDifference2, RegionUnion1)</l>
+<l>union2 (RegionUnion1, RegionOpening, RegionUnion)</l>
+<l>closing_rectangle1 (RegionUnion, RegionClosing,1, 1)</l>
+<l>connection (RegionClosing, ConnectedRegions1)</l>
+<l>difference (RegionDifference2, bianyuan, RegionDifference3)</l>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<l>select_shape_proto (ConnectedRegions1, RegionOpening, SelectedRegions2, 'overlaps_rel', 0.1, 100)</l>
+<l>select_shape_proto (RegionDifference1, SelectedRegions2, SiyiRoix, 'overlaps_rel', 0.1, 150)</l>
+<l>union1 (SiyiRoix, SiyiRoix)</l>
+<l>smallest_rectangle1 (SiyiRoix, Row1, Column1, Row2, Column2)</l>
+<l>gen_rectangle2 (Rectangle1,[Row1,Row1,Row2, Row2],[Column1,Column2,Column1,Column2],[0,0,0,0],[40,40,40,40],[40,40,40,40])</l>
+<l>union1 (Rectangle1, RegionUnion2)</l>
+<l>select_shape_proto (SiYinArea, Rectangle1, SiyiRoip, 'overlaps_rel', 0.1, 150)</l>
+<l>union2 (SiyiRoix, SiyiRoip, SiyiRoi)</l>
+<c></c>
+<c></c>
+<l>union2 (SiyiRoi, bianyuan, RegionUnion3)</l>
+<l>union2 (RegionUnion3, circularityRoi, DetectRoi)</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="DetectProcess_WuBianKuangSiyin">
+<parameters>
+<parameter id="DetectRoi"/>
+<parameter id="Image"/>
+<parameter id="SiyiRoi"/>
+<parameter id="VisionProcess"/>
+<parameter id="circularityRoi"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

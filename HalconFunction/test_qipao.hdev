@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>  read_image (ImageReduced1, 'C:/Users/hs/Desktop/20221027E/20221027E/气泡/气泡 (73).bmp') </l>
+<l>  read_image (ImageReduced2, 'C:/Users/Admin/Desktop/误判/水滴判气泡/2.bmp')</l>
+<l>             threshold (ImageReduced2, Regions, 0, 80)</l>
+<l>        closing_circle (Regions, RegionClosing, 1.5)</l>
+<c>        </c>
+<l>        connection (RegionClosing, ConnectedRegions1)</l>
+<l>        select_shape (ConnectedRegions1, SelectedRegions1, 'area', 'and', 5, 9999999)</l>
+<l>        select_shape (SelectedRegions1, SelectedRegions1, 'circularity', 'and', 0.2, 1)             </l>
+<c>        </c>
+<l>        count_obj (SelectedRegions1, Number11)</l>
+<l>        for Index := 1 to Number11 by 1</l>
+<l>            select_obj (SelectedRegions1, ObjectSelected11, Index)</l>
+<l>            smallest_rectangle2 (ObjectSelected11, Row, Column, Phi, Length1, Length2)</l>
+<c>            </c>
+<l>            gen_rectangle2 (Rectangle, Row, Column, Phi, Length1+30, Length2+30)</l>
+<l>            reduce_domain (ImageReduced1, Rectangle, ImageReduced13)</l>
+<l>            threshold (ImageReduced13, Region14, 250, 255)</l>
+<l>            connection (Region14, ConnectedRegions14)</l>
+<l>            select_shape_std (ConnectedRegions14, SelectedRegions14, 'max_area', 70)</l>
+<l>            region_features (SelectedRegions14, 'area', A_Area)</l>
+<l>            region_features (ObjectSelected11, 'area', Area11)</l>
+<l>            ratio_A:= A_Area/(Area11+0.01)</l>
+<c>          </c>
+<c>            </c>
+<l>            dilation_circle (ObjectSelected11, RegionDilation15, 2.5)</l>
+<l>            reduce_domain (ImageReduced1, RegionDilation15, ImageReduced14)                       </l>
+<l>           threshold (ImageReduced14, Region15, 250, 255)</l>
+<l>            connection (Region15, ConnectedRegions15)</l>
+<l>            select_shape (ConnectedRegions15, SelectedRegions15, 'area', 'and', 3, 99999)</l>
+<l>            count_obj (SelectedRegions15, Number_baidian)</l>
+<c>            </c>
+<c>            </c>
+<l>            reduce_domain (ImageReduced2, ObjectSelected11, ImageReduced12)            </l>
+<l>            threshold (ImageReduced12, Region13, 0, 80)</l>
+<l>            connection (Region13, ConnectedRegions13)</l>
+<l>            difference (ObjectSelected11, ConnectedRegions13, RegionDifference11)</l>
+<l>            intensity (RegionDifference11, ImageReduced12, Mean1, Deviation1)</l>
+<l>            tuple_int (Mean1, MeanInt1)</l>
+<l>            intensity (ObjectSelected11, ImageReduced2, Mean, Deviation)</l>
+<l>            tuple_int (Mean, MeanInt)</l>
+<l>            region_features (ObjectSelected11, 'holes_num', holesValue11)</l>
+<l>            dilation_circle (ObjectSelected11, RegionDilation, 3.5)</l>
+<l>            reduce_domain (ImageReduced2, RegionDilation, ImageReduced11)</l>
+<l>            threshold (ImageReduced11, Region11, 0, 80)</l>
+<l>            connection (Region11, ConnectedRegions11)</l>
+<l>            select_shape (ConnectedRegions11, SelectedRegions11, 'area', 'and', 2, 99999)</l>
+<c>            *黑点个数****************************************</c>
+<l>            count_obj (SelectedRegions11, Number12)</l>
+<c>            </c>
+<l>            threshold (ImageReduced11, Region12, 190, 255)</l>
+<l>             connection (Region12, ConnectedRegions12)</l>
+<l>            select_shape (ConnectedRegions12, SelectedRegions12, 'area', 'and', 1, 99999)</l>
+<c>            *白点个数</c>
+<l>            count_obj (SelectedRegions12, Number13)</l>
+<l>            region_features (ObjectSelected11, 'circularity', Circularity_Value11)</l>
+<l>              if((holesValue11=1 or (Number12&gt;0 and Number13&gt;0) or Number12&gt;1 or (MeanInt1-MeanInt&gt;70 and MeanInt&gt;30 and MeanInt1&gt;120) ) and MeanInt&lt;90 and Circularity_Value11&gt;0.2 and ratio_A&lt;6 and ratio_A&gt;0.1 and Number_baidian&gt;0)</l>
+<l>                 concat_obj (qipao1, ObjectSelected11, qipao1)    </l>
+<l>            else</l>
+<c>                </c>
+<l>                if((Circularity_Value11&gt;0.5 and Area11&gt;20 and Area11&lt;200 and MeanInt&lt;70) or (MeanInt&lt;35 and Circularity_Value11&gt;0.3 and Area11&gt;=200))</l>
+<l>                    concat_obj (qipao2, ObjectSelected11, qipao2) </l>
+<l>                endif</l>
+<l>            endif</l>
+<l>        endfor</l>
+<c>    </c>
+<c>    </c>
+<c>  </c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

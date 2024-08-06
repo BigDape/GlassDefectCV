@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="Yiwu_zangwu_Detect">
+<interface>
+<io>
+<par name="Image1" base_type="iconic" dimension="0"/>
+<par name="Image2" base_type="iconic" dimension="0"/>
+<par name="Image3" base_type="iconic" dimension="0"/>
+<par name="Image4" base_type="iconic" dimension="0"/>
+<par name="DetectRoi" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="ErrRoi" base_type="iconic" dimension="0"/>
+<par name="AlarmRoi" base_type="iconic" dimension="0"/>
+<par name="ErrImage" base_type="iconic" dimension="0"/>
+<par name="AlarmImage" base_type="iconic" dimension="0"/>
+<par name="OriginalErrRoi" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+<par name="VisionProcessStep" base_type="ctrl" dimension="0"/>
+<par name="ImageIndex" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="ErrName" base_type="ctrl" dimension="0"/>
+<par name="AlarmName" base_type="ctrl" dimension="0"/>
+<par name="ErrW" base_type="ctrl" dimension="0"/>
+<par name="ErrH" base_type="ctrl" dimension="0"/>
+<par name="ErrArea" base_type="ctrl" dimension="0"/>
+<par name="ErrX" base_type="ctrl" dimension="0"/>
+<par name="ErrY" base_type="ctrl" dimension="0"/>
+<par name="AlarmW" base_type="ctrl" dimension="0"/>
+<par name="AlarmH" base_type="ctrl" dimension="0"/>
+<par name="AlarmArea" base_type="ctrl" dimension="0"/>
+<par name="AlarmX" base_type="ctrl" dimension="0"/>
+<par name="AlarmY" base_type="ctrl" dimension="0"/>
+<par name="MapIndex" base_type="ctrl" dimension="0"/>
+<par name="ParIndex" base_type="ctrl" dimension="0"/>
+<par name="ErrImageIndex" base_type="ctrl" dimension="0"/>
+<par name="OK" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>OK:=[]</l>
+<l>try</l>
+<c>    </c>
+<l>    gen_empty_obj (ErrRoi) </l>
+<l>    gen_empty_obj (AlarmRoi)</l>
+<l>    gen_empty_obj (ErrImage) </l>
+<l>    gen_empty_obj (AlarmImage)</l>
+<l>    gen_empty_obj (zangwu) </l>
+<l>    gen_empty_obj (yiwu)</l>
+<l>    gen_empty_obj (qianzangwu)</l>
+<l>    gen_empty_obj (zangwuq)</l>
+<c>    </c>
+<l>    ErrName:=[]</l>
+<l>    AlarmName:=[]</l>
+<l>    ErrW:=[]</l>
+<l>    ErrH:=[]</l>
+<l>    ErrArea:=[]</l>
+<l>    ErrX:=[]</l>
+<l>    ErrY:=[]</l>
+<l>    AlarmW:=[]</l>
+<l>    AlarmH:=[]</l>
+<l>    AlarmArea:=[]</l>
+<l>    AlarmX:=[]</l>
+<l>    AlarmY:=[]</l>
+<l>    MapIndex:=[]</l>
+<l>    ParIndex:=[]</l>
+<l>    ErrImageIndex := []</l>
+<l>    get_dict_tuple (DetectDict, '使能', EnabledDict)</l>
+<l>    get_dict_tuple (EnabledDict, 'YiWu_Enabled',YiWu_Enabled)</l>
+<l>    get_dict_tuple (EnabledDict, 'ZangWu_Enabled', ZangWu_Enabled)  </l>
+<c>    </c>
+<l>    get_dict_tuple (DetectDict, '异物',YWDict)</l>
+<l>    get_dict_tuple (YWDict, 'YiWu_threshold_Min', YiWu_threshold_Min)</l>
+<l>    get_dict_tuple (YWDict, 'YiWu_threshold_Max',YiWu_threshold_Max)</l>
+<l>    get_dict_tuple (YWDict, 'YiWu_L',YiWu_L)</l>
+<l>    get_dict_tuple (YWDict, 'YiWu_W',YiWu_W)</l>
+<c>    </c>
+<c>    </c>
+<l>    get_dict_tuple (DetectDict, '脏污',ZWDict)</l>
+<l>    get_dict_tuple (ZWDict, 'ZangWu_L', ZangWu_L)</l>
+<l>    get_dict_tuple (ZWDict, 'ZangWu_W', ZangWu_W)</l>
+<c>    </c>
+<l>    get_dict_tuple (DetectDict,'系统参数', EnabledDict)</l>
+<l>    get_dict_tuple (EnabledDict,'siyinclass' , siyinclass)</l>
+<c></c>
+<c>    </c>
+<c>    </c>
+<l>    if (siyinclass==0)</l>
+<l>         if (ImageIndex==1)</l>
+<l>            move_region (DetectRoi, DetectRoi, 1, 30)</l>
+<l>        endif    </l>
+<l>    else  </l>
+<l>        shape_trans (DetectRoi, RegionTrans, 'rectangle1')</l>
+<c></c>
+<l>        if (VisionProcessStep==9)</l>
+<l>            move_region (RegionTrans, RegionTrans, -300, 1) </l>
+<l>        endif</l>
+<c>        </c>
+<l>        if (VisionProcessStep==0)</l>
+<l>            move_region (RegionTrans, RegionTrans, 20, 1) </l>
+<l>        endif  </l>
+<l>        erosion_rectangle1 (DetectRoi, DetectRoi, 11, 11)</l>
+<l>        intersection (DetectRoi, RegionTrans, DetectRoi)</l>
+<l>    endif</l>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<l>    reduce_domain (Image1, DetectRoi, ImageReduced)</l>
+<l>    threshold (ImageReduced, Regions1, YiWu_threshold_Min, YiWu_threshold_Max)</l>
+<c>    *******************************异物***************************************</c>
+<l>    if (YiWu_Enabled)</l>
+<l>        fill_up (Regions1, RegionFillUp1)</l>
+<l>        connection (RegionFillUp1, ConnectedRegions3)</l>
+<l>        select_shape (ConnectedRegions3, SelectedRegions2, 'area', 'and',600, 990000) </l>
+<l>        dilation_circle (SelectedRegions2, RegionDilation, 100)</l>
+<l>        intersection (RegionDilation, ConnectedRegions3, RegionIntersection1)</l>
+<l>        closing_circle (RegionIntersection1, RegionClosing2, 20)</l>
+<l>        connection (RegionClosing2, ConnectedRegions2)</l>
+<l>        select_shape (ConnectedRegions2, selectyiwu, 'area', 'and',500, 9999999)</l>
+<l>        count_obj (selectyiwu, Number1)</l>
+<l>        if (Number1&gt;0)   </l>
+<c>            </c>
+<l>            tuple_gen_const (Number1, 1, Newtuple)</l>
+<l>            GatherInfo_OkNG (selectyiwu, Image1, Image2, Image3, RoiImage, TransRoi, SelectRegion, DetectDict, YWDict, '异物', VisionProcessStep, ImageIndex, YiWu_W, YiWu_L, Newtuple, Name, W, H, X, Y, Area, mapIndex, parIndex, ErrImageIndex1, OK1)</l>
+<l>            if (OK1!=[])</l>
+<l>                yiwu:=SelectRegion</l>
+<l>                concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                concat_obj (ErrRoi,TransRoi,  ErrRoi)</l>
+<l>                ErrName:=[ErrName,Name]</l>
+<l>                ErrW:=[ErrW,W]</l>
+<l>                ErrH:=[ErrH,H]</l>
+<l>                ErrArea:=[ErrArea,Area]</l>
+<l>                ErrX:=[ErrX,X]</l>
+<l>                ErrY:=[ErrY,Y]</l>
+<l>                MapIndex:=[MapIndex,mapIndex]</l>
+<l>                ParIndex:=[ParIndex,parIndex]  </l>
+<l>                ErrImageIndex:=[ErrImageIndex,ErrImageIndex1]</l>
+<l>                OK:=[OK,OK1]  </l>
+<l>            endif</l>
+<l>        endif  </l>
+<l>    endif </l>
+<c>    </c>
+<c>    ***********************************脏污*****************************************</c>
+<l>    if (ZangWu_Enabled)   </l>
+<l>        closing_circle (Regions1, RegionClosing3,30)</l>
+<l>        difference (RegionClosing3, yiwu, RegionDifference)</l>
+<l>        connection (RegionDifference, ConnectedRegions4)</l>
+<l>        select_shape (ConnectedRegions4, zangwu, 'area', 'and', 5000, 999999999)</l>
+<l>        count_obj (zangwu, Number)</l>
+<l>        if (Number&gt;0)</l>
+<l>            tuple_gen_const (Number, 1, Newtuple)</l>
+<l>            GatherInfo_OkNG (zangwu, Image1, Image2, Image3, RoiImage, TransRoi, SelectRegion1, DetectDict, ZWDict, '脏污', VisionProcessStep, ImageIndex, ZangWu_W, ZangWu_L, Newtuple, Name, W, H, X, Y, Area, mapIndex, parIndex, ErrImageIndex1, OK1)</l>
+<l>            if (OK1!=[])</l>
+<l>                zangwuq:=SelectRegion1</l>
+<l>                concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                concat_obj (ErrRoi,TransRoi,  ErrRoi)</l>
+<l>                ErrName:=[ErrName,Name]</l>
+<l>                ErrW:=[ErrW,W]</l>
+<l>                ErrH:=[ErrH,H]</l>
+<l>                ErrArea:=[ErrArea,Area]</l>
+<l>                ErrX:=[ErrX,X]</l>
+<l>                ErrY:=[ErrY,Y]</l>
+<l>                MapIndex:=[MapIndex,mapIndex]</l>
+<l>                ParIndex:=[ParIndex,parIndex]  </l>
+<l>                ErrImageIndex:=[ErrImageIndex,ErrImageIndex1]</l>
+<l>                OK:=[OK,OK1]   </l>
+<l>            endif  </l>
+<l>        endif  </l>
+<l>    endif </l>
+<c>    </c>
+<l>    union2 (yiwu, zangwuq, RegionUnion)</l>
+<l>    shape_trans (RegionUnion, OriginalErrRoi, 'rectangle1')</l>
+<c>    </c>
+<c>    *************************************************************************************</c>
+<l>catch (Exception )</l>
+<l>endtry</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="Yiwu_zangwu_Detect">
+<parameters>
+<parameter id="AlarmArea"/>
+<parameter id="AlarmH"/>
+<parameter id="AlarmImage"/>
+<parameter id="AlarmName"/>
+<parameter id="AlarmRoi"/>
+<parameter id="AlarmW"/>
+<parameter id="AlarmX"/>
+<parameter id="AlarmY"/>
+<parameter id="DetectDict"/>
+<parameter id="DetectRoi"/>
+<parameter id="ErrArea"/>
+<parameter id="ErrH"/>
+<parameter id="ErrImage"/>
+<parameter id="ErrImageIndex"/>
+<parameter id="ErrName"/>
+<parameter id="ErrRoi"/>
+<parameter id="ErrW"/>
+<parameter id="ErrX"/>
+<parameter id="ErrY"/>
+<parameter id="Image1"/>
+<parameter id="Image2"/>
+<parameter id="Image3"/>
+<parameter id="Image4"/>
+<parameter id="ImageIndex"/>
+<parameter id="MapIndex"/>
+<parameter id="OK"/>
+<parameter id="OriginalErrRoi"/>
+<parameter id="ParIndex"/>
+<parameter id="VisionProcessStep"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

@@ -30,7 +30,6 @@ public:
     QLabel *label_4;
     QLabel *label_5;
     QLabel *label_6;
-    QPushButton *pushButton;
     QGraphicsView *graphicsView;
     QGraphicsView *graphicsView_2;
     QGraphicsView *graphicsView_3;
@@ -83,9 +82,6 @@ public:
         label_6 = new QLabel(SingleFlawShowWidget);
         label_6->setObjectName(QString::fromUtf8("label_6"));
         label_6->setGeometry(QRect(30, 40, 54, 12));
-        pushButton = new QPushButton(SingleFlawShowWidget);
-        pushButton->setObjectName(QString::fromUtf8("pushButton"));
-        pushButton->setGeometry(QRect(1760, 10, 81, 20));
         graphicsView = new QGraphicsView(SingleFlawShowWidget);
         graphicsView->setObjectName(QString::fromUtf8("graphicsView"));
         graphicsView->setGeometry(QRect(30, 80, 291, 271));
@@ -97,7 +93,7 @@ public:
         graphicsView_3->setGeometry(QRect(670, 80, 291, 271));
         buttonExport = new QPushButton(SingleFlawShowWidget);
         buttonExport->setObjectName(QString::fromUtf8("buttonExport"));
-        buttonExport->setGeometry(QRect(1620, 10, 75, 23));
+        buttonExport->setGeometry(QRect(1810, 10, 75, 23));
 
         retranslateUi(SingleFlawShowWidget);
 
@@ -131,7 +127,6 @@ public:
         label_4->setText(QCoreApplication::translate("SingleFlawShowWidget", "\345\205\211\345\234\2723", nullptr));
         label_5->setText(QCoreApplication::translate("SingleFlawShowWidget", "\345\205\211\345\234\2722", nullptr));
         label_6->setText(QCoreApplication::translate("SingleFlawShowWidget", "\345\205\211\345\234\2721", nullptr));
-        pushButton->setText(QCoreApplication::translate("SingleFlawShowWidget", "\346\232\202\345\201\234", nullptr));
         buttonExport->setText(QCoreApplication::translate("SingleFlawShowWidget", "\345\257\274\345\207\272", nullptr));
     } // retranslateUi
 

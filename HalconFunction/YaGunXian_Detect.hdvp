@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="YaGunXian_Detect">
+<interface>
+<io>
+<par name="Image1" base_type="iconic" dimension="0"/>
+<par name="Image2" base_type="iconic" dimension="0"/>
+<par name="Image3" base_type="iconic" dimension="0"/>
+<par name="Image4" base_type="iconic" dimension="0"/>
+<par name="DetectRoi" base_type="iconic" dimension="0"/>
+<par name="Nodict" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="ErrRoi" base_type="iconic" dimension="0"/>
+<par name="AlarmRoi" base_type="iconic" dimension="0"/>
+<par name="ErrImage" base_type="iconic" dimension="0"/>
+<par name="AlarmImage" base_type="iconic" dimension="0"/>
+<par name="OriginalErrRoi" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+<par name="VisionProcessStep" base_type="ctrl" dimension="0"/>
+<par name="ImageIndex" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="ErrName" base_type="ctrl" dimension="0"/>
+<par name="AlarmName" base_type="ctrl" dimension="0"/>
+<par name="ErrW" base_type="ctrl" dimension="0"/>
+<par name="ErrH" base_type="ctrl" dimension="0"/>
+<par name="ErrArea" base_type="ctrl" dimension="0"/>
+<par name="ErrX" base_type="ctrl" dimension="0"/>
+<par name="ErrY" base_type="ctrl" dimension="0"/>
+<par name="AlarmW" base_type="ctrl" dimension="0"/>
+<par name="AlarmH" base_type="ctrl" dimension="0"/>
+<par name="AlarmArea" base_type="ctrl" dimension="0"/>
+<par name="AlarmX" base_type="ctrl" dimension="0"/>
+<par name="AlarmY" base_type="ctrl" dimension="0"/>
+<par name="MapIndex" base_type="ctrl" dimension="0"/>
+<par name="ParIndex" base_type="ctrl" dimension="0"/>
+<par name="SelectDisPlayImageIndex" base_type="ctrl" dimension="0"/>
+<par name="OK" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>OK:=[]</l>
+<l>try</l>
+<c>    </c>
+<l>    gen_empty_obj (ErrRoi) </l>
+<l>    gen_empty_obj (AlarmRoi)</l>
+<l>    gen_empty_obj (ErrImage) </l>
+<l>    gen_empty_obj (AlarmImage)</l>
+<l>    gen_empty_obj (zangwu) </l>
+<l>    gen_empty_obj (yiwu)</l>
+<l>    gen_empty_obj (yiwu)</l>
+<l>    gen_empty_obj (OriginalErrRoi)</l>
+<c>    </c>
+<l>    ErrName:=[]</l>
+<l>    AlarmName:=[]</l>
+<l>    ErrW:=[]</l>
+<l>    ErrH:=[]</l>
+<l>    ErrArea:=[]</l>
+<l>    ErrX:=[]</l>
+<l>    ErrY:=[]</l>
+<l>    AlarmW:=[]</l>
+<l>    AlarmH:=[]</l>
+<l>    AlarmArea:=[]</l>
+<l>    AlarmX:=[]</l>
+<l>    AlarmY:=[]</l>
+<l>    MapIndex:=[]</l>
+<l>    ParIndex:=[]</l>
+<l>    SelectDisPlayImageIndex:=[]</l>
+<c>    </c>
+<l>    get_dict_tuple (DetectDict, '压痕',YaHenDict)</l>
+<c>    </c>
+<c>    </c>
+<l>    get_dict_tuple (YaHenDict, 'YaHeng_threshold_Min', YaHeng_threshold_Min)</l>
+<l>    get_dict_tuple (YaHenDict, 'YaHeng_threshold_Max',YaHeng_threshold_Max)</l>
+<l>    get_dict_tuple (YaHenDict, 'YaHeng_L',YaHeng_L)</l>
+<l>    get_dict_tuple (YaHenDict, 'YaHeng_W',YaHeng_W)</l>
+<c>    </c>
+<l>    if (ImageIndex==0)</l>
+<l>        move_region (DetectRoi, RegionMoved1, 0, -600)</l>
+<l>        move_region (DetectRoi, RegionMoved2, 0, 200)</l>
+<l>    elseif(ImageIndex==1)</l>
+<l>        move_region (DetectRoi, RegionMoved1, 0, 600)</l>
+<l>        move_region (DetectRoi, RegionMoved2, 0, -200)</l>
+<l>    endif</l>
+<l>    difference (RegionMoved2, RegionMoved1, RegionDifference1)</l>
+<l>    difference (RegionDifference1, Nodict, RegionDifference1)</l>
+<c>    </c>
+<l>    reduce_domain (Image2, RegionDifference1, ImageReduced)</l>
+<l>    threshold (ImageReduced, Regions1,YaHeng_threshold_Min, YaHeng_threshold_Max)</l>
+<l>    closing_circle (Regions1, RegionClosing3,10)</l>
+<l>    connection (RegionClosing3, ConnectedRegions5)</l>
+<l>    select_shape_std (ConnectedRegions5, SelectedRegions, 'max_area', 70)</l>
+<l>    opening_rectangle1 (SelectedRegions, RegionOpening,  1,30)</l>
+<l>    difference (SelectedRegions, RegionOpening, RegionDifference)</l>
+<l>    opening_circle (RegionDifference, RegionOpening1, 3.5)</l>
+<l>    region_features (RegionOpening1, 'area', Value)</l>
+<l>    if (Value&gt;0)</l>
+<l>        connection (RegionOpening1, ConnectedRegions)</l>
+<l>        region_features (ConnectedRegions, 'rect2_phi', Value1)</l>
+<l>        deg1:= deg(Value1)</l>
+<l>        findAngle:= abs(11-abs(deg1))[&lt;]20</l>
+<l>        select_mask_obj (ConnectedRegions, SelectedObjects, findAngle)</l>
+<l>        select_shape (SelectedObjects, SelectedObject_Angle, 'area', 'and', 200, 99999999)    </l>
+<l>        select_shape (SelectedObject_Angle, YaGunXian, 'anisometry', 'and',3, 100)</l>
+<l>        count_obj (YaGunXian, Number)</l>
+<l>        if (Number&gt;=1)</l>
+<l>            tuple_gen_const (Number, 2, Newtuple)</l>
+<l>            GatherInfo_OkNG (YaGunXian, Image1, Image2, Image3, RoiImage, TransRoi, SelectRegion, DetectDict, YaHenDict, '压痕', VisionProcessStep, ImageIndex, YaHeng_W, YaHeng_L, Newtuple, Name, W, H, X, Y, Area, mapIndex, parIndex, selectDisplayimageIndex, OK1)</l>
+<l>            if (OK1!=[])</l>
+<l>                concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                concat_obj (ErrRoi,TransRoi,  ErrRoi)</l>
+<l>                ErrName:=[ErrName,Name]</l>
+<l>                ErrW:=[ErrW,W]</l>
+<l>                ErrH:=[ErrH,H]</l>
+<l>                ErrArea:=[ErrArea,Area]</l>
+<l>                ErrX:=[ErrX,X]</l>
+<l>                ErrY:=[ErrY,Y]</l>
+<l>                MapIndex:=[MapIndex,mapIndex]</l>
+<l>                ParIndex:=[ParIndex,parIndex] </l>
+<l>                SelectDisPlayImageIndex:=[SelectDisPlayImageIndex,selectDisplayimageIndex]</l>
+<l>                OK:=[OK,OK1]    </l>
+<l>                dilation_circle (SelectRegion, OriginalErrRoi, 30)</l>
+<l>            endif</l>
+<l>        endif     </l>
+<l>    endif</l>
+<c>    *************************************************************************************</c>
+<l>catch (Exception )</l>
+<l>endtry</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="YaGunXian_Detect">
+<parameters>
+<parameter id="AlarmArea"/>
+<parameter id="AlarmH"/>
+<parameter id="AlarmImage"/>
+<parameter id="AlarmName"/>
+<parameter id="AlarmRoi"/>
+<parameter id="AlarmW"/>
+<parameter id="AlarmX"/>
+<parameter id="AlarmY"/>
+<parameter id="DetectDict"/>
+<parameter id="DetectRoi"/>
+<parameter id="ErrArea"/>
+<parameter id="ErrH"/>
+<parameter id="ErrImage"/>
+<parameter id="ErrName"/>
+<parameter id="ErrRoi"/>
+<parameter id="ErrW"/>
+<parameter id="ErrX"/>
+<parameter id="ErrY"/>
+<parameter id="Image1"/>
+<parameter id="Image2"/>
+<parameter id="Image3"/>
+<parameter id="Image4"/>
+<parameter id="ImageIndex"/>
+<parameter id="MapIndex"/>
+<parameter id="Nodict"/>
+<parameter id="OK"/>
+<parameter id="OriginalErrRoi"/>
+<parameter id="ParIndex"/>
+<parameter id="SelectDisPlayImageIndex"/>
+<parameter id="VisionProcessStep"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

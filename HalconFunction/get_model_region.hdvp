@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="22.05.0.0">
+<procedure name="get_model_region">
+<interface>
+<io>
+<par name="rImage" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="RegionROI" base_type="iconic" dimension="0"/>
+<par name="ImageReduced" base_type="iconic" dimension="0"/>
+<par name="rImageOut" base_type="iconic" dimension="0"/>
+</oo>
+</interface>
+<body>
+<c>* </c>
+<c>* Segment label on the cap</c>
+<l>binary_threshold (rImage, BrightRegion, 'smooth_histo', 'dark', UsedThreshold)</l>
+<l>threshold (rImage, BrightRegion, 0, 40)</l>
+<l>dilation_circle (BrightRegion, RegionDilation, 0.5)</l>
+<l>connection (RegionDilation, ConnectedRegions)</l>
+<l>select_shape (ConnectedRegions, SelectedRegions, 'area', 'and', 5, 99999)</l>
+<l>union1 (SelectedRegions, LabelRegion)</l>
+<c></c>
+<c></c>
+<l>smallest_circle (LabelRegion, Row, Column, Radius)</l>
+<l>smallest_rectangle1 (LabelRegion, Row1, Column1, Row2, Column2)</l>
+<c>* </c>
+<c>* Define model region</c>
+<l>gen_circle (Region, Row, Column, Radius)</l>
+<l>gen_rectangle1 (LabelRectangle, Row1, Column1, Row2, Column2)</l>
+<l>intersection (Region, LabelRectangle, RegionIntersection)</l>
+<l>dilation_circle (RegionIntersection, RegionROI, 5.5)</l>
+<l>difference (RegionROI, LabelRegion, RegionDifference)</l>
+<l>threshold (rImage, Region1, 0, 255)</l>
+<l>difference (Region1, LabelRegion, RegionDifference1)</l>
+<l>paint_region (RegionDifference1, rImage, rImageOut, 155, 'fill')</l>
+<l>reduce_domain (rImageOut, RegionROI, ImageReduced)</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="get_model_region">
+<parameters>
+<parameter id="ImageReduced"/>
+<parameter id="RegionROI"/>
+<parameter id="rImage"/>
+<parameter id="rImageOut"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

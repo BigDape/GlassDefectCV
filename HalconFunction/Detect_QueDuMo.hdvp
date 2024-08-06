@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="Detect_QueDuMo">
+<interface>
+<io>
+<par name="Image1" base_type="iconic" dimension="0"/>
+<par name="Image2" base_type="iconic" dimension="0"/>
+<par name="Image3" base_type="iconic" dimension="0"/>
+<par name="Image4" base_type="iconic" dimension="0"/>
+<par name="DetectRoi" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="ErrRoi" base_type="iconic" dimension="0"/>
+<par name="AlarmRoi" base_type="iconic" dimension="0"/>
+<par name="ErrImage" base_type="iconic" dimension="0"/>
+<par name="AlarmImage" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+<par name="VisionProcessStep" base_type="ctrl" dimension="0"/>
+<par name="ImageIndex" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="ErrName" base_type="ctrl" dimension="0"/>
+<par name="AlarmName" base_type="ctrl" dimension="0"/>
+<par name="ErrW" base_type="ctrl" dimension="0"/>
+<par name="ErrH" base_type="ctrl" dimension="0"/>
+<par name="ErrArea" base_type="ctrl" dimension="0"/>
+<par name="ErrX" base_type="ctrl" dimension="0"/>
+<par name="ErrY" base_type="ctrl" dimension="0"/>
+<par name="AlarmW" base_type="ctrl" dimension="0"/>
+<par name="AlarmH" base_type="ctrl" dimension="0"/>
+<par name="AlarmArea" base_type="ctrl" dimension="0"/>
+<par name="AlarmX" base_type="ctrl" dimension="0"/>
+<par name="AlarmY" base_type="ctrl" dimension="0"/>
+<par name="MapIndex" base_type="ctrl" dimension="0"/>
+<par name="ParIndex" base_type="ctrl" dimension="0"/>
+<par name="ErrImageIndex" base_type="ctrl" dimension="0"/>
+<par name="OK" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>OK:=[]</l>
+<l>try</l>
+<c>    </c>
+<l>    gen_empty_obj (ErrRoi) </l>
+<l>    gen_empty_obj (AlarmRoi)</l>
+<l>    gen_empty_obj (ErrImage) </l>
+<l>    gen_empty_obj (AlarmImage)</l>
+<l>    gen_empty_obj (RegionClosing2)</l>
+<l>    gen_empty_obj (Globalobjects)</l>
+<l>    ErrName:=[]</l>
+<l>    AlarmName:=[]</l>
+<l>    ErrW:=[]</l>
+<l>    ErrH:=[]</l>
+<l>    ErrArea:=[]</l>
+<l>    ErrX:=[]</l>
+<l>    ErrY:=[]</l>
+<l>    AlarmW:=[]</l>
+<l>    AlarmH:=[]</l>
+<l>    AlarmArea:=[]</l>
+<l>    AlarmX:=[]</l>
+<l>    AlarmY:=[]</l>
+<l>    MapIndex:=[]</l>
+<l>    ParIndex:=[]</l>
+<l>    ErrImageIndex:=[]</l>
+<l>    get_dict_tuple (DetectDict, '使能', EnabledDict)</l>
+<l>    get_dict_tuple (DetectDict,'镀膜类' , LoDuMoDict)</l>
+<c>    </c>
+<c>    </c>
+<c>    *************************检测缺镀膜**************************************</c>
+<c>    </c>
+<l>    get_dict_tuple (LoDuMoDict, 'LoDuMo_threshold_Max',LoDuMo_threshold_Max)</l>
+<l>    get_dict_tuple (LoDuMoDict, 'LoDuMo_threshold_Min',LoDuMo_threshold_Min) </l>
+<l>    get_dict_tuple (LoDuMoDict, 'LoDuMo_L',LoDuMo_L)</l>
+<l>    get_dict_tuple (LoDuMoDict, 'LoDuMo_W', LoDuMo_W)</l>
+<l>    get_dict_tuple (EnabledDict, 'LoDuMo_Enabled', LoDuMo_Enabled)  </l>
+<c>    </c>
+<l>    if (LoDuMo_Enabled)  </l>
+<l>        if (ImageIndex==0)</l>
+<l>            gen_rectangle1 (Rectangle, 0, 0, 2500, 3800)</l>
+<l>            intersection (DetectRoi, Rectangle, Regionintersection)</l>
+<l>            reduce_domain (Image3, Regionintersection, ImageReduced1)</l>
+<l>            mean_image (ImageReduced1, ImageMean, 20, 10)</l>
+<l>            threshold (ImageMean, Regions, LoDuMo_threshold_Min, LoDuMo_threshold_Max)</l>
+<l>            fill_up (Regions, RegionFillUp)</l>
+<l>            closing_circle (RegionFillUp, RegionClosing, 5.5)</l>
+<l>            opening_circle (RegionClosing, RegionOpening, 10)</l>
+<l>            connection (RegionOpening, ConnectedRegions)</l>
+<l>            select_shape_std (ConnectedRegions, selectRegion, 'max_area', 70)</l>
+<l>            select_shape (selectRegion, quedumo, 'area', 'and', 1, 9999999999)</l>
+<l>            count_obj (quedumo,Number)</l>
+<l>            if (Number&gt;0)</l>
+<l>                tuple_gen_const (Number, 3, Newtuple)</l>
+<l>                GatherInfo_OkNG (quedumo, Image1, Image2, Image3, RoiImage, TransRoi, SelectRegion, DetectDict, LoDuMoDict, '漏镀膜', VisionProcessStep, ImageIndex, LoDuMo_W, LoDuMo_L, Newtuple, Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK1)</l>
+<l>                if (OK1!=[])</l>
+<l>                    ErrImage:=RoiImage</l>
+<l>                    ErrRoi:=TransRoi</l>
+<l>                    ErrName:=Name</l>
+<l>                    ErrW:=W</l>
+<l>                    ErrH:=H</l>
+<l>                    ErrArea:=Area</l>
+<l>                    ErrX:=X</l>
+<l>                    ErrY:=Y</l>
+<l>                    MapIndex:=mapIndex</l>
+<l>                    ParIndex:=parIndex</l>
+<l>                    ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>                    OK:=[OK,OK1]</l>
+<l>                endif</l>
+<l>            endif      </l>
+<l>        endif  </l>
+<l>    endif</l>
+<c>    ******************************************撞棍**********************************************    </c>
+<c>    </c>
+<l>*     get_dict_tuple (EnabledDict, 'ZhuangGun_Enaled', ZhuangGun_Enaled) </l>
+<l>*     get_dict_tuple (LoDuMoDict, 'ZhuangGun_L',ZhuangGun_L)</l>
+<l>*     get_dict_tuple (LoDuMoDict, 'ZhuangGun_W', ZhuangGun_W)</l>
+<c>    </c>
+<l>*     if (ZhuangGun_Enaled)</l>
+<l>*         if (VisionProcessStep==0)  </l>
+<l>*             erosion_rectangle1 (DetectRoi, RegionErosion, 20, 20)</l>
+<l>*             move_region (RegionErosion, RegionMoved, 300,0)</l>
+<l>*             difference (RegionErosion, RegionMoved, RegionDifference)</l>
+<l>*             reduce_domain (Image4, RegionDifference, ImageReduced)</l>
+<l>*             mean_image (ImageReduced, ImageMean, 5, 5)</l>
+<l>*             threshold (ImageMean, Regions, LoDuMo_threshold_Min, LoDuMo_threshold_Max)</l>
+<l>*             fill_up (Regions, RegionFillUp)</l>
+<l>*             closing_circle (RegionFillUp, RegionClosing, 5.5)</l>
+<l>*             opening_circle (RegionClosing, RegionOpening, 10)</l>
+<l>*             connection (RegionOpening, ConnectedRegions)</l>
+<l>*             select_shape_std (ConnectedRegions, selectRegion, 'max_area', 70)</l>
+<l>*             select_shape (selectRegion, zg, 'area', 'and', 1, 9999999999)</l>
+<l>*             count_obj (zg,Number)</l>
+<l>*             if (Number&gt;0)</l>
+<l>*                 tuple_gen_const (Number, 4, Newtuple)</l>
+<l>*                 GatherInfo_OkNG (zg, Image1, Image2, Image3, RoiImage, TransRoi, SelectRegion, DetectDict, LoDuMoDict, '撞棍', VisionProcessStep, ImageIndex, ZhuangGun_W, ZhuangGun_L, Newtuple, Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK1)</l>
+<l>*                 if (OK1!=[])   </l>
+<l>*                     concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>*                     concat_obj (ErrRoi, TransRoi, ErrRoi)</l>
+<l>*                     ErrName:=[ErrName,Name]</l>
+<l>*                     ErrW:=[ErrW,W]</l>
+<l>*                     ErrH:=[ErrH,H]</l>
+<l>*                     ErrArea:=[ErrArea,Area]</l>
+<l>*                     ErrX:=[ErrX,X]</l>
+<l>*                     ErrY:=[ErrY,Y]</l>
+<l>*                     MapIndex:=[MapIndex,mapIndex]</l>
+<l>*                     ParIndex:=[ParIndex,parIndex]</l>
+<l>*                     ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>*                     OK:=[OK,OK1]</l>
+<l>*                 endif</l>
+<l>*             endif       </l>
+<l>*         endif  </l>
+<l>*     endif </l>
+<c>    **********************************溅液点*******************************************</c>
+<l>*     get_dict_tuple (EnabledDict, 'JianYeDian_Enabled', JianYeDian_Enabled) </l>
+<l>*     get_dict_tuple (DetectDict,'溅液点' , LoDuMoDict)</l>
+<l>*     get_dict_tuple (LoDuMoDict, 'JianYeDian_threshold4_Min',JianYeDian_threshold4_Min)</l>
+<l>*     get_dict_tuple (LoDuMoDict, 'JianYeDian_threshold4_Max',JianYeDian_threshold4_Max) </l>
+<l>*     get_dict_tuple (LoDuMoDict, 'JianYeDian_L',JianYeDian_L)</l>
+<l>*     get_dict_tuple (LoDuMoDict, 'JianYeDian_W',JianYeDian_W) </l>
+<l>*     get_dict_tuple (LoDuMoDict, 'TotalArea',TotalArea)</l>
+<c>    </c>
+<l>*     if (JianYeDian_Enabled)      </l>
+<c>     </c>
+<l>*         if (VisionProcessStep==0) </l>
+<l>*             move_region (DetectRoi, DetectRoij, 500, 0)</l>
+<l>*         elseif(VisionProcessStep==9)   </l>
+<l>*             move_region (DetectRoi, DetectRoij, -500,0)</l>
+<l>*         else</l>
+<l>*             DetectRoij:=DetectRoi</l>
+<l>*         endif</l>
+<c>        </c>
+<l>*         if (ImageIndex==0)</l>
+<l>*             move_region (DetectRoij, RegionMovedj, 0, -1000)</l>
+<l>*         else </l>
+<l>*             move_region (DetectRoij, RegionMovedj, 0,1000)</l>
+<l>*         endif </l>
+<c>  </c>
+<l>*         reduce_domain (Image4, RegionMovedj, ImageReduced2)</l>
+<l>*         mean_image (ImageReduced2, ImageMean1, 5, 5)</l>
+<l>*         threshold (ImageMean1, Regions, JianYeDian_threshold4_Min, JianYeDian_threshold4_Max)</l>
+<l>*         closing_circle (Regions, RegionClosing,3.5)</l>
+<l>*         fill_up (RegionClosing, RegionFillUp)</l>
+<l>*         opening_circle (RegionFillUp, RegionOpening, 5.5)</l>
+<l>*         connection (RegionOpening, ConnectedRegions)</l>
+<l>*         select_shape (ConnectedRegions, SelectedRegions, 'circularity', 'and', 0.51008, 1)</l>
+<l>*         select_shape (SelectedRegions, SelectedRegions1, 'area', 'and',1200, 9999999)</l>
+<l>*         count_obj (SelectedRegions1,Number)</l>
+<l>*         if (Number&gt;0)</l>
+<l>*             tuple_gen_const (Number, 4, Newtuple)</l>
+<l>*             GatherInfo_OkNG (SelectedRegions1, Image1, Image2, Image3, RoiImage, TransRoi, SelectRegion, DetectDict, LoDuMoDict, '溅液点', VisionProcessStep, ImageIndex, JianYeDian_W, JianYeDian_L, Newtuple, Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK1)</l>
+<l>*             if (OK1!=[])</l>
+<l>*                 concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>*                 concat_obj (ErrRoi, TransRoi, ErrRoi)</l>
+<l>*                 ErrName:=[ErrName,Name]</l>
+<l>*                 ErrW:=[ErrW,W]</l>
+<l>*                 ErrH:=[ErrH,H]</l>
+<l>*                 ErrArea:=[ErrArea,Area]</l>
+<l>*                 ErrX:=[ErrX,X]</l>
+<l>*                 ErrY:=[ErrY,Y]</l>
+<l>*                 MapIndex:=[MapIndex,mapIndex]</l>
+<l>*                 ParIndex:=[ParIndex,parIndex]</l>
+<l>*                 ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>*                 OK:=[OK,OK1]</l>
+<l>*             endif</l>
+<l>*             union1 (SelectedRegions1, RegionUnion)</l>
+<l>*             difference (RegionUnion, SelectRegion, RegionDifference1)</l>
+<l>*             connection (RegionDifference1, ConnectedRegions1)</l>
+<l>*             count_obj (ConnectedRegions1, Number1)</l>
+<l>*             if (Number1&gt;0) </l>
+<l>*                 region_features (ConnectedRegions1, 'area', Value)</l>
+<l>*                 c:=sum(Value)*0.095 </l>
+<l>*                 if (c&gt;TotalArea)</l>
+<l>*                     union1 (ConnectedRegions1, RegionUnion1)</l>
+<l>*                     tuple_gen_const (1, 4, Newtuple)</l>
+<l>*                     GatherInfo_OkNG (RegionUnion1, Image1, Image2, Image3, RoiImage, TransRoi, SelectRegion, DetectDict, LoDuMoDict, '撞棍', VisionProcessStep, ImageIndex, JianYeDian_W, JianYeDian_L, Newtuple, Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK1)</l>
+<l>*                     if (OK1!=[])</l>
+<l>*                         concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>*                         concat_obj (ErrRoi, TransRoi, ErrRoi)</l>
+<l>*                         ErrName:=[ErrName,Name]</l>
+<l>*                         ErrW:=[ErrW,W]</l>
+<l>*                         ErrH:=[ErrH,H]</l>
+<l>*                         ErrArea:=[ErrArea,Area]</l>
+<l>*                         ErrX:=[ErrX,X]</l>
+<l>*                         ErrY:=[ErrY,Y]</l>
+<l>*                         MapIndex:=[MapIndex,mapIndex]</l>
+<l>*                         ParIndex:=[ParIndex,parIndex]</l>
+<l>*                         ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>*                         OK:=[OK,OK1]</l>
+<l>*                     endif </l>
+<l>*                 endif</l>
+<l>*             endif         </l>
+<l>*         endif           </l>
+<l>*     endif </l>
+<c>    ****************************************拉丝********************************************** </c>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<l>    if (VisionProcessStep==0) </l>
+<l>        move_region (DetectRoi, DetectRoi, 20, 0)</l>
+<l>    elseif(VisionProcessStep==9)   </l>
+<l>        move_region (DetectRoi, DetectRoi, -20,0)</l>
+<l>    endif</l>
+<l>    if (ImageIndex==0)</l>
+<l>        move_region (DetectRoi, RegionMoved1, 0, 5)</l>
+<l>    else </l>
+<l>        move_region (DetectRoi, RegionMoved1, 0,-5)</l>
+<l>    endif </l>
+<l>    get_dict_tuple (EnabledDict, 'LaSi_Enabled', LaSi_Enabled) </l>
+<l>    get_dict_tuple (DetectDict,'拉丝' , LSDict)</l>
+<l>    get_dict_tuple (LSDict, 'LaSi_threshold_Min',LaSi_threshold_Min)</l>
+<l>    get_dict_tuple (LSDict, 'LaSi_threshold_Max',LaSi_threshold_Max) </l>
+<l>    get_dict_tuple (LSDict, 'LaSi_L',LaSi_L)</l>
+<l>    get_dict_tuple (LSDict, 'LaSi_W',LaSi_W) </l>
+<c>    </c>
+<l>f:=0.3</l>
+<l>c:=0.15</l>
+<l>    if (LaSi_Enabled)</l>
+<l>        intersection (Image3, RegionMoved1, RegionIntersection)</l>
+<l>        smallest_rectangle1 (RegionIntersection, Row1, Column1, Row2, Column2)</l>
+<l>        crop_rectangle1 (Image3, ImagePart, Row1, Column1, Row2, Column2)</l>
+<l>        mean_image (ImagePart, ImageMean2, 3,30)</l>
+<l>        zoom_image_factor (ImageMean2, ImageZoomed, f,c, 'constant')</l>
+<c>        </c>
+<l>        lines_gauss (ImageZoomed, Lines, 1.5, 4,7, 'light', 'true', 'bar-shaped', 'true')</l>
+<l>        gen_region_contour_xld (Lines, ConnectedRegions3, 'filled')</l>
+<c>        </c>
+<c></c>
+<l>        union1 (ConnectedRegions3, RegionUnion2)</l>
+<l>        closing_rectangle1 (RegionUnion2, RegionClosing1, 1, 10)</l>
+<l>        connection (RegionClosing1, ConnectedRegions2)</l>
+<l>        select_shape (ConnectedRegions2, SelectedRegions3, 'rect2_len1', 'and', 30, 99999)</l>
+<c>        </c>
+<l>        region_features (SelectedRegions3, 'rect2_phi', Phi)</l>
+<l>        SelectAngle:=abs(abs(Phi)-1.57)[&lt;]0.5</l>
+<l>        select_mask_obj (SelectedRegions3, SelectedRegions3, SelectAngle)  </l>
+<c>        </c>
+<c>        </c>
+<l>        hom_mat2d_identity (HomMat2DIdentity)</l>
+<l>        hom_mat2d_scale_local (HomMat2DIdentity, 1 /c, 1 /f, HomMat2DScale)</l>
+<l>        affine_trans_region (SelectedRegions3, RegionAffineTrans1, HomMat2DScale, 'nearest_neighbor')</l>
+<l>        vector_angle_to_rigid (0, 0, 0, Row1, Column1, 0, HomMat2D)</l>
+<l>        affine_trans_region (RegionAffineTrans1, RegionAffineTrans, HomMat2D, 'nearest_neighbor') </l>
+<c>        </c>
+<c>        </c>
+<c>        </c>
+<c>        </c>
+<l>        select_shape (RegionAffineTrans, SelectedRegions5, 'area', 'and', 1, 999999999)</l>
+<l>        count_obj (SelectedRegions5, Number2)</l>
+<l>        if (Number2&gt;1)</l>
+<l>            tuple_gen_const (Number2, 3, Newtuple)</l>
+<l>            GatherInfo_OkNG (SelectedRegions5, Image1, Image2, Image3, RoiImage, TransRoi, SelectRegion, DetectDict, LSDict, '拉丝', VisionProcessStep, ImageIndex, 0.1, LaSi_L, Newtuple, Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK1)</l>
+<l>            if (OK1!=[])   </l>
+<l>                concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                concat_obj (ErrRoi, TransRoi, ErrRoi)</l>
+<l>                ErrName:=[ErrName,Name]</l>
+<l>                ErrW:=[ErrW,W]</l>
+<l>                ErrH:=[ErrH,H]</l>
+<l>                ErrArea:=[ErrArea,Area]</l>
+<l>                ErrX:=[ErrX,X]</l>
+<l>                ErrY:=[ErrY,Y]</l>
+<l>                MapIndex:=[MapIndex,mapIndex]</l>
+<l>                ParIndex:=[ParIndex,parIndex]</l>
+<l>                ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>                OK:=[OK,OK1]</l>
+<l>            endif</l>
+<l>        endif </l>
+<l>    endif         </l>
+<c></c>
+<l>catch (Exception )</l>
+<l>endtry</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="Detect_QueDuMo">
+<parameters>
+<parameter id="AlarmArea"/>
+<parameter id="AlarmH"/>
+<parameter id="AlarmImage"/>
+<parameter id="AlarmName"/>
+<parameter id="AlarmRoi"/>
+<parameter id="AlarmW"/>
+<parameter id="AlarmX"/>
+<parameter id="AlarmY"/>
+<parameter id="DetectDict"/>
+<parameter id="DetectRoi"/>
+<parameter id="ErrArea"/>
+<parameter id="ErrH"/>
+<parameter id="ErrImage"/>
+<parameter id="ErrImageIndex"/>
+<parameter id="ErrName"/>
+<parameter id="ErrRoi"/>
+<parameter id="ErrW"/>
+<parameter id="ErrX"/>
+<parameter id="ErrY"/>
+<parameter id="Image1"/>
+<parameter id="Image2"/>
+<parameter id="Image3"/>
+<parameter id="Image4"/>
+<parameter id="ImageIndex"/>
+<parameter id="MapIndex"/>
+<parameter id="OK"/>
+<parameter id="ParIndex"/>
+<parameter id="VisionProcessStep"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

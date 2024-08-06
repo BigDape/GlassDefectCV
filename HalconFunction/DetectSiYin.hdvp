@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="DetectSiYin">
+<interface>
+<io>
+<par name="SiYinRoi" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="DuoYin" base_type="iconic" dimension="0"/>
+<par name="ShaoYin" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+</ic>
+</interface>
+<body>
+<c></c>
+<l>opening_rectangle1 (SiYinRoi, RegionOpeningv, 600, 1)</l>
+<l>opening_rectangle1 (SiYinRoi, RegionOpeningh, 1, 600)</l>
+<c></c>
+<l>intersection (RegionOpeningh, RegionOpeningv, RegionIntersection)</l>
+<l>dilation_rectangle1 (RegionIntersection, RegionDilation, 250, 250)</l>
+<c>***********************多印**************************</c>
+<l>union2 (RegionOpeningv, RegionOpeningh, RegionUnion)</l>
+<l>difference (SiYinRoi,RegionUnion,  RegionDifference7)</l>
+<l>difference (RegionDifference7, RegionDilation, RegionDifference8)</l>
+<l>opening_circle (RegionDifference8, DuoYin1, 5.5)</l>
+<c></c>
+<c>*****************************************************************</c>
+<c></c>
+<c></c>
+<c>******************************漏印*****************************************</c>
+<l>closing_rectangle1 (RegionOpeningh, RegionClosingh, 1, 1000)</l>
+<l>difference (RegionClosingh, RegionOpeningh, RegionDifference5)</l>
+<l>opening_circle (RegionDifference5,LouYin1, 5.5)</l>
+<c></c>
+<l>closing_rectangle1 (RegionOpeningv, RegionClosingv, 1000, 1)</l>
+<l>difference (RegionClosingv, RegionOpeningv, RegionDifference6)</l>
+<l>opening_circle (RegionDifference6, LouYin2, 5.5)</l>
+<c></c>
+<l>fill_up_shape (SiYinRoi, RegionFillUp, 'area', 1, 400)</l>
+<l>difference (RegionFillUp, SiYinRoi, LouYin3)</l>
+<c></c>
+<l>closing_rectangle1 (SiYinRoi, RegionClosing, 60, 60)</l>
+<l>difference (RegionClosing, SiYinRoi, RegionDifference2)</l>
+<l>opening_rectangle1 (RegionDifference2, LouYin4, 8,8)</l>
+<c>****************************************************************</c>
+<c></c>
+<l>* union2 (DuoYin1, DuoYin2, DuoYinUnion)</l>
+<l>union2 (LouYin1, LouYin2, LouYinUnion1)</l>
+<l>union2 (LouYin3, LouYin4, LouYinUnion2)</l>
+<l>union2 (LouYinUnion1, LouYinUnion2, LouYinUnionz)</l>
+<c></c>
+<l>closing_circle (DuoYin1, RegionClosing1, 3.5)</l>
+<l>connection (RegionClosing1, DuoYin1)</l>
+<l>select_shape (DuoYin1, DuoYin, 'area', 'and', 1, 99999999)</l>
+<c></c>
+<l>closing_circle (LouYinUnionz, RegionClosing1, 3.5)</l>
+<l>connection (RegionClosing1, ShaoYin1)</l>
+<l>select_shape (ShaoYin1, ShaoYin, 'area', 'and', 1, 99999999)</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="DetectSiYin">
+<parameters>
+<parameter id="DetectDict"/>
+<parameter id="DuoYin"/>
+<parameter id="ShaoYin"/>
+<parameter id="SiYinRoi"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

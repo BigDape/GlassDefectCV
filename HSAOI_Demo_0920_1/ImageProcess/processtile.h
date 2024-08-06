@@ -34,6 +34,7 @@ public:
     int MosaickNum;
     HObject* MosaickHobject;
     std::atomic<bool> hasStopThread;    //线程停止
+    ThreadDo* mosaickthread;
 public:
     ProcessTile(QList<DushenBasicFunc*> Cameras);
     void OfflineTileImageProcess(QString fullpath);
@@ -78,6 +79,7 @@ public:
     std::mutex _mutex; // 互斥量
     static SafeQueue<PDArgs> preImageQueue;
     std::vector<HObject> mosaickResult;
+    static QQueue<ImageUnit> ImageQueue;
 public slots:
     void TileImageProcess();
 

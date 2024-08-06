@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>set_system ('parallelize_operators', 'false')</l>
+<l>set_system ('clip_region', 'false')</l>
+<l>set_system ('neighborhood',8)</l>
+<l>dev_update_off ()</l>
+<l>read_image (Image1_1,'D:/test1/拉丝/1/3.bmp')</l>
+<l>read_image (Image1_2,'D:/test1/拉丝/1/3.bmp')</l>
+<l>read_image (Image1_3,'D:/test1/拉丝/1/3.bmp')</l>
+<l>read_image (Image1_4,'D:/test1/拉丝/1/3.bmp')</l>
+<c></c>
+<c></c>
+<c></c>
+<l>read_dict ('d:/HalconFunction/DuMo3.2.hdict', [], [], DictHandle)</l>
+<l>* DetectProcess_DuMo (Image1_1, DetectRoi1, circularityRoi, DictHandle,3,0)</l>
+<c></c>
+<c>**************************************************************************************</c>
+<l>DetectProcess_DuMo (Image1_1, DetectRoi, circularityRoi, DictHandle, 1,1)</l>
+<c>* DetectProcess_Siyin (Image1_1, SiyinRoi1, circularityRoi1, DetectRoi, DictHandle)</c>
+<c></c>
+<c>********************************************************************************</c>
+<l>gen_rectangle1 (DetectRoi, 11.7807, 2976.35, 2204.76, 8177.91)</l>
+<c></c>
+<c></c>
+<c></c>
+<l>Detect_QueDuMo (Image1_1, Image1_2, Image1_3, Image1_4, DetectRoi, ErrRoi_Q, AlarmRoi_Q, ErrImage_Q, \
+                    AlarmImage_Q, DictHandle, 9,1, ErrName_Q, AlarmName_Q, ErrW_Q, \
+                    ErrH_Q, ErrArea_Q, ErrX_Q, ErrY_Q, AlarmW_Q, AlarmH_Q, AlarmArea_Q, AlarmX_Q, AlarmY_Q, \
+                    MapIndex_Q, ParIndex_Q,ex, OK6)</l>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

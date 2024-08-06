@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="22.05.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<c></c>
+<c></c>
+<l>read_image (Image1, 'E:/家电玻璃/240102/tile1.jpg')</l>
+<l>read_image (Image2, 'E:/家电玻璃/240102/tile2.jpg')</l>
+<l>read_image (Image3, 'E:/家电玻璃/240102/tile3.jpg')</l>
+<l>read_image (Image4, 'E:/家电玻璃/240102/tile3.jpg')</l>
+<l>* get_image_size (Image3, Width, Height)</l>
+<l>* crop_part (Image3, ImagePart3, 0, 0, Width, 500)</l>
+<l>* gen_empty_obj (EmptyObject)</l>
+<l>* for Index := 1 to 50 by 1</l>
+<l>*     concat_obj (EmptyObject, ImagePart3, EmptyObject)</l>
+<l>* endfor</l>
+<l>* tile_images (EmptyObject, TiledImage, 1, 'vertical')</l>
+<l>* crop_part (TiledImage, Image4, 0, 0, Width, Height)</l>
+<l>* sub_image (Image4, Image3, ImageSub, 1, 0)</l>
+<l>* threshold (ImageSub, Region, 30, 255)</l>
+<l>* fill_up (Region, SelectedRegions)</l>
+<l>* erosion_circle (SelectedRegions, SelectedRegions, 1.5)</l>
+<c></c>
+<l>* reduce_domain (Image3, SelectedRegions, ImageReduced3)</l>
+<l>* crop_domain (ImageReduced3, ImagePart3)</l>
+<l>* reduce_domain (Image2, SelectedRegions, ImageReduced2)</l>
+<l>* crop_domain (ImageReduced2, ImagePart2)</l>
+<l>* reduce_domain (Image1, SelectedRegions, ImageReduced1)</l>
+<l>* crop_domain (ImageReduced1, ImagePart1)</l>
+<l>* reduce_domain (Image3, SelectedRegions, ImageReduced4)</l>
+<l>* crop_domain (ImageReduced4, ImagePart4)</l>
+<c></c>
+<l>*read_image (Image4,'D:/tile4.bmp')</l>
+<c></c>
+<c></c>
+<l>read_dict ('D:/HSAOI-Desktop0921-Debug/Recipes/1000-1500长.json', [], [], DictHandle)</l>
+<c></c>
+<l>ProcessHoles (Image1, Image2, Image3, OutLineImage, RolesImage, DictHandle, ResultDictRoles)</l>
+<l>*ProcessSilkScreen (Image1, Image2, Image3,Image4 , OutLineImage, RolesImage, DictHandle, ResultDictRoles)</l>
+<c></c>
+<l>* write_image (OutLineImage, 'tiff', 0, 'C:/Users/Administrator/Desktop/1111111.bmp')</l>
+<l>*YCoordIn:=0</l>
+<c></c>
+<l>*ProcessVision (ImagePart1, ImagePart2, ImagePart3, ImagePart4, ErrRoi, ErrImage1, ErrImage2, ErrImage3, DictHandle, 1, YCoordIn, ResultDict, YCoordOut, OK)</l>
+<c></c>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

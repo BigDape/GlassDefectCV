@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="BengJiao">
+<interface>
+<io>
+<par name="Image" base_type="iconic" dimension="0"/>
+<par name="DetectArea" base_type="iconic" dimension="0"/>
+<par name="RegionUnionLine" base_type="iconic" dimension="0"/>
+<par name="RoiDetect" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="ErrRegion" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="SelectDir" base_type="ctrl" dimension="0"/>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+</ic>
+</interface>
+<body>
+<l>gen_empty_obj (ErrRegion)</l>
+<c></c>
+<l>get_dict_tuple (DetectDict,'BengJiao_Enabled1', BengJiao_Enabled1)</l>
+<l>get_dict_tuple (DetectDict,'BengJiao_Enabled2', BengJiao_Enabled2)</l>
+<l>get_dict_tuple (DetectDict,'BengJiao_Enabled3', BengJiao_Enabled3)</l>
+<l>get_dict_tuple (DetectDict,'BengJiao_Enabled4', BengJiao_Enabled4)</l>
+<c></c>
+<l>if ((BengJiao_Enabled1 and (SelectDir=='UpLeft')) or \
+    (BengJiao_Enabled2 and (SelectDir=='UpRight'))  or \
+    (BengJiao_Enabled3 and (SelectDir=='DownLeft'))  or \
+    (BengJiao_Enabled4 and (SelectDir=='DownRight')) )</l>
+<c>    </c>
+<l>    select_obj (DetectArea, ObjectSelected1, 3)</l>
+<l>    area_center (ObjectSelected1, Area, Row, Column)</l>
+<l>    gen_rectangle2 (Rectangle, Row, Column, 0,80,80)</l>
+<l>    union1 (DetectArea, RegionUnion)</l>
+<c>    </c>
+<l>    get_dict_tuple (DetectDict, 'BengJiao_threshold_Min', BengJiao_threshold_Min)</l>
+<l>    get_dict_tuple (DetectDict, 'BengJiao_threshold_Max',BengJiao_threshold_Max)</l>
+<l>    reduce_domain (Image, RegionUnion, ImageReduced)</l>
+<l>    threshold (ImageReduced, Regions2, BengJiao_threshold_Min, BengJiao_threshold_Max)</l>
+<l>    connection (Regions2, ConnectedRegions)</l>
+<l>    select_shape (ConnectedRegions, SelectedRegions, 'area', 'and', 500, 99999999)</l>
+<l>    intersection (SelectedRegions, Rectangle, RegionIntersection1)</l>
+<l>    select_shape (RegionIntersection1, SelectedRegions2, 'area', 'and', 1, 999999999)</l>
+<l>    count_obj (SelectedRegions2, Number)</l>
+<l>    if (Number&gt;1 or Number==0)</l>
+<l>        concat_obj (ErrRegion, Rectangle, ErrRegion)   </l>
+<l>        return ()</l>
+<l>    endif </l>
+<c>    </c>
+<c>    </c>
+<l>    union1 (SelectedRegions, Regions2)</l>
+<l>    dilation_circle (RoiDetect, RegionDilation1, 20)</l>
+<l>    union2 (Regions2, RegionDilation1, RegionUnion1)</l>
+<l>    closing_circle (RegionUnion1, RegionClosing, 15)</l>
+<l>    boundary (RegionClosing, RegionBorder, 'inner_filled')</l>
+<l>    dilation_circle (RegionBorder, RegionDilation2, 4)</l>
+<c>    *判断倒角区域面积</c>
+<l>    intersection (Regions2, Rectangle, RegionIntersection4)</l>
+<l>    opening_rectangle1 (RegionUnionLine, RegionOpening1, 1, 10)</l>
+<l>    opening_rectangle1 (RegionUnionLine, RegionOpening2,  10,1)</l>
+<l>    intersection (RegionOpening1, RegionOpening2, RegionIntersection2)</l>
+<l>    dilation_rectangle1 (RegionIntersection2, RegionDilation3, 10, 10)</l>
+<l>    intersection (RegionDilation3, RegionUnionLine, RegionIntersection3)</l>
+<l>    dilation_rectangle1 (RegionIntersection3, RegionDilation3, 6, 6)</l>
+<l>    intersection (RegionDilation3, RegionIntersection4, RegionIntersection5)</l>
+<l>    region_features (RegionIntersection5, 'area', Area)</l>
+<l>    if (Area&lt;10)</l>
+<l>        union2 (Regions2, RegionUnionLine, RegionUnion2)</l>
+<l>        fill_up (RegionUnion2, RegionFillUp)</l>
+<l>        difference (RegionFillUp, RegionUnion2, RegionDifference)</l>
+<l>        connection (RegionDifference, ConnectedRegions2)</l>
+<l>        select_shape (ConnectedRegions2, SelectedRegions1, 'area', 'and', 20, 99999)</l>
+<l>        dilation_circle (SelectedRegions1, RegionDifference, 2)</l>
+<l>        region_features (RegionDifference, 'area', Value1)</l>
+<l>        if (Value1&gt;60)  </l>
+<l>            gen_rectangle2 (Rectangle1, Row, Column, 0,200,200)</l>
+<l>            intersection (RegionDilation2, Rectangle1, RegionIntersection)</l>
+<l>            reduce_domain (Image, RegionIntersection, ImageReduced1)</l>
+<l>            emphasize (ImageReduced1, ImageEmphasize, 17, 17,5) </l>
+<l>            edges_sub_pix (ImageEmphasize, Edges, 'canny',2,20,40)</l>
+<l>            union_adjacent_contours_xld (Edges, UnionContours1, 5, 1, 'attr_keep')</l>
+<c>            </c>
+<l>            gen_rectangle2 (Rectangle2, Row, Column, 0, 170, 170)</l>
+<l>            smallest_rectangle1 (Rectangle2, Row1, Column1, Row2, Column2)</l>
+<l>            clip_contours_xld (UnionContours1, ClippedContours, Row1, Column1, Row2, Column2)</l>
+<c>            </c>
+<l>            length_xld (ClippedContours, Length)</l>
+<l>            a:=sort_index(Length*-1)</l>
+<l>            select_obj (ClippedContours, UnionContours, a[0]+1)</l>
+<c>            </c>
+<l>            smooth_contours_xld (UnionContours, SmoothedContours, 9)</l>
+<l>            segment_contours_xld (SmoothedContours, ContoursSplit, 'lines_circles', 6, 10, 5)</l>
+<l>            select_shape_xld (ContoursSplit, SelectedXLD1, 'contlength', 'and', 10, 9999)</l>
+<l>            count_obj (SelectedXLD1, Number1)</l>
+<l>            if (Number1!=3)</l>
+<l>                concat_obj (ErrRegion, Rectangle, ErrRegion)   </l>
+<l>            endif </l>
+<l>        else</l>
+<l>            concat_obj (ErrRegion, Rectangle, ErrRegion)</l>
+<l>        endif  </l>
+<c>        </c>
+<l>    endif</l>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<l>endif</l>
+<c></c>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="BengJiao">
+<parameters>
+<parameter id="DetectArea"/>
+<parameter id="DetectDict"/>
+<parameter id="ErrRegion"/>
+<parameter id="Image"/>
+<parameter id="RegionUnionLine"/>
+<parameter id="RoiDetect"/>
+<parameter id="SelectDir"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

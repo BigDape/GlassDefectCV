@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="Detect_QiPao">
+<interface>
+<io>
+<par name="Image1" base_type="iconic" dimension="0"/>
+<par name="Image2" base_type="iconic" dimension="0"/>
+<par name="DetectRoi" base_type="iconic" dimension="0"/>
+<par name="NoDetectRoi" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="ErrImage" base_type="iconic" dimension="0"/>
+<par name="ErrRoi" base_type="iconic" dimension="0"/>
+<par name="OriginalErrRoi" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="ErrName" base_type="ctrl" dimension="0"/>
+<par name="ErrW" base_type="ctrl" dimension="0"/>
+<par name="ErrH" base_type="ctrl" dimension="0"/>
+<par name="ErrArea" base_type="ctrl" dimension="0"/>
+<par name="ErrX" base_type="ctrl" dimension="0"/>
+<par name="ErrY" base_type="ctrl" dimension="0"/>
+<par name="MapIndex" base_type="ctrl" dimension="0"/>
+<par name="ParIndex" base_type="ctrl" dimension="0"/>
+<par name="ErrImageIndex" base_type="ctrl" dimension="0"/>
+<par name="OK" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>OK:=[]</l>
+<c></c>
+<l>try</l>
+<c>    </c>
+<l>    gen_empty_obj (ErrRoi) </l>
+<l>    gen_empty_obj (ErrImage) </l>
+<l>    gen_empty_obj (OriginalErrRoi)</l>
+<l>    gen_empty_obj (qipao1)</l>
+<l>    gen_empty_obj (qipao2)</l>
+<l>    ErrName:=[]</l>
+<l>    ErrW:=[]</l>
+<l>    ErrH:=[]</l>
+<l>    ErrArea:=[]</l>
+<l>    ErrX:=[]</l>
+<l>    ErrY:=[]</l>
+<l>    MapIndex:=[]</l>
+<l>    ParIndex:=[]</l>
+<l>    ErrImageIndex:=[]</l>
+<c>    </c>
+<c>    </c>
+<l>   * get_dict_tuple (DetectDict,'结石' , JieShiDict)</l>
+<l>  *  get_dict_tuple (JieShiDict, 'JieShi_threshold_Min1', JieShi_threshold_Min1) </l>
+<c>   </c>
+<c>    </c>
+<l>    get_dict_tuple (DetectDict,'使能' , EnabledDict)</l>
+<l>     get_dict_tuple (DetectDict,'气泡' , QiPaoDict)</l>
+<l>  *  get_dict_tuple (EnabledDict, 'JieShi2_Enabled', JieShi_Enabled2)  </l>
+<l>   get_dict_tuple (EnabledDict, '气泡', qipao_Enabled)  </l>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<l>    get_dict_tuple (DetectDict,'系统参数', EnabledDict)</l>
+<l>   * get_dict_tuple (EnabledDict,'siyinclass' , siyinclass)  </l>
+<c>   </c>
+<l>  *  erosion_rectangle1 (DetectRoi, RegionErosion, 10, 10)</l>
+<l>    difference (DetectRoi, NoDetectRoi, RegionErosion)    </l>
+<l>    reduce_domain (Image1, RegionErosion, ImageReduced1)   </l>
+<l>    reduce_domain (Image2, RegionErosion, ImageReduced2)</l>
+<c>    </c>
+<l>    if (qipao_Enabled=1 or qipao_Enabled=true)  </l>
+<l>            threshold (ImageReduced2, Regions, 0, 80)</l>
+<l>        closing_circle (Regions, RegionClosing, 1.5)</l>
+<c>        </c>
+<l>        connection (RegionClosing, ConnectedRegions1)</l>
+<l>        select_shape (ConnectedRegions1, SelectedRegions1, 'area', 'and', 5, 9999999)</l>
+<l>        select_shape (SelectedRegions1, SelectedRegions1, 'circularity', 'and', 0.15, 1)             </l>
+<c>        </c>
+<l>        count_obj (SelectedRegions1, Number11)</l>
+<l>        for Index := 1 to Number11 by 1           </l>
+<l>            shuidi:=0</l>
+<l>            select_obj (SelectedRegions1, ObjectSelected11, Index)                       </l>
+<l>            region_features (ObjectSelected11, 'holes_num', holes_Value11)           </l>
+<l>            smallest_rectangle2 (ObjectSelected11, Row, Column, Phi, Length1, Length2)            </l>
+<l>            gen_rectangle2 (Rectangle, Row, Column, Phi, Length1+50, Length2+50)           </l>
+<l>            reduce_domain (Image1, Rectangle, ImageReduced13)</l>
+<l>            threshold (ImageReduced13, Region13, 30, 255)</l>
+<l>            region_features (Region13, 'area', Area_Value14)</l>
+<l>            region_features (ObjectSelected11, 'area', Area_Value15)</l>
+<l>            circularity (Region13, Circularity_13)</l>
+<l>            ratio12:=Area_Value14/(Area_Value15+0.01)</l>
+<c>            </c>
+<c>             </c>
+<c>             </c>
+<c>            </c>
+<l>            reduce_domain (Image2, Rectangle, ImageReduced11)</l>
+<l>            threshold (ImageReduced11, Region11, 0, 80)                      </l>
+<l>            threshold (ImageReduced11, Region12, 220, 255)           </l>
+<l>            select_shape (Region12, Region12, 'area', 'and', 2, 99999)            </l>
+<l>            union2 (Region11, Region12, RegionUnion11)</l>
+<l>            closing_circle (RegionUnion11, RegionClosing11, 3.5)</l>
+<l>            connection (RegionClosing11, ConnectedRegions11)</l>
+<l>            select_shape_std (ConnectedRegions11, SelectedRegions11, 'max_area', 70)</l>
+<l>            reduce_domain (ImageReduced11, SelectedRegions11, ImageReduced12)</l>
+<c>            </c>
+<c>            </c>
+<c>            *黑点个数****************************************</c>
+<l>            threshold (ImageReduced12, SelectedRegions12, 0, 80)</l>
+<l>            closing_circle (SelectedRegions12, RegionClosing13, 3.5)</l>
+<l>            connection (RegionClosing13, ConnectedRegions15)</l>
+<l>            select_shape_std (ConnectedRegions15, SelectedRegion15, 'max_area', 70)</l>
+<c>            </c>
+<c>            </c>
+<l>            region_features (SelectedRegions12, 'area', Area_Value12)</l>
+<l>            connection (SelectedRegions12, ConnectedRegions12)</l>
+<l>            select_shape_std (ConnectedRegions12, SelectedRegions14, 'max_area', 70)</l>
+<l>            region_features (SelectedRegions14, 'holes_num', holes_Value12) </l>
+<l>            select_shape (ConnectedRegions12, SelectedRegion12, 'area', 'and', 2, 99999)                        </l>
+<l>            count_obj (SelectedRegion12, Number12)</l>
+<c>            *白点个数</c>
+<l>            threshold (ImageReduced12, SelectedRegions13, 190, 255)</l>
+<l>            region_features (SelectedRegions13, 'area', Area_Value13)</l>
+<l>            connection (SelectedRegions13, ConnectedRegions13)            </l>
+<l>            select_shape (ConnectedRegions13, SelectedRegion13, 'area', 'and', 2, 99999)                                          </l>
+<l>            count_obj (SelectedRegion13, Number13)</l>
+<l>            ratio11:= Area_Value13/(Area_Value12+0.01) </l>
+<c>            </c>
+<c>          </c>
+<l>            if(Number13=1 and Number12=1 and Area_Value13&gt;20 and ratio11&gt;0.9 and ratio11&lt;20)</l>
+<l>            union2 (SelectedRegion12, SelectedRegion13, RegionUnion12)</l>
+<l>            intensity (SelectedRegion12, ImageReduced12, Mean3, Deviation3)</l>
+<l>            intensity (SelectedRegion13, ImageReduced12, Mean4, Deviation4)</l>
+<l>            region_features (SelectedRegion12, 'row', row_Value12)</l>
+<l>            region_features (SelectedRegion13, 'row', row_Value13)</l>
+<l>            if(Area_Value13&gt;100)</l>
+<l>            closing_circle (RegionUnion12, RegionClosing12, 0.5)</l>
+<l>            else</l>
+<l>            closing_circle (RegionUnion12, RegionClosing12, 0.5)</l>
+<l>            endif</l>
+<l>            connection (RegionClosing12, ConnectedRegions14)</l>
+<l>            select_shape (ConnectedRegions14, SelectedRegions15, 'area', 'and', 2, 99999)</l>
+<l>            region_features (SelectedRegions15, 'circularity', cir_Value)</l>
+<l>            count_obj (SelectedRegions15, Number15)  </l>
+<l>             if(Number15=2 or (Number15=1 and cir_Value&gt;0.8 and row_Value12-row_Value13&gt;2 and ratio11&gt;1.1 and Mean4&gt;240 and Mean3&lt;30))           </l>
+<l>                shuidi:=1</l>
+<c>                </c>
+<l>            endif</l>
+<l>            endif </l>
+<c>            </c>
+<c>                                                                       </c>
+<l>            region_features (SelectedRegions11, 'circularity', Circularity_Value11)</l>
+<c>        </c>
+<l>            intensity (SelectedRegions11, Image2, Mean, Deviation)</l>
+<l>            tuple_int (Mean, MeanInt)</l>
+<c>    </c>
+<c></c>
+<l>            intensity (ObjectSelected11, Image2, Mean1, Deviation1)</l>
+<l>            tuple_int (Mean1, MeanInt1)</l>
+<l>            difference (SelectedRegion15, SelectedRegions12, RegionDifference11)</l>
+<l>            intensity (RegionDifference11, Image2, Mean2, Deviation2)</l>
+<l>            tuple_int (Mean2, MeanInt2)</l>
+<l>            Meandiff:=MeanInt2-MeanInt1</l>
+<c>            </c>
+<c>            </c>
+<c>            </c>
+<c>            </c>
+<c>    </c>
+<l>       region_features (SelectedRegions11, 'area', Area11)</l>
+<l>      * compactness (ObjectSelected11, Compactness)  </l>
+<l>       region_features (SelectedRegions11, 'roundness', Roundness_Value11)</l>
+<c>       </c>
+<c>      </c>
+<l>     if(shuidi=0 and ratio12&gt;0.1 and ratio12&lt;10)</l>
+<l>        if(holes_Value12&gt;0 or holes_Value11&gt;0 or (Number12&gt;0 and Number13&gt;0 and (Area_Value13&gt;5 or ratio11&gt;0.4)) or (Number12&gt;1 ) or (Meandiff&gt;50 and MeanInt2&gt;120) or (Meandiff&gt;25 and MeanInt2&gt;80 and Area_Value12&lt;30) or (Meandiff&gt;40 and MeanInt2&gt;90 and Area_Value12&lt;50))</l>
+<l>           concat_obj (qipao1, SelectedRegions11, qipao1)</l>
+<l>       else</l>
+<l>           if((Circularity_Value11&gt;0.4 and Area11&gt;20 and Area11&lt;200 and MeanInt&lt;70) or (MeanInt&lt;35 and Circularity_Value11&gt;0.3 and Area11&gt;=200))                           </l>
+<l>            concat_obj (qipao2, SelectedRegions11, qipao2)</l>
+<l>           endif</l>
+<l>       endif</l>
+<l>     endif    </l>
+<l>        endfor</l>
+<c>    </c>
+<c>    </c>
+<l>    union1 (qipao1, RegionUnion1)</l>
+<l>    connection (RegionUnion1, ConnectedRegions)</l>
+<l>    select_shape (ConnectedRegions, qipao1, 'area', 'and', 1, 999999999)</l>
+<l>    count_obj (qipao1,Number13)</l>
+<l>    if (Number13&gt;0)</l>
+<c>                </c>
+<c>                    *Newtuple缺陷显示图序号</c>
+<l>                    tuple_gen_const (Number13, 2, Newtuple)  </l>
+<l>                    get_dict_tuple (QiPaoDict,'气泡宽度最小值' , Pass_W)</l>
+<l>              get_dict_tuple (QiPaoDict,'气泡长度最小值' , Pass_L)</l>
+<l>            GatherInfo_OkNG (qipao1, Image1, Image2, RoiImage, TransRoi, DetectDict, QiPaoDict, '气结', Newtuple, Pass_L, Pass_W, 0, 10000, Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK1)</l>
+<l>            if (OK1!=[])</l>
+<l>                        concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                        concat_obj (ErrRoi, TransRoi, ErrRoi)</l>
+<l>                        ErrName:=[ErrName,Name]</l>
+<l>                        ErrW:=[ErrW,W]</l>
+<l>                        ErrH:=[ErrH,H]</l>
+<l>                        ErrArea:=[ErrArea,Area]</l>
+<l>                        ErrX:=[ErrX,X]</l>
+<l>                        ErrY:=[ErrY,Y]</l>
+<l>                        MapIndex:=[MapIndex,mapIndex]</l>
+<l>                        ParIndex:=[ParIndex,parIndex]</l>
+<l>                        ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>                        OK:=[OK,OK1]</l>
+<l>                    endif                            </l>
+<l>            endif </l>
+<l>            select_shape (qipao2, qipao2, 'area', 'and', 1, 999999999)</l>
+<l>         count_obj (qipao2,Number14)</l>
+<l>    if (Number14&gt;0)</l>
+<c>                </c>
+<c>                    *Newtuple缺陷显示图序号</c>
+<l>                    tuple_gen_const (Number14, 2, Newtuple)   </l>
+<l>                      get_dict_tuple (QiPaoDict,'结石宽度最小值' , Pass_W)</l>
+<l>              get_dict_tuple (QiPaoDict,'结石长度最小值' , Pass_L)</l>
+<c>           </c>
+<l>            GatherInfo_OkNG (qipao2, Image1, Image2, RoiImage, TransRoi, DetectDict, QiPaoDict, '气结', Newtuple, Pass_L, Pass_W, 0, 10000, Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK2)</l>
+<l>                    if (OK2!=[])                        </l>
+<l>                        concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                        concat_obj (ErrRoi, TransRoi, ErrRoi)</l>
+<l>                        ErrName:=[ErrName,Name]</l>
+<l>                        ErrW:=[ErrW,W]</l>
+<l>                        ErrH:=[ErrH,H]</l>
+<l>                        ErrArea:=[ErrArea,Area]</l>
+<l>                        ErrX:=[ErrX,X]</l>
+<l>                        ErrY:=[ErrY,Y]</l>
+<l>                        MapIndex:=[MapIndex,mapIndex]</l>
+<l>                        ParIndex:=[ParIndex,parIndex]</l>
+<l>                        ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>                        OK:=[OK,OK2]</l>
+<l>                    endif                            </l>
+<l>            endif </l>
+<l>    endif</l>
+<l>    union2 (qipao1, qipao2, RegionUnion)</l>
+<l>    dilation_circle (RegionUnion, RegionDilation1, 10.5)</l>
+<l>    OriginalErrRoi:=RegionDilation1</l>
+<c>   </c>
+<c>    </c>
+<c>    </c>
+<c>    **************************************************************************************</c>
+<l>catch (Exception )</l>
+<l>endtry</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="Detect_QiPao">
+<parameters>
+<parameter id="DetectDict"/>
+<parameter id="DetectRoi"/>
+<parameter id="ErrArea"/>
+<parameter id="ErrH"/>
+<parameter id="ErrImage"/>
+<parameter id="ErrImageIndex"/>
+<parameter id="ErrName"/>
+<parameter id="ErrRoi"/>
+<parameter id="ErrW"/>
+<parameter id="ErrX"/>
+<parameter id="ErrY"/>
+<parameter id="Image1"/>
+<parameter id="Image2"/>
+<parameter id="MapIndex"/>
+<parameter id="NoDetectRoi"/>
+<parameter id="OK"/>
+<parameter id="OriginalErrRoi"/>
+<parameter id="ParIndex"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

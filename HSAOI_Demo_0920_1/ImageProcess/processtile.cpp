@@ -35,7 +35,7 @@ void ProcessTile::init_ProcessTile()
     TileColumn1=HTuple();
     TileColumn2=HTuple();
     GenEmptyObj(&TileRectangle);
-
+    mosaickthread = new ThreadDo[FieldNumber];
     MosaickHobject = new HObject[4];
     GlassRegion.GenEmptyObj();
     RegionsFrameCrop.GenEmptyObj();
@@ -97,9 +97,9 @@ void ProcessTile::TileImageProcess()
     if(allCamerasStarted && allCameraIsNotEmpty) {
         std::unique_lock<std::mutex> sbguard(_mutex);
         if(hasStopThread.load()) return;
-        QImageAcquisition::ImageUnit headImage;
-        m_Cameras[0]->m_AcquireImage->ImageQueue.dequeue(headImage);
-        FrameCount = headImage.FrameCount;
+        Global::GlobalLock.lock();
+        FrameCount = m_Cameras[0]->m_AcquireImage->ImageQueue.head().FrameCount;
+        Global::GlobalLock.unlock();
         if(FrameCount == 1) {
             Global::ImageHeight = 0;
             Global::ImageWidth = 0;
@@ -109,24 +109,32 @@ void ProcessTile::TileImageProcess()
         //帧信号复位
         Global::FrameSignal = 0;
         GetDictTuple(Global::RecipeDict,"自定义参数",&UserDefinedDict);
-        HSThreadPool pool(FieldNumber);
         qDebug() << "FieldNumber :" <<FieldNumber;
-        std::vector<std::future<HObject>> resultvec;
-        for (int i = 0; i < FieldNumber; i++) {//光场数量
-            MosaickImage mosaickthread;
-            MosaickArg Args;
-            for(int j=0;j<Global::camDefineNum;j++) {//相机个数
-                qDebug() << "camDefineNum :" <<Global::camDefineNum;
-                Args.CameraImageList.append(headImage.ImageList[i]) ;
-                Args.channel =  (i==FieldNumber-1) ? 1 : 0;//最后一个场为0
+
+        for (int i = 0; i < FieldNumber; i++) {
+            qDebug() << "FieldNumber :" <<FieldNumber;
+            if(i<FieldNumber-1) {
+                for(int j=0;j<Global::camDefineNum;j++) {
+                    qDebug() << "camDefineNum :" <<Global::camDefineNum;
+                    qDebug() << "camDefineNum i :" <<i<< "ImageList.length() :"<<m_Cameras[j]->m_AcquireImage->ImageQueue.head().ImageList.length();
+                    mosaickthread[i].CameraImageList.append(m_Cameras[j]->m_AcquireImage->ImageQueue.head().ImageList[i]) ;
+                }
+                mosaickthread[i].channel=0;
+            } else {
+                for(int j=0;j<Global::camDefineNum;j++) {
+                    qDebug() << "camDefineNum :" <<Global::camDefineNum;
+                    qDebug() << "camDefineNum i :" <<i<< "ImageList.length() :"<<m_Cameras[j]->m_AcquireImage->ImageQueue.head().ImageList.length();
+                    mosaickthread[i].CameraImageList.append(m_Cameras[j]->m_AcquireImage->ImageQueue.head().ImageList[0]) ;
+                }
+                mosaickthread[i].channel=1;
             }
-            mosaickthread.mosaickQueue.inqueue(Args);
-            resultvec.push_back(pool.submit(std::bind(&MosaickImage::run,&mosaickthread)));
+            mosaickthread[i].start();//开启线程
         }
+
         //等待所有线程执行完成
-         mosaickResult.clear();
         for(int j=0;j<FieldNumber;j++) {
-             mosaickResult.push_back( resultvec[j].get());
+            mosaickthread[j].wait();
+            mosaickthread[j].CameraImageList.clear();
         }
 
     } //if(allCamerasStarted && allCameraIsNotEmpty)
@@ -162,22 +170,20 @@ void ProcessTile::TileImageProcess()
             HTuple str11(str1.c_str());
             HTuple str22(str2.c_str());
             HTuple str33(str3.c_str());
-            if(mosaickResult.size() >= 3){
-                WriteImage(mosaickResult[0],"jpg",0,str11);
-                WriteImage(mosaickResult[1],"jpg",0,str22);
-                WriteImage(mosaickResult[2],"jpg",0,str33);
-            }
+            WriteImage(mosaickthread[0].MosaickResultImage,"jpg",0,str11);
+            WriteImage(mosaickthread[1].MosaickResultImage,"jpg",0,str22);
+            WriteImage(mosaickthread[2].MosaickResultImage,"jpg",0,str33);
 
         } catch(...) {
-            for(int i=0; i<mosaickResult.size();++i ){
-                HTuple a = FrameCount;
-                HTuple str1 = "D:/qqqqqqqq"+ a;
-                HTuple str2 = str1 + i;
-                 WriteImage(mosaickResult[i],"jpg",0,str2);
-            }
+            qDebug()<<"exception";
         }
     }
     qDebug() << "mosaick success";
+    for(int j=0;j<Global::camDefineNum;j++) {
+        Global::GlobalLock.lock();
+        m_Cameras[j]->m_AcquireImage->ImageQueue.dequeue();
+        Global::GlobalLock.unlock();
+    }
     ProcessTile::PreProceeTile();
 }
 
@@ -191,16 +197,12 @@ void ProcessTile::PreProceeTile()
         HTuple ImageWidth;
         HObject RegionFLPanel,RegionOpeningFL,RegionClosingFL,RegionConnectionFL,SelectedRegionsFL;
         HObject RegionUnion2Panel,RegionOpeningPanel,RegionConnectionPanel,RegionPanel;
-        if((int)mosaickResult.size() < FieldNumber){
-            qDebug()<<"mosaickResult.size()="<<mosaickResult.size()<<"< FieldNumber";
-            return;
-        }
-        GetImageSize(mosaickResult[0], &ImageWidth, &ImageHeight);
+        GetImageSize(mosaickthread[0].MosaickResultImage, &ImageWidth, &ImageHeight);
         if(FirstFrame==true) {
             HObject ImageP500;
             HObject ImageConcat;
             GenEmptyObj(&ImageConcat);
-            CropPart(mosaickResult[0],&ImageP500,0,0,ImageWidth,500);
+            CropPart(mosaickthread[0].MosaickResultImage,&ImageP500,0,0,ImageWidth,500);
             for (int j=1; j <= ImageHeight/500+2; j++) {
                 ConcatObj(ImageConcat,ImageP500,&ImageConcat);
             }
@@ -215,13 +217,13 @@ void ProcessTile::PreProceeTile()
         HTuple Row1,Column1,Phi1,Length1,Length2;
         HObject SubImage1,SubRegion1,RegionUnion1,RegionFillUp1,RegionOpening1,ConnectedRegions1,SelectedRegions1;
         HObject RegionLines, RegionLines1, RegionLines2;
-        SubImage(BackGroundImage, mosaickResult[0], &SubImage1, 1, 0);
+        SubImage(BackGroundImage, mosaickthread[0].MosaickResultImage, &SubImage1, 1, 0);
         HTuple str3 = "D:/q222";
         WriteImage(SubImage1,"jpg",0,str3);
 
         //反射亮場
 
-        Threshold(mosaickResult[1], &RegionFLPanel, 20, 255);//Threshold(mosaickthread[1].MosaickResultImage, &RegionFLPanel, 20, 255);
+        Threshold(mosaickthread[1].MosaickResultImage, &RegionFLPanel, 20, 255);//Threshold(mosaickthread[1].MosaickResultImage, &RegionFLPanel, 20, 255);
         HTuple RegionsWidth;
         //反射亮場找面内區域
         ClosingCircle(RegionFLPanel,&RegionClosingFL,3.5);
@@ -339,10 +341,8 @@ void ProcessTile::PreProceeTile()
         HObject ImagePart[4];
 
         for(int i=0;i<FieldNumber;i++) {
-            if((int)mosaickResult.size()>= FieldNumber){
-                ReduceDomain(mosaickResult[i], TileRectangle, &ImageReduced[i]);
+                ReduceDomain(mosaickthread[i].MosaickResultImage, TileRectangle, &ImageReduced[i]);
                 CropDomain(ImageReduced[i], &ImagePart[i]);
-            }
         }
         //拼整图
         if(GlassPosition!=0) {
@@ -485,11 +485,10 @@ void ProcessTile::PreProceeTile()
                     HObject CropRectangle,ImageCropRecReduced[3];
                     GenRectangle1(&CropRectangle, ImageHeight -1 -1000, TileColumn1,ImageHeight - 1 , TileColumn2);
                     for(int i=0;i<FieldNumber-1;i++) {
-                        if((int)mosaickResult.size() >= FieldNumber-1){
-                            ReduceDomain(mosaickResult[i], CropRectangle, &ImageCropRecReduced[i]);
+                            ReduceDomain(mosaickthread[i].MosaickResultImage, CropRectangle, &ImageCropRecReduced[i]);
                             CropDomain(ImageCropRecReduced[i], &ImageCrop[i]);
                             ImageCropRecReduced[i].Clear();
-                        }
+
                     }
                     CropRectangle.Clear();
                     //截取Region尾部1000行
@@ -562,7 +561,10 @@ void ProcessTile::PreProceeTile()
         QString info="拼图步骤"+ QString::number(FrameCount) + "无玻璃！";
         log_singleton::Write_Log(info, Log_Level::General);
      }
-     mosaickResult.clear();
+        for(int i=0;i<FieldNumber;i++)
+        {
+          mosaickthread[i].MosaickResultImage.Clear();
+        }
      SubImage1.Clear();
      SubRegion1.Clear();
      RegionUnion1.Clear();
@@ -624,15 +626,11 @@ void ProcessTile::OfflineTileImageProcess(QString fullpath)
     bool res2 = QFile::exists(tile2Fullpath);
     bool res3 = QFile::exists(tile3Fullpath);
     bool res4 = QFile::exists(tile4Fullpath);
-    for(int i=0; i<4;++i) {
-        HObject mosaickthread;
-        mosaickResult.push_back(mosaickthread);
-    }
     if( res1 && res2 && res3 && res4) {
-        ReadImage(&mosaickResult[0],tile1Fullpath.toStdString().data());
-        ReadImage(&mosaickResult[1],tile2Fullpath.toStdString().data());
-        ReadImage(&mosaickResult[2],tile3Fullpath.toStdString().data());
-        ReadImage(&mosaickResult[3],tile4Fullpath.toStdString().data());
+        ReadImage(&mosaickthread[0].MosaickResultImage,tile1Fullpath.toStdString().data());
+        ReadImage(&mosaickthread[1].MosaickResultImage,tile2Fullpath.toStdString().data());
+        ReadImage(&mosaickthread[2].MosaickResultImage,tile3Fullpath.toStdString().data());
+        ReadImage(&mosaickthread[3].MosaickResultImage,tile4Fullpath.toStdString().data());
         GetDictTuple(Global::RecipeDict,"自定义参数",&UserDefinedDict);
         ProcessTile::PreProceeTile();
     } else {

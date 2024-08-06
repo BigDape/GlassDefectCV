@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="calculate_features_XPao">
+<interface>
+<io>
+<par name="Region" base_type="iconic" dimension="0"/>
+<par name="Image" base_type="iconic" dimension="0"/>
+</io>
+<oc>
+<par name="Features" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>cooc_feature_image (Region, Image, 6, 0, Energy, Correlation, Homogeneity, Contrast)</l>
+<l>smallest_rectangle1 (Region, Row1, Column1, Row2, Column2)</l>
+<l>gen_rectangle1 (Rectangle1, Row1-2, Column1-2, Row1+5, Column2+5)</l>
+<l>gen_rectangle1 (Rectangle2, Row2-5, Column2-6, Row2+5, Column2+5)</l>
+<l>union2 (Rectangle1, Rectangle2, RegionUnion1)</l>
+<l>difference (Region, RegionUnion1, RegionDifference)</l>
+<c></c>
+<l>smallest_rectangle1 (RegionDifference, Row1, Column1, Row2, Column2) </l>
+<l>LineCount:=round((Row2-Row1)/1.5)</l>
+<l>LineCountz:=Row2-Row1</l>
+<l>t1:=round((LineCountz-LineCount)/2)</l>
+<l>get_region_points (RegionDifference, Rows, Columns)</l>
+<l>MaxRow:=max(Rows)-t1</l>
+<l>Columns:=mean(Columns)</l>
+<l>rows:=[MaxRow:-1:MaxRow-LineCount]</l>
+<l>tuple_gen_const (LineCount+1, Columns-10, cols1)</l>
+<l>tuple_gen_const (LineCount+1, Columns+10, cols2)</l>
+<l>gen_region_line (RegionLines, rows, cols1, rows, cols2)</l>
+<l>intersection (RegionLines, Region, RegionIntersection)</l>
+<c></c>
+<c></c>
+<l>region_features (RegionIntersection, 'column2', Value1)</l>
+<l>Values2:=Value1[1:|Value1|-1]</l>
+<l>Values1:=Value1[0:|Value1|-2]</l>
+<c>**********列值变化占比**************************</c>
+<l>s11:= abs((Values2-Values1))[&gt;]0</l>
+<l>col2dis0:=find(s11,1) </l>
+<l>if (col2dis0==-1)</l>
+<l>    col2dis0:=[]</l>
+<l>endif</l>
+<l>discolscal1:=(|col2dis0|+0.001)/LineCount</l>
+<c></c>
+<c>**********列值变化大于1占比**************************</c>
+<l>s11:= abs((Values2-Values1))[&gt;]1</l>
+<l>col2dis1:=find(s11,1) </l>
+<l>if (col2dis1==-1)</l>
+<l>    col2dis1:=[]</l>
+<l>endif</l>
+<l>discolscal1_1:=(|col2dis1|+0.001)/LineCount</l>
+<c></c>
+<c>**********列值元素与列中值差值占比**************************</c>
+<l>a:=sort(Value1)[|Value1|/2]  </l>
+<l>discol2_1:=abs(Value1-a)[&gt;]1</l>
+<l>a1_1:=find(discol2_1, 1)</l>
+<l>if (a1_1==-1)</l>
+<l>    a1_1:=[]</l>
+<l>endif</l>
+<l>v1:=(|a1_1|+0.001)/LineCount</l>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<l>region_features (RegionIntersection, 'column1', Value1)</l>
+<l>Values2:=Value1[1:|Value1|-1]</l>
+<l>Values1:=Value1[0:|Value1|-2]</l>
+<c></c>
+<c>**********列值上升占比**************************</c>
+<l>s11:= abs((Values2-Values1))[&gt;]0</l>
+<l>col1dis0:=find(s11,1) </l>
+<l>if (col1dis0==-1)</l>
+<l>    col1dis0:=[]</l>
+<l>endif</l>
+<l>discolscal2:=(|col1dis0|+0.001)/LineCount</l>
+<c></c>
+<c>**********列值上升大于1占比**************************</c>
+<l>s11:= abs((Values2-Values1))[&gt;]1</l>
+<l>col1dis1:=find(s11,1)</l>
+<l>if (col1dis1==-1)</l>
+<l>    col1dis1:=[]</l>
+<l>endif</l>
+<l>discolscal2_1:=(|col1dis1|+0.001)/LineCount</l>
+<c></c>
+<c>**********列值元素与列中值差值占比**************************</c>
+<l>b:=sort(Value1)[|Value1|/2]         </l>
+<l>discol2_1:=abs(Value1-b)[&gt;]1</l>
+<l>b1_1:=find(discol2_1, 1)</l>
+<l>if (b1_1==-1)</l>
+<l>    b1_1:=[]</l>
+<l>endif</l>
+<l>v2:=(|b1_1|+0.001)/LineCount</l>
+<c></c>
+<c></c>
+<c>****************************最大面积与最小面积的差值*************************</c>
+<l>region_features (RegionIntersection, 'area', area)</l>
+<l>AreaDisMax:= (area-min(area))[&gt;]2</l>
+<l>AreaDis:=find(AreaDisMax, 1)</l>
+<c></c>
+<l>MeanArea:=mean(area)</l>
+<l>Features:=real([discolscal1,discolscal1_1,v1,discolscal2,discolscal2_1,v2,|AreaDis|,MeanArea,Energy, Correlation, Homogeneity, Contrast])</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="calculate_features_XPao">
+<parameters>
+<parameter id="Features"/>
+<parameter id="Image"/>
+<parameter id="Region"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

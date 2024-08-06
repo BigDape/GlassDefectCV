@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="add_samples_to_HMS">
+<interface>
+<ic>
+<par name="ClassNames" base_type="ctrl" dimension="0"/>
+<par name="ClassHandle" base_type="ctrl" dimension="0"/>
+<par name="ReadPath" base_type="ctrl" dimension="0"/>
+</ic>
+</interface>
+<body>
+<l>for ClassNumber := 0 to |ClassNames| - 1 by 1</l>
+<l>    list_files (ReadPath + ClassNames[ClassNumber], 'files', Files)</l>
+<l>    Selection := regexp_select(Files,'')</l>
+<l>   * Selection := regexp_select(Files,'.*[.]jpg')</l>
+<l>   * tuple_regexp_select (ImageFiles, ['\\.(tif|tiff|gif|bmp|jpg|jpeg|jp2|png|pcx|pgm|ppm|pbm|xwd|ima|hobj)$','ignore_case'], ImageFiles)</l>
+<c></c>
+<l>    for Index := 0 to |Selection| - 1 by 2</l>
+<l>        read_image (Image1, Selection[Index])</l>
+<l>        read_image (Image2, Selection[Index+1])</l>
+<l>        threshold(Image1,Regions,30,255)</l>
+<l>        closing_circle (Regions, RegionClosing, 3.5)</l>
+<l>        connection(RegionClosing,ConnectedRegions)</l>
+<c>    *计算各区域的面积，提取出面积最大的区域</c>
+<c>     </c>
+<l>      select_shape_std (ConnectedRegions, SelectedRegions, 'max_area', 70)</l>
+<l>      dilation_circle (SelectedRegions, RegionDilation, 10.5)</l>
+<l>      reduce_domain (Image1, SelectedRegions, ImageReduced1)</l>
+<l>      reduce_domain (Image2, SelectedRegions, ImageReduced2)</l>
+<c>*做闭运算，提取出缺陷区域</c>
+<l>        calculate_features_HMS (SelectedRegions, ImageReduced1, ImageReduced2, Features)</l>
+<l>      add_sample_class_mlp (ClassHandle, Features, ClassNumber)</l>
+<l>    endfor  </l>
+<l>endfor</l>
+<l>return ()</l>
+<c></c>
+<c></c>
+</body>
+<docu id="add_samples_to_HMS">
+<parameters>
+<parameter id="ClassHandle"/>
+<parameter id="ClassNames"/>
+<parameter id="ReadPath"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

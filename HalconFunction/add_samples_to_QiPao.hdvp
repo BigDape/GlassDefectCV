@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="add_samples_to_QiPao">
+<interface>
+<ic>
+<par name="ClassNames" base_type="ctrl" dimension="0"/>
+<par name="ClassHandle" base_type="ctrl" dimension="0"/>
+<par name="ReadPath" base_type="ctrl" dimension="0"/>
+<par name="ClassNumber" base_type="ctrl" dimension="0"/>
+<par name="thresholdmin" base_type="ctrl" dimension="0"/>
+</ic>
+</interface>
+<body>
+<c></c>
+<l>list_files (ReadPath + ClassNumber, 'files', Files)</l>
+<l>Selection := regexp_select(Files,'.*[.]bmp')</l>
+<l>for Index := 0 to |Selection| - 1 by 1</l>
+<l>    read_image (Image, Selection[Index])</l>
+<l>    threshold (Image, Regions2, thresholdmin, 255)</l>
+<l>    closing_rectangle1 (Regions2, RegionClosing3, 1, 6)</l>
+<l>    connection (RegionClosing3, ConnectedRegions)</l>
+<l>    select_shape (ConnectedRegions, SelectedRegions, 'rect2_len1', 'and',15, 200)</l>
+<l>    select_shape (SelectedRegions, SelectedRegions1, 'rect2_len2', 'and', 1.5, 15)</l>
+<l>    select_shape (SelectedRegions1, SelectedRegions2, ['rect2_phi','rect2_phi'], 'or', [1.4,-1.7], [1.7,-1.4])</l>
+<l>    count_obj (SelectedRegions2, Number)</l>
+<l>    for Index1 := 1 to Number by 1    </l>
+<l>        select_obj (SelectedRegions2, ObjectSelected, Index1) </l>
+<l>        closing_circle (ObjectSelected, ObjectSelected1, 6)</l>
+<l>        shape_trans (ObjectSelected1, RegionTrans, 'rectangle1')</l>
+<l>        move_region (RegionTrans, RegionMoved1, 20, 0)</l>
+<l>        move_region (RegionTrans, RegionMoved2, -20, 0)</l>
+<l>        union2 (RegionMoved1, RegionMoved2, RegionUnion4)</l>
+<l>        difference (RegionUnion4, RegionTrans, RegionDifference1)</l>
+<l>        intersection (RegionDifference1, Regions2, RegionIntersection3)</l>
+<l>        region_features (RegionIntersection3, 'area', Value1)</l>
+<l>        if (Value1&lt;200 ) </l>
+<l>            calculate_features_QiPao (ObjectSelected, Features)</l>
+<l>*             add_sample_class_svm (ClassHandle, Features, ClassNumber)</l>
+<l>            add_sample_class_mlp (ClassHandle, Features, ClassNames)</l>
+<c>            </c>
+<l>        endif</l>
+<l>    endfor</l>
+<l>endfor  </l>
+<c></c>
+<l>return ()</l>
+<c></c>
+<c></c>
+</body>
+<docu id="add_samples_to_QiPao">
+<parameters>
+<parameter id="ClassHandle"/>
+<parameter id="ClassNames"/>
+<parameter id="ClassNumber"/>
+<parameter id="ReadPath"/>
+<parameter id="thresholdmin"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

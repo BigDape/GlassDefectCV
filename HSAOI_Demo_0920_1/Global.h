@@ -19,6 +19,7 @@
 #include <QString>
 #include <unordered_map>
 #include <map>
+#include <mutex>
 
 using namespace HalconCpp;
 typedef struct GLASSINFO {
@@ -115,6 +116,8 @@ public:
     static std::map<int,QString> glassidToholejson; //存储glassid->jsonPath
     static std::map<int,QString> glassidTodefectjson; //存储glassid->jsonPath
     static int SystemStatus; //运行中则1，停止时则0
+    static std::mutex GlobalLock; //全局锁
+    static QDateTime jsonTime;//json时间
 };
 
 #endif // GLOBAL_H

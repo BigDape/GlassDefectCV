@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="Detect_weizhi">
+<interface>
+<io>
+<par name="Image1" base_type="iconic" dimension="0"/>
+<par name="Image2" base_type="iconic" dimension="0"/>
+<par name="Image3" base_type="iconic" dimension="0"/>
+<par name="Image4" base_type="iconic" dimension="0"/>
+<par name="DetectRoi" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="ErrRoi" base_type="iconic" dimension="0"/>
+<par name="AlarmRoi" base_type="iconic" dimension="0"/>
+<par name="ErrImage" base_type="iconic" dimension="0"/>
+<par name="AlarmImage" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+<par name="VisionProcessStep" base_type="ctrl" dimension="0"/>
+<par name="ImageIndex" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="ErrName" base_type="ctrl" dimension="0"/>
+<par name="AlarmName" base_type="ctrl" dimension="0"/>
+<par name="ErrW" base_type="ctrl" dimension="0"/>
+<par name="ErrH" base_type="ctrl" dimension="0"/>
+<par name="ErrArea" base_type="ctrl" dimension="0"/>
+<par name="ErrX" base_type="ctrl" dimension="0"/>
+<par name="ErrY" base_type="ctrl" dimension="0"/>
+<par name="AlarmW" base_type="ctrl" dimension="0"/>
+<par name="AlarmH" base_type="ctrl" dimension="0"/>
+<par name="AlarmArea" base_type="ctrl" dimension="0"/>
+<par name="AlarmX" base_type="ctrl" dimension="0"/>
+<par name="AlarmY" base_type="ctrl" dimension="0"/>
+<par name="MapIndex" base_type="ctrl" dimension="0"/>
+<par name="ParIndex" base_type="ctrl" dimension="0"/>
+<par name="ErrImageIndex" base_type="ctrl" dimension="0"/>
+<par name="OK" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>    OK:='OK'</l>
+<l>try</l>
+<c></c>
+<l>    gen_empty_obj (ErrRoi) </l>
+<l>    gen_empty_obj (AlarmRoi)</l>
+<l>    gen_empty_obj (ErrImage) </l>
+<l>    gen_empty_obj (AlarmImage)</l>
+<c>    </c>
+<l>    ErrName:=[]</l>
+<l>    AlarmName:=[]</l>
+<l>    ErrW:=[]</l>
+<l>    ErrH:=[]</l>
+<l>    ErrArea:=[]</l>
+<l>    ErrX:=[]</l>
+<l>    ErrY:=[]</l>
+<l>    AlarmW:=[]</l>
+<l>    AlarmH:=[]</l>
+<l>    AlarmArea:=[]</l>
+<l>    AlarmX:=[]</l>
+<l>    AlarmY:=[]</l>
+<l>    MapIndex:=[]</l>
+<l>    ParIndex:=[]</l>
+<l>    ErrImageIndex:=[]</l>
+<c></c>
+<c>    </c>
+<l>*     if (VisionProcessStep&gt;0 and VisionProcessStep&lt;9)</l>
+<c></c>
+<l>*         reduce_domain (Image1, DetectRoi, ImageReduced)</l>
+<l>*         threshold (ImageReduced, Region, 60, 255)</l>
+<l>*         opening_rectangle1 (Region, RegionOpening, 2, 2)</l>
+<l>*         closing_circle (RegionOpening, RegionClosing,20)</l>
+<l>*         connection (RegionClosing, ConnectedRegions)</l>
+<c>        </c>
+<l>*         intersection (ConnectedRegions, RegionOpening, RegionIntersection)</l>
+<l>*         region_features (RegionIntersection, 'area', Value1)</l>
+<l>*         region_features (ConnectedRegions, 'area', Value2)</l>
+<l>*         c:= ( Value1+0.001)/Value2[&gt;]0.05</l>
+<l>*         select_mask_obj (ConnectedRegions, SelectedObjects, c)</l>
+<l>*         select_shape (SelectedObjects, wz2, 'area', 'and', 200, 999999)</l>
+<c>        </c>
+<l>*         count_obj ( wz2,Number)</l>
+<l>*         if (Number&gt;0)</l>
+<l>*             Ls:=10</l>
+<l>*             Ws:=0.5</l>
+<l>*             tuple_gen_const (Number, 1, Newtuple)</l>
+<l>*             GatherInfo (wz2, Image1, Image2, Image3, Image4, RoiImage, TransRoi, SelectRegion, DetectDict, '未知缺陷', VisionProcessStep, ImageIndex, Ws, Ls, Newtuple, Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK1)</l>
+<l>*             if (OK1=='NG')</l>
+<l>*                 ErrImage:=RoiImage</l>
+<l>*                 ErrRoi:=TransRoi</l>
+<l>*                 ErrName:=Name</l>
+<l>*                 ErrW:=W</l>
+<l>*                 ErrH:=H</l>
+<l>*                 ErrArea:=Area</l>
+<l>*                 ErrX:=X</l>
+<l>*                 ErrY:=Y</l>
+<l>*                 MapIndex:=mapIndex</l>
+<l>*                 ParIndex:=parIndex</l>
+<l>*                 ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>*                 OK:='NG'  </l>
+<l>*             endif</l>
+<l>*         endif</l>
+<l>*     endif</l>
+<c>   </c>
+<c>    **************************************************************************************</c>
+<l>catch (Exception )</l>
+<l>endtry</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="Detect_weizhi">
+<parameters>
+<parameter id="AlarmArea"/>
+<parameter id="AlarmH"/>
+<parameter id="AlarmImage"/>
+<parameter id="AlarmName"/>
+<parameter id="AlarmRoi"/>
+<parameter id="AlarmW"/>
+<parameter id="AlarmX"/>
+<parameter id="AlarmY"/>
+<parameter id="DetectDict"/>
+<parameter id="DetectRoi"/>
+<parameter id="ErrArea"/>
+<parameter id="ErrH"/>
+<parameter id="ErrImage"/>
+<parameter id="ErrImageIndex"/>
+<parameter id="ErrName"/>
+<parameter id="ErrRoi"/>
+<parameter id="ErrW"/>
+<parameter id="ErrX"/>
+<parameter id="ErrY"/>
+<parameter id="Image1"/>
+<parameter id="Image2"/>
+<parameter id="Image3"/>
+<parameter id="Image4"/>
+<parameter id="ImageIndex"/>
+<parameter id="MapIndex"/>
+<parameter id="OK"/>
+<parameter id="ParIndex"/>
+<parameter id="VisionProcessStep"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

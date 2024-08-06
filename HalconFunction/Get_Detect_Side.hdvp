@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="Get_Detect_Side">
+<interface>
+<io>
+<par name="Image" base_type="iconic" dimension="0"/>
+<par name="RoiDetect" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="RegionUnionLine" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDir" base_type="ctrl" dimension="0"/>
+</ic>
+</interface>
+<body>
+<c></c>
+<l>get_image_size (Image, Width, Height)</l>
+<l>smallest_rectangle1 (RoiDetect, Row1, Col1, Row2, Col2)</l>
+<l>a:=400</l>
+<l>b:=200</l>
+<c></c>
+<l>gen_empty_obj (RegionUnionLine)</l>
+<l>try</l>
+<c>    </c>
+<l>    if (DetectDir=='UpLeft')</l>
+<l>        rake (Image, Regions1, 30, 800, 10, 1, 50, 'positive', 'first', Row1, Col1+a, Row1, Col1+b, ResultRow, ResultColumn)</l>
+<l>        pts_to_best_line (Line, ResultRow, ResultColumn, 5, Row11, Col11, Row12,Col12)</l>
+<l>        rake (Image, Regions1, 30, 800, 10, 1,50, 'positive', 'first',Row1+b, Col1,Row1+a, Col1,   ResultRow, ResultColumn)   </l>
+<l>        pts_to_best_line (Line, ResultRow, ResultColumn, 5, Row21, Col21, Row22,Col22)</l>
+<c>        </c>
+<l>        intersection_lines (Row11, Col11, Row12,Col12, Row21, Col21, Row22,Col22, intersectionRow1, intersectionColumn1, IsOverlapping)</l>
+<c>      </c>
+<l>        intersection_lines (Row11, Col11, Row12,Col12, 0, Width, Height,Width, intersectionRow2, intersectionColumn2, IsOverlapping)</l>
+<l>        gen_region_line (RegionLinesC1, intersectionRow1, intersectionColumn1, intersectionRow2, intersectionColumn2)</l>
+<c>        </c>
+<l>        intersection_lines (Row21, Col21, Row22,Col22, Height, 0, Height, Width, intersectionRow2, intersectionColumn2, IsOverlapping)</l>
+<l>        gen_region_line (RegionLinesC2, intersectionRow1, intersectionColumn1, intersectionRow2, intersectionColumn2)</l>
+<c>        </c>
+<l>        union2 (RegionLinesC1, RegionLinesC2, RegionUnionLine)</l>
+<c>        </c>
+<c>        </c>
+<l>    elseif(DetectDir=='UpRight')</l>
+<l>        rake (Image, Regions1, 30, 800, 10, 1, 30, 'positive', 'first', Row1, Col2-b, Row1, Col2-a, ResultRow, ResultColumn)    </l>
+<l>        pts_to_best_line (Line, ResultRow, ResultColumn, 10, Row11, Col11, Row12,Col12)</l>
+<l>        rake (Image, Regions1, 30, 800, 10, 1, 30, 'positive', 'first',Row1+a, Col2, Row1+b, Col2,  ResultRow, ResultColumn)   </l>
+<l>        pts_to_best_line (Line, ResultRow, ResultColumn, 5, Row21, Col21, Row22,Col22)</l>
+<c>        </c>
+<l>        intersection_lines (Row11, Col11, Row12,Col12, Row21, Col21, Row22,Col22, intersectionRow1, intersectionColumn1, IsOverlapping)</l>
+<c>        </c>
+<l>        intersection_lines (Row11, Col11, Row12,Col12, 0, 0, Height, 0, intersectionRow2, intersectionColumn2, IsOverlapping)</l>
+<l>        gen_region_line (RegionLinesC1, intersectionRow1, intersectionColumn1, intersectionRow2, intersectionColumn2)</l>
+<c>        </c>
+<c>        </c>
+<l>        intersection_lines (Row21, Col21, Row22,Col22, Height, 0, Height, Width, intersectionRow2, intersectionColumn2, IsOverlapping)</l>
+<l>        gen_region_line (RegionLinesC2, intersectionRow1, intersectionColumn1, intersectionRow2, intersectionColumn2)</l>
+<c>        </c>
+<l>        union2 (RegionLinesC1, RegionLinesC2, RegionUnionLine)</l>
+<c>        </c>
+<c>        </c>
+<c>        </c>
+<l>    elseif(DetectDir=='DownLeft')</l>
+<l>        rake (Image, Regions1, 20, 800, 10, 1, 30, 'positive', 'first',Row2, Col1+b, Row2, Col1+a,  ResultRow, ResultColumn)</l>
+<l>        pts_to_best_line (Line1, ResultRow, ResultColumn, 5, Row11, Col11, Row12,Col12)</l>
+<l>        rake (Image, Regions1, 20, 800, 10, 1, 30, 'positive', 'first',Row2-a, Col1,Row2-b, Col1,   ResultRow, ResultColumn)   </l>
+<l>        pts_to_best_line (Line2, ResultRow, ResultColumn, 5, Row21, Col21, Row22,Col22)</l>
+<c>        </c>
+<l>        intersection_lines (Row11, Col11, Row12,Col12, Row21, Col21, Row22,Col22, intersectionRow1, intersectionColumn1, IsOverlapping)</l>
+<c> </c>
+<l>        gen_region_line (RegionLinesC1, Row12,Col12, intersectionRow1, intersectionColumn1)</l>
+<c>        </c>
+<c>        </c>
+<l>        gen_region_line (RegionLinesC2,  Row21, Col21,intersectionRow1, intersectionColumn1)</l>
+<c>        </c>
+<l>        union2 (RegionLinesC1, RegionLinesC2, RegionUnionLine)</l>
+<c>        </c>
+<c>        </c>
+<c>        </c>
+<l>    elseif(DetectDir=='DownRight')</l>
+<l>        rake (Image, Regions1, 20, 800, 10, 1, 30, 'positive', 'first', Row2, Col2-a,Row2, Col2-b,  ResultRow, ResultColumn)</l>
+<l>        pts_to_best_line (Line1, ResultRow, ResultColumn, 5, Row11, Col11, Row12,Col12)</l>
+<l>        rake (Image, Regions1, 20, 800, 10, 1, 30, 'positive', 'first',Row2-b, Col2, Row2-a, Col2,  ResultRow, ResultColumn)   </l>
+<l>        pts_to_best_line (Line2, ResultRow, ResultColumn, 5, Row21, Col21, Row22,Col22)</l>
+<c>        </c>
+<l>        intersection_lines (Row11, Col11, Row12,Col12, Row21, Col21, Row22,Col22, intersectionRow1, intersectionColumn1, IsOverlapping)</l>
+<c>        </c>
+<l>        intersection_lines (Row11, Col11, Row12,Col12, Height, 0, 0, 0, intersectionRow2, intersectionColumn2, IsOverlapping)</l>
+<l>        gen_region_line (RegionLinesC1, intersectionRow1, intersectionColumn1, intersectionRow2, intersectionColumn2)</l>
+<c>        </c>
+<l>        intersection_lines (Row21, Col21, Row22,Col22, 0, 0, 0, Width, intersectionRow2, intersectionColumn2, IsOverlapping)</l>
+<l>        gen_region_line (RegionLinesC2, intersectionRow1, intersectionColumn1, intersectionRow2, intersectionColumn2)</l>
+<c>        </c>
+<l>        union2 (RegionLinesC1, RegionLinesC2, RegionUnionLine)</l>
+<l>    endif</l>
+<c>    </c>
+<c>    </c>
+<l>catch (Exception)</l>
+<l>    return () </l>
+<l>endtry</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="Get_Detect_Side">
+<parameters>
+<parameter id="DetectDir"/>
+<parameter id="Image"/>
+<parameter id="RegionUnionLine"/>
+<parameter id="RoiDetect"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

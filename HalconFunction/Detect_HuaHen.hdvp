@@ -1,0 +1,872 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="Detect_HuaHen">
+<interface>
+<io>
+<par name="Image1" base_type="iconic" dimension="0"/>
+<par name="Image2" base_type="iconic" dimension="0"/>
+<par name="DetectRoi" base_type="iconic" dimension="0"/>
+<par name="NoDetectRoi" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="ErrImage" base_type="iconic" dimension="0"/>
+<par name="ErrRoi" base_type="iconic" dimension="0"/>
+<par name="OriginalErrRoi" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="ErrName" base_type="ctrl" dimension="0"/>
+<par name="ErrW" base_type="ctrl" dimension="0"/>
+<par name="ErrH" base_type="ctrl" dimension="0"/>
+<par name="ErrArea" base_type="ctrl" dimension="0"/>
+<par name="ErrX" base_type="ctrl" dimension="0"/>
+<par name="ErrY" base_type="ctrl" dimension="0"/>
+<par name="MapIndex" base_type="ctrl" dimension="0"/>
+<par name="ParIndex" base_type="ctrl" dimension="0"/>
+<par name="ErrImageIndex" base_type="ctrl" dimension="0"/>
+<par name="OK" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>OK:=[]</l>
+<l>OK1:=[]</l>
+<l>OK2:=[]</l>
+<l>OK3:=[]</l>
+<l>OK4:=[]</l>
+<l>OK5:=[]</l>
+<l>OK6:=[]</l>
+<l>try</l>
+<c>    </c>
+<l>    gen_empty_obj (ErrRoi) </l>
+<l>    gen_empty_obj (ErrImage) </l>
+<l>    gen_empty_obj (OriginalErrRoi)</l>
+<l>    gen_empty_obj (huahen1)</l>
+<l>    gen_empty_obj (huahen2)</l>
+<l>    gen_empty_obj (huahen3)</l>
+<l>    gen_empty_obj (huahen4)</l>
+<l>    gen_empty_obj (shuizi1)</l>
+<l>    gen_empty_obj (shuizi2)</l>
+<l>    gen_empty_obj (cashang)</l>
+<l>    ErrName:=[]</l>
+<l>    ErrW:=[]</l>
+<l>    ErrH:=[]</l>
+<l>    ErrArea:=[]</l>
+<l>    ErrX:=[]</l>
+<l>    ErrY:=[]</l>
+<l>    MapIndex:=[]</l>
+<l>    ParIndex:=[]</l>
+<l>    ErrImageIndex:=[]</l>
+<c></c>
+<l>    get_dict_tuple (DetectDict,'使能' , EnabledDict)</l>
+<l>    get_dict_tuple (DetectDict,'算法初筛' , AlgoPreDict)    </l>
+<l>    get_dict_tuple (DetectDict,'划痕' , HuaHenDict) </l>
+<l>    get_dict_tuple (EnabledDict, '划痕', huahen_Enabled)  </l>
+<l>    get_dict_tuple (EnabledDict, '点状划痕', dzhuahen_Enabled)</l>
+<l>    get_dict_tuple (EnabledDict, '点状长划痕', dzqhuahen_Enabled)</l>
+<l>    get_dict_tuple (EnabledDict, '微划痕', whuahen_Enabled)    </l>
+<l>    get_dict_tuple (AlgoPreDict,'划痕初筛像素长度' , huahen_prelength)</l>
+<l>    get_dict_tuple (AlgoPreDict,'划痕初筛长宽比' , huahen_preani)</l>
+<l>    get_dict_tuple (AlgoPreDict,'划痕初筛像素面积' , huahen_prearea)</l>
+<l>    get_dict_tuple (AlgoPreDict,'划痕初筛像素面积1' , huahen_prearea1)</l>
+<l>    get_dict_tuple (AlgoPreDict,'划痕提取融合值' , huahen_con)</l>
+<l>*    get_dict_tuple (AlgoPreDict,'划痕线性分界值' , huahen_bul)</l>
+<c></c>
+<l>    get_dict_tuple (AlgoPreDict,'划痕灰度阈值' , huahen_Gray)</l>
+<l>    get_dict_tuple (AlgoPreDict,'划痕灰度筛选长宽比限值' , huahen_Gray_LW)</l>
+<l>    get_dict_tuple (AlgoPreDict,'划痕长宽比阈值' , huahen_RatioLW)</l>
+<l>    get_dict_tuple (AlgoPreDict,'划痕长宽比筛选宽度限值' , huahen_LW_Wmax)</l>
+<c></c>
+<l>    get_dict_tuple (AlgoPreDict,'类划痕水渍长宽比限值' , huahen_shuiziAniMax)</l>
+<l>    get_dict_tuple (AlgoPreDict,'类划痕水渍宽度最小值' , huahen_shuiziWMin)</l>
+<l>    get_dict_tuple (AlgoPreDict,'类划痕水渍线性最大值' , huahen_shuiziBulMax)</l>
+<l>    get_dict_tuple (EnabledDict,'印记Pass显示' , YJpass_enable) </l>
+<c>    </c>
+<l>    get_dict_tuple (AlgoPreDict,'点状划痕融合值' , DZhuahen_Con)</l>
+<l>    get_dict_tuple (AlgoPreDict,'点状划痕长宽比阈值' , DZhuahen_PreAni)</l>
+<l>    get_dict_tuple (AlgoPreDict,'点状划痕面积阈值' , DZhuahen_PreArea)</l>
+<l>    get_dict_tuple (AlgoPreDict,'点状划痕短划长宽比最小值' , DZhuahen_DHAniMin)</l>
+<l>    get_dict_tuple (AlgoPreDict,'点状划痕短划线性最大值' , DZhuahen_DHBulMax)</l>
+<l>    get_dict_tuple (AlgoPreDict,'点状划痕短划个数最小值' , DZhuahen_DHNumMin)</l>
+<l>    get_dict_tuple (AlgoPreDict,'点状划痕点划长宽比最小值' , DZhuahen_AniMin)</l>
+<l>    get_dict_tuple (AlgoPreDict,'点状划痕点划线性最大值' , DZhuahen_BulMax)</l>
+<l>    get_dict_tuple (AlgoPreDict,'点状划痕点划个数最小值' , DZhuahen_NumMin)</l>
+<c>    </c>
+<l>    difference (DetectRoi, NoDetectRoi, RegionErosion)    </l>
+<l>    reduce_domain (Image1, RegionErosion, ImageReducedD) </l>
+<l>    reduce_domain (Image2, RegionErosion, ImageReducedL) </l>
+<c>    </c>
+<l>    if (huahen_Enabled =1 or huahen_Enabled =true)</l>
+<c>      </c>
+<c>        *长划痕***********************</c>
+<c>        </c>
+<l>        gen_empty_obj (ContainHh)</l>
+<l>        threshold (ImageReducedD, Regions, 30, 255)</l>
+<l>        closing_circle (Regions, RegionClosing, 1.5)</l>
+<l>        connection (RegionClosing, ConnectedRegions)        </l>
+<l>        select_shape (ConnectedRegions, SelectedRegions_1, 'rect2_len1', 'and', huahen_prelength, 9999999)         </l>
+<l>        select_shape (SelectedRegions_1, SelectedRegions_1, 'anisometry', 'and', huahen_preani, 999999999)</l>
+<l>        select_shape (SelectedRegions_1, SelectedRegions_1, 'circularity', 'and', 0, 0.15)   </l>
+<l>        select_shape (SelectedRegions_1, SelectedRegions_1, 'area', 'and', huahen_prearea, 999999999)</l>
+<c>        </c>
+<c>        </c>
+<c>        </c>
+<l>         select_shape (ConnectedRegions, SelectedRegions_2, 'circularity', 'and', 0, 0.15)   </l>
+<l>         select_shape (SelectedRegions_2, SelectedRegions_2, 'area', 'and', huahen_prearea1, 999999999)</l>
+<l>         concat_obj (SelectedRegions_1, SelectedRegions_2, ObjectsConcat)</l>
+<l>         union1 (ObjectsConcat, RegionUnion7)</l>
+<l>         connection (RegionUnion7, ConnectedRegions5)</l>
+<l>         select_shape (ConnectedRegions5, SelectedRegions, 'area', 'and', huahen_prearea, 999999999)</l>
+<l>        count_obj (SelectedRegions, Number)  </l>
+<l>     if(Number&gt;0)</l>
+<l>           read_class_mlp ('d:/HalconFunction/ClassHandleqhh.gsc', ClassHandle)</l>
+<l>        for Index := 1 to Number by 1</l>
+<l>                select_obj (SelectedRegions, ObjectSelected, Index)</l>
+<l>                region_features (ObjectSelected, 'area', Value_Area)                          </l>
+<l>              union1 (ContainHh, ContainHhUnion)</l>
+<l>              intersection (ContainHhUnion, ObjectSelected, RegionIntersection)</l>
+<l>              region_features (RegionIntersection, 'area', Value_Aint)</l>
+<l>              ratioA:=Value_Aint/(Value_Area+0.01)</l>
+<l>*               select_shape (RegionIntersection, SelectedRegions1, 'area', 'and', 1, 99999)</l>
+<l>*               count_obj (SelectedRegions1, Number1)</l>
+<l>              if(ratioA&lt;0.99)                                                                                        </l>
+<l>              smallest_rectangle1 (ObjectSelected, Row1, Column1, Row2, Column2)</l>
+<l>              gen_rectangle1 (Rectangle, Row1-300, Column1-300, Row2+300, Column2+300)</l>
+<l>              reduce_domain (ImageReducedD, Rectangle, ImageReducedSD)                           </l>
+<c>              </c>
+<l>              threshold (ImageReducedSD, ObjectSelected11, 30, 255) </l>
+<l>              connection (ObjectSelected11, ConnectedRegions_obj11)</l>
+<l>              select_shape (ConnectedRegions_obj11, SelectedRegions_obj11, 'area', 'and', 5, 999999999)</l>
+<l>              union1 (SelectedRegions_obj11, RegionUnion_obj11)</l>
+<c>              </c>
+<l>              closing_circle (RegionUnion_obj11, RegionClosing11, 200.5)                  </l>
+<l>              connection (RegionClosing11, ConnectedRegions11)</l>
+<l>              select_shape (ConnectedRegions11, SelectedRegions11_s, 'area', 'and', 20, 999999999)</l>
+<l>              count_obj (SelectedRegions11_s, Number5)</l>
+<l>              for Index1 := 1 to Number5 by 1</l>
+<l>                  select_obj (SelectedRegions11_s, ObjectSelected11_s, Index1)</l>
+<l>                  intersection (ObjectSelected, ObjectSelected11_s, RegionIntersection11)</l>
+<l>                  select_shape (RegionIntersection11, SelectedRegionsTnt11, 'area', 'and', 1, 99999)</l>
+<l>                  count_obj (SelectedRegionsTnt11, Number6)</l>
+<l>                  if(Number6=1)</l>
+<l>                      select_obj (SelectedRegions11_s, SelectedRegions11, Index1)</l>
+<l>                  endif</l>
+<l>              endfor</l>
+<c>              </c>
+<l>            intersection (SelectedRegions11, RegionUnion_obj11, RegionIntersection7)</l>
+<l>            union1 (RegionIntersection7, RegionUnion11)</l>
+<c>               </c>
+<c>              </c>
+<l>*               region_features (SelectedRegions11, 'contlength', Value_Contlength11)</l>
+<l>                region_features (SelectedRegions11, 'area', Value_Area11)</l>
+<l>*               region_features (SelectedRegions11, 'anisometry', Value_Ani11)</l>
+<l>*               region_features (SelectedRegions11, 'bulkiness', Value_Bul11)</l>
+<l>*               region_features (SelectedRegions11, 'rect2_len2', Value_len211)</l>
+<l>*               width11:=2*Value_Area11/(Value_Contlength11+0.01)</l>
+<l>                concat_obj (ContainHh, SelectedRegions11, ContainHh) </l>
+<c>                </c>
+<l>                reduce_domain (ImageReducedSD, SelectedRegions11, ImageReducedSD11)</l>
+<l>                threshold (ImageReducedSD11, Region22, 30, 255)             </l>
+<c>       *****融合值1.5下提取*************    </c>
+<l>                closing_circle (Region22, RegionClosing01, 1.5)                                </l>
+<l>                connection (RegionClosing01, ConnectedRegions01)</l>
+<l>                select_shape_std (ConnectedRegions01, SelectedRegions01, 'max_area', 70)</l>
+<l>                intensity (SelectedRegions01, ImageReducedSD, Value_Mean01, Value_Deviation01)</l>
+<l>                region_features (SelectedRegions01, 'contlength', Value_Contlength01)</l>
+<l>                region_features (SelectedRegions01, 'area', Value_Area01)</l>
+<l>                region_features (SelectedRegions01, 'anisometry', Value_Ani01)</l>
+<l>                region_features (SelectedRegions01, 'bulkiness', Value_Bul01)</l>
+<l>                region_features (SelectedRegions01, 'rect2_len2', Value_len201)</l>
+<l>                width01:=2*Value_Area01/(Value_Contlength01+0.01)</l>
+<l>                ratio_LW01:=(Value_Contlength01/2)/ (width01+0.01)</l>
+<c>              </c>
+<c>              </c>
+<c>      *****设定融合值下提取*************         </c>
+<l>              closing_circle (Region22,RegionClosing22, huahen_con)</l>
+<l>              connection (RegionClosing22, ConnectedRegions22)</l>
+<l>              select_shape_std (ConnectedRegions22, SelectedRegions22, 'max_area', 70)</l>
+<c>      ********灰度30 以上像素面积</c>
+<l>              reduce_domain (ImageReducedSD, SelectedRegions22, ImageReducedSD22)</l>
+<l>              threshold (ImageReducedSD22, RegionSD22, 30, 255)</l>
+<l>              region_features (RegionSD22, 'area', Value_AreaSD22)</l>
+<c></c>
+<l>              region_features (SelectedRegions22, 'bulkiness', Value_Bul22)</l>
+<l>              region_features (SelectedRegions22, 'contlength', Value_Contlength22)</l>
+<l>              region_features (SelectedRegions22, 'area', Value_Area22)</l>
+<l>              region_features (SelectedRegions22, 'anisometry', Value_Ani22)</l>
+<l>              region_features (SelectedRegions22, 'rect2_len2', Value_len222)</l>
+<l>              width22:=2*Value_Area22/(Value_Contlength22+0.01)</l>
+<l>              length22:=Value_Contlength22/2</l>
+<l>              ratio22:=length22/(width22+0.01)</l>
+<l>              intensity (SelectedRegions22, ImageReducedSD, Value_Mean22, Deviation22)              </l>
+<l>              ration_Area:=Value_AreaSD22/(Value_Area22+0.01)  </l>
+<c>              </c>
+<c>              </c>
+<c>              </c>
+<l>              calculate_features_qhh (SelectedRegions22, ImageReducedSD22, Features)</l>
+<l>              classify_class_mlp (ClassHandle, Features, 1, Class, Confidence)</l>
+<l>              if(Class=0 and Confidence&gt;0.99)</l>
+<l>                  if((ratio22&gt;huahen_RatioLW and width01&lt; huahen_LW_Wmax) or (Value_Mean01&gt;huahen_Gray and ratio22&gt;huahen_Gray_LW) or (Value_len222&lt;1 and Value_Ani22&gt;10 and Value_Mean22&gt;30) or (Value_len222&lt;1.5 and Value_Ani22&gt;10 and Value_Mean22&gt;40))</l>
+<l>                      concat_obj (huahen1, RegionUnion11, huahen1)    </l>
+<l>                  else </l>
+<l>                      concat_obj (shuizi1, RegionUnion11, shuizi1) </l>
+<l>                  endif</l>
+<l>              else</l>
+<c>                 **** 水渍判断</c>
+<l>                if(width22&gt;huahen_shuiziWMin and Value_Bul22&lt;huahen_shuiziBulMax and Value_Ani01&lt;huahen_shuiziAniMax) </l>
+<c>               </c>
+<l>                 threshold (ImageReducedSD22, RegionSZ, 30, 255)                </l>
+<l>                 connection (RegionSZ, ConnectedRegionsSZ)</l>
+<l>                 select_shape (ConnectedRegionsSZ, SelectedRegionsSZ1, 'area', 'and', 5, 99999)</l>
+<l>                 select_shape (SelectedRegionsSZ1, SelectedRegionsSZ2, 'anisometry', 'and', 5, 99999)</l>
+<l>                 region_features (SelectedRegionsSZ2, 'area', Value_AreaSZ)</l>
+<l>                 count_obj (SelectedRegionsSZ1, NumberSZ)</l>
+<l>                 count_obj (SelectedRegionsSZ2, NumberSZ2)</l>
+<l>                 AbsSZ2:=255</l>
+<l>                 if(NumberSZ2&gt;1)</l>
+<l>                     tuple_sort_index (Value_AreaSZ, Indices)</l>
+<l>                     a:=Indices[NumberSZ2-1]</l>
+<l>                     b:=Indices[NumberSZ2-2]</l>
+<l>                 intensity (SelectedRegionsSZ2, ImageReducedSD22, Value_MeanSZ2, Value_DeviationSZ2)                </l>
+<l>                 tuple_sub (Value_MeanSZ2[a], Value_MeanSZ2[b], DiffSZ2)</l>
+<l>                 tuple_abs (DiffSZ2, AbsSZ2)</l>
+<l>                 endif</l>
+<l>                 select_shape_std (ConnectedRegionsSZ, SelectedRegionsSZ, 'max_area', 70)</l>
+<l>                 region_features (SelectedRegionsSZ, 'bulkiness', Value_BulSZ)</l>
+<l>                 region_features (SelectedRegionsSZ, 'rect2_len2', Value_len2SZ)  </l>
+<l>                 region_features (SelectedRegionsSZ, 'anisometry', Value_AniSZ)</l>
+<c>                                                  </c>
+<l>                 if(((Value_BulSZ&gt;1.5 or Value_len2SZ&gt;5 or AbsSZ2&lt;20 or (Value_BulSZ&gt;1.02 and Value_len2SZ&gt;1.5)) and Value_AniSZ&lt;15 and NumberSZ&lt;10 and Value_len2SZ&lt;Value_len222-3 ) or (Value_BulSZ&gt;2  and Value_AniSZ&lt;5))</l>
+<c>                 *印记类</c>
+<l>                     concat_obj (shuizi1, RegionUnion11, shuizi1) </l>
+<l>                 else</l>
+<l>                     concat_obj (huahen1, RegionUnion11, huahen1)  </l>
+<l>                 endif</l>
+<l>                else</l>
+<l>                    concat_obj (huahen1, RegionUnion11, huahen1) </l>
+<l>                endif</l>
+<c>                  </c>
+<l>              endif </l>
+<c>    </c>
+<l>              endif</l>
+<l>        endfor</l>
+<l>        select_shape (huahen1, huahen1, 'area', 'and', 1, 999999999)</l>
+<l>        count_obj (huahen1, Number1)</l>
+<l>        if(Number1&gt;0)</l>
+<c>                    *Newtuple缺陷显示图序号</c>
+<l>                    tuple_gen_const (Number1, 1, Newtuple) </l>
+<l>                      get_dict_tuple (HuaHenDict,'划痕宽度最小值' , Pass_W)</l>
+<l>              get_dict_tuple (HuaHenDict,'划痕长度最小值' , Pass_L)</l>
+<l>               get_dict_tuple (HuaHenDict,'划痕灰度最小值' , Pass_Gray)</l>
+<l>               get_dict_tuple (HuaHenDict,'划痕允许条数' , Pass_Num)</l>
+<l>            GatherInfo_OkNG (huahen1, Image1, Image2, RoiImage, TransRoi, DetectDict, HuaHenDict, '划痕', Newtuple, 0.5, 0.01, Pass_Gray, Pass_Num, Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK1)</l>
+<l>                    if (OK1!=[])</l>
+<l>                        concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                        concat_obj (ErrRoi, TransRoi, ErrRoi)</l>
+<l>                        ErrName:=[ErrName,Name]</l>
+<l>                        ErrW:=[ErrW,W]</l>
+<l>                        ErrH:=[ErrH,H]</l>
+<l>                        ErrArea:=[ErrArea,Area]</l>
+<l>                        ErrX:=[ErrX,X]</l>
+<l>                        ErrY:=[ErrY,Y]</l>
+<l>                        MapIndex:=[MapIndex,mapIndex]</l>
+<l>                        ParIndex:=[ParIndex,parIndex]</l>
+<l>                        ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>                        OK:=[OK,OK1]</l>
+<l>                    endif</l>
+<l>        endif  </l>
+<l>        if(YJpass_enable=1 or YJpass_enable=true)</l>
+<l>           get_dict_tuple (DetectDict,'脏污' , ZangWuDict)</l>
+<l>    select_shape (shuizi1, shuizi1, 'area', 'and', 1, 9999999999)</l>
+<l>    count_obj (shuizi1,Number16)</l>
+<l>    if (Number16&gt;0)</l>
+<c>                </c>
+<c>                    *Newtuple缺陷显示图序号</c>
+<l>                    tuple_gen_const (Number16, 1, Newtuple)   </l>
+<l>              get_dict_tuple (ZangWuDict,'印记宽度最小值' , Pass_W)</l>
+<l>              get_dict_tuple (ZangWuDict,'印记长度最小值' , Pass_L)</l>
+<l>              get_dict_tuple (ZangWuDict,'印记灰度最小值' , Pass_Gray)               </l>
+<l>                GatherInfo_OkNG (shuizi1, Image1, Image2, RoiImage, TransRoi, DetectDict, ZangWuDict, '印记', Newtuple, Pass_L, Pass_W, Pass_Gray, 10000, Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK5)</l>
+<l>                    if (OK5!=[])                        </l>
+<l>                        concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                        concat_obj (ErrRoi, TransRoi, ErrRoi)</l>
+<l>                        ErrName:=[ErrName,Name]</l>
+<l>                        ErrW:=[ErrW,W]</l>
+<l>                        ErrH:=[ErrH,H]</l>
+<l>                        ErrArea:=[ErrArea,Area]</l>
+<l>                        ErrX:=[ErrX,X]</l>
+<l>                        ErrY:=[ErrY,Y]</l>
+<l>                        MapIndex:=[MapIndex,mapIndex]</l>
+<l>                        ParIndex:=[ParIndex,parIndex]</l>
+<l>                        ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>                        OK:=[OK,OK5]                     </l>
+<l>                    endif                            </l>
+<l>            endif </l>
+<l>            endif</l>
+<l>    endif</l>
+<c>     </c>
+<l>    endif       </l>
+<l>       if(OK1!=[] or OK5!=[])</l>
+<l>          union2 (huahen1, shuizi1, UnionRoi1)</l>
+<l>          dilation_circle (UnionRoi1, RegionDilation, 3.5)</l>
+<l>          union2 (RegionDilation, NoDetectRoi, NoDetectRoi1)       </l>
+<l>    difference (DetectRoi, NoDetectRoi1, RegionErosion)    </l>
+<l>    reduce_domain (Image1, RegionErosion, ImageReducedD) </l>
+<l>    reduce_domain (Image2, RegionErosion, ImageReducedL)             </l>
+<l>     endif        </l>
+<c>   </c>
+<c>        **断续划痕************************OK1=[] and </c>
+<l>        if(OK1=[] and (dzhuahen_Enabled =1 or dzhuahen_Enabled =true)) </l>
+<l>         threshold (ImageReducedD, Regions, 30, 255)</l>
+<l>         connection (Regions, ConnectedRegions)</l>
+<l>         select_shape (ConnectedRegions, SelectedRegions, 'area', 'and', 10, 9999999)</l>
+<l>         union1 (SelectedRegions, RegionUnion)</l>
+<c></c>
+<l>        closing_circle (RegionUnion, RegionClosing, 300)</l>
+<l>        connection (RegionClosing, ConnectedRegions1)</l>
+<l>        select_shape (ConnectedRegions1, SelectedRegions1, 'anisometry', 'and', 20, 99999)</l>
+<l>        select_shape (SelectedRegions1, SelectedRegions1, 'circularity', 'and', 0, 0.15)</l>
+<l>        select_shape (SelectedRegions1, SelectedRegions1, 'area', 'and', 100, 9999999) </l>
+<l>        select_shape (SelectedRegions1, SelectedRegions1, 'rect2_len2', 'and', 0, 10)</l>
+<l>        count_obj (SelectedRegions1, Number9)</l>
+<l>        if(Number9&gt;0)</l>
+<l>        for Index3 := 1 to Number9 by 1</l>
+<l>            select_obj (SelectedRegions1, ObjectSelected, Index3)</l>
+<c>            </c>
+<c>            </c>
+<l>            intersection (ObjectSelected, SelectedRegions, RegionIntersection)</l>
+<l>            connection (RegionIntersection, ConnectedRegions2)   </l>
+<l>            select_shape_std (ConnectedRegions2, SelectedRegions3, 'max_area', 70)</l>
+<l>            region_features (SelectedRegions3, 'rect2_len2', len2_Value)</l>
+<l>            count_obj (ConnectedRegions2, Number11)</l>
+<c>            </c>
+<l>            select_shape (ConnectedRegions2, SelectedRegions2, 'anisometry', 'and', 3, 99999) </l>
+<c>            </c>
+<l>            count_obj (SelectedRegions2, Number10)  </l>
+<c>            </c>
+<l>            region_features (RegionIntersection, 'area', Area1)</l>
+<l>            region_features (ObjectSelected, 'area', Area2)</l>
+<l>            ratio_area:=Area1/(Area2+0.01)</l>
+<c>            </c>
+<l>            if((Number10&gt;2 or Number11&gt;5) and Number10&gt;0 and len2_Value&lt;2)</l>
+<l>              concat_obj (huahen2, ObjectSelected, huahen2) </l>
+<l>            endif                             </l>
+<l>        endfor      </l>
+<l>        endif   </l>
+<c>    </c>
+<l>        select_shape (huahen2, huahen2, 'area', 'and', 1, 99999)</l>
+<l>        count_obj (huahen2, Number12)</l>
+<l>        if(Number12&gt;0)</l>
+<c>                    *Newtuple缺陷显示图序号</c>
+<l>                    tuple_gen_const (Number12, 1, Newtuple)  </l>
+<l>                     get_dict_tuple (HuaHenDict,'划痕宽度最小值' , Pass_W)</l>
+<l>              get_dict_tuple (HuaHenDict,'划痕长度最小值' , Pass_L)</l>
+<l>               get_dict_tuple (HuaHenDict,'划痕灰度最小值' , Pass_Gray)</l>
+<l>           GatherInfo_OkNG (huahen2, Image1, Image2, RoiImage, TransRoi, DetectDict, HuaHenDict, '点状划痕', Newtuple, Pass_L, Pass_W, 0, 100 , Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK2)</l>
+<l>                    if (OK2!=[])</l>
+<l>                        concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                        concat_obj (ErrRoi, TransRoi, ErrRoi)</l>
+<l>                        ErrName:=[ErrName,Name]</l>
+<l>                        ErrW:=[ErrW,W]</l>
+<l>                        ErrH:=[ErrH,H]</l>
+<l>                        ErrArea:=[ErrArea,Area]</l>
+<l>                        ErrX:=[ErrX,X]</l>
+<l>                        ErrY:=[ErrY,Y]</l>
+<l>                        MapIndex:=[MapIndex,mapIndex]</l>
+<l>                        ParIndex:=[ParIndex,parIndex]</l>
+<l>                        ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>                        OK:=[OK,OK2]</l>
+<l>                    endif                        </l>
+<l>        endif</l>
+<l>        endif</l>
+<c>        </c>
+<l>     if(OK2!=[])   </l>
+<l>          dilation_circle (huahen2, RegionDilation, 3.5)</l>
+<l>          union2 (RegionDilation, NoDetectRoi1, NoDetectRoi2)       </l>
+<l>    difference (DetectRoi, NoDetectRoi2, RegionErosion)    </l>
+<l>    reduce_domain (Image1, RegionErosion, ImageReducedD) </l>
+<l>    reduce_domain (Image2, RegionErosion, ImageReducedL)             </l>
+<l>     endif</l>
+<c>    </c>
+<c>     **点状长划痕************************  (OK1=[] and OK2=[]) and </c>
+<l>     if((OK1=[] and OK2=[]) and ((dzqhuahen_Enabled =1 or dzqhuahen_Enabled =true) or (whuahen_Enabled =1 or whuahen_Enabled =true)))</l>
+<l>        zoom_region (DetectRoi, RegionRoiZoom,0.99, 0.99)   </l>
+<l>         area_center (DetectRoi, Area111, Row111, Column111)</l>
+<l>         area_center (RegionRoiZoom, Area112, Row112, Column112)</l>
+<l>         move_region (RegionRoiZoom, Region_Zoom, Row111 - Row112, Column111 - Column112)</l>
+<c></c>
+<l>        scale_image (ImageReducedD, ImageScaled, 10, 0)</l>
+<l>      *  gauss_filter (ImageScaled, ImageGauss, 5)</l>
+<l>        mean_image (ImageScaled, ImageMean1, 2, 2)        </l>
+<l>        mean_image (ImageScaled, ImageMean2, 2, 300)</l>
+<l>        dyn_threshold (ImageMean1, ImageMean2, RegionDynThresh1, 40, 'light')</l>
+<l>        intersection (Region_Zoom, RegionDynThresh1, RegionIntersection2)  </l>
+<c>        ****纵向长划伤******************************                     </c>
+<l>      if(dzqhuahen_Enabled =1 or dzqhuahen_Enabled =true)</l>
+<c>      </c>
+<c>        </c>
+<l>        closing_rectangle1 (RegionIntersection2, RegionClosing3, 10, 100)</l>
+<l>        connection (RegionClosing3, ConnectedRegions2)</l>
+<c>        </c>
+<l>        select_shape (ConnectedRegions2, SelectedRegions3, 'anisometry', 'and', 20, 9999999)</l>
+<l>     select_shape (SelectedRegions3, SelectedRegions4, 'phi', 'and', 1.4, 1.6)</l>
+<l>     select_shape (SelectedRegions3, SelectedRegions5, 'phi', 'and', -1.6, -1.4)</l>
+<l>        union2 (SelectedRegions4, SelectedRegions5, RegionUnion)</l>
+<l>       count_obj (RegionUnion, Number3)</l>
+<l>       if( Number3&lt;60)</l>
+<l>      gen_contour_region_xld (RegionUnion, Contours, 'border')</l>
+<l>      segment_contours_xld (Contours, ContoursSplit, 'lines_circles', 5, 4, 2)</l>
+<l>     union_collinear_contours_xld (ContoursSplit, UnionContours, 1000, 1, 50, 0.3, 'attr_keep')</l>
+<l>     elliptic_axis_xld (UnionContours, Ra, Rb, Phi)</l>
+<l>     fit_line_contour_xld (UnionContours, 'tukey', -1, 0, 5, 2, RowBegin, ColBegin, RowEnd, ColEnd, Nr, Nc, Dist)</l>
+<l>     gen_region_line (RegionLines_LT, RowBegin, ColBegin, RowEnd,ColEnd)</l>
+<l>     select_shape (RegionLines_LT, SelectedRegions6, 'anisometry', 'and', 500, 9999999) </l>
+<l>     count_obj (SelectedRegions6, Number4)</l>
+<l>     if(Number4&gt;0)</l>
+<l>     smallest_rectangle2 (SelectedRegions6, Row4, Column4, Phi2, Length12, Length22)</l>
+<l>     gen_rectangle2 (Rectangle2, Row4, Column4, Phi2, Length12+50, Length22+50)</l>
+<l>     union1 (Rectangle2, RegionUnion5)</l>
+<l>     connection (RegionUnion5, ConnectedRegions4)    </l>
+<l>     select_shape_std (ConnectedRegions4, SelectedRegions8, 'max_area', 70)</l>
+<l>     intersection (RegionIntersection2, SelectedRegions8, RegionIntersection3)</l>
+<l>     closing_circle (RegionIntersection3, RegionClosing_Mean1, 20.5)</l>
+<c>     </c>
+<l>     connection (RegionClosing_Mean1, ConnectedRegions_Mean1)</l>
+<l>     select_shape_std (ConnectedRegions_Mean1, SelectedRegions_Mean1, 'max_area', 70)</l>
+<l>     region_features (SelectedRegions_Mean1, 'area', AMean1_Value)</l>
+<l>     region_features (SelectedRegions_Mean1, 'contlength', ConMean1_Value)</l>
+<l>    rw_Mean1:= 2*AMean1_Value/(ConMean1_Value+0.01)</l>
+<c>          </c>
+<l>     region_features (SelectedRegions8, 'rect2_len1', S8_Value)</l>
+<c>    </c>
+<l>     select_shape (RegionIntersection3, SelectedRegions14, 'anisometry', 'and', 2, 99999)</l>
+<l>     count_obj (SelectedRegions14, Number7)</l>
+<c>     </c>
+<c>     </c>
+<c>     </c>
+<c>     </c>
+<c>     </c>
+<c>     </c>
+<l>     if(rw_Mean1&lt;10 and Number7&gt;1) </l>
+<l>      count_obj (SelectedRegions8, Number2)</l>
+<l>     if(Number2&gt;0)</l>
+<l>        if(S8_Value&lt;1000)</l>
+<l>        concat_obj (huahen3, SelectedRegions8, huahen3) </l>
+<l>        else</l>
+<c></c>
+<l>     intersection (SelectedRegions8, RegionUnion, RegionIntersection1)</l>
+<l>     connection (RegionIntersection1, ConnectedRegions3)</l>
+<l>    select_shape_std (ConnectedRegions3, SelectedRegions7, 'max_area', 70)</l>
+<l>     concat_obj (huahen3, SelectedRegions7, huahen3)</l>
+<l>        endif</l>
+<l>     endif</l>
+<l>     endif</l>
+<l>     endif</l>
+<l>       endif</l>
+<c>*横向划痕***************************                </c>
+<l>        closing_rectangle1 (RegionIntersection2, RegionClosing3, 50, 10)</l>
+<l>        connection (RegionClosing3, ConnectedRegions2)</l>
+<c>        </c>
+<l>       select_shape (ConnectedRegions2, SelectedRegions3, 'area', 'and', 100, 9999999)</l>
+<l>       select_shape (SelectedRegions3, SelectedRegions4, 'phi', 'and', -0.5, 0.5)</l>
+<l>       count_obj (SelectedRegions4, Number3)</l>
+<l>       if( Number3&lt;50)</l>
+<l>      gen_contour_region_xld (SelectedRegions4, Contours, 'border')</l>
+<l>      segment_contours_xld (Contours, ContoursSplit, 'lines_circles', 5, 4, 2)</l>
+<l>     union_collinear_contours_xld (ContoursSplit, UnionContours, 1000, 1, 50, 0.3, 'attr_keep')</l>
+<l>     elliptic_axis_xld (UnionContours, Ra, Rb, Phi)</l>
+<l>     fit_line_contour_xld (UnionContours, 'tukey', -1, 0, 5, 2, RowBegin, ColBegin, RowEnd, ColEnd, Nr, Nc, Dist)</l>
+<l>     gen_region_line (RegionLines_LT, RowBegin, ColBegin, RowEnd,ColEnd)</l>
+<l>     select_shape (RegionLines_LT, SelectedRegions6, 'anisometry', 'and', 500, 9999999) </l>
+<l>     count_obj (SelectedRegions6, Number4)</l>
+<l>     if(Number4&gt;0)</l>
+<l>     smallest_rectangle2 (SelectedRegions6, Row4, Column4, Phi2, Length12, Length22)</l>
+<l>     gen_rectangle2 (Rectangle2, Row4, Column4, Phi2, Length12+10, Length22+10)</l>
+<l>     union1 (Rectangle2, RegionUnion5)</l>
+<l>     connection (RegionUnion5, ConnectedRegions4)</l>
+<l>     select_shape_std (ConnectedRegions4, SelectedRegions8, 'max_area', 70)</l>
+<c>     </c>
+<l>     intersection (RegionIntersection2, SelectedRegions8, RegionIntersection3)</l>
+<c>     </c>
+<l>     closing_circle (RegionIntersection3, RegionClosing_Mean1, 20.5)</l>
+<c>     </c>
+<l>     connection (RegionClosing_Mean1, ConnectedRegions_Mean1)</l>
+<l>     select_shape_std (ConnectedRegions_Mean1, SelectedRegions_Mean1, 'max_area', 70)</l>
+<l>     region_features (SelectedRegions_Mean1, 'area', AMean1_Value)</l>
+<l>     region_features (SelectedRegions_Mean1, 'contlength', ConMean1_Value)</l>
+<l>    rw_Mean1:= 2*AMean1_Value/(ConMean1_Value+0.01)</l>
+<l>     region_features (SelectedRegions8, 'rect2_len1', S8_Value)</l>
+<l>     select_shape (RegionIntersection3, SelectedRegions12, 'anisometry', 'and', 2, 99999)</l>
+<l>     count_obj (SelectedRegions12, Number8)</l>
+<c>     </c>
+<l>      if(rw_Mean1&lt;10 and Number8&gt;1)  </l>
+<l>      count_obj (SelectedRegions8, Number2)</l>
+<l>     if(Number2&gt;0)</l>
+<l>        if(S8_Value&lt;1000)</l>
+<l>        concat_obj (huahen3, SelectedRegions8, huahen3) </l>
+<l>        else         </l>
+<l>     intersection (SelectedRegions8, SelectedRegions4, RegionIntersection1)</l>
+<l>     connection (RegionIntersection1, ConnectedRegions3)</l>
+<l>    select_shape_std (ConnectedRegions3, SelectedRegions7, 'max_area', 70)</l>
+<l>     concat_obj (huahen3, SelectedRegions7, huahen3)</l>
+<l>        endif</l>
+<l>       endif</l>
+<l>       endif</l>
+<l>     endif</l>
+<l>     endif</l>
+<l>  select_shape (huahen3, huahen3, 'area', 'and', 1, 999999999)</l>
+<l>        count_obj (huahen3, Number12)</l>
+<l>        if(Number12&gt;0)</l>
+<c>                    *Newtuple缺陷显示图序号</c>
+<l>                    tuple_gen_const (Number12, 1, Newtuple)  </l>
+<l>                     get_dict_tuple (HuaHenDict,'划痕宽度最小值' , Pass_W)</l>
+<l>              get_dict_tuple (HuaHenDict,'划痕长度最小值' , Pass_L)</l>
+<l>               get_dict_tuple (HuaHenDict,'划痕灰度最小值' , Pass_Gray)</l>
+<l>                GatherInfo_OkNG (huahen3, Image1, Image2, RoiImage, TransRoi, DetectDict, HuaHenDict, '点状长划痕', Newtuple, Pass_L, Pass_W, 0 , 10000, Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK3)</l>
+<l>                    if (OK3!=[])</l>
+<l>                        concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                        concat_obj (ErrRoi, TransRoi, ErrRoi)</l>
+<l>                        ErrName:=[ErrName,Name]</l>
+<l>                        ErrW:=[ErrW,W]</l>
+<l>                        ErrH:=[ErrH,H]</l>
+<l>                        ErrArea:=[ErrArea,Area]</l>
+<l>                        ErrX:=[ErrX,X]</l>
+<l>                        ErrY:=[ErrY,Y]</l>
+<l>                        MapIndex:=[MapIndex,mapIndex]</l>
+<l>                        ParIndex:=[ParIndex,parIndex]</l>
+<l>                        ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>                        OK:=[OK,OK3]</l>
+<l>                    endif                        </l>
+<l>        endif</l>
+<c>        </c>
+<l>      endif</l>
+<l> if(OK3=[] and (whuahen_Enabled =1 or whuahen_Enabled =true))        </l>
+<c>       **浅划痕************************         </c>
+<l>      connection (RegionIntersection2, ConnectedRegions)    </l>
+<l>        select_shape (ConnectedRegions, SelectedRegions10, 'area', 'and', 15, 99999)</l>
+<l>        select_shape (SelectedRegions10, SelectedRegions13, 'anisometry', 'and', 5.5, 99999)</l>
+<l>        count_obj (SelectedRegions13, Number)</l>
+<l>        if(Number&gt;0)</l>
+<l>        smallest_rectangle2 (SelectedRegions13, Row6, Column6, Phi4, Length14, Length24)</l>
+<l>        gen_rectangle2 (Rectangle3, Row6, Column6, Phi4, Length14+100, Length24+100)</l>
+<c>        </c>
+<l>        union1 (Rectangle3, RegionUnion8)</l>
+<l>        connection (RegionUnion8, ConnectedRegions9)</l>
+<l>        select_shape (ConnectedRegions9, SelectedRegions23, 'area', 'and', 1000, 999999999)</l>
+<l>        count_obj (SelectedRegions23, Number13)</l>
+<l>        if(Number13&gt;0)</l>
+<l>        for Index2 := 1 to Number13 by 1</l>
+<c>            </c>
+<l>        select_obj (SelectedRegions23, ObjectSelected1, Index2)</l>
+<c>      </c>
+<l>        intersection (ConnectedRegions, ObjectSelected1, RegionIntersection5)</l>
+<c>        </c>
+<l>         select_shape (RegionIntersection5, SelectedRegions25, 'area', 'and', 5, 9999999)       </l>
+<l>        count_obj (SelectedRegions25, Number2)</l>
+<c>        </c>
+<c>        </c>
+<l>        select_shape_std (RegionIntersection5, SelectedRegions27, 'max_area', 70)</l>
+<l>        region_features (SelectedRegions27, 'phi', Phi_Value)</l>
+<l>        region_features (SelectedRegions27, 'anisometry', Ani_Value)</l>
+<l>        region_features (SelectedRegions27, 'bulkiness', Bul_Value)</l>
+<l>        region_features (SelectedRegions27, 'area', Area_Value)</l>
+<l>        region_features (SelectedRegions27, 'circularity', cir_Value)</l>
+<l>        intensity (SelectedRegions27, Image1, Mean_Value, Deviation_Value)</l>
+<l>        region_features (SelectedRegions27, 'contlength', con_Value)</l>
+<l>        weight_Value:=2*Area_Value/(con_Value+0.01)</l>
+<c>        </c>
+<c>       </c>
+<l>        select_shape (RegionIntersection5, SelectedRegions21, 'area', 'and', 20, 99999999)</l>
+<l>        count_obj (SelectedRegions21, Number1)</l>
+<c>        </c>
+<l>        select_shape (RegionIntersection5, SelectedRegions26, 'anisometry', 'and', 5, 99999)</l>
+<l>        count_obj (SelectedRegions26, Number3)</l>
+<l>        Number28:=0</l>
+<l>        Number29:=0</l>
+<l>        if(Number3&gt;0)</l>
+<l>        select_shape (SelectedRegions26, SelectedRegions28, 'bulkiness', 'and', 1, 1.05)</l>
+<l>        count_obj (SelectedRegions28, Number28)</l>
+<c>        </c>
+<l>        select_shape (SelectedRegions26, SelectedRegions29, 'bulkiness', 'and', 1.5, 5)</l>
+<l>        count_obj (SelectedRegions29, Number29)</l>
+<l>        endif</l>
+<l>        if(Number1&gt;0)</l>
+<l>        union1 (SelectedRegions21, RegionUnion9)</l>
+<c>              </c>
+<l>        smallest_rectangle2 (RegionUnion9, Row7, Column7, Phi5, Length15, Length25)</l>
+<l>        gen_rectangle2 (Rectangle4, Row7, Column7, Phi5, Length15, Length25)</l>
+<l>        region_features (Rectangle4, 'area',  Area1_Value)</l>
+<c>        </c>
+<l>        closing_circle (RegionUnion9, RegionClosing6, 200.5)</l>
+<l>        select_shape_std (RegionClosing6, SelectedRegions16, 'max_area', 70)</l>
+<l>        region_features (SelectedRegions16, 'area', Area2_Value)</l>
+<c>       </c>
+<l>        ratio_area:=Area2_Value/(Area1_Value+0.01)</l>
+<c>        </c>
+<c>     </c>
+<l>*         region_features (SelectedRegions16, 'area', A1_Value)</l>
+<c>        </c>
+<l>        region_features (SelectedRegions16, 'contlength', Con_Value)</l>
+<c>        </c>
+<l>        intersection (SelectedRegions16, RegionUnion9, RegionIntersection6)</l>
+<l>        union1 (RegionIntersection6, RegionUnion10)</l>
+<c>        </c>
+<c>        </c>
+<c>        </c>
+<l>        a:=2*Area2_Value/(Con_Value+0.01)</l>
+<c>        </c>
+<l>         flag:=0</l>
+<l>        if((Phi_Value&gt;-1.85 and Phi_Value&lt;-1.3) or (Phi_Value&gt;1.3 and Phi_Value&lt;1.85))</l>
+<l>            reduce_domain (ImageScaled, ObjectSelected1, ImageReduced_obj)</l>
+<l>            crop_domain (ImageReduced_obj, ImagePart_obj)</l>
+<l>            mean_image (ImagePart_obj, ImageMean1_obj, 2, 2)</l>
+<l>            mean_image (ImagePart_obj, ImageMean2_obj, 50, 50)</l>
+<l>            dyn_threshold (ImageMean1_obj, ImageMean2_obj, RegionDynThresh_obj, 30, 'light')</l>
+<c>            </c>
+<c>            </c>
+<l>            connection (RegionDynThresh_obj, ConnectedRegions1_obj)</l>
+<c>            </c>
+<c>           </c>
+<l>            select_shape (ConnectedRegions1_obj, SelectedRegions1_obj, 'area', 'and',5, 999999)</l>
+<l>            union1 (SelectedRegions1_obj, RegionUnion_obj)</l>
+<c>            </c>
+<c>            </c>
+<l>            region_features (RegionUnion_obj, 'rect2_len2', len2_obj)</l>
+<l>            select_shape_std (ConnectedRegions1_obj, SelectedRegions_obj, 'max_area', 70)</l>
+<l>            smallest_rectangle2 (SelectedRegions_obj, Rowlen2_obj, Columnlen2_obj, Philen2_obj, Length1len2_obj, Length2len2_obj)</l>
+<l>            gen_rectangle2 (Rectangle_obj, Rowlen2_obj, Columnlen2_obj, Philen2_obj, Length1len2_obj+500, Length2len2_obj+len2_obj/3)</l>
+<l>            intersection (Rectangle_obj, RegionUnion_obj, RegionIntersection_obj)</l>
+<l>            difference (RegionUnion_obj, RegionIntersection_obj, RegionDifference_obj)</l>
+<c>           </c>
+<l>            connection (RegionDifference_obj, ConnectedRegions2_obj)</l>
+<l>            count_obj (ConnectedRegions2_obj, Number1_obj)</l>
+<c>         </c>
+<c>            </c>
+<l>            intensity (SelectedRegions_obj, Image1, Mean_obj, Deviation_obj)</l>
+<c>            </c>
+<l>            if((Number1_obj&gt;5 and Mean_obj&lt;15) or (Number1_obj&gt;10 and Mean_obj&lt;20))</l>
+<c>             *水渍</c>
+<l>              flag:=1</l>
+<l>              concat_obj (shuizi2, RegionUnion10, shuizi2)</l>
+<c>             </c>
+<l>            endif</l>
+<l>        endif  </l>
+<l>     if(flag=0)   </l>
+<l>        if((Ani_Value&gt;5 and Bul_Value&lt;1.1 and ((Phi_Value&gt;-0.1 and Phi_Value&lt;0.1) or (((Phi_Value&gt;-1.65 and Phi_Value&lt;-1.5) or (Phi_Value&gt;1.5 and Phi_Value&lt;1.65)) and Ani_Value&gt;10))) or (((Ani_Value&gt;15 and Bul_Value&lt;1.05) or (Number28&gt;2 and Bul_Value&lt;1.1)) and Number29&lt;2))</l>
+<l>           concat_obj (huahen4, RegionUnion10, huahen4) </l>
+<l>        else</l>
+<l>          if(a&gt;6)</l>
+<l>         select_shape_std (SelectedRegions21, SelectedRegions19, 'max_area', 70)</l>
+<l>         smallest_rectangle2 (SelectedRegions19, Row8, Column8, Phi6, Length16, Length26)</l>
+<l>*          region_features (SelectedRegions19, 'area', ValueA1)</l>
+<l>*          region_features (SelectedRegions19, 'contlength', ValueCon1)</l>
+<l>*          ratio1:=2*ValueA1/(ValueCon1+0.01)</l>
+<l>         gen_rectangle2 (Rectangle5, Row8, Column8, Phi6, Length16+200, Length26+a/3)</l>
+<l>         difference (SelectedRegions21, Rectangle5, RegionDifference1)</l>
+<l>         select_shape_std (RegionDifference1, SelectedRegions20, 'max_area', 70)</l>
+<l>         select_shape (SelectedRegions20, SelectedRegions22, 'area', 'and', 20, 999999)</l>
+<l>         count_obj (SelectedRegions22, Number14)</l>
+<l>         select_shape (SelectedRegions22, SelectedRegions18, 'anisometry', 'and', 4, 99999)</l>
+<l>         count_obj (SelectedRegions18, Number15)</l>
+<l>         Mean2:=0</l>
+<l>         if(Number14&gt;0)</l>
+<l>         intensity (SelectedRegions20, Image1, Mean2, Deviation2)</l>
+<l>         endif</l>
+<l>          intensity (SelectedRegions19, Image1, Mean1, Deviation1)</l>
+<l>          if(((Mean1-Mean2&gt;10 or (Mean_Value&gt;20 and  Deviation_Value&gt;10 and Bul_Value&lt;1.1) or (Ani_Value&gt;10 and Number15=0)) and Number14&gt;0 and weight_Value&lt;6 and ((a&lt;10 and Number2&lt;6) or (a&lt;15 and Number2&lt;8) or(a&gt;15 and Number2&lt;10) or(Number3&gt;3 and Number2&lt;15))) or(cir_Value&lt;0.05 and ratio_area&lt;0.3 and Mean_Value&gt;15 and  Deviation_Value&gt;10 and Number2&lt;8))</l>
+<c>              *划痕</c>
+<l>               concat_obj (huahen4, RegionUnion10, huahen4)</l>
+<l>          else</l>
+<c>              *水渍</c>
+<l>              concat_obj (shuizi2, RegionUnion10, shuizi2)</l>
+<l>          endif</l>
+<c>          </c>
+<l>          else</l>
+<l>            if((((Mean_Value&gt;17 and Deviation_Value&gt;10 and (Bul_Value&lt;1.1 or Number2&lt;3)) or (Mean_Value&gt;25 and Bul_Value&lt;1.05) or (Number2&lt;4 and Mean_Value&gt;20 and Ani_Value&gt;7) or (Number2&lt;4 and Bul_Value&lt;1.1 and Ani_Value&gt;7)) and Number2&lt;8) or (Number2&lt;3 and weight_Value&lt;3.5 and Ani_Value&gt;6) or (Ani_Value&gt;15 and Number2&lt;6) or (Ani_Value&gt;10 and Number2&lt;6 and (weight_Value&lt;3.5 or Bul_Value&lt;1.1 or Mean_Value&gt;25)) or (Number28&gt;2 and Number2&lt;15) or (Ani_Value&gt;20 and (Bul_Value&lt;1.15 or weight_Value&lt;2.5 or (weight_Value&lt;4 and Mean_Value&gt;15 and Deviation_Value&gt;8))) or Ani_Value&gt;30 or (Length15&gt;120 and Length25&lt;3 and Ani_Value&gt;7))          </l>
+<l>                concat_obj (huahen4, RegionUnion10, huahen4)</l>
+<l>            else</l>
+<l>                concat_obj (shuizi2, RegionUnion10, shuizi2) </l>
+<l>            endif</l>
+<l>          endif</l>
+<l>        endif</l>
+<l>     endif</l>
+<c>       </c>
+<l>        endif </l>
+<l>        endfor</l>
+<l>        endif</l>
+<l>        endif</l>
+<c>     </c>
+<l>        select_shape (huahen4, huahen4, 'area', 'and', 1, 999999999)</l>
+<l>        count_obj (huahen4, Number11)</l>
+<l>        if(Number11&gt;0)</l>
+<c>                    *Newtuple缺陷显示图序号</c>
+<l>                    tuple_gen_const (Number11, 1, Newtuple)    </l>
+<l>               get_dict_tuple (HuaHenDict,'划痕宽度最小值' , Pass_W)</l>
+<l>              get_dict_tuple (HuaHenDict,'划痕长度最小值' , Pass_L)</l>
+<l>               get_dict_tuple (HuaHenDict,'划痕灰度最小值' , Pass_Gray)</l>
+<l>           get_dict_tuple (HuaHenDict,'划痕允许条数' , Pass_Num)</l>
+<l>                GatherInfo_OkNG (huahen4, Image1, Image2, RoiImage, TransRoi, DetectDict, HuaHenDict, '微划痕', Newtuple, Pass_L, Pass_W, Pass_Gray, Pass_Num, Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK4)</l>
+<l>                    if (OK4!=[])</l>
+<l>                        concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                        concat_obj (ErrRoi, TransRoi, ErrRoi)</l>
+<l>                        ErrName:=[ErrName,Name]</l>
+<l>                        ErrW:=[ErrW,W]</l>
+<l>                        ErrH:=[ErrH,H]</l>
+<l>                        ErrArea:=[ErrArea,Area]</l>
+<l>                        ErrX:=[ErrX,X]</l>
+<l>                        ErrY:=[ErrY,Y]</l>
+<l>                        MapIndex:=[MapIndex,mapIndex]</l>
+<l>                        ParIndex:=[ParIndex,parIndex]</l>
+<l>                        ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>                        OK:=[OK,OK4]</l>
+<l>                    endif   </l>
+<l>        endif</l>
+<c>        </c>
+<l>         if(YJpass_enable=1 or YJpass_enable=true)</l>
+<l>           get_dict_tuple (DetectDict,'脏污' , ZangWuDict)</l>
+<l>    select_shape (shuizi2, shuizi2, 'area', 'and', 1, 9999999999)</l>
+<l>    count_obj (shuizi2,Number16)</l>
+<l>    if (Number16&gt;0)</l>
+<c>                </c>
+<c>                    *Newtuple缺陷显示图序号</c>
+<l>                    tuple_gen_const (Number16, 1, Newtuple)   </l>
+<l>              get_dict_tuple (ZangWuDict,'印记宽度最小值' , Pass_W)</l>
+<l>              get_dict_tuple (ZangWuDict,'印记长度最小值' , Pass_L)</l>
+<l>              get_dict_tuple (ZangWuDict,'印记灰度最小值' , Pass_Gray)</l>
+<c>          </c>
+<l>                    GatherInfo_OkNG (shuizi2, Image1, Image2, RoiImage, TransRoi, DetectDict, ZangWuDict, '浅印记', Newtuple, Pass_L, Pass_W, 255, 10000, Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK6)</l>
+<l>                    if (OK6!=[])                        </l>
+<l>                        concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                        concat_obj (ErrRoi, TransRoi, ErrRoi)</l>
+<l>                        ErrName:=[ErrName,Name]</l>
+<l>                        ErrW:=[ErrW,W]</l>
+<l>                        ErrH:=[ErrH,H]</l>
+<l>                        ErrArea:=[ErrArea,Area]</l>
+<l>                        ErrX:=[ErrX,X]</l>
+<l>                        ErrY:=[ErrY,Y]</l>
+<l>                        MapIndex:=[MapIndex,mapIndex]</l>
+<l>                        ParIndex:=[ParIndex,parIndex]</l>
+<l>                        ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>                        OK:=[OK,OK6]                     </l>
+<l>                    endif                            </l>
+<l>            endif </l>
+<l>         endif</l>
+<l> endif</l>
+<l>    endif   </l>
+<l>   union2 (huahen1, shuizi1, RegionUnion11)     </l>
+<l>   union2 (RegionUnion11, huahen2, RegionUnion12)   </l>
+<l>   union2 (RegionUnion12, huahen3, RegionUnion13)</l>
+<l>   union2 (RegionUnion13, huahen4, RegionUnion14)</l>
+<l>   union2 (RegionUnion14, shuizi2, RegionUnion15)</l>
+<l>   dilation_circle (RegionUnion15, RegionDilation1, 10.5)</l>
+<l>   OriginalErrRoi:=RegionDilation1</l>
+<l>    union2 (RegionDilation1, NoDetectRoi, NoDetectRoi3)  </l>
+<c>   </c>
+<c>      ******擦伤*********************************</c>
+<c>              </c>
+<l>        difference (DetectRoi, NoDetectRoi3, RegionErosion3)     </l>
+<l>      intersection (RegionErosion3, RegionIntersection2, RegionIntersection4)</l>
+<c>        </c>
+<l>        connection (RegionIntersection4, ConnectedRegions)</l>
+<l>        select_shape (ConnectedRegions, SelectedRegions9, 'area', 'and', 40, 9999999)</l>
+<l>        area_center (SelectedRegions9, Area3, Row, Column)</l>
+<l>        gen_rectangle1 (Rectangle1, Row-100, Column-100, Row+100, Column+100)</l>
+<l>        union1 (Rectangle1, RegionUnion1)</l>
+<l>        connection (RegionUnion1, ConnectedRegions7)</l>
+<l>        select_shape (ConnectedRegions7, SelectedRegions17, 'area', 'and', 1, 999999)</l>
+<c>        </c>
+<l>        count_obj (SelectedRegions17, Number10)</l>
+<l>        if(Number10&gt;0) </l>
+<l>            for IndexCS1 := 1 to Number10 by 1 </l>
+<l>            select_obj (SelectedRegions17, ObjectSelectedCS1, IndexCS1)</l>
+<l>            intersection (ConnectedRegions, ObjectSelectedCS1, RegionIntersectionCS1)</l>
+<l>            connection (RegionIntersectionCS1, ConnectedRegionsCS1)</l>
+<l>             select_shape (ConnectedRegionsCS1, SelectedRegionsCS1, 'area', 'and', 5, 9999999)</l>
+<l>            count_obj (SelectedRegionsCS1, NumberCS1)</l>
+<c>            </c>
+<c>            </c>
+<l>            union1 (SelectedRegionsCS1, RegionUnion6)</l>
+<l>            closing_circle (RegionUnion6, RegionClosing4, 100.5)</l>
+<l>            connection (RegionClosing4, ConnectedRegions6)</l>
+<c>            </c>
+<l>            select_shape_std (ConnectedRegions6, SelectedRegions15, 'max_area', 70)</l>
+<l>            region_features (SelectedRegions15, 'area', A15_Value)</l>
+<c>            </c>
+<c>                       </c>
+<l>            select_shape_std (ConnectedRegionsCS1, SelectedRegionsCS2, 'max_area', 70)</l>
+<l>            region_features (SelectedRegionsCS2, 'anisometry', ValueCS2_Ani)</l>
+<l>            region_features (SelectedRegionsCS2, 'area', ValueCS2_Area)</l>
+<l>            region_features (SelectedRegionsCS2, 'rect2_len2', ValueCS2_len2)</l>
+<c>           </c>
+<c>                                                           </c>
+<l>            intensity (SelectedRegionsCS2, ImageReducedD, MeanCS, DeviationCS)</l>
+<l>                if(ValueCS2_Ani&gt;2.5 and ((ValueCS2_Area&gt;80 and MeanCS&gt;20) or (ValueCS2_Area&gt;50 and MeanCS&gt;30)) and ValueCS2_len2&gt;1.5 and NumberCS1&lt;3 and A15_Value&gt;50 and A15_Value&lt;400)</l>
+<l>                concat_obj (cashang, SelectedRegions15, cashang)</l>
+<l>                endif         </l>
+<l>              endfor</l>
+<l>           endif</l>
+<c>      </c>
+<l>       select_shape (cashang, cashang, 'area', 'and', 1, 9999999999)</l>
+<l>    count_obj (cashang,Number16)</l>
+<l>    if (Number16&gt;0)</l>
+<c>                </c>
+<c>                    *Newtuple缺陷显示图序号</c>
+<l>                    tuple_gen_const (Number16, 1, Newtuple)   </l>
+<l>                get_dict_tuple (HuaHenDict,'划痕宽度最小值' , Pass_W)</l>
+<l>              get_dict_tuple (HuaHenDict,'划痕长度最小值' , Pass_L)</l>
+<l>               get_dict_tuple (HuaHenDict,'划痕灰度最小值' , Pass_Gray)</l>
+<l>               get_dict_tuple (HuaHenDict,'划痕允许条数' , Pass_Num)</l>
+<c>          </c>
+<l>                    GatherInfo_OkNG (cashang, Image1, Image2, RoiImage, TransRoi, DetectDict, ZangWuDict, '压伤', Newtuple, Pass_L, Pass_W, 0, Pass_Num, Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK16)</l>
+<l>                    if (OK16!=[])                        </l>
+<l>                        concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                        concat_obj (ErrRoi, TransRoi, ErrRoi)</l>
+<l>                        ErrName:=[ErrName,Name]</l>
+<l>                        ErrW:=[ErrW,W]</l>
+<l>                        ErrH:=[ErrH,H]</l>
+<l>                        ErrArea:=[ErrArea,Area]</l>
+<l>                        ErrX:=[ErrX,X]</l>
+<l>                        ErrY:=[ErrY,Y]</l>
+<l>                        MapIndex:=[MapIndex,mapIndex]</l>
+<l>                        ParIndex:=[ParIndex,parIndex]</l>
+<l>                        ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>                        OK:=[OK,OK16]                     </l>
+<l>                    endif                            </l>
+<l>            endif </l>
+<c>        </c>
+<c>        </c>
+<c>        </c>
+<c></c>
+<c>    </c>
+<c>    </c>
+<c>    **************************************************************************************</c>
+<l>catch (Exception )</l>
+<l>endtry</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="Detect_HuaHen">
+<parameters>
+<parameter id="DetectDict"/>
+<parameter id="DetectRoi"/>
+<parameter id="ErrArea"/>
+<parameter id="ErrH"/>
+<parameter id="ErrImage"/>
+<parameter id="ErrImageIndex"/>
+<parameter id="ErrName"/>
+<parameter id="ErrRoi"/>
+<parameter id="ErrW"/>
+<parameter id="ErrX"/>
+<parameter id="ErrY"/>
+<parameter id="Image1"/>
+<parameter id="Image2"/>
+<parameter id="MapIndex"/>
+<parameter id="NoDetectRoi"/>
+<parameter id="OK"/>
+<parameter id="OriginalErrRoi"/>
+<parameter id="ParIndex"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

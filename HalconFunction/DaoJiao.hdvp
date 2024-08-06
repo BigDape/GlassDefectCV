@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="DaoJiao">
+<interface>
+<io>
+<par name="Image" base_type="iconic" dimension="0"/>
+<par name="DetectArea" base_type="iconic" dimension="0"/>
+<par name="RoiDetect" base_type="iconic" dimension="0"/>
+<par name="NoDetect" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="ErrRegion" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="SelectDir" base_type="ctrl" dimension="0"/>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+</ic>
+</interface>
+<body>
+<l>gen_empty_obj (ErrRegion)</l>
+<c></c>
+<l>try </l>
+<l>    get_dict_tuple (DetectDict, '使能',EnabledDict)</l>
+<l>    get_dict_tuple (EnabledDict,'UpLeft_DaoJiao_Enabled', UpLeft_DaoJiao_Enabled)</l>
+<l>    get_dict_tuple (EnabledDict,'UpRight_DaoJiao_Enabled', UpRight_DaoJiao_Enabled)</l>
+<l>    get_dict_tuple (EnabledDict,'DownLeft_DaoJiao_Enabled', DownLeft_DaoJiao_Enabled)</l>
+<l>    get_dict_tuple (EnabledDict,'DownRight_DaoJiao_Enabled', DownRight_DaoJiao_Enabled)</l>
+<l>    get_dict_tuple (EnabledDict,'DaoJiaoYouwU_Enabled', DaoJiaoYouwU_Enabled)</l>
+<c>    </c>
+<l>    get_dict_tuple (DetectDict, '边角类',BJDict)</l>
+<l>    get_dict_tuple (BJDict, 'DaoJiao_threshold_Min', DaoJiao_threshold_Min)</l>
+<l>    get_dict_tuple (BJDict, 'DaoJiao_threshold_Max',DaoJiao_threshold_Max)</l>
+<l>    get_dict_tuple (BJDict, 'DaoJiao_Max', DaoJiao_Max)</l>
+<l>    get_dict_tuple (BJDict, 'DaoJiao_Min', DaoJiao_Min)</l>
+<c>    </c>
+<c>    </c>
+<l>    if ((UpLeft_DaoJiao_Enabled and (SelectDir=='UpLeft')) or \
+        (UpRight_DaoJiao_Enabled and (SelectDir=='UpRight'))  or \
+        (DownLeft_DaoJiao_Enabled and (SelectDir=='DownLeft'))  or \
+        (DownRight_DaoJiao_Enabled and (SelectDir=='DownRight')) ) </l>
+<c>        </c>
+<c>        </c>
+<l>        Get_Detect_Side (Image, RoiDetect, RegionUnionLine, SelectDir)</l>
+<c>        </c>
+<c>        </c>
+<l>        select_obj (DetectArea, ObjectSelected1, 3)</l>
+<l>        area_center (ObjectSelected1, Area, Row, Column)</l>
+<l>        gen_rectangle2 (Rectangle, Row, Column, 0, 600, 600)</l>
+<l>        union1 (DetectArea, RegionUnion)</l>
+<c>        </c>
+<l>        dilation_circle (ObjectSelected1, RegionDilation4, 500)</l>
+<l>        union2 (RegionUnion, RegionDilation4, RegionUnion1)</l>
+<l>        reduce_domain (Image, RegionUnion1, ImageReduced)</l>
+<l>        threshold (ImageReduced, Regions2, DaoJiao_threshold_Min, DaoJiao_threshold_Max)</l>
+<l>        intersection (Regions2, Rectangle, RegionIntersection4)</l>
+<l>        region_features (RegionIntersection4, 'area', Value)</l>
+<l>        if (Value&gt;1000)  </l>
+<l>            opening_rectangle1 (RegionUnionLine, RegionOpening1, 1, 10)</l>
+<l>            opening_rectangle1 (RegionUnionLine, RegionOpening2,  10,1)</l>
+<l>            intersection (RegionOpening1, RegionOpening2, RegionIntersection2)</l>
+<l>            dilation_rectangle1 (RegionIntersection2, RegionDilation2, 10, 10)</l>
+<l>            intersection (RegionDilation2, RegionUnionLine, RegionIntersection3)</l>
+<l>            dilation_rectangle1 (RegionIntersection3, RegionDilation3, 3, 3)</l>
+<l>            intersection (RegionDilation3, RegionIntersection4, RegionIntersection5)</l>
+<l>            region_features (RegionIntersection5, 'area', Area)</l>
+<l>            if (Area&lt;10)</l>
+<c>                ************判断倒角长度</c>
+<l>                fill_up (Regions2, RegionFillUp1)</l>
+<l>                union2 (RegionFillUp1, RegionUnionLine, RegionUnion2)</l>
+<l>*                 closing_circle (RegionUnion2, RegionUnion2,1)</l>
+<l>                fill_up (RegionUnion2, RegionFillUp)</l>
+<l>                gen_circle (Circle1, Row, Column, 90)</l>
+<l>                intersection (RegionFillUp, Circle1, RegionIntersection)</l>
+<l>                difference (RegionIntersection, RegionUnion2, RegionDifference)</l>
+<l>                connection (RegionDifference, ConnectedRegions2)</l>
+<l>                opening_circle (ConnectedRegions2, RegionOpening, 2)</l>
+<l>                select_shape_std (RegionOpening, SelectedRegions1, 'max_area', 70) </l>
+<l>                area_center (SelectedRegions1, Area1, Row1, Column1)</l>
+<l>                if (Area1&lt;8)</l>
+<l>                    return ()</l>
+<l>                endif</l>
+<l>                dilation_circle (SelectedRegions1, RegionDilation,3.5)</l>
+<l>                reduce_domain (Image, RegionDilation, ImageReduced1)</l>
+<l>                edges_sub_pix (ImageReduced1, Edges, 'canny',2,10, 16)</l>
+<l>                union_adjacent_contours_xld (Edges, UnionContours, 5, 1, 'attr_keep')</l>
+<l>                smooth_contours_xld (UnionContours, SmoothedContours, 3)</l>
+<l>                segment_contours_xld (SmoothedContours, ContoursSplit, 'lines', 5, 6, 3)</l>
+<l>                select_shape_xld (ContoursSplit, SelectedXLDs, 'contlength', 'and', 5, 999)</l>
+<l>                count_obj (SelectedXLDs, Number)</l>
+<l>                if (Number&gt;1)</l>
+<l>                    concat_obj (ErrRegion, Rectangle, ErrRegion)  </l>
+<l>                    return ()</l>
+<l>                endif</l>
+<c></c>
+<l>                smallest_rectangle2_xld (SelectedXLDs, Row3, Column2, Phi, Length1, Length2)</l>
+<l>                a:= (abs(abs(Phi)-0.785))[&lt;]0.6</l>
+<l>                select_mask_obj (SelectedXLDs, ContoursSplit, a)</l>
+<l>                count_obj (ContoursSplit, Number1)</l>
+<l>                if (Number1==0)</l>
+<l>                    return ()       </l>
+<l>                endif</l>
+<c>                </c>
+<l>                gen_region_contour_xld (SelectedXLDs, Region, 'filled')</l>
+<l>                gen_circle (Circle, Row, Column, 20)</l>
+<l>                intersection ( Region,Circle, RegionIntersection1)</l>
+<l>                region_features (RegionIntersection1, 'area', Value1)</l>
+<l>                a:=sort_index(Value1*-1)</l>
+<l>                select_obj (SelectedXLDs, ContoursSplitselect, a[0]+1)</l>
+<l>                length_xld (ContoursSplitselect, Length)</l>
+<l>                if (|Length|!=0)</l>
+<l>                    L:=Length*0.095</l>
+<l>                    if (L&gt;DaoJiao_Max or L&lt;DaoJiao_Min)                   </l>
+<l>                        get_contour_xld (ContoursSplitselect, Row2, Col)</l>
+<l>                        gen_region_points (Region1, Row2, Col)</l>
+<l>                        concat_obj (ErrRegion, Region1, ErrRegion)    </l>
+<l>                    endif </l>
+<l>                endif</l>
+<l>            else</l>
+<l>                if (DaoJiaoYouwU_Enabled)</l>
+<l>                    concat_obj (ErrRegion, Rectangle, ErrRegion)  </l>
+<l>                endif       </l>
+<l>            endif</l>
+<c>            </c>
+<l>        endif</l>
+<l>    endif     </l>
+<c>    </c>
+<l>catch (Exception)</l>
+<l>    return () </l>
+<l>endtry</l>
+<l>return ()</l>
+</body>
+<docu id="DaoJiao">
+<parameters>
+<parameter id="DetectArea"/>
+<parameter id="DetectDict"/>
+<parameter id="ErrRegion"/>
+<parameter id="Image"/>
+<parameter id="NoDetect"/>
+<parameter id="RoiDetect"/>
+<parameter id="SelectDir"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

@@ -53,8 +53,8 @@ public:
         QList<HObject> ImageList;
     };
     ImageUnit imageunit;
-//    QQueue<ImageUnit> ImageQueue;
-    SafeQueue<ImageUnit> ImageQueue;
+    QQueue<ImageUnit> ImageQueue;
+    //SafeQueue<ImageUnit> ImageQueue;
 
     byte* Src_Buffer;
     byte* View_Buffer;

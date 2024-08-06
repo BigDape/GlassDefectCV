@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>read_image (Image, 'C:/Users/Admin/Desktop/20221027E/水/水滴 (1).jpg')</l>
+<l>mean_image (Image, ImageMean, 3, 3)</l>
+<l>threshold (ImageMean, Region, 190, 255)</l>
+<c></c>
+<l>dilation_circle (Region, RegionDilation, 3.5)</l>
+<l>threshold (Image, Region1, 0, 100)</l>
+<l>dilation_circle (Region1, RegionDilation1, 3.5)</l>
+<l>union2 (RegionDilation, RegionDilation1, RegionUnion)</l>
+<l>closing_rectangle1 (RegionUnion, RegionClosing, 5, 20)</l>
+<l>connection (RegionClosing, ConnectedRegions)</l>
+<l>select_shape (ConnectedRegions, SelectedRegions, 'compactness', 'and', 0, 5)</l>
+<l>select_shape (SelectedRegions, SelectedRegions1, 'area', 'and', 1500, 9999999)</l>
+<l>select_shape (SelectedRegions1, SelectedRegions2, 'circularity', 'and', 0.1, 1)</l>
+<l>count_obj (SelectedRegions2, Number)</l>
+<l>for Index := 1 to Number by 1</l>
+<l>    select_obj (SelectedRegions2, ObjectSelected, Index)</l>
+<l>    reduce_domain (Image, SelectedRegions2, ImageReduced)</l>
+<c>    *亮的部分</c>
+<l>    threshold (ImageReduced, Region2, 250, 255)</l>
+<l>    closing_circle (Region2, RegionClosing3, 3.5)</l>
+<l>    connection (RegionClosing3, ConnectedRegions1)</l>
+<l>    select_shape_std (ConnectedRegions1, SelectedRegions3, 'max_area', 70)</l>
+<l>    region_features (SelectedRegions3, 'area', Val1)</l>
+<c>    *黑的部分</c>
+<l>    threshold (ImageReduced, Region3, 0, 50)</l>
+<l>    closing_circle (Region3, RegionClosing2, 3.5)</l>
+<l>    connection (RegionClosing2, ConnectedRegions2)   </l>
+<l>    select_shape_std (ConnectedRegions2, SelectedRegions4, 'max_area', 70)</l>
+<l>    region_features (SelectedRegions4, 'area', Val2)</l>
+<l>    ratio_area:= Val1/(Val2+0.01)</l>
+<l>    union2 (SelectedRegions3, SelectedRegions4, RegionUnion1)</l>
+<l>    closing_circle (RegionUnion1, RegionClosing1, 3.5)</l>
+<l>    connection (RegionClosing1, ConnectedRegions3)</l>
+<l>    select_shape (ConnectedRegions3, SelectedRegions5, 'area', 'and', 10, 99999)</l>
+<l>    count_obj (SelectedRegions5, Number1)</l>
+<l>    if(Number1=1 and ratio_area&gt;0 and ratio_area&lt;10)</l>
+<c>        *气泡可能性</c>
+<l>        a:=1</l>
+<l>    else</l>
+<c>        *水滴</c>
+<l>        b:=1</l>
+<c>            </c>
+<l>    endif</l>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<l>endfor</l>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

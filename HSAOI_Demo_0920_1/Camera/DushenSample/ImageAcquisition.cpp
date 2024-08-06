@@ -62,11 +62,17 @@ void QImageAcquisition::slotGrabFrames()
     if (status == DVP_STATUS_OK) {
         try {
             if(Global::FrameSignal==1) {
+                Global::GlobalLock.lock();
                 imageunit.FrameCount=1;
+                Global::GlobalLock.unlock();
             } else {
+                Global::GlobalLock.lock();
                 imageunit.FrameCount++;
+                Global::GlobalLock.unlock();
             }
+            Global::GlobalLock.lock();
             strFrameCount = imageunit.FrameCount;
+            Global::GlobalLock.unlock();
             int m_FramesPerTri = int(Global::FramesPerTri);
 
             if (strFrameCount % m_FramesPerTri == 0) {
@@ -127,8 +133,9 @@ void QImageAcquisition::slotGrabFrames()
                     intptr_t intPtr = reinterpret_cast<intptr_t>(p);
 
                     GenImage1(&image, "byte", FrameWidth, FrameHeight, intPtr);
+                    Global::GlobalLock.lock();
                     imageunit.ImageList.append(image);
-
+                    Global::GlobalLock.unlock();
                     delete[] Dest_Buffer[lightnum4];
                 }
                 delete[] Dest_Buffer;
@@ -181,7 +188,9 @@ void QImageAcquisition::slotGrabFrames()
                     byte* p = Dest_Buffer[lightnum4];
                     intptr_t intPtr = reinterpret_cast<intptr_t>(p);
                     GenImage1(&image, "byte", FrameWidth, FrameHeight, intPtr);
+                    Global::GlobalLock.lock();
                     imageunit.ImageList.append(image);
+                    Global::GlobalLock.unlock();
                     delete[] Dest_Buffer[lightnum4];
                 }
                 delete[] Dest_Buffer;
@@ -190,7 +199,9 @@ void QImageAcquisition::slotGrabFrames()
                 DWORD I = H - A;
                 qDebug() << "I:" << I;
             }
-            ImageQueue.inqueue(imageunit);
+            Global::GlobalLock.lock();
+            ImageQueue.enqueue(imageunit);
+            Global::GlobalLock.unlock();
             qDebug() << "ImageList has image count: " << imageunit.ImageList.size();
             imageunit.ImageList.clear();
             QString info="相机"+ QString::number(m_handle) + "图像采集完成！";

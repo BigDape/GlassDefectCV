@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="22.05.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>* read_image (Image1, 'D:/3#玻璃/240402  9：28缺陷91/tile1.jpg')</l>
+<l>* read_image (Image2, 'D:/3#玻璃/240402  9：28缺陷91/tile2.jpg')</l>
+<l>* read_image (Image3, 'D:/3#玻璃/240402  9：28缺陷91/tile3.jpg')</l>
+<l>* read_image (Image1, 'D:/3#玻璃/240402  10：04缺陷131/tile1.jpg')</l>
+<l>* read_image (Image2, 'D:/3#玻璃/240402  10：04缺陷131/tile2.jpg')</l>
+<l>* read_image (Image3, 'D:/3#玻璃/240402  10：04缺陷131/tile3.jpg')</l>
+<l>read_image (Image1, 'D:/DTFile/2024-07-10_13-47-24/tile1.jpg')</l>
+<l>read_image (Image2, 'D:/DTFile/2024-07-10_13-47-24/tile2.jpg')</l>
+<l>read_image (Image3, 'D:/DTFile/2024-07-10_13-47-24/tile3.jpg')</l>
+<l>read_image (Image4, 'D:/DTFile/2024-07-10_13-47-24/tile4.jpg')</l>
+<l>read_dict ('D:/0704/DTcode/HSAOI-Desktop0921-Debug/Recipes/8mm.json', [], [], DictHandle)</l>
+<l>gen_empty_region (GlassRegion)</l>
+<c></c>
+<c></c>
+<l>select_shape (GlassRegion, SelectedRegions, 'area', 'and', 1, 9999999999)</l>
+<l>count_obj (SelectedRegions, Number)</l>
+<l>GlassLength:=0</l>
+<l>GlassWidth:=0</l>
+<l>GlassAngle:=0</l>
+<l>YCoordIn:=0</l>
+<l>GlassPositionInf:=0</l>
+<l>get_image_size (Image1, Width, Height)</l>
+<c></c>
+<l>crop_rectangle1 (Image1, ImagePart, 0, 0, 499, Width-1)</l>
+<l>gen_empty_obj (ObjectsConcat)</l>
+<l>for i:=1 to 35 by 1</l>
+<l>    concat_obj (ObjectsConcat, ImagePart, ObjectsConcat)</l>
+<l>endfor</l>
+<l>tile_images (ObjectsConcat, TiledImage, 1, 'vertical')</l>
+<l>crop_rectangle1 (TiledImage, ImagePart1, 0, 0, Height-1, Width-1)</l>
+<l>sub_image (ImagePart1, Image1, ImageSub, 1, 0)</l>
+<l>threshold (ImageSub, Region1, 150, 255)</l>
+<l>opening_rectangle1 (Region1, RegionOpening1, 100, 1)</l>
+<l>connection (RegionOpening1, ConnectedRegions5)</l>
+<l>select_shape (ConnectedRegions5, SelectedRegions3, 'width', 'and', 0.5*Width, 2*Width)</l>
+<c></c>
+<l>threshold (Image2, Region, 20, 255)</l>
+<l>closing_circle (Region, RegionClosing2, 3.5)</l>
+<l>connection (RegionClosing2, ConnectedRegions1)</l>
+<l>select_shape_std (ConnectedRegions1, SelectedRegions1, 'max_area', 70)</l>
+<c></c>
+<l>concat_obj (SelectedRegions3, SelectedRegions1, ObjectsConcat1)</l>
+<l>union1 (ObjectsConcat1, RegionUnion)</l>
+<l>closing_rectangle1 (RegionUnion, RegionClosing, 1, 5)</l>
+<l>opening_rectangle1 (RegionClosing, FrameRegion, 1, 10)</l>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<l>fill_up (SelectedRegions1, RegionFillUp1)</l>
+<l>difference (RegionFillUp1, SelectedRegions1, RegionDifference)</l>
+<l>connection (RegionDifference, ConnectedRegions2)</l>
+<l>select_shape (ConnectedRegions2, SelectedRegions2, 'area', 'and', 150, 99999)</l>
+<c></c>
+<c></c>
+<l>difference (FrameRegion, SelectedRegions2, RegionDifference1)</l>
+<l>connection (RegionDifference1, ConnectedRegions3)</l>
+<l>select_shape_std (ConnectedRegions3, GlassRegion, 'max_area', 70)</l>
+<l>smallest_rectangle1 (FrameRegion, Row1, Column1, Row2, Column2)</l>
+<c></c>
+<l>* count:=Height/5000</l>
+<l>* for Index := 1 to 5 by 1</l>
+<l>*     gen_rectangle1 (Rectangle, (Index-1)*5000, 0,  Index*5000, Width-1)</l>
+<l>*     crop_rectangle1 (Image1, ImagePart1, (Index-1)*5000, 0,  Index*5000-1, Width-1)</l>
+<l>*     crop_rectangle1 (Image2, ImagePart2, (Index-1)*5000, 0,  Index*5000, Width-1)</l>
+<l>*     crop_rectangle1 (Image3, ImagePart3, (Index-1)*5000, 0,  Index*5000, Width-1)</l>
+<l>*     get_image_size (ImagePart1, Width1, Height1)</l>
+<l>* write_image (ImagePart1, 'jpg', 0, 'D:/testima/'+Index+'/1.jpg')</l>
+<l>* write_image (ImagePart2, 'jpg', 0, 'D:/testima/'+Index+'/2.jpg')</l>
+<l>* write_image (ImagePart3, 'jpg', 0, 'D:/testima/'+Index+'/3.jpg')</l>
+<c></c>
+<c></c>
+<l>* gen_region_line (RegionLines, Row2-1000, Column1-100, Row2-1000, Column2+100)</l>
+<l>* difference (Region, RegionLines, RegionDifference)</l>
+<l>* connection (RegionDifference, ConnectedRegions)</l>
+<l>* select_shape (ConnectedRegions, SelectedRegions1, 'row', 'and', Row2-1000, Row2)</l>
+<l>* region_features (SelectedRegions1, 'row1', Value1)</l>
+<l>* move_region (SelectedRegions1, RegionMoved1, -Value1, 0)</l>
+<c></c>
+<l>if(Row2&lt;Height and Row1&gt;0)</l>
+<l>    GlassPositionInf:=0</l>
+<l>else</l>
+<l>  if(Row2&lt;Height)</l>
+<l>    GlassPositionInf:=3</l>
+<l>  else</l>
+<l>    if(Row1&gt;0)</l>
+<l>        GlassPositionInf:=1</l>
+<l>    else</l>
+<l>        GlassPositionInf:=2</l>
+<l>    endif</l>
+<l>  endif</l>
+<l>endif</l>
+<c></c>
+<l>* region_features (GlassRegion, Row2, Value)</l>
+<l>move_region (FrameRegion, RegionMoved, 0, 0)</l>
+<c></c>
+<l>* union2 (GlassRegion, RegionMoved, GlassRegion)</l>
+<c></c>
+<l>region_features (GlassRegion, 'column2', Value)</l>
+<c></c>
+<l>    ProcessVision (Image1, Image2, Image3, GlassRegion, FrameRegion, ErrRoi, ErrImage1, ErrImage2, ErrImage3, DictHandle, 1, GlassPositionInf, YCoordIn, ResultDict, YCoordOut, Col_x, Row_y, GlassLength, GlassWidth, GlassAngle, OK)</l>
+<c></c>
+<l>* endfor</l>
+<l>Cam1pixs:=5000</l>
+<l>Cam1Width:=8180</l>
+<l>Tile2Column1:=3180</l>
+<l>* read_image (Image1, 'D:/tile1.jpg')</l>
+<l>* read_image (Image2, 'D:/tile2.jpg')</l>
+<l>* read_image (Image3, 'D:/tile3.jpg')</l>
+<l>* read_image (Image4, 'D:/tile4.jpg')</l>
+<l>*     read_image (Image1, 'E:/0326/tp/3/tile1.jpg')</l>
+<l>*      read_image (Image2, 'E:/0326/tp/3/tile2.jpg')</l>
+<l>*       read_image (Image3, 'E:/0326/tp/3/tile3.jpg')</l>
+<l>*        read_image (Image4, 'E:/0326/tp/3/tile4.jpg')</l>
+<l>       read_dict ('D:/0704/DTcode/HSAOI-Desktop0921-Debug/Recipes/8mm.json', [], [], DictHandle)</l>
+<l>ProcessHoles (Image1, Image2, Image3, Image4, OutLineImage, HolesImage, GlassContours, DictHandle, Cam1pixs, Cam1Width, Tile2Column1, ResultDictRoles)</l>
+<c></c>
+<c>   </c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="add_samples_to_qhh">
+<interface>
+<ic>
+<par name="ClassNames" base_type="ctrl" dimension="0"/>
+<par name="ClassHandle" base_type="ctrl" dimension="0"/>
+<par name="ReadPath" base_type="ctrl" dimension="0"/>
+</ic>
+</interface>
+<body>
+<l>for ClassNumber := 0 to |ClassNames| - 1 by 1</l>
+<l>    list_files (ReadPath + ClassNames[ClassNumber], 'files', Files)</l>
+<l>    Selection := regexp_select(Files,'')</l>
+<l>   * Selection := regexp_select(Files,'.*[.]jpg')</l>
+<l>   * tuple_regexp_select (ImageFiles, ['\\.(tif|tiff|gif|bmp|jpg|jpeg|jp2|png|pcx|pgm|ppm|pbm|xwd|ima|hobj)$','ignore_case'], ImageFiles)</l>
+<c></c>
+<l>    for Index2 := 0 to |Selection| - 1 by 1</l>
+<l>        read_image (ImageReducedD, Selection[Index2])</l>
+<l>              gen_empty_obj (ContainHh)</l>
+<l>        threshold (ImageReducedD, Regions, 30, 255)</l>
+<l>        closing_circle (Regions, RegionClosing, 1.5)</l>
+<l>        connection (RegionClosing, ConnectedRegions)        </l>
+<l>        select_shape (ConnectedRegions, SelectedRegions_1, 'rect2_len1', 'and', 5, 9999999)         </l>
+<l>        select_shape (SelectedRegions_1, SelectedRegions_1, 'anisometry', 'and', 5, 999999999)</l>
+<l>        select_shape (SelectedRegions_1, SelectedRegions_1, 'circularity', 'and', 0, 0.15)   </l>
+<l>        select_shape (SelectedRegions_1, SelectedRegions_1, 'area', 'and', 20, 999999999)</l>
+<c>        </c>
+<c>        </c>
+<c>        </c>
+<l>         select_shape (ConnectedRegions, SelectedRegions_2, 'circularity', 'and', 0, 0.15)   </l>
+<l>         select_shape (SelectedRegions_2, SelectedRegions_2, 'area', 'and', 200, 999999999)</l>
+<l>         concat_obj (SelectedRegions_1, SelectedRegions_2, ObjectsConcat)</l>
+<l>         union1 (ObjectsConcat, RegionUnion7)</l>
+<l>         connection (RegionUnion7, ConnectedRegions5)</l>
+<l>         select_shape (ConnectedRegions5, SelectedRegions, 'area', 'and', 20, 999999999)</l>
+<l>        count_obj (SelectedRegions, Number)  </l>
+<l>     if(Number&gt;0)</l>
+<l>       *       read_class_mlp ('d:/HalconFunction/ClassHandleqhh.gsc', ClassHandle)</l>
+<l>        for Index := 1 to Number by 1</l>
+<l>                select_obj (SelectedRegions, ObjectSelected, Index)</l>
+<l>                region_features (ObjectSelected, 'area', Value_Area)                          </l>
+<l>              union1 (ContainHh, ContainHhUnion)</l>
+<l>              intersection (ContainHhUnion, ObjectSelected, RegionIntersection)</l>
+<l>              region_features (RegionIntersection, 'area', Value_Aint)</l>
+<l>              ratioA:=Value_Aint/(Value_Area+0.01)</l>
+<l>*               select_shape (RegionIntersection, SelectedRegions1, 'area', 'and', 1, 99999)</l>
+<l>*               count_obj (SelectedRegions1, Number1)</l>
+<l>              if(ratioA&lt;0.99)                                                                                        </l>
+<l>              smallest_rectangle1 (ObjectSelected, Row1, Column1, Row2, Column2)</l>
+<l>              gen_rectangle1 (Rectangle, Row1-300, Column1-300, Row2+300, Column2+300)</l>
+<l>              reduce_domain (ImageReducedD, Rectangle, ImageReducedSD)                           </l>
+<c>              </c>
+<l>              threshold (ImageReducedSD, ObjectSelected11, 30, 255)    </l>
+<l>              closing_circle (ObjectSelected11, RegionClosing11, 30.5)                  </l>
+<l>              connection (RegionClosing11, ConnectedRegions11)</l>
+<l>              select_shape (ConnectedRegions11, SelectedRegions11_s, 'area', 'and', 20, 999999999)</l>
+<l>              count_obj (SelectedRegions11_s, Number5)</l>
+<l>              for Index1 := 1 to Number5 by 1</l>
+<l>                  select_obj (SelectedRegions11_s, ObjectSelected11_s, Index1)</l>
+<l>                  intersection (ObjectSelected, ObjectSelected11_s, RegionIntersection11)</l>
+<l>                  select_shape (RegionIntersection11, SelectedRegionsTnt11, 'area', 'and', 1, 99999)</l>
+<l>                  count_obj (SelectedRegionsTnt11, Number6)</l>
+<l>                  if(Number6=1)</l>
+<l>                      select_obj (SelectedRegions11_s, SelectedRegions11, Index1)</l>
+<l>                  endif</l>
+<l>              endfor</l>
+<c>  </c>
+<c>              </c>
+<l>*               region_features (SelectedRegions11, 'contlength', Value_Contlength11)</l>
+<l>                region_features (SelectedRegions11, 'area', Value_Area11)</l>
+<l>*               region_features (SelectedRegions11, 'anisometry', Value_Ani11)</l>
+<l>*               region_features (SelectedRegions11, 'bulkiness', Value_Bul11)</l>
+<l>*               region_features (SelectedRegions11, 'rect2_len2', Value_len211)</l>
+<l>*               width11:=2*Value_Area11/(Value_Contlength11+0.01)</l>
+<l>              concat_obj (ContainHh, SelectedRegions11, ContainHh)</l>
+<c>              </c>
+<l>              reduce_domain (ImageReducedSD, SelectedRegions11, ImageReducedSD11)</l>
+<l>              threshold (ImageReducedSD11, Region22, 30, 255)             </l>
+<c>       *****融合值1.5下提取*************    </c>
+<l>                closing_circle (Region22, RegionClosing01, 1.5)                                </l>
+<l>                connection (RegionClosing01, ConnectedRegions01)</l>
+<l>                select_shape_std (ConnectedRegions01, SelectedRegions01, 'max_area', 70)</l>
+<l>                intensity (SelectedRegions01, ImageReducedSD, Value_Mean01, Value_Deviation01)</l>
+<l>                region_features (SelectedRegions01, 'contlength', Value_Contlength01)</l>
+<l>                region_features (SelectedRegions01, 'area', Value_Area01)</l>
+<l>                region_features (SelectedRegions01, 'anisometry', Value_Ani01)</l>
+<l>                region_features (SelectedRegions01, 'bulkiness', Value_Bul01)</l>
+<l>                region_features (SelectedRegions01, 'rect2_len2', Value_len201)</l>
+<l>                width01:=2*Value_Area01/(Value_Contlength01+0.01)</l>
+<l>                ratio_LW01:=(Value_Contlength01/2)/ (width01+0.01)</l>
+<c>                </c>
+<c></c>
+<l>  *              threshold (ImageReducedSD11, Region, 128, 255)</l>
+<c>                </c>
+<c>                </c>
+<c>                </c>
+<c>              </c>
+<c>      *****设定融合值下提取*************         </c>
+<l>              closing_circle (Region22,RegionClosing22, 10.5)</l>
+<l>              connection (RegionClosing22, ConnectedRegions22)</l>
+<l>              select_shape_std (ConnectedRegions22, SelectedRegions22, 'max_area', 70)</l>
+<c>      ********灰度30 以上像素面积</c>
+<l>              reduce_domain (ImageReducedSD, SelectedRegions22, ImageReducedSD22)</l>
+<l>              threshold (ImageReducedSD22, RegionSD22, 30, 255)</l>
+<l>              region_features (RegionSD22, 'area', Value_AreaSD22)</l>
+<c></c>
+<l>              region_features (SelectedRegions22, 'bulkiness', Value_Bul22)</l>
+<l>              region_features (SelectedRegions22, 'contlength', Value_Contlength22)</l>
+<l>              region_features (SelectedRegions22, 'area', Value_Area22)</l>
+<l>              region_features (SelectedRegions22, 'anisometry', Value_Ani22)</l>
+<l>              width22:=2*Value_Area22/(Value_Contlength22+0.01)</l>
+<l>              length22:=Value_Contlength22/2</l>
+<l>              ratio22:=length22/(width22+0.01)</l>
+<l>              intensity (SelectedRegions22, ImageReducedSD, Value_Mean22, Deviation22)              </l>
+<l>              ration_Area:=Value_AreaSD22/(Value_Area22+0.01) </l>
+<l>              endif</l>
+<l>        endfor</l>
+<c>              </c>
+<c>*做闭运算，提取出缺陷区域</c>
+<l>         calculate_features_qhh (SelectedRegions22, ImageReducedSD22, Features)</l>
+<l>        add_sample_class_mlp (ClassHandle, Features, ClassNumber)</l>
+<l>              endif</l>
+<l>        endfor  </l>
+<l>endfor</l>
+<c></c>
+<c></c>
+<l>return ()</l>
+<c></c>
+<c></c>
+</body>
+<docu id="add_samples_to_qhh">
+<parameters>
+<parameter id="ClassHandle"/>
+<parameter id="ClassNames"/>
+<parameter id="ReadPath"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

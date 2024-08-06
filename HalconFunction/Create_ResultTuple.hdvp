@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="22.05.0.0">
+<procedure name="Create_ResultTuple">
+<interface>
+<oc>
+<par name="OKNG" base_type="ctrl" dimension="0"/>
+<par name="ErrName" base_type="ctrl" dimension="0"/>
+<par name="ErrType" base_type="ctrl" dimension="0"/>
+<par name="DefectLevel" base_type="ctrl" dimension="0"/>
+<par name="GlassLengh" base_type="ctrl" dimension="0"/>
+<par name="GlassWidth" base_type="ctrl" dimension="0"/>
+<par name="GlassAngle" base_type="ctrl" dimension="0"/>
+<par name="ErrX" base_type="ctrl" dimension="0"/>
+<par name="ErrY" base_type="ctrl" dimension="0"/>
+<par name="ErrW" base_type="ctrl" dimension="0"/>
+<par name="ErrH" base_type="ctrl" dimension="0"/>
+<par name="ErrArea" base_type="ctrl" dimension="0"/>
+<par name="MapIndex" base_type="ctrl" dimension="0"/>
+<par name="ParIndex" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>OKNG:=[]</l>
+<l>ErrName:=[]</l>
+<l>ErrType:=[]</l>
+<l>DefectLevel := []</l>
+<l>GlassLengh := []</l>
+<l>GlassWidth := []</l>
+<l>GlassAngle := []</l>
+<l>ErrX := []</l>
+<l>ErrY := []</l>
+<l>ErrW := []</l>
+<l>ErrH := []</l>
+<l>ErrArea := []</l>
+<l>MapIndex:=[]</l>
+<l>ParIndex:=[]</l>
+<l>return ()</l>
+</body>
+<docu id="Create_ResultTuple">
+<parameters>
+<parameter id="DefectLevel"/>
+<parameter id="ErrArea"/>
+<parameter id="ErrH"/>
+<parameter id="ErrName"/>
+<parameter id="ErrType"/>
+<parameter id="ErrW"/>
+<parameter id="ErrX"/>
+<parameter id="ErrY"/>
+<parameter id="GlassAngle"/>
+<parameter id="GlassLengh"/>
+<parameter id="GlassWidth"/>
+<parameter id="MapIndex"/>
+<parameter id="OKNG"/>
+<parameter id="ParIndex"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

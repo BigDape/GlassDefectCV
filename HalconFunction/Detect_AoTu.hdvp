@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="Detect_AoTu">
+<interface>
+<io>
+<par name="Image1" base_type="iconic" dimension="0"/>
+<par name="Image2" base_type="iconic" dimension="0"/>
+<par name="Image3" base_type="iconic" dimension="0"/>
+<par name="Image4" base_type="iconic" dimension="0"/>
+<par name="DetectRoi" base_type="iconic" dimension="0"/>
+<par name="DetectRoij" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="ErrRoi" base_type="iconic" dimension="0"/>
+<par name="AlarmRoi" base_type="iconic" dimension="0"/>
+<par name="ErrImage" base_type="iconic" dimension="0"/>
+<par name="AlarmImage" base_type="iconic" dimension="0"/>
+<par name="OriginalErrRoi" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+<par name="VisionProcessStep" base_type="ctrl" dimension="0"/>
+<par name="ImageIndex" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="ErrName" base_type="ctrl" dimension="0"/>
+<par name="AlarmName" base_type="ctrl" dimension="0"/>
+<par name="ErrW" base_type="ctrl" dimension="0"/>
+<par name="ErrH" base_type="ctrl" dimension="0"/>
+<par name="ErrArea" base_type="ctrl" dimension="0"/>
+<par name="ErrX" base_type="ctrl" dimension="0"/>
+<par name="ErrY" base_type="ctrl" dimension="0"/>
+<par name="AlarmW" base_type="ctrl" dimension="0"/>
+<par name="AlarmH" base_type="ctrl" dimension="0"/>
+<par name="AlarmArea" base_type="ctrl" dimension="0"/>
+<par name="AlarmX" base_type="ctrl" dimension="0"/>
+<par name="AlarmY" base_type="ctrl" dimension="0"/>
+<par name="MapIndex" base_type="ctrl" dimension="0"/>
+<par name="ParIndex" base_type="ctrl" dimension="0"/>
+<par name="ErrImageIndex" base_type="ctrl" dimension="0"/>
+<par name="OK" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>OK:=[]</l>
+<c></c>
+<l>gen_empty_obj (ErrRoi) </l>
+<l>gen_empty_obj (AlarmRoi)</l>
+<l>gen_empty_obj (ErrImage) </l>
+<l>gen_empty_obj (AlarmImage)</l>
+<l>gen_empty_obj (aotu1)</l>
+<l>gen_empty_obj (aotu2)</l>
+<l>gen_empty_obj (OriginalErrRoi1)</l>
+<l>gen_empty_obj (OriginalErrRoi2)</l>
+<c></c>
+<l>ErrName:=[]</l>
+<l>AlarmName:=[]</l>
+<l>ErrW:=[]</l>
+<l>ErrH:=[]</l>
+<l>ErrArea:=[]</l>
+<l>ErrX:=[]</l>
+<l>ErrY:=[]</l>
+<l>AlarmW:=[]</l>
+<l>AlarmH:=[]</l>
+<l>AlarmArea:=[]</l>
+<l>AlarmX:=[]</l>
+<l>AlarmY:=[]</l>
+<l>MapIndex:=[]</l>
+<l>ParIndex:=[]</l>
+<l>ErrImageIndex:=[]</l>
+<l>try</l>
+<c>    </c>
+<l>    get_dict_tuple (DetectDict,'凹凸' , AoTuDict)</l>
+<l>    get_dict_tuple (AoTuDict, 'AoTu_threshold_Min', AoTu_threshold_Min) </l>
+<l>    get_dict_tuple (AoTuDict, 'AoTu_threshold_Max', AoTu_threshold_Max) </l>
+<l>    get_dict_tuple (AoTuDict, 'AoTu_L', AoTu_L)</l>
+<l>    get_dict_tuple (AoTuDict, 'AoTu_W', AoTu_W)</l>
+<c>    </c>
+<l>    get_dict_tuple (DetectDict,'系统参数' , xitongDict)</l>
+<l>    get_dict_tuple (xitongDict,'siyinclass' , siyinclass)</l>
+<c>    </c>
+<l>    DetectRoi1:=DetectRoi</l>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<l>    if (siyinclass==0)</l>
+<l>        if (VisionProcessStep==0)</l>
+<l>            move_region (DetectRoi, DetectRoi1, 400, 1)</l>
+<l>        endif</l>
+<c>        </c>
+<l>        if (VisionProcessStep&gt;=9)</l>
+<l>            move_region (DetectRoi, DetectRoi1, -600, 1)</l>
+<l>        endif   </l>
+<l>*         if (ImageIndex==0 )</l>
+<l>*             move_region (DetectRoi1, DetectRoi1, 0, 20)</l>
+<l>*         endif</l>
+<l>    else </l>
+<l>        shape_trans(DetectRoi, regionTrans, 'rectangle1')</l>
+<l>        if (VisionProcessStep==0)</l>
+<l>            move_region (regionTrans, DetectRoit, 400, 1)</l>
+<l>            intersection (DetectRoi, DetectRoit, DetectRoi1)</l>
+<l>        endif</l>
+<c>        </c>
+<l>        if (VisionProcessStep&gt;=9)</l>
+<l>            move_region (regionTrans, DetectRoit, -600, 1)</l>
+<l>            intersection (DetectRoi, DetectRoit, DetectRoi1)</l>
+<l>        endif  </l>
+<l>        erosion_rectangle1 (DetectRoi1, DetectRoi1, 11, 11)</l>
+<l>    endif</l>
+<c>    </c>
+<c>    </c>
+<l>    difference (DetectRoi1, DetectRoij, DetectRoi1)</l>
+<l>    reduce_domain (Image3, DetectRoi1, ImageReduced)    </l>
+<c>    </c>
+<l>    mean_image (ImageReduced, ImageMean1,10, 10)  </l>
+<l>    mean_image (ImageReduced, ImageMean2,100, 100)</l>
+<l>    dyn_threshold (ImageMean1, ImageMean2, RegionDynThresh, AoTu_threshold_Max, 'dark')</l>
+<l>    closing_circle (RegionDynThresh, RegionClosing, 2.5)</l>
+<l>    fill_up (RegionClosing, RegionFillUp)</l>
+<l>    opening_circle (RegionFillUp, RegionOpening, 5)</l>
+<l>    closing_circle (RegionOpening, RegionClosing1, 10)</l>
+<l>    connection (RegionClosing1, ConnectedRegions)</l>
+<l>    select_shape (ConnectedRegions, selectRegion, 'area', 'and', 300, 99999)</l>
+<c>    </c>
+<l>    count_obj (selectRegion, Number1)</l>
+<l>    for Index := 1 to Number1 by 1</l>
+<l>        select_obj (selectRegion, ObjectSelected, Index)</l>
+<l>        dilation_circle (ObjectSelected, RegionDilation1,6)</l>
+<l>        reduce_domain (Image1, RegionDilation1, ImageReduced1)</l>
+<l>        threshold (ImageReduced1, Regions, 15, 93)</l>
+<l>        connection (Regions, ConnectedRegions2)</l>
+<l>        select_shape_std (ConnectedRegions2, SelectedRegions3, 'max_area', 70)</l>
+<l>        region_features (SelectedRegions3, 'area', Value1)</l>
+<l>        if(Value1&gt;6)</l>
+<l>            union2 (ObjectSelected, SelectedRegions3, RegionUnion1)</l>
+<l>            concat_obj (aotu1, RegionUnion1, aotu1)    </l>
+<l>        endif</l>
+<l>    endfor</l>
+<c></c>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<l>    get_dict_tuple (DetectDict, '使能', EnabledDict)</l>
+<l>    get_dict_tuple (EnabledDict,'AoTo2_Enabled' , AoTo2_Enabled)</l>
+<c>    </c>
+<l>    if (ImageIndex==0 and AoTo2_Enabled)  </l>
+<l>        move_region (DetectRoi1, RegionMoved, 0, -300)</l>
+<l>        difference (DetectRoi1,RegionMoved,  RegionDifference)</l>
+<l>        intersection ( selectRegion, RegionDifference,RegionIntersection)</l>
+<l>        select_shape (RegionIntersection, SelectedRegionsd, 'area', 'and', 1500, 5000)</l>
+<l>        count_obj (SelectedRegionsd, Number1)</l>
+<l>        for Index := 1 to Number1 by 1</l>
+<l>            select_obj (SelectedRegionsd, ObjectSelected, Index)</l>
+<l>            dilation_circle (ObjectSelected, RegionDilation1,16)</l>
+<l>            reduce_domain (Image1, RegionDilation1, ImageReduced1)</l>
+<l>            threshold (ImageReduced1, Regions, 15, 93)</l>
+<l>            closing_circle (Regions, RegionClosing2, 3.5)</l>
+<l>            connection (RegionClosing2, ConnectedRegions2)</l>
+<l>            select_shape_std (ConnectedRegions2, SelectedRegions3, 'max_area', 70)</l>
+<l>            region_features (SelectedRegions3, 'area', Value1)</l>
+<l>            if(Value1&gt;=0)</l>
+<l>                union2 (ObjectSelected, SelectedRegions3, RegionUnion1)</l>
+<l>                concat_obj (aotu1, RegionUnion1, aotu1)    </l>
+<l>            endif</l>
+<l>        endfor</l>
+<l>    endif</l>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<l>    select_shape (aotu1, aotu1, 'area', 'and', 1, 99999)</l>
+<l>    count_obj ( aotu1,Number)</l>
+<l>    if (Number&gt;0)</l>
+<l>        tuple_gen_const (Number, 3, Newtuple)</l>
+<l>        GatherInfo_OkNG (aotu1, Image1, Image2, Image3, RoiImage, TransRoi, SelectRegion1, DetectDict, AoTuDict, '凹凸', VisionProcessStep, ImageIndex, AoTu_W, AoTu_L, Newtuple, Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK1)</l>
+<l>        if (OK1!=[])</l>
+<l>            concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>            concat_obj (ErrRoi,TransRoi,  ErrRoi)</l>
+<l>            ErrName:=[ErrName,Name]</l>
+<l>            ErrW:=[ErrW,W]</l>
+<l>            ErrH:=[ErrH,H]</l>
+<l>            ErrArea:=[ErrArea,Area]</l>
+<l>            ErrX:=[ErrX,X]</l>
+<l>            ErrY:=[ErrY,Y]</l>
+<l>            MapIndex:=[MapIndex,mapIndex]</l>
+<l>            ParIndex:=[ParIndex,parIndex]  </l>
+<l>            OK:=[OK,OK1]   </l>
+<l>            OriginalErrRoi:=SelectRegion1</l>
+<l>            ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>        endif</l>
+<l>    endif  </l>
+<c>    </c>
+<c>    **************************************************************************************</c>
+<l>catch (Exception )</l>
+<l>endtry</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="Detect_AoTu">
+<parameters>
+<parameter id="AlarmArea"/>
+<parameter id="AlarmH"/>
+<parameter id="AlarmImage"/>
+<parameter id="AlarmName"/>
+<parameter id="AlarmRoi"/>
+<parameter id="AlarmW"/>
+<parameter id="AlarmX"/>
+<parameter id="AlarmY"/>
+<parameter id="DetectDict"/>
+<parameter id="DetectRoi"/>
+<parameter id="DetectRoij"/>
+<parameter id="ErrArea"/>
+<parameter id="ErrH"/>
+<parameter id="ErrImage"/>
+<parameter id="ErrImageIndex"/>
+<parameter id="ErrName"/>
+<parameter id="ErrRoi"/>
+<parameter id="ErrW"/>
+<parameter id="ErrX"/>
+<parameter id="ErrY"/>
+<parameter id="Image1"/>
+<parameter id="Image2"/>
+<parameter id="Image3"/>
+<parameter id="Image4"/>
+<parameter id="ImageIndex"/>
+<parameter id="MapIndex"/>
+<parameter id="OK"/>
+<parameter id="OriginalErrRoi"/>
+<parameter id="ParIndex"/>
+<parameter id="VisionProcessStep"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

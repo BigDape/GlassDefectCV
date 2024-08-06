@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="22.05.0.0">
+<procedure name="ProcessSilkScreen">
+<interface>
+<io>
+<par name="Image1" base_type="iconic" dimension="0"/>
+<par name="Image2" base_type="iconic" dimension="0"/>
+<par name="Image3" base_type="iconic" dimension="0"/>
+<par name="Image4" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="OutLineImage" base_type="iconic" dimension="0"/>
+<par name="HolesImage" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="ResultDictHoles" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>try</l>
+<l>* set_system ('parallelize_operators', 'true')</l>
+<l>dev_update_off ()</l>
+<l>* dev_update_time ('off')</l>
+<l>* dev_update_pc ('off')</l>
+<l>* dev_update_var ('off')</l>
+<l>dev_update_window ('off')</l>
+<c>**********************初始化输出*****************************</c>
+<l>dev_set_draw ('fill')</l>
+<l>GlassOK:=[]</l>
+<l>HolesOK:=[]</l>
+<l>gen_empty_obj (SiYin)</l>
+<l>gen_empty_obj (HolesImage)</l>
+<l>gen_empty_obj (TransformedRegion)</l>
+<l>gen_empty_obj (OutLineImage)</l>
+<l>gen_empty_obj(Contours1)</l>
+<l>gen_empty_obj(Contours2)</l>
+<l>gen_empty_obj(ObjectsConcatW)</l>
+<l>gen_empty_obj(ObjectsConcatN)</l>
+<l>pixValue:=100.0/975.00000000</l>
+<c></c>
+<l>DistanceHorizontal:=[]</l>
+<l>DistanceVertical:=[]</l>
+<l>HolesHeight:=[]</l>
+<l>HolesWidth:=[]</l>
+<l>GlassWidth:=[]</l>
+<l>GlassHeight:=[]</l>
+<c></c>
+<l>set_system ('clip_region', 'false')</l>
+<c></c>
+<l>get_image_size (Image3, Width, Height)</l>
+<l>* mean_image (Image3, ImageMean, 1, 300)</l>
+<l>* dyn_threshold (Image3, ImageMean, RegionDynThresh, 70, 'dark')</l>
+<l>* connection (RegionDynThresh, ConnectedRegions)</l>
+<l>* select_shape (ConnectedRegions, SelectedRegions, 'area', 'and', 100, 999999999)</l>
+<c></c>
+<c></c>
+<l>* mean_image (Image3, ImageMean, 200, 200)</l>
+<l>* dyn_threshold (Image3, ImageMean, RegionDynThresh, 90, 'dark')</l>
+<l>* connection (RegionDynThresh, ConnectedRegions)</l>
+<l>* select_shape (ConnectedRegions, SelectedRegions, 'area', 'and', 100, 999999999)</l>
+<l>threshold (Image3, Region, 0, 40)</l>
+<l>connection (Region, ConnectedRegions)</l>
+<l>select_shape (ConnectedRegions, SelectedRegions, 'area', 'and', 5, 99999999)</l>
+<c></c>
+<l>sub_image (Image4, Image3, ImageSub, 1, 0)</l>
+<l>threshold (ImageSub, Region2, 50, 255)</l>
+<l>smallest_rectangle2 (Region2, Row3, Column3, Phi2, Length1, Length2)</l>
+<l>gen_rectangle2 (Rectangle1, Row3, Column3, Phi2, Length1, Length2)</l>
+<l>if(Length1&gt;1500 and Length2&gt;1500)</l>
+<l>gen_rectangle2 (Rectangle2, Row3, Column3, Phi2, Length1-1500, Length2-1500)</l>
+<l>difference (Rectangle1, Rectangle2, RegionDifference2)</l>
+<l>reduce_domain (ImageSub, RegionDifference2, ImageReduced1)</l>
+<l>threshold (ImageReduced1, Region1, 30, 255)</l>
+<l>else</l>
+<l>threshold (ImageSub, Region1, 30, 255)</l>
+<l>endif</l>
+<l>connection (Region1, ConnectedRegions1)</l>
+<l>select_shape_std (ConnectedRegions1, SelectedRegions2, 'max_area', 70)</l>
+<c></c>
+<l>fill_up (SelectedRegions2, RegionFillUp2)</l>
+<l>closing_circle (RegionFillUp2, RegionClosing2, 3.5)</l>
+<l>fill_up (RegionClosing2, RegionFillUp3)</l>
+<l>erosion_circle (RegionFillUp3, RegionErosion, 15.5)</l>
+<l>difference (RegionFillUp3, RegionErosion, RegionOutM)</l>
+<l>opening_circle (RegionOutM, RegionOut, 3.5)</l>
+<c></c>
+<c></c>
+<c></c>
+<l>* threshold (Image1, Region1, 250, 255)</l>
+<l>* connection (Region1, ConnectedRegions1)</l>
+<l>* select_shape (ConnectedRegions1, SelectedRegions1, 'area', 'and', 50, 99999999)</l>
+<c></c>
+<c></c>
+<c></c>
+<l>union2 (SelectedRegions, RegionOut, RegionUnion)</l>
+<l>* union2 (RegionUnion, SelectedRegions2, RegionUnion)</l>
+<l>union1 (RegionUnion, RegionUnion1)</l>
+<l>closing_rectangle1 (RegionUnion1, RegionClosing4, 100, 1000)</l>
+<l>fill_up (RegionClosing4, RegionFillUp4)</l>
+<l>erosion_circle (RegionFillUp4, RegionErosion1, 200.5)</l>
+<c></c>
+<c></c>
+<l>connection (RegionUnion1, ConnectedRegions3)</l>
+<l>stop()</l>
+<c>*****************************************丝印*********************************************</c>
+<c></c>
+<l>select_shape (ConnectedRegions3, SelectedRegions4, 'area', 'and', 5, 9999)</l>
+<l>intersection (RegionErosion1, SelectedRegions4, RegionIntersection1)</l>
+<l>union1 (RegionIntersection1, RegionUnion2)</l>
+<l>closing_circle (RegionUnion2, RegionClosing3, 100.5)</l>
+<l>connection (RegionClosing3, ConnectedRegions2)</l>
+<l>select_shape (ConnectedRegions2, SelectedRegions7, 'area', 'and', 10000, 999999)</l>
+<l>count_obj (SelectedRegions7, Number)</l>
+<l>for Index := 1 to Number by 1</l>
+<l>    select_obj (SelectedRegions7, ObjectSelected1, Index)</l>
+<l>    intersection (ObjectSelected1, SelectedRegions4, RegionIntersection)</l>
+<l>    connection (RegionIntersection, ConnectedRegions7)</l>
+<l>    count_obj (ConnectedRegions7, Number7)</l>
+<c>    </c>
+<c>    </c>
+<l>    if(Number7&gt;2)</l>
+<l>        area_center (ObjectSelected1, Area3, Row4, Column4)</l>
+<l>        crop_part (Image3, ImagePart3, Row4-300, Column4-600, 1200, 600)</l>
+<c>        </c>
+<l>        concat_obj (SiYin, ImagePart3, SiYin)</l>
+<l>        mean_image (ImagePart3, ImageMean, 1, 300)</l>
+<l>        sub_image (ImagePart3, ImageMean, ImageSub1, 1, 150)</l>
+<l>        dyn_threshold (ImagePart3, ImageMean, RegionDynThresh, 40, 'dark')</l>
+<l>        threshold (ImagePart3, Region3, 0, 40)</l>
+<l>    endif</l>
+<l>endfor</l>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c>*****************************************孔*********************************************</c>
+<l>select_shape_std (ConnectedRegions3, SelectedRegions3, 'max_area', 70)</l>
+<l>smallest_rectangle2 (SelectedRegions3, Row1, Column1, Phi1, Length11, Length21)</l>
+<c></c>
+<c></c>
+<l>AngleRadiansH:=[]</l>
+<c></c>
+<l>tuple_abs(Phi1,AngleRadians1)</l>
+<l>if(AngleRadians1&gt;0.785)</l>
+<l>    AngleRadians2 :=3.1415926/2-AngleRadians1</l>
+<l>    AngleRadiansH:=[AngleRadiansH,AngleRadians1]</l>
+<l>    AngleRadiansH:=[AngleRadiansH,AngleRadians2]</l>
+<c></c>
+<l>  if(Phi1&gt;0 and AngleRadians1&gt;0.785)</l>
+<c></c>
+<l>    AngleRadians:=min(AngleRadiansH)</l>
+<l>  else</l>
+<l>    AngleRadians:=-min(AngleRadiansH)</l>
+<l>  endif</l>
+<l>else</l>
+<l>  if(Phi1&gt;0)</l>
+<l>    AngleRadians:=-Phi1</l>
+<l>  else</l>
+<l>    AngleRadians:=AngleRadians1</l>
+<l>  endif</l>
+<l>endif</l>
+<c>    </c>
+<l>Scale := 1.0 </l>
+<l>TranslationX := 100 </l>
+<l>TranslationY := 50 </l>
+<c>* 创建仿射变换矩阵 </c>
+<l>hom_mat2d_identity(HomMat2D) </l>
+<c></c>
+<l>hom_mat2d_rotate(HomMat2D, AngleRadians, 0, 0, HomMat2DRotated) </l>
+<c></c>
+<c>* 应用仿射变换 </c>
+<l>affine_trans_region(RegionUnion1, TransformedRegion, HomMat2DRotated, 'nearest_neighbor')</l>
+<c></c>
+<l>if(Width&lt;Height)</l>
+<l>hom_mat2d_rotate(HomMat2D, AngleRadians+3.1415926/2, 0, 0, HomMat2DRotated1) </l>
+<c>* 应用仿射变换 </c>
+<l>affine_trans_region(RegionUnion1, TransformedRegion1, HomMat2DRotated1, 'nearest_neighbor')</l>
+<l>else</l>
+<l>  TransformedRegion1:= TransformedRegion</l>
+<l>endif</l>
+<l>zoom_region (TransformedRegion1, RegionZoom, 0.1, 0.1)</l>
+<l>area_center (RegionZoom, Area, Row, Column)</l>
+<l>region_features (RegionZoom, 'width', ValueW)</l>
+<l>region_features (RegionZoom, 'height', ValueH)</l>
+<l>RowMove:=((ValueH+400)/2-Row)</l>
+<l>ColumMove:=((ValueW+600)/2-Column)</l>
+<l>move_region (RegionZoom, RegionMoved, RowMove, ColumMove)</l>
+<l>dilation_circle (RegionMoved, RegionDilation, 1.5)</l>
+<c></c>
+<l>region_to_bin (RegionDilation, OutLineImage, 255, 0, ValueW+600, ValueH+400)</l>
+<c></c>
+<c></c>
+<l>affine_trans_image (Image3, ImageAffineTrans, HomMat2DRotated, 'constant', 'false')</l>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<l>* read_image (Image4, 'D:/1116采图/6/tile1.bmp')</l>
+<l>* read_image (Image5, 'D:/1116采图/6/tile2.bmp')</l>
+<c></c>
+<c></c>
+<l>* read_image (Image6, 'D:/1116采图/6/tile3.bmp')</l>
+<c></c>
+<c></c>
+<l>* get_image_size (Image4, Width, Height)</l>
+<l>* mean_image (Image6, ImageMean, 1, 300)</l>
+<l>* dyn_threshold (Image6, ImageMean, RegionDynThresh, 70, 'dark')</l>
+<l>* connection (RegionDynThresh, ConnectedRegions)</l>
+<l>* select_shape (ConnectedRegions, SelectedRegions, 'area', 'and', 50, 999999999)</l>
+<c></c>
+<l>* threshold (Image6, Region1, 0, 40)</l>
+<l>* connection (Region1, ConnectedRegions1)</l>
+<l>* select_shape (ConnectedRegions1, SelectedRegions, 'area', 'and', 100, 99999999)</l>
+<c></c>
+<c></c>
+<l>* threshold (Image4, Region1, 255, 255)</l>
+<l>* connection (Region1, ConnectedRegions1)</l>
+<l>* select_shape (ConnectedRegions1, SelectedRegions1, 'area', 'and', 50, 99999999)</l>
+<c></c>
+<l>* threshold (Image5, Region2, 50, 255)</l>
+<l>* connection (Region2, ConnectedRegions2)</l>
+<l>* select_shape (ConnectedRegions2, SelectedRegions2, 'area', 'and', 50, 99999999)</l>
+<l>* select_shape (SelectedRegions2, SelectedRegions4, 'ratio', 'and', 10, 99999999)</l>
+<c></c>
+<c></c>
+<l>* union2 (SelectedRegions, SelectedRegions4, RegionUnion)</l>
+<l>* union2 (RegionUnion, SelectedRegions2, RegionUnion)</l>
+<l>* union1 (RegionUnion, RegionUnion1)</l>
+<c></c>
+<l>* connection (RegionUnion1, ConnectedRegions3)</l>
+<l>* select_shape_std (ConnectedRegions3, SelectedRegions3, 'max_area', 70)</l>
+<l>* smallest_rectangle2 (SelectedRegions3, Row2, Column2, Phi1, Length11, Length21)</l>
+<c></c>
+<c></c>
+<c></c>
+<l>* AngleRadians := Phi1</l>
+<l>* AngleRadians :=3.1415926/2-Phi1</l>
+<l>* Scale := 1.0 </l>
+<l>* TranslationX := 100 </l>
+<l>* TranslationY := 50 </l>
+<c>* 创建仿射变换矩阵 </c>
+<l>* hom_mat2d_identity(HomMat2D) </l>
+<c></c>
+<l>* hom_mat2d_translate(HomMat2D, -Column2, -Row2, HomMat2DTranslated)</l>
+<l>* hom_mat2d_rotate(HomMat2DTranslated, AngleRadians, 0, 0, HomMat2DRotated) </l>
+<c></c>
+<c>* 应用仿射变换 </c>
+<l>* affine_trans_region(RegionUnion1, TransformedRegion1, HomMat2DRotated, 'nearest_neighbor')</l>
+<c></c>
+<l>* smallest_rectangle2 (TransformedRegion1, Row3, Column3, Phi3, Length12, Length22)</l>
+<l>* smallest_rectangle2 (TransformedRegion, Row4, Column4, Phi4, Length13, Length23)</l>
+<c></c>
+<l>* trans1R:=Row4-Row3</l>
+<l>* trans2C:=Column4-Column3</l>
+<c></c>
+<c></c>
+<l>* hom_mat2d_identity(HomMat2D) </l>
+<c></c>
+<l>* hom_mat2d_translate(HomMat2D, trans1R,trans2C,  HomMat2DTranslated)</l>
+<c></c>
+<c></c>
+<c>* 应用仿射变换 </c>
+<l>* affine_trans_region(TransformedRegion1, TransformedRegionNew, HomMat2DTranslated, 'nearest_neighbor')</l>
+<c></c>
+<c>*********************计算孔和门夹位置******************************</c>
+<c></c>
+<c></c>
+<l>connection (TransformedRegion, ConnectedRegions4)</l>
+<c></c>
+<l>closing_circle (TransformedRegion, RegionClosing, 10.5)</l>
+<l>connection (RegionClosing, ConnectedRegions5)</l>
+<c></c>
+<c>****************SelectedRegions6*************外框</c>
+<l>select_shape_std (ConnectedRegions5, SelectedRegions6, 'max_area', 70)</l>
+<c></c>
+<c></c>
+<l>fill_up (SelectedRegions6, RegionFillUp1)</l>
+<c></c>
+<l>closing_rectangle1 (RegionFillUp1, RegionClosing1, 1, 500)</l>
+<l>closing_rectangle1 (RegionClosing1, RegionClosing1, 500, 1)</l>
+<c></c>
+<l>difference (RegionClosing1, RegionFillUp1, RegionDifference)</l>
+<c></c>
+<c></c>
+<c>*****门夹</c>
+<l>opening_circle (RegionDifference, RegionOpening, 3.5)</l>
+<l>connection (RegionOpening, ConnectedRegionsMJ)</l>
+<l>select_shape (ConnectedRegionsMJ, SelectedRegionsMJ, 'area', 'and', 50000, 999999999)</l>
+<c></c>
+<l>* region_features (ConnectedRegionsMJ, 'width', width_MJ)</l>
+<l>* region_features (ConnectedRegionsMJ, 'height', height_MJ)</l>
+<l>* area_center (ConnectedRegionsMJ, AreaMJ, RowMJ, ColumnMJ)</l>
+<c></c>
+<c></c>
+<l>gen_contour_region_xld (RegionClosing1, Contours, 'border')</l>
+<l>* smooth_contours_xld (Contours, SmoothedContours, 305)</l>
+<l>segment_contours_xld (Contours, ContoursSplit, 'lines_circles', 5, 4, 2)</l>
+<c></c>
+<l>union_collinear_contours_xld (ContoursSplit, UnionContours, 10, 1, 10, 0.5, 'attr_keep')</l>
+<l>  elliptic_axis_xld (UnionContours, Ra, Rb, Phi)</l>
+<l>  fit_line_contour_xld (UnionContours, 'tukey', -1, 0, 5, 2, RowBegin, ColBegin, RowEnd, ColEnd, Nr, Nc, Dist)</l>
+<l>   gen_region_line (RegionLines_LT, RowBegin, ColBegin, RowEnd,ColEnd)</l>
+<c>   </c>
+<c>   *水平线</c>
+<l>   select_shape (RegionLines_LT, SelectedRegions8, 'ra', 'and', 500, 999999999)</l>
+<c>   </c>
+<l>   count_obj (SelectedRegions8, Number6)</l>
+<l>if(Number6&gt;0) </l>
+<l>   region_features (SelectedRegions8, 'orientation', Value1)</l>
+<l>   c:=((Value1[&gt;]3.1 and Value1[&lt;]3.17) or (Value1[&lt;]0.03 and Value1[&gt;]-0.03))</l>
+<l>   d:=find(c,1)</l>
+<l>   if(d!=-1)</l>
+<l>   select_obj (SelectedRegions8, ObjectSelected3, d+1)</l>
+<l>gen_contour_region_xld (ObjectSelected3, Contours1, 'border') </l>
+<l>count_obj (Contours1, Number4)</l>
+<c></c>
+<l>gen_empty_obj (Contours11X)</l>
+<l>gen_empty_obj (Contours12X)</l>
+<l>if(Number4&gt;1)</l>
+<l>    area_center_xld (Contours1, Area2, Row2, Column2, PointOrder)</l>
+<c></c>
+<c></c>
+<l>tuple_sort_index (Area2, Indices)  </l>
+<l>tuple_inverse (Indices, Inverted)</l>
+<l>tuple_select (Inverted, 0, aa)</l>
+<l>tuple_select (Inverted, 1, bb)</l>
+<l>select_obj (Contours1, Contours11X, aa+1)</l>
+<l>select_obj (Contours1, Contours12X, bb+1)</l>
+<c></c>
+<l>endif</l>
+<l>distance_cc_min (Contours11X, Contours12X, 'fast_point_to_segment', DistanceHMin)</l>
+<l>GlassHeight:=DistanceHMin*pixValue</l>
+<l>   endif</l>
+<l>endif</l>
+<c>   *竖线</c>
+<l>   select_shape (RegionLines_LT, SelectedRegions8, 'ra', 'and', 500, 9999999999)</l>
+<l>   count_obj (SelectedRegions8, Number6)</l>
+<l>if(Number6&gt;0)    </l>
+<l>   region_features (SelectedRegions8, 'orientation', Value1)</l>
+<l>   c:=((Value1[&gt;]1.54 and Value1[&lt;]1.6) or (Value1[&lt;]-1.54 and Value1[&gt;]-1.6))</l>
+<l>   d:=find(c,1)</l>
+<l>   if(d!=-1)</l>
+<l>   select_obj (SelectedRegions8, ObjectSelected4, d+1)</l>
+<c>   </c>
+<c></c>
+<l>gen_contour_region_xld (ObjectSelected4, Contours2, 'border')  </l>
+<l>count_obj (Contours2, Number5)</l>
+<l>gen_empty_obj (Contours11Y)</l>
+<l>gen_empty_obj (Contours12Y)</l>
+<l>if(Number5&gt;1)</l>
+<l>area_center_xld (Contours2, Area2, Row2, Column2, PointOrder)</l>
+<c></c>
+<c></c>
+<l>tuple_sort_index (Area2, Indices)  </l>
+<l>tuple_inverse (Indices, Inverted)</l>
+<l>tuple_select (Inverted, 0, aa)</l>
+<l>tuple_select (Inverted, 1, bb)</l>
+<l>select_obj (Contours2, Contours11Y, aa+1)</l>
+<l>select_obj (Contours2, Contours12Y, bb+1)</l>
+<l>endif</l>
+<l>distance_cc_min (Contours11Y, Contours12Y, 'point_to_point', DistanceWMin)</l>
+<l>GlassWidth:=DistanceWMin*pixValue</l>
+<c></c>
+<c></c>
+<c></c>
+<l>   endif</l>
+<l>endif</l>
+<c></c>
+<l>GlassCriterionW:=10</l>
+<l>GlassCriterionH:=10</l>
+<l>GlassErrRange:=1</l>
+<l>GlassOK:='OK'</l>
+<c></c>
+<c></c>
+<c></c>
+<l>select_shape (ConnectedRegions5, SelectedRegions1, 'ratio', 'and', 0.8, 1.2)</l>
+<l>select_shape (SelectedRegions1, SelectedRegions5, 'area', 'and', 1000, 999999999)</l>
+<l>fill_up (SelectedRegions5, RegionFillUp)</l>
+<c></c>
+<c></c>
+<c></c>
+<l>region_features (RegionFillUp, 'roundness', Value)</l>
+<l>c:=(Value[&gt;]0.9)</l>
+<l>d:=find(c,1)</l>
+<l>if(d!=-1)</l>
+<l>select_obj (SelectedRegions5, SelectedRegionsWK, d+1)</l>
+<c>*****外孔ObjectSelected2</c>
+<l>fill_up (SelectedRegionsWK, SelectedRegionsWKF)</l>
+<l>difference (SelectedRegionsWKF, SelectedRegionsWK, RegionDifference1)</l>
+<l>connection (RegionDifference1, ConnectedRegions6)</l>
+<l>select_shape (ConnectedRegions6, SelectedRegionsNK, 'area', 'and', 150, 9999999)</l>
+<c></c>
+<l>count_obj (SelectedRegionsNK, Number2)</l>
+<c></c>
+<l> tuple_gen_const (Number2, '孔', HolesTuple)</l>
+<c> </c>
+<l>count_obj (SelectedRegionsMJ, Number3)</l>
+<c></c>
+<l> tuple_gen_const (Number3, '门夹', MenJiaTuple)</l>
+<l> tuple_concat (HolesTuple, MenJiaTuple, Type)</l>
+<c></c>
+<l>concat_obj (SelectedRegionsNK, SelectedRegionsMJ, ObjectsConcatN)</l>
+<l>concat_obj (SelectedRegionsWKF, SelectedRegionsMJ, ObjectsConcatW)</l>
+<l>endif</l>
+<c></c>
+<l>concat_obj (ObjectsConcatW, SelectedRegions6, GlassOutline)</l>
+<c>***************GlassOutline***********整体轮廓*************</c>
+<l>count_obj (ObjectsConcatN, Number1)</l>
+<l>if(Number1&gt;0)  </l>
+<l>smallest_rectangle1 (ObjectsConcatN, Row11, Column11, Row12, Column12)</l>
+<l>gen_rectangle1 (Rectangle, Row11-50, Column11-50, Row12+50, Column12+50)</l>
+<c></c>
+<c></c>
+<c></c>
+<l>for Index2 := 1 to Number1 by 1</l>
+<l>select_obj (Rectangle, ObjectSelected, Index2)</l>
+<l>reduce_domain (ImageAffineTrans, ObjectSelected, ImageReduced)</l>
+<l>crop_domain (ImageReduced, ImagePart)</l>
+<l>concat_obj (HolesImage, ImagePart, HolesImage)</l>
+<l>endfor</l>
+<c></c>
+<c></c>
+<c>*****内孔SelectedRegions7</c>
+<l>area_center (ObjectsConcatW, Area1, Row5, Column5)</l>
+<l>region_features (SelectedRegionsNK, 'width', width_R)</l>
+<l>region_features (SelectedRegionsNK, 'height', height_R)</l>
+<l>HolesWidth:=height_R*pixValue</l>
+<l>HolesHeight:=height_R*pixValue</l>
+<c></c>
+<c></c>
+<l>region_features (SelectedRegionsMJ, 'width', width_R)</l>
+<l>region_features (SelectedRegionsMJ, 'height', height_R)</l>
+<l>HolesWidth:=[HolesWidth,width_R*pixValue]</l>
+<l>HolesHeight:=[HolesHeight,height_R*pixValue]</l>
+<l>* Diameter:=(width_R+height_R)/2</l>
+<c></c>
+<c>**水平方向距离</c>
+<c></c>
+<c></c>
+<c></c>
+<l>dis_min1:=[]</l>
+<l>dis_min2:=[]</l>
+<l>* count_obj (Contours1, Number)</l>
+<l>* if(Number&gt;0)</l>
+<l>* for Index := 1 to Number by 1</l>
+<l>* select_obj (Contours1, ObjectSelected5, Index)</l>
+<c></c>
+<l>distance_pc (Contours11X, Row5, Column5, DistanceMin1, DistanceMax1)</l>
+<l>distance_pc (Contours12X, Row5, Column5, DistanceMin2, DistanceMax2)</l>
+<c></c>
+<l>   dis_min1:= DistanceMin1</l>
+<l>   dis_min2:= DistanceMin2</l>
+<c></c>
+<l>* endfor</l>
+<l>* endif</l>
+<l>count:=|dis_min1|</l>
+<l>  dismin_horn:=[]</l>
+<l>for Index1 := 1 to count by 1</l>
+<l>    tuple_select (dis_min1, Index1-1, Selected1)</l>
+<l>    tuple_select (dis_min2, Index1-1, Selected2)</l>
+<c>    </c>
+<l>    tuple_min2 (Selected1, Selected2, Min2)</l>
+<c>  </c>
+<l>    dismin_horn:=[dismin_horn,Min2]</l>
+<c>    </c>
+<l>endfor</l>
+<l>DistanceHorizontal:=dismin_horn*pixValue</l>
+<c>***dismin_horn水平距离结果</c>
+<c></c>
+<c></c>
+<c>**垂直方向距离</c>
+<c></c>
+<l>dis_min1:=[]</l>
+<l>dis_min2:=[]</l>
+<c></c>
+<l>distance_pc (Contours11Y, Row5, Column5, DistanceMin1, DistanceMax1)</l>
+<l>distance_pc (Contours12Y, Row5, Column5, DistanceMin2, DistanceMax2)</l>
+<c></c>
+<l>   dis_min1:= DistanceMin1</l>
+<l>   dis_min2:= DistanceMin2</l>
+<l>count:=|dis_min1|</l>
+<l>dismin_ver:=[]</l>
+<c></c>
+<l>for Index1 := 1 to count by 1</l>
+<l>    tuple_select (dis_min1, Index1-1, Selected1)</l>
+<l>    tuple_select (dis_min2, Index1-1, Selected2)</l>
+<c>    </c>
+<l>    tuple_min2 (Selected1, Selected2, Min2)</l>
+<l>    dismin_ver:=[dismin_ver,Min2]</l>
+<c>    </c>
+<l>endfor</l>
+<c></c>
+<l>DistanceVertical:=dismin_ver*pixValue</l>
+<l>endif</l>
+<c></c>
+<l>CriterionX:=10</l>
+<l>CriterionY:=10</l>
+<l>CriterionW:=10</l>
+<l>CriterionH:=10</l>
+<l>ErrRange:=1</l>
+<c></c>
+<c></c>
+<l>for Index3 := 1 to Number1 by 1</l>
+<c>    </c>
+<l>    HolesOK:=[HolesOK,'OK']</l>
+<c>    </c>
+<l>endfor</l>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c>*****dismin_ver垂直距离</c>
+<c></c>
+<c>*****************************************************************************************************</c>
+<c></c>
+<c></c>
+<c>*************************收集数据******************************* </c>
+<c></c>
+<c></c>
+<l>create_dict (ResultDictHoles)</l>
+<l>set_dict_tuple (ResultDictHoles, 'GlassOK', GlassOK)</l>
+<l>set_dict_tuple (ResultDictHoles, 'GlassHeight', GlassHeight)</l>
+<l>set_dict_tuple (ResultDictHoles, 'GlassWidth', GlassWidth)</l>
+<l>set_dict_tuple (ResultDictHoles, 'Type', Type)</l>
+<l>set_dict_tuple (ResultDictHoles, 'HolesOK', HolesOK)</l>
+<l>set_dict_tuple (ResultDictHoles, 'DistanceHorizontal', DistanceHorizontal)</l>
+<l>set_dict_tuple (ResultDictHoles, 'DistanceVertical', DistanceVertical)</l>
+<l>set_dict_tuple (ResultDictHoles, 'HolesWidth', HolesWidth)</l>
+<l>set_dict_tuple (ResultDictHoles, 'HolesHeight', HolesHeight)</l>
+<c></c>
+<c></c>
+<l>return ()</l>
+<l>catch (Exception)</l>
+<c>   </c>
+<l>endtry</l>
+</body>
+<docu id="ProcessSilkScreen">
+<parameters>
+<parameter id="DetectDict"/>
+<parameter id="HolesImage"/>
+<parameter id="Image1"/>
+<parameter id="Image2"/>
+<parameter id="Image3"/>
+<parameter id="Image4"/>
+<parameter id="OutLineImage"/>
+<parameter id="ResultDictHoles"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

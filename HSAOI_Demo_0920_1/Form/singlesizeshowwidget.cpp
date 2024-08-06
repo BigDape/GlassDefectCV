@@ -338,6 +338,7 @@ bool SingleSizeShowWidget::matchMenjiaMode(QString distanceHorizontal,QString di
 
 void SingleSizeShowWidget::slot_refreshSize(QString jsonFilePath, int glassid)
 {
+    qDebug()<<"jsonFilePath  = "<<jsonFilePath<<"glassid ="<<glassid;
     Global::glassidToholejson[glassid] = jsonFilePath; //存储glassid到jsonFullPath
     GlassID = glassid;
     jsonFileName = jsonFilePath;

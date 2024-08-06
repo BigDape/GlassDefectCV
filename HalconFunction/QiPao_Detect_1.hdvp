@@ -1,0 +1,724 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="QiPao_Detect_1">
+<interface>
+<io>
+<par name="Image1" base_type="iconic" dimension="0"/>
+<par name="Image2" base_type="iconic" dimension="0"/>
+<par name="Image3" base_type="iconic" dimension="0"/>
+<par name="Image4" base_type="iconic" dimension="0"/>
+<par name="RoiDetect" base_type="iconic" dimension="0"/>
+<par name="jishiRoi" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="ErrRoi" base_type="iconic" dimension="0"/>
+<par name="AlarmRoi" base_type="iconic" dimension="0"/>
+<par name="ErrImage" base_type="iconic" dimension="0"/>
+<par name="AlarmImage" base_type="iconic" dimension="0"/>
+<par name="OriginalErrRoi" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+<par name="VisionProcessStep" base_type="ctrl" dimension="0"/>
+<par name="ImageIndex" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="ErrName" base_type="ctrl" dimension="0"/>
+<par name="AlarmName" base_type="ctrl" dimension="0"/>
+<par name="ErrW" base_type="ctrl" dimension="0"/>
+<par name="ErrH" base_type="ctrl" dimension="0"/>
+<par name="ErrArea" base_type="ctrl" dimension="0"/>
+<par name="ErrX" base_type="ctrl" dimension="0"/>
+<par name="ErrY" base_type="ctrl" dimension="0"/>
+<par name="AlarmW" base_type="ctrl" dimension="0"/>
+<par name="AlarmH" base_type="ctrl" dimension="0"/>
+<par name="AlarmArea" base_type="ctrl" dimension="0"/>
+<par name="AlarmX" base_type="ctrl" dimension="0"/>
+<par name="AlarmY" base_type="ctrl" dimension="0"/>
+<par name="MapIndex" base_type="ctrl" dimension="0"/>
+<par name="ParIndex" base_type="ctrl" dimension="0"/>
+<par name="OK" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>OK:='OK'</l>
+<l>try</l>
+<l>    gen_empty_obj (ErrRoi) </l>
+<l>    gen_empty_obj (AlarmRoi)</l>
+<l>    gen_empty_obj (ErrImage) </l>
+<l>    gen_empty_obj (AlarmImage)</l>
+<l>    ErrName:=[]</l>
+<l>    AlarmName:=[]</l>
+<l>    ErrW:=[]</l>
+<l>    ErrH:=[]</l>
+<l>    ErrArea:=[]</l>
+<l>    ErrX:=[]</l>
+<l>    ErrY:=[]</l>
+<l>    AlarmW:=[]</l>
+<l>    AlarmH:=[]</l>
+<l>    AlarmArea:=[]</l>
+<l>    AlarmX:=[]</l>
+<l>    AlarmY:=[]</l>
+<l>    MapIndex:=[]</l>
+<l>    ParIndex:=[]</l>
+<l>    get_dict_tuple (DetectDict, 'KaiKouPao_Enabled', QiPao2_Enabled) </l>
+<l>    get_dict_tuple (DetectDict, 'compactnessK', compactness2) </l>
+<l>    get_dict_tuple (DetectDict, 'KaiKouPao_threshold_Min', QiPao2_threshold_Min) </l>
+<l>    get_dict_tuple (DetectDict, 'KaiKouPao_threshold_Max', QiPao2_threshold_Max) </l>
+<l>    get_dict_tuple (DetectDict, 'QiPao2_CKB', QiPao2_CKB)</l>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<l>    get_dict_tuple (DetectDict, 'BiKouPao_Enabled', QiPao1_Enabled) </l>
+<l>    get_dict_tuple (DetectDict, 'compactnessB', compactness1) </l>
+<l>    get_dict_tuple (DetectDict, 'BiKouPao_threshold_Min', QiPao1_threshold_Min) </l>
+<l>    get_dict_tuple (DetectDict, 'BiKouPao_threshold_Max', QiPao1_threshold_Max) </l>
+<l>    get_dict_tuple (DetectDict, 'QiPao1_CKB', QiPao1_CKB)</l>
+<l>    gen_empty_obj (KObject)</l>
+<l>    gen_empty_obj (BObject)</l>
+<l>    gen_empty_obj (VObject)</l>
+<c>    </c>
+<l>    reduce_domain (Image1, RoiDetect, ImageReduced)</l>
+<c>    </c>
+<c>    </c>
+<l>    threshold (ImageReduced, Regions1, 20, QiPao1_threshold_Max)</l>
+<l>    closing_circle (Regions1, RegionClosing1, 3.5)</l>
+<l>    connection (RegionClosing1, ConnectedRegions4)</l>
+<c>    </c>
+<l>    select_shape (ConnectedRegions4, SelectedRegions4, 'area', 'and', 4000, 999999)  </l>
+<c>    ***********************************************气泡1********</c>
+<c>    *******************************************   </c>
+<c>    </c>
+<c>    ******************************提取形状为半个气泡************************</c>
+<l>    if (QiPao1_Enabled)</l>
+<l>*         emphasize (ImageReduced, ImageEmphasize, 5, 5, 1)</l>
+<l>        threshold (ImageReduced, Regions, QiPao1_threshold_Min, QiPao1_threshold_Max)</l>
+<l>        difference (Regions, SelectedRegions4, Regions)</l>
+<l>        closing_rectangle1 (Regions, RegionClosing, 1, 3)</l>
+<l>        connection (RegionClosing, ConnectedRegions)</l>
+<l>        select_shape (ConnectedRegions, SelectedRegions, 'area', 'and', 10,999999)</l>
+<c>        </c>
+<l>        region_features (SelectedRegions, 'rect2_phi', Phi)</l>
+<l>        SelectAngle:=abs(abs(Phi)-1.57)[&lt;]0.15</l>
+<l>        select_mask_obj (SelectedRegions, SelectedObjects, SelectAngle)</l>
+<l>        count_obj (SelectedObjects, Number)</l>
+<l>        for Index1 := 1 to Number by 1</l>
+<l>            select_obj (SelectedObjects, ObjectSelected, Index1)</l>
+<l>            closing_circle (ObjectSelected, RegionClosing2, 4.5)</l>
+<l>            difference (RegionClosing2, ObjectSelected, RegionDifference)</l>
+<c>            </c>
+<c>            ************************************************************************</c>
+<l>            set_system ('neighborhood', 4)</l>
+<l>            connection (RegionDifference, ConnectedRegions1)</l>
+<l>            set_system ('neighborhood', 8)</l>
+<l>            select_shape (ConnectedRegions1, SelectedRegions2, 'area', 'and', 2, 99999999)</l>
+<l>            count_obj (SelectedRegions2, Number1)</l>
+<l>            area_center (RegionDifference, Area1, Row, Column)</l>
+<l>            gen_region_line (RegionLines, Row, Column-30, Row, Column+30)</l>
+<l>            intersection (RegionLines, ObjectSelected, RegionIntersection)</l>
+<l>            connection (RegionIntersection, ConnectedRegions2)</l>
+<l>            select_shape (ConnectedRegions2, SelectedRegions1, 'area', 'and', 1, 99999)</l>
+<l>            region_features (ObjectSelected, 'rect2_len1', L1)</l>
+<l>            region_features (SelectedRegions2, 'rect2_len1', L2)</l>
+<l>            count_obj (SelectedRegions1, Number2)</l>
+<l>            a:=L2/L1</l>
+<l>            if (Number1==1 and Number2==2)</l>
+<l>                region_features (RegionDifference, 'area', Value2)</l>
+<l>                region_features (ObjectSelected, 'area', Value1)</l>
+<l>                d:=Value2/Value1</l>
+<l>                if(d&gt;compactness1 and a&gt;0.30)</l>
+<l>                    smallest_rectangle1 (ObjectSelected, Row11, Column11, Row21, Column21)</l>
+<l>                    gen_rectangle1 (Rectangle, [Row11-20,Row21+2], [Column11,Column11],\
+                                    [Row11-2,Row21+20], [Column21,Column21])</l>
+<l>                    union1 (Rectangle, RegionUnion2)</l>
+<l>                    intersection (RegionUnion2, Regions, RegionIntersection6)</l>
+<l>                    region_features (RegionIntersection6, 'area', Value2)</l>
+<c>                    </c>
+<l>                    if (Value2&lt;5)</l>
+<l>                        dilation_rectangle1 (ObjectSelected, RegionDilation, 3,20)</l>
+<l>                        intersection (RegionDilation, RegionClosing, RegionIntersection1)</l>
+<l>                        concat_obj (BObject, RegionIntersection1, BObject) </l>
+<l>                    endif                   </l>
+<l>                endif</l>
+<l>            endif    </l>
+<l>        endfor</l>
+<c>        </c>
+<l>        count_obj ( BObject,Number)</l>
+<l>        if (Number&gt;0)</l>
+<l>            get_dict_tuple (DetectDict, 'BiKouPao_L', QiPao1_L)</l>
+<l>            get_dict_tuple (DetectDict, 'BiKouPao_W', QiPao1_W)</l>
+<l>            GatherInfo (BObject, Image1, Image2, Image3, Image4, RoiImage, TransRoi, SelectRegion, DetectDict, '气泡1', VisionProcessStep, ImageIndex, QiPao1_W, QiPao1_L, DisPlayImageIndex, Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK1)</l>
+<l>            if (OK1=='NG')           </l>
+<l>                concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                concat_obj (ErrRoi,TransRoi,  ErrRoi)</l>
+<l>                ErrName:=[ErrName,Name]</l>
+<l>                ErrW:=[ErrW,W]</l>
+<l>                ErrH:=[ErrH,H]</l>
+<l>                ErrArea:=[ErrArea,Area]</l>
+<l>                ErrX:=[ErrX,X]</l>
+<l>                ErrY:=[ErrY,Y]</l>
+<l>                MapIndex:=[MapIndex,mapIndex]</l>
+<l>                ParIndex:=[ParIndex,parIndex]  </l>
+<l>                OK:='NG'  </l>
+<l>            endif</l>
+<l>        endif</l>
+<c>        </c>
+<c>        </c>
+<c>        ******************************提取形状为擦伤状态的气泡************************</c>
+<l>        gen_empty_obj (XObject)</l>
+<l>        closing_circle (Regions, RegionClosing, 3.5)</l>
+<l>        connection (RegionClosing, ConnectedRegions)</l>
+<l>        select_shape (ConnectedRegions, SelectedRegions, ['rect2_len1','rect2_len2'],\
+                      'and', [15,0], [200,10])</l>
+<l>        region_features (SelectedRegions, 'rect2_phi', Phi)</l>
+<l>        SelectAngle:=abs(abs(Phi)-1.57)[&lt;]0.15</l>
+<l>        select_mask_obj (SelectedRegions, SelectedObjects, SelectAngle)</l>
+<l>        union1 (SelectedObjects, RegionUnion)</l>
+<l>        reduce_domain (Image1, RegionUnion, ImageReducedq)</l>
+<l>        threshold (ImageReducedq, Regions1, 200, 255)</l>
+<l>        select_shape (Regions1, SelectedRegions1, 'area', 'and', 10,99999)</l>
+<l>        select_shape_proto (SelectedObjects, SelectedRegions1, SelectedRegions6, 'overlaps_rel', 0.1, 999999)</l>
+<l>        count_obj (SelectedRegions6, Number)</l>
+<l>        if (Number&gt;0)</l>
+<l>            for Index1 := 1 to Number by 1</l>
+<l>                select_obj (SelectedRegions6, ObjectSelected, Index1)</l>
+<l>                smallest_rectangle1 (ObjectSelected, Row1, Column1, Row2, Column2)</l>
+<l>                gen_rectangle1 (Rectangle1, Row1-2, Column1-2, Row1+5, Column2+5)</l>
+<l>                gen_rectangle1 (Rectangle2, Row2-5, Column2-6, Row2+5, Column2+5)</l>
+<l>                union2 (Rectangle1, Rectangle2, RegionUnion1)</l>
+<l>                difference (ObjectSelected, RegionUnion1, RegionDifference)</l>
+<c>                </c>
+<l>                smallest_rectangle1 (RegionDifference, Row1, Column1, Row2, Column2) </l>
+<l>                LineCount:=round((Row2-Row1)/1.5)</l>
+<l>                LineCountz:=Row2-Row1</l>
+<l>                t1:=round((LineCountz-LineCount)/2)</l>
+<l>                get_region_points (RegionDifference, Rows, Columns)</l>
+<l>                MaxRow:=max(Rows)-t1</l>
+<l>                Columns:=mean(Columns)</l>
+<l>                rows:=[MaxRow:-1:MaxRow-LineCount]</l>
+<l>                tuple_gen_const (LineCount+1, Columns-10, cols1)</l>
+<l>                tuple_gen_const (LineCount+1, Columns+10, cols2)</l>
+<l>                gen_region_line (RegionLines, rows, cols1, rows, cols2)</l>
+<l>                intersection (RegionLines, SelectedRegions6, RegionIntersection)</l>
+<c>                </c>
+<l>                region_features (RegionIntersection, 'column2', Value1)</l>
+<l>                a:=sort(Value1)[|Value1|/2]         </l>
+<l>                discol2:=abs(Value1-a)[&gt;]1</l>
+<l>                a1:=find(discol2, 1)</l>
+<c>                </c>
+<l>                discol2_1:=abs(Value1-a)[&gt;]0</l>
+<l>                a1_1:=find(discol2_1, 1)</l>
+<l>                v1:=(|a1_1|+0.001)/LineCount</l>
+<c>                </c>
+<c>                </c>
+<c>                </c>
+<l>                region_features (RegionIntersection, 'column1', Value1)</l>
+<l>                b:=sort(Value1)[|Value1|/2]         </l>
+<l>                discol1:=abs(Value1-b)[&gt;]1</l>
+<l>                b1:=find(discol1, 1)</l>
+<c>                </c>
+<l>                discol2_1:=abs(Value1-b)[&gt;]0</l>
+<l>                b1_1:=find(discol2_1, 1)</l>
+<l>                v2:=(|b1_1|+0.001)/LineCount</l>
+<c>                </c>
+<c>                </c>
+<c>                </c>
+<l>                region_features (RegionIntersection, 'area', area)</l>
+<l>*                 c:= area[&lt;]2</l>
+<l>*                 areamin:=find(c, 1)</l>
+<c>                </c>
+<l>                AreaDisMax:= (area-min(area))[&gt;]2</l>
+<l>                AreaDis:=find(AreaDisMax, 1)</l>
+<c>                </c>
+<c>                * and |areamin|&lt;2</c>
+<l>                if (|b1|&lt;=2 and |a1|&lt;=2  and |AreaDis|&lt;3 and v1&lt;0.2 and v2&lt;0.2 )</l>
+<l>                    concat_obj (XObject, ObjectSelected, XObject)</l>
+<l>                endif </l>
+<c>                </c>
+<l>            endfor   </l>
+<l>        endif</l>
+<c>        </c>
+<l>        count_obj ( XObject,Number)</l>
+<l>        if (Number&gt;0)</l>
+<l>            get_dict_tuple (DetectDict, 'BiKouPao_L', QiPao1_L)</l>
+<l>            get_dict_tuple (DetectDict, 'BiKouPao_W', QiPao1_W)</l>
+<l>            dilation_rectangle1 (XObject, XObject, 2, 1)</l>
+<l>            GatherInfo (XObject, Image1, Image2, Image3, Image4, RoiImage, TransRoi, SelectRegion1, DetectDict, '气泡3', VisionProcessStep, ImageIndex, QiPao1_W, QiPao1_L, DisPlayImageIndex1, Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex1, OK1)</l>
+<l>            if (OK1=='NG')           </l>
+<l>                concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                concat_obj (ErrRoi,TransRoi,  ErrRoi)</l>
+<l>                ErrName:=[ErrName,Name]</l>
+<l>                ErrW:=[ErrW,W]</l>
+<l>                ErrH:=[ErrH,H]</l>
+<l>                ErrArea:=[ErrArea,Area]</l>
+<l>                ErrX:=[ErrX,X]</l>
+<l>                ErrY:=[ErrY,Y]</l>
+<l>                MapIndex:=[MapIndex,mapIndex]</l>
+<l>                ParIndex:=[ParIndex,parIndex]  </l>
+<l>                OK:='NG'  </l>
+<l>            endif</l>
+<l>        endif</l>
+<c>        </c>
+<l>    endif</l>
+<c>    </c>
+<c>    ***********************************************气泡2*****************QiPao1_CKB**********************************</c>
+<c>    </c>
+<c>    ******************************提取形状为整个气泡************************</c>
+<l>    if (QiPao2_Enabled)</l>
+<c>        </c>
+<l>        threshold (Image1, Regions, QiPao2_threshold_Min, QiPao2_threshold_Max)</l>
+<c>        </c>
+<l>*         var_threshold (Image1, Regions, 15, 15, 0.2, 2, 'light')</l>
+<l>        difference (Regions, SelectedRegions4, Regions)</l>
+<c>        </c>
+<l>        opening_rectangle1 (Regions, RegionOpening, 1, 2)</l>
+<l>        connection (RegionOpening, ConnectedRegions)</l>
+<l>        select_shape (ConnectedRegions, SelectedRegions, 'area', 'and', 40, 20000)</l>
+<l>        region_features (SelectedRegions, 'rect2_phi', Phi)</l>
+<l>        SelectAngle:=abs(abs(Phi)-1.57)[&lt;]0.1</l>
+<l>        select_mask_obj (SelectedRegions, SelectedObjects, SelectAngle)</l>
+<l>        count_obj (SelectedObjects, Number)</l>
+<l>        for Index1 := 1 to Number by 1</l>
+<l>            select_obj (SelectedObjects, ObjectSelected, Index1)           </l>
+<l>            reduce_domain (Image1, ObjectSelected, ImageReduced2)</l>
+<l>            threshold (ImageReduced2, Regions4, 200, 255)</l>
+<l>            region_features (Regions4, 'area', Value)</l>
+<l>            if (Value&gt;5)</l>
+<l>                fill_up (ObjectSelected, RegionFillUp) </l>
+<c>                </c>
+<l>                smallest_rectangle1 (RegionFillUp, Row1, Column1, Row2, Column2)</l>
+<l>                LineCount:=Row2-Row1</l>
+<l>                get_region_points (RegionFillUp, Rows, Columns)</l>
+<l>                MaxRow:=max(Rows)</l>
+<l>                Columns:=mean(Columns)</l>
+<l>                rows:=[MaxRow:-1:MaxRow-LineCount+1]</l>
+<l>                tuple_gen_const (LineCount, Columns-10, cols1)</l>
+<l>                tuple_gen_const (LineCount, Columns+10, cols2)</l>
+<l>                gen_region_line (RegionLines, rows, cols1, rows, cols2)</l>
+<l>                intersection (RegionLines, RegionFillUp, RegionIntersection)</l>
+<l>                region_features (RegionIntersection, 'area', Value1)</l>
+<l>                uparea:=Value1[LineCount-3]</l>
+<l>                dowmarea:=Value1[2]</l>
+<l>                medianarea:=Value1[LineCount/2]</l>
+<l>                updisArea:=abs(medianarea-uparea)</l>
+<l>                downdisArea:=abs(medianarea-dowmarea)</l>
+<l>                maxcol:= max([downdisArea,updisArea])</l>
+<l>                ckbcol:= LineCount/(maxcol+0.01)</l>
+<c>                </c>
+<c>                </c>
+<l>                difference (RegionFillUp, ObjectSelected, RegionDifference) </l>
+<l>                closing_rectangle1 (RegionDifference, RegionClosing6, 1, 5)</l>
+<l>                connection (RegionClosing6, ConnectedRegions3)</l>
+<l>                select_shape (ConnectedRegions3, SelectedRegions3, 'area', 'and', 5, 99999)</l>
+<l>                count_obj (SelectedRegions3, Number3)</l>
+<l>                region_features (SelectedRegions3, 'rect2_len1', Value2)</l>
+<l>                region_features (ObjectSelected,'rect2_len1', Value1)</l>
+<l>                region_features (ObjectSelected, 'rect2_len1', len1)</l>
+<l>                region_features (ObjectSelected, 'rect2_len2', len2)</l>
+<l>                d:=Value2/Value1</l>
+<l>                CKB:=len1/len2</l>
+<l>                if(d&gt;compactness2 and CKB&gt;QiPao2_CKB and Number3==1 and ckbcol&gt;10 )</l>
+<l>                    concat_obj (KObject, ObjectSelected, KObject)</l>
+<l>                endif </l>
+<l>            endif</l>
+<l>        endfor</l>
+<l>        count_obj ( KObject,Number)</l>
+<l>        if (Number&gt;0)</l>
+<l>            get_dict_tuple (DetectDict, 'KaiKouPao_L', QiPao2_L)</l>
+<l>            get_dict_tuple (DetectDict, 'KaiKouPao_W', QiPao2_W)</l>
+<l>            GatherInfo (KObject, Image1, Image2, Image3, Image4, RoiImage, TransRoi, SelectRegion2, DetectDict, '气泡2', VisionProcessStep, ImageIndex, QiPao2_W, QiPao2_L, DisPlayImageIndex2, Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex2, OK1)</l>
+<l>            if (OK1=='NG')</l>
+<l>                concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                concat_obj (ErrRoi,TransRoi,  ErrRoi)</l>
+<l>                ErrName:=[ErrName,Name]</l>
+<l>                ErrW:=[ErrW,W]</l>
+<l>                ErrH:=[ErrH,H]</l>
+<l>                ErrArea:=[ErrArea,Area]</l>
+<l>                ErrX:=[ErrX,X]</l>
+<l>                ErrY:=[ErrY,Y]</l>
+<l>                MapIndex:=[MapIndex,mapIndex]</l>
+<l>                ParIndex:=[ParIndex,parIndex]  </l>
+<l>                OK:='NG'  </l>
+<l>            endif</l>
+<l>        endif        </l>
+<c>        </c>
+<c>        ******************************提取形状为锥形气泡************************</c>
+<l>        threshold (ImageReduced, Regions2, 15, 255)</l>
+<l>        closing_rectangle1 (Regions2, RegionClosing3, 1, 4)</l>
+<l>        connection (RegionClosing3, ConnectedRegions5)</l>
+<l>        select_shape (ConnectedRegions5, SelectedRegions, 'rect2_len1', 'and',15, 200)</l>
+<l>        select_shape (SelectedRegions, SelectedRegions1, 'rect2_len2', 'and', 1.5, 15)</l>
+<l>        select_shape (SelectedRegions1, SelectedRegions2, ['rect2_phi','rect2_phi'], 'or', [1.4,-1.7], [1.7,-1.4])</l>
+<l>        count_obj (SelectedRegions2, Number)</l>
+<l>        for Index1 := 1 to Number by 1    </l>
+<l>            select_obj (SelectedRegions2, ObjectSelected, Index1) </l>
+<l>            closing_circle (ObjectSelected, ObjectSelected1, 6)</l>
+<l>            shape_trans (ObjectSelected1, RegionTrans, 'rectangle1')</l>
+<l>            move_region (RegionTrans, RegionMoved1, 20, 0)</l>
+<l>            move_region (RegionTrans, RegionMoved2, -20, 0)</l>
+<l>            union2 (RegionMoved1, RegionMoved2, RegionUnion4)</l>
+<l>            difference (RegionUnion4, RegionTrans, RegionDifference1)</l>
+<l>            intersection (RegionDifference1, Regions, RegionIntersection3)</l>
+<l>            region_features (RegionIntersection3, 'area', Value1)</l>
+<l>            if (Value1&lt;20 ) </l>
+<l>                smallest_rectangle1 (ObjectSelected1, Row1, Column1, Row2, Column2)</l>
+<l>                LineCount:=round((Row2-Row1)/1.7)</l>
+<l>                get_region_points (ObjectSelected1, Rows, Columns)</l>
+<l>                MaxRow:=max(Rows)</l>
+<l>                Columns:=mean(Columns)</l>
+<l>                rows:=[MaxRow:-1:MaxRow-LineCount+1]</l>
+<l>                tuple_gen_const (LineCount, Columns-10, cols1)</l>
+<l>                tuple_gen_const (LineCount, Columns+10, cols2)</l>
+<l>                gen_region_line (RegionLines, rows, cols1, rows, cols2)</l>
+<l>                closing_rectangle1 (ObjectSelected, RegionClosing4, 5, 1)</l>
+<l>                intersection (RegionLines, RegionClosing4, RegionIntersection)</l>
+<l>                region_features (RegionIntersection, 'area', Value1)</l>
+<c>                ************面积增长不能超过3************</c>
+<l>                a:=round( (Row2-Row1)/14)</l>
+<l>                errarea:=0</l>
+<l>                for Index := a to |Value1|-6 by 1</l>
+<l>                    r1:=Value1[Index:Index+4]</l>
+<l>                    MaxDisCol1:=max(r1)-min(r1)</l>
+<l>                    if (MaxDisCol1&gt;=3)</l>
+<l>                        errarea:=1</l>
+<l>                    endif     </l>
+<l>                endfor</l>
+<c>                </c>
+<c>                *所有面积要大于一定值</c>
+<l>                meanCol:= mean(Value1)</l>
+<c>                </c>
+<l>                c:=round( LineCount/1.2)</l>
+<l>                minArea:=Value1[LineCount-c:LineCount-2][&lt;]4</l>
+<l>                minAreacount:=|find(minArea, 1)|</l>
+<c>                </c>
+<l>                Value2:=Value1[1:|Value1|-1]</l>
+<l>                Value1:=Value1[0:|Value1|-2]</l>
+<c>                </c>
+<c>                </c>
+<l>                s11:= (Value2-Value1)[&gt;]0</l>
+<l>                s12:= (Value2-Value1)[&lt;]0</l>
+<l>                q1:=find(s11,1)</l>
+<l>                q2:=find(s12,1)</l>
+<l>                qs:=|q1|-|q2|</l>
+<c>                </c>
+<c>                </c>
+<c>                *增长个数</c>
+<l>                s3:= (Value2-Value1)[&gt;=]1</l>
+<l>                f3:=|find(s3, 1)|</l>
+<c>                </c>
+<l>                region_features (RegionIntersection, 'column1', column1Value)</l>
+<l>                Value2:=column1Value[1:|column1Value|-1]</l>
+<l>                Value1:=column1Value[0:|column1Value|-2]</l>
+<l>                s11:= (Value1-Value2)[&gt;]0</l>
+<l>                col1dis:=find(s11,1)</l>
+<c>                </c>
+<l>                s11:= (Value1-Value2)[!=]0</l>
+<l>                col1count:=|find(s11,1)|</l>
+<c>                </c>
+<c>                </c>
+<l>                region_features (RegionIntersection, 'column2', column1Value)</l>
+<l>                Value2:=column1Value[1:|column1Value|-1]</l>
+<l>                Value1:=column1Value[0:|column1Value|-2]</l>
+<l>                s11:= (Value2-Value1)[&gt;]0</l>
+<l>                col2dis:=find(s11,1) </l>
+<c>                </c>
+<l>                s11:= (Value1-Value2)[!=]0</l>
+<l>                col2count:=|find(s11,1)|</l>
+<c>                </c>
+<l>                ChangeValue:=(col1count+col2count+0.001)/LineCount</l>
+<c>                </c>
+<l>                region_features (RegionIntersection, 'column', ColValue)</l>
+<l>                ColDis:=max(ColValue)-min(ColValue)</l>
+<l>                if (qs&gt;=2 and f3&gt;=3 and meanCol&gt;=4 and ColDis&lt;4 and errarea==0 and |col1dis|&gt;0 and\
+                    |col2dis|&gt;0 and ChangeValue&lt;0.3 and minAreacount&lt;2)</l>
+<l>                    intersection (ObjectSelected1, ConnectedRegions5, RegionIntersection4)</l>
+<l>                    closing_circle (RegionIntersection4, RegionClosing5, 5.5)</l>
+<l>                    difference (RegionClosing5, ConnectedRegions5, RegionDifference3)</l>
+<l>                    connection (RegionDifference3, ConnectedRegions6)</l>
+<l>                    select_shape (ConnectedRegions6, SelectedRegions5, 'area', 'and', 5, 1000)</l>
+<l>                    count_obj (SelectedRegions5, Number4)</l>
+<c>                    **********比较空隙区域与气泡中心的列差值</c>
+<l>                    discol:=0</l>
+<l>                    region_features (SelectedRegions5, 'column', Value1)</l>
+<l>                    if (Number4&gt;0)</l>
+<l>                        region_features (RegionClosing5, 'column', Value2)</l>
+<l>                        discol:=max(abs(Value1-Value2))</l>
+<l>                    endif</l>
+<c>                    *********比较多个空隙区域的最大和最小列差值</c>
+<l>                    discolab:=0</l>
+<l>                    if (Number4&gt;1) </l>
+<l>                        discolab:=max(Value1)-min(Value1)</l>
+<l>                    endif</l>
+<l>                    opening_rectangle1 (ObjectSelected1, RegionOpening3, 3, 1)</l>
+<l>                    connection (RegionOpening3, ConnectedRegions8)</l>
+<l>                    select_shape_std (ConnectedRegions8, SelectedRegions9, 'max_area', 70)</l>
+<l>                    smallest_rectangle1 (SelectedRegions9, Row1, Column1, Row2, Column2)</l>
+<l>                    d:=round( (Row2-Row1)/5)</l>
+<l>                    c:=round( (Row2-Row1)/20)</l>
+<l>                    gen_rectangle1 (Rectangle1, Row1+d, Column1-4, Row2-c, Column2+2)</l>
+<l>                    intersection (Rectangle1, ObjectSelected1, RegionIntersection5)</l>
+<l>                    smallest_rectangle1 (RegionIntersection5, Row1, Column1, Row2, Column2)</l>
+<l>                    LineCount:=Row2-Row1</l>
+<l>                    get_region_points (RegionIntersection5, Rows, Columns)</l>
+<l>                    MaxRow:=max(Rows)</l>
+<l>                    Columns:=mean(Columns)</l>
+<l>                    rows:=[MaxRow:-1:MaxRow-LineCount]</l>
+<l>                    tuple_gen_const (LineCount+1, Columns-10, cols1)</l>
+<l>                    tuple_gen_const (LineCount+1, Columns+10, cols2)</l>
+<l>                    gen_region_line (RegionLines, rows, cols1, rows, cols2)</l>
+<l>                    intersection (RegionLines, RegionClosing4, RegionIntersection)</l>
+<c>                    </c>
+<l>                    err1:=0</l>
+<c>                    *************气泡左右两边的轮廓的列值变化幅度******************</c>
+<l>                    try </l>
+<l>                        region_features (RegionIntersection, 'column1', column1Value)</l>
+<l>                        for Index := 0 to |column1Value|-5 by 1</l>
+<l>                            r1:=column1Value[Index:Index+4]</l>
+<l>                            MaxDisCol1:=max(r1)-min(r1)</l>
+<l>                            if (MaxDisCol1&gt;2)</l>
+<l>                                err1:=1</l>
+<l>                            endif     </l>
+<l>                        endfor</l>
+<c>                        </c>
+<c>                        </c>
+<c>                        </c>
+<c>                        </c>
+<l>                    catch (Exception)</l>
+<l>                    endtry</l>
+<l>                    try</l>
+<l>                        region_features (RegionIntersection, 'column2', column2Value)</l>
+<l>                        for Index := 0 to |column2Value|-5 by 1</l>
+<l>                            r1:=column2Value[Index:Index+4]</l>
+<l>                            MaxDisCol1:=max(r1)-min(r1)</l>
+<l>                            if (MaxDisCol1&gt;2)</l>
+<l>                                err1:=1</l>
+<l>                            endif     </l>
+<l>                        endfor</l>
+<l>                    catch (Exception)</l>
+<l>                    endtry                    </l>
+<c>                    </c>
+<l>                    if (err1==0 and discol&lt;1.5  and discolab&lt;2)</l>
+<l>                        concat_obj (VObject, ObjectSelected1, VObject)        </l>
+<l>                    endif</l>
+<l>                endif  </l>
+<l>            endif</l>
+<l>        endfor</l>
+<c>        </c>
+<l>        count_obj ( VObject,Number)</l>
+<l>        if (Number&gt;0)</l>
+<l>            get_dict_tuple (DetectDict, 'KaiKouPao_L', QiPao2_L)</l>
+<l>            get_dict_tuple (DetectDict, 'KaiKouPao_W', QiPao2_W)</l>
+<l>            GatherInfo (VObject, Image1, Image2, Image3, Image4, RoiImage, TransRoi, SelectRegion3, DetectDict, '气泡4', VisionProcessStep, ImageIndex, QiPao2_W, QiPao2_L, DisPlayImageIndex3, Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex3, OK1)</l>
+<l>            if (OK1=='NG')</l>
+<l>                concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                concat_obj (ErrRoi,TransRoi,  ErrRoi)</l>
+<l>                ErrName:=[ErrName,Name]</l>
+<l>                ErrW:=[ErrW,W]</l>
+<l>                ErrH:=[ErrH,H]</l>
+<l>                ErrArea:=[ErrArea,Area]</l>
+<l>                ErrX:=[ErrX,X]</l>
+<l>                ErrY:=[ErrY,Y]</l>
+<l>                MapIndex:=[MapIndex,mapIndex]</l>
+<l>                ParIndex:=[ParIndex,parIndex]  </l>
+<l>                OK:='NG'  </l>
+<l>            endif</l>
+<l>        endif</l>
+<l>    endif</l>
+<c>    </c>
+<c>    ************************提取线泡*******************</c>
+<l>    gen_empty_obj (X1Object)</l>
+<l>    closing_rectangle1 (Regions2, Regionrectangle, 1, 10)</l>
+<l>    connection (Regionrectangle, ConnectedRegions5)</l>
+<l>    select_shape (ConnectedRegions5, SelectedRegions, 'rect2_len1', 'and',15, 999)</l>
+<l>    select_shape (SelectedRegions, SelectedRegions1, 'rect2_len2', 'and', 0.5, 3)</l>
+<l>    select_shape (SelectedRegions1, SelectedRegions2, ['rect2_phi','rect2_phi'], 'or', [1.4,-1.7], [1.7,-1.4])</l>
+<l>    count_obj (SelectedRegions2, Number)</l>
+<l>    for Index1 := 1 to Number by 1    </l>
+<l>        select_obj (SelectedRegions2, ObjectSelected1, Index1)        </l>
+<l>        smallest_rectangle1 (ObjectSelected1, Row1, Column1, Row2, Column2)</l>
+<c>        </c>
+<l>                gen_rectangle1 (Rectangle1, Row1-2, Column1-2, Row1+5, Column2+5)</l>
+<l>                gen_rectangle1 (Rectangle2, Row2-5, Column2-6, Row2+5, Column2+5)</l>
+<l>                union2 (Rectangle1, Rectangle2, RegionUnion1)</l>
+<l>                difference (ObjectSelected1, RegionUnion1, RegionDifference)</l>
+<c>                </c>
+<l>                smallest_rectangle1 (RegionDifference, Row1, Column1, Row2, Column2) </l>
+<l>                LineCount:=round((Row2-Row1)/1.5)</l>
+<l>                LineCountz:=Row2-Row1</l>
+<l>                t1:=round((LineCountz-LineCount)/2)</l>
+<l>                get_region_points (RegionDifference, Rows, Columns)</l>
+<l>                MaxRow:=max(Rows)-t1</l>
+<l>                Columns:=mean(Columns)</l>
+<l>                rows:=[MaxRow:-1:MaxRow-LineCount]</l>
+<l>                tuple_gen_const (LineCount+1, Columns-10, cols1)</l>
+<l>                tuple_gen_const (LineCount+1, Columns+10, cols2)</l>
+<l>                gen_region_line (RegionLines, rows, cols1, rows, cols2)</l>
+<l>                intersection (RegionLines, ObjectSelected1, RegionIntersection)</l>
+<c>                </c>
+<c>                </c>
+<l>                region_features (RegionIntersection, 'column2', Value1)</l>
+<l>                Values2:=Value1[1:|Value1|-1]</l>
+<l>                Values1:=Value1[0:|Value1|-2]</l>
+<c>                **********列值上升占比**************************</c>
+<l>                s11:= abs((Values2-Values1))[&gt;]0</l>
+<l>                col2dis0:=find(s11,1) </l>
+<l>                discolscal1:=(|col2dis0|+0.001)/LineCount</l>
+<c>                </c>
+<c>                **********列值上升大于1占比**************************</c>
+<l>                s11:= abs((Values2-Values1))[&gt;]1</l>
+<l>                col2dis1:=find(s11,1) </l>
+<l>                discolscal1_1:=(|col2dis1|+0.001)/LineCount</l>
+<c>                </c>
+<c>                **********列值元素与列中值差值占比**************************</c>
+<l>                a:=sort(Value1)[|Value1|/2]  </l>
+<l>                discol2_1:=abs(Value1-a)[&gt;]1</l>
+<l>                a1_1:=find(discol2_1, 1)</l>
+<l>                v1:=(|a1_1|+0.001)/LineCount</l>
+<c>                </c>
+<l>                region_features (RegionIntersection, 'column1', Value1)</l>
+<l>                Values2:=Value1[1:|Value1|-1]</l>
+<l>                Values1:=Value1[0:|Value1|-2]</l>
+<c>                </c>
+<c>                **********列值上升占比**************************</c>
+<l>                s11:= abs((Values2-Values1))[&gt;]0</l>
+<l>                col1dis0:=find(s11,1) </l>
+<l>                discolscal2:=(|col1dis0|+0.001)/LineCount</l>
+<c>                </c>
+<c>                **********列值上升大于1占比**************************</c>
+<l>                s11:= abs((Values2-Values1))[&gt;]1</l>
+<l>                col1dis1:=find(s11,1) </l>
+<l>                discolscal2_1:=(|col1dis1|+0.001)/LineCount</l>
+<c>                </c>
+<c>                **********列值元素与列中值差值占比**************************</c>
+<l>                b:=sort(Value1)[|Value1|/2]         </l>
+<l>                discol2_1:=abs(Value1-b)[&gt;]1</l>
+<l>                b1_1:=find(discol2_1, 1)</l>
+<l>                v2:=(|b1_1|+0.001)/LineCount</l>
+<c>                </c>
+<c>                </c>
+<c>                ****************************最大面积与最小面积的差值*************************</c>
+<l>                region_features (RegionIntersection, 'area', area)</l>
+<l>                AreaDisMax:= (area-min(area))[&gt;]2</l>
+<l>                AreaDis:=find(AreaDisMax, 1)</l>
+<c> </c>
+<l>                if (discolscal1&lt;=0.05 and discolscal1_1&lt;=0.01 and v1&lt;=0.2\
+                    and discolscal2&lt;=0.05 and discolscal2_1&lt;=0.01 and v2&lt;=0.2\
+                    and |AreaDis|&lt;2)</l>
+<l>                    concat_obj (X1Object, ObjectSelected1, X1Object)</l>
+<l>                endif               </l>
+<l>    endfor</l>
+<c></c>
+<l>    count_obj ( X1Object,Number)</l>
+<l>    if (Number&gt;0)</l>
+<l>        get_dict_tuple (DetectDict, 'KaiKouPao_L', QiPao2_L)</l>
+<l>        get_dict_tuple (DetectDict, 'KaiKouPao_W', QiPao2_W)</l>
+<l>        dilation_rectangle1 (X1Object, X1Object, 2, 1)</l>
+<l>        GatherInfo (X1Object, Image1, Image2, Image3, Image4, RoiImage, TransRoi, SelectRegion4, DetectDict, '线泡', VisionProcessStep, ImageIndex, QiPao2_W, QiPao2_L, DisPlayImageIndex4, Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex4, OK1)</l>
+<l>        if (OK1=='NG')</l>
+<l>            concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>            concat_obj (ErrRoi,TransRoi,  ErrRoi)</l>
+<l>            ErrName:=[ErrName,Name]</l>
+<l>            ErrW:=[ErrW,W]</l>
+<l>            ErrH:=[ErrH,H]</l>
+<l>            ErrArea:=[ErrArea,Area]</l>
+<l>            ErrX:=[ErrX,X]</l>
+<l>            ErrY:=[ErrY,Y]</l>
+<l>            MapIndex:=[MapIndex,mapIndex]</l>
+<l>            ParIndex:=[ParIndex,parIndex]  </l>
+<l>            OK:='NG'  </l>
+<l>        endif</l>
+<l>    endif</l>
+<c>********************************************************************************</c>
+<c>   </c>
+<c>******************************************结石气泡******************************** </c>
+<l>    gen_empty_obj (jqObject)</l>
+<l>    count_obj (jishiRoi, Number5)</l>
+<l>    if (Number5&gt;0)</l>
+<l>        for Index2 := 1 to Number5 by 1</l>
+<l>            select_obj (jishiRoi, ObjectSelected2, Index2)</l>
+<l>            shape_trans(ObjectSelected2, XLDTrans, 'rectangle1')</l>
+<l>            dilation_rectangle1 (XLDTrans, RegionDilation1, 5, 30)</l>
+<l>            smallest_rectangle1 (RegionDilation1, Row12, Column12, Row22, Column22)</l>
+<l>            smallest_rectangle1 (XLDTrans, Row13, Column13, Row23, Column23)</l>
+<l>            move_region (RegionDilation1, RegionMoved1, -(Row22-Row13+5), Column)</l>
+<l>            reduce_domain (Image1, RegionMoved1, ImageReduced3)</l>
+<l>            threshold (ImageReduced3, Regions5, 20, 255)</l>
+<l>            closing_rectangle1 (Regions5, RegionOpening2, 1, 5)</l>
+<l>            connection (RegionOpening2, ConnectedRegions7)</l>
+<l>            select_shape (ConnectedRegions7, SelectedRegions7, 'rect2_len1', 'and', 10,999)</l>
+<l>            select_shape (SelectedRegions7, SelectedRegions8, 'anisometry', 'and', 10, 200)</l>
+<l>            count_obj (SelectedRegions8, Number6)</l>
+<l>            if (Number6&gt;0)</l>
+<l>                union1 (SelectedRegions8, RegionUnion3)</l>
+<l>                concat_obj (jqObject, RegionUnion3, jqObject)</l>
+<l>            endif</l>
+<l>        endfor</l>
+<c>        </c>
+<l>        count_obj ( jqObject,Number)</l>
+<l>        if (Number&gt;0)</l>
+<l>            get_dict_tuple (DetectDict, 'KaiKouPao_L', QiPao2_L)</l>
+<l>            get_dict_tuple (DetectDict, 'KaiKouPao_W', QiPao2_W)</l>
+<l>            dilation_rectangle1 (X1Object, X1Object, 2, 1)</l>
+<l>            GatherInfo (jqObject, Image1, Image2, Image3, Image4, RoiImage, TransRoi, SelectRegion5, DetectDict, '结石气泡', VisionProcessStep, ImageIndex, QiPao2_W, QiPao2_L, DisPlayImageIndex5, Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex5, OK1)</l>
+<l>            if (OK1=='NG')</l>
+<l>                concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                concat_obj (ErrRoi,TransRoi,  ErrRoi)</l>
+<l>                ErrName:=[ErrName,Name]</l>
+<l>                ErrW:=[ErrW,W]</l>
+<l>                ErrH:=[ErrH,H]</l>
+<l>                ErrArea:=[ErrArea,Area]</l>
+<l>                ErrX:=[ErrX,X]</l>
+<l>                ErrY:=[ErrY,Y]</l>
+<l>                MapIndex:=[MapIndex,mapIndex]</l>
+<l>                ParIndex:=[ParIndex,parIndex]  </l>
+<l>                OK:='NG'  </l>
+<l>            endif</l>
+<l>        endif</l>
+<c>        </c>
+<c>        </c>
+<l>    endif</l>
+<c>   </c>
+<c>    </c>
+<l>    union2 (KObject, BObject, OriginalErrRoi)   </l>
+<l>catch (Exception )</l>
+<l>    return ()  </l>
+<l>endtry</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="QiPao_Detect_1">
+<parameters>
+<parameter id="AlarmArea"/>
+<parameter id="AlarmH"/>
+<parameter id="AlarmImage"/>
+<parameter id="AlarmName"/>
+<parameter id="AlarmRoi"/>
+<parameter id="AlarmW"/>
+<parameter id="AlarmX"/>
+<parameter id="AlarmY"/>
+<parameter id="DetectDict"/>
+<parameter id="ErrArea"/>
+<parameter id="ErrH"/>
+<parameter id="ErrImage"/>
+<parameter id="ErrName"/>
+<parameter id="ErrRoi"/>
+<parameter id="ErrW"/>
+<parameter id="ErrX"/>
+<parameter id="ErrY"/>
+<parameter id="Image1"/>
+<parameter id="Image2"/>
+<parameter id="Image3"/>
+<parameter id="Image4"/>
+<parameter id="ImageIndex"/>
+<parameter id="MapIndex"/>
+<parameter id="OK"/>
+<parameter id="OriginalErrRoi"/>
+<parameter id="ParIndex"/>
+<parameter id="RoiDetect"/>
+<parameter id="VisionProcessStep"/>
+<parameter id="jishiRoi"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

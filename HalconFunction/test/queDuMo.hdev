@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>set_system ('parallelize_operators', 'true')</l>
+<l>* read_image (Image1_1, 'D:/test1/结石/518/1/3.bmp')</l>
+<l>* read_image (Image1_2,  'D:/test1/结石/518/1/3.bmp')</l>
+<l>* read_image (Image1_3,  'D:/test1/结石/518/1/3.bmp')</l>
+<l>* read_image (Image1_4, 'D:/test1/结石/518/1/3.bmp')</l>
+<l>* gen_rectangle1 (DetectRoi1, 7.19231, 21.9315, 2596.94, 6939.82)</l>
+<c></c>
+<l>* read_image (Image1_1, 'D:/test1/结石/517/1.bmp')</l>
+<l>* read_image (Image1_2,'D:/test1/结石/517/1.bmp')</l>
+<l>* read_image (Image1_3, 'D:/test1/结石/517/3.bmp')</l>
+<l>* read_image (Image1_4, 'D:/test1/结石/517/1.bmp')</l>
+<l>*  gen_rectangle1 (DetectRoi1, 4.68617, 13.7387, 2265.86, 6886.29)</l>
+<c></c>
+<c></c>
+<l>* read_image (Image1_1, 'D:/test1/拉丝/5/1.bmp')</l>
+<l>* read_image (Image1_2,'D:/test1/拉丝/5/1.bmp')</l>
+<l>* read_image (Image1_3, 'D:/test1/拉丝/5/2.bmp')</l>
+<l>* read_image (Image1_4,'D:/test1/拉丝/5/1.bmp')</l>
+<l>* gen_rectangle1 (DetectRoi1, 4.68617, 13.7387, 2265.86, 6886.29)</l>
+<c> </c>
+<c> </c>
+<l>*  read_image (Image1_1, 'g:/test1/拉丝/12/1.bmp')</l>
+<l>* read_image (Image1_2,'g:/test1/拉丝/12/1.bmp')</l>
+<l>* read_image (Image1_3, 'g:/test1/拉丝/12/3.bmp')</l>
+<l>* read_image (Image1_4,'g:/test1/拉丝/12/1.bmp')</l>
+<c> </c>
+<c></c>
+<l>* read_image (Image1_1, 'g:/test1/拉丝/11/1.bmp')</l>
+<l>* read_image (Image1_2, 'g:/test1/拉丝/11/1.bmp')</l>
+<l>* read_image (Image1_3, 'g:/test1/拉丝/11/3.bmp')</l>
+<l>* read_image (Image1_4, 'g:/test1/拉丝/11/1.bmp')</l>
+<c></c>
+<l>* gen_rectangle1 (DetectRoi1, 1.22872, 13.7387, 2597.77, 6933.75)</l>
+<c></c>
+<c></c>
+<l>* read_image (Image1_1, 'g:/test1/拉丝/10/1.bmp')</l>
+<l>* read_image (Image1_2, 'g:/test1/拉丝/10/2.bmp')</l>
+<l>* read_image (Image1_3, 'g:/test1/拉丝/10/2.bmp')</l>
+<l>* read_image (Image1_4, 'g:/test1/拉丝/10/2.bmp')</l>
+<l>* gen_rectangle1 (DetectRoi1, 1.04946, 2971.78, 2204.39, 8186.64)</l>
+<c></c>
+<l>* read_image (Image1_1, 'd:/test1/拉丝/2/拉丝2.bmp')</l>
+<l>* read_image (Image1_2,  'd:/test1/拉丝/2/拉丝2.bmp')</l>
+<l>* read_image (Image1_3,  'd:/test1/拉丝/2/拉丝2.bmp')</l>
+<l>* read_image (Image1_4, 'd:/test1/拉丝/2/拉丝2.bmp')</l>
+<l>* gen_rectangle1 (DetectRoi1, 12.3205, 12.9589, 2596.94, 6930.85)</l>
+<c></c>
+<l>* read_image (Image1_1, 'g:/test1/拉丝/2/拉丝3.bmp')</l>
+<l>* read_image (Image1_2,  'g:/test1/拉丝/2/拉丝3.bmp')</l>
+<l>* read_image (Image1_3,  'g:/test1/拉丝/2/拉丝3.bmp')</l>
+<l>* read_image (Image1_4, 'g:/test1/拉丝/2/拉丝3.bmp')</l>
+<l>* gen_rectangle1 (DetectRoi1, 12.3205, 12.9589, 2596.94, 6930.85)</l>
+<c></c>
+<c></c>
+<l>* read_image (Image1_1, 'g:/test1/拉丝/2/拉丝4.bmp')</l>
+<l>* read_image (Image1_2,  'g:/test1/拉丝/2/拉丝4.bmp')</l>
+<l>* read_image (Image1_3,  'g:/test1/拉丝/2/拉丝4.bmp')</l>
+<l>* read_image (Image1_4, 'g:/test1/拉丝/2/拉丝4.bmp')</l>
+<l>* gen_rectangle1 (DetectRoi1, 12.3205, 12.9589, 2596.94, 6930.85)</l>
+<c></c>
+<l>* read_image (Image1_1, 'g:/test1/拉丝/2/拉丝5.bmp')</l>
+<l>* read_image (Image1_2,  'g:/test1/拉丝/2/拉丝5.bmp')</l>
+<l>* read_image (Image1_3,  'g:/test1/拉丝/2/拉丝5.bmp')</l>
+<l>* read_image (Image1_4, 'g:/test1/拉丝/2/拉丝5.bmp')</l>
+<l>* gen_rectangle1 (DetectRoi1, 12.3205, 12.9589, 2596.94, 6930.85)</l>
+<c></c>
+<c></c>
+<l>read_image (Image1_1, 'C:/Users/PC/Desktop/20220601/la/1.bmp')</l>
+<l>read_image (Image1_2,  'C:/Users/PC/Desktop/20220601/la/1.bmp')</l>
+<l>read_image (Image1_3,'C:/Users/PC/Desktop/20220601/la/3.bmp')</l>
+<l>read_image (Image1_4,'C:/Users/PC/Desktop/20220601/la/1.bmp')</l>
+<l>* gen_rectangle1 (DetectRoi1, 12.3205, 12.9589, 2596.94, 6930.85)</l>
+<c></c>
+<l>* read_image (Image1_1, 'D:/test1/拉丝/2/拉丝7.bmp')</l>
+<l>* read_image (Image1_2,  'D:/test1/拉丝/2/拉丝7.bmp')</l>
+<l>* read_image (Image1_3,  'D:/test1/拉丝/2/拉丝7.bmp')</l>
+<l>* read_image (Image1_4, 'D:/test1/拉丝/2/拉丝7.bmp')</l>
+<l>* gen_rectangle1 (DetectRoi1, 12.3205, 12.9589, 2596.94, 6930.85)</l>
+<c></c>
+<l>* read_image (Image1_1, 'D:/test1/凹凸/3-11/3.bmp')</l>
+<l>* read_image (Image1_2,  'D:/test1/凹凸/3-11/3.bmp')</l>
+<l>* read_image (Image1_3, 'D:/test1/凹凸/3-11/3.bmp')</l>
+<l>* read_image (Image1_4, 'D:/test1/凹凸/3-11/3.bmp')</l>
+<l>* gen_rectangle1 (DetectRoi1, 12.3205, 12.9589, 2596.94, 6930.85)</l>
+<c></c>
+<c></c>
+<c></c>
+<l>* read_image (Image1_1,'D:/test1/凹凸/4.8/1/3.bmp')</l>
+<l>* read_image (Image1_2, 'D:/test1/凹凸/4.8/1/3.bmp')</l>
+<l>* read_image (Image1_3,'D:/test1/凹凸/4.8/1/3.bmp')</l>
+<l>* read_image (Image1_4, 'D:/test1/凹凸/4.8/1/3.bmp')</l>
+<l>* gen_rectangle1 (DetectRoi1, 12.3205, 2973.92, 2581.55, 8187.01)</l>
+<c></c>
+<c></c>
+<l>* read_image (Image1_1,'D:/test/1.bmp')</l>
+<l>* read_image (Image1_2, 'D:/test/2.bmp')</l>
+<l>* read_image (Image1_3,'D:/test/3.bmp')</l>
+<l>* read_image (Image1_4, 'D:/test/4.bmp')</l>
+<l>* gen_rectangle1 (DetectRoi1, 12.3205, 2973.92, 2581.55, 8187.01)</l>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<l> read_dict ('D:/HalconFunction/DuMo3.2.hdict', [], [], DictHandle)</l>
+<l>DetectProcess_DuMo (Image1_1, DetectRoi1, circularityRoi, DictHandle,3,0)</l>
+<c></c>
+<c></c>
+<l>Detect_QueDuMo (Image1_1, Image1_2, Image1_3, Image1_4, DetectRoi1, ErrRoi, AlarmRoi, ErrImage,\
+AlarmImage, DictHandle, 3, 0, ErrName, AlarmName, ErrW, ErrH, ErrArea, ErrX, ErrY,\
+AlarmW, AlarmH, AlarmArea, AlarmX, AlarmY, MapIndex, ParIndex, ex,OK)</l>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

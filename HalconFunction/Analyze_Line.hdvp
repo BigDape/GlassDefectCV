@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="Analyze_Line">
+<interface>
+<io>
+<par name="Region" base_type="iconic" dimension="0"/>
+</io>
+<oc>
+<par name="MeanWidth" base_type="ctrl" dimension="0"/>
+<par name="Lenght" base_type="ctrl" dimension="0"/>
+<par name="CKB" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<c></c>
+<l>try</l>
+<l>    MeanWidth:=[]</l>
+<l>    Lenght:=[]</l>
+<l>    count_obj (Region, Number)</l>
+<l>    if (Number&gt;0)</l>
+<l>        for Index := 1 to Number by 1        </l>
+<l>            gen_empty_obj (TempObject)</l>
+<l>            width:=[]</l>
+<l>            select_obj (Region, ObjectSelected, Index)</l>
+<l>            skeleton (ObjectSelected, Skeleton)</l>
+<l>            gen_contours_skeleton_xld (Skeleton, Contours, 1, 'filter')</l>
+<l>            union_adjacent_contours_xld (Contours, UnionContours, 20, 20, 'attr_keep')</l>
+<l>            length_xld (UnionContours, Length)</l>
+<l>            Lenght:=[Lenght,max(Length)]</l>
+<l>            i:=1</l>
+<l>            while (true)</l>
+<l>                dilation_circle (Skeleton, RegionDilation,i)</l>
+<l>                difference (RegionDilation, ObjectSelected, RegionDifference)</l>
+<l>                difference (RegionDifference, TempObject, RegionDifference1)</l>
+<l>                region_features (RegionDifference1, 'area', Value)</l>
+<l>                if (Value&gt;0)</l>
+<l>                    width:=[width,i] </l>
+<l>                    union2 (RegionDifference1, TempObject, TempObject)</l>
+<l>                endif </l>
+<l>                i:=i+1</l>
+<l>                difference (ObjectSelected, RegionDilation, RegionDifference2)</l>
+<l>                region_features (RegionDifference2, 'area', Value1)</l>
+<l>                if (Value1==0 or i&gt;200)</l>
+<l>                    break   </l>
+<l>                endif</l>
+<l>            endwhile</l>
+<l>            MeanWidth:=[MeanWidth,mean(width*2)]</l>
+<l>        endfor</l>
+<l>        CKB:=Lenght/MeanWidth</l>
+<l>    endif    </l>
+<l>catch (Exception)</l>
+<l>    return ()</l>
+<l>endtry</l>
+<l>return ()</l>
+</body>
+<docu id="Analyze_Line">
+<parameters>
+<parameter id="CKB"/>
+<parameter id="Lenght"/>
+<parameter id="MeanWidth"/>
+<parameter id="Region"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

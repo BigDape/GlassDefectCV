@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="DetectProcess_Siyin">
+<interface>
+<io>
+<par name="Image1" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="SiyiRoi" base_type="iconic" dimension="0"/>
+<par name="DetectRoi" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="Hict" base_type="ctrl" dimension="0"/>
+<par name="VisionProcessStep" base_type="ctrl" dimension="0"/>
+<par name="ImageIndex" base_type="ctrl" dimension="0"/>
+</ic>
+</interface>
+<body>
+<c></c>
+<l>gen_empty_obj (SiyiRoi)</l>
+<l>threshold (Image1, Regions, 100, 255)</l>
+<l>closing_circle (Regions, RegionClosing, 20)</l>
+<l>connection (RegionClosing, ConnectedRegions1)</l>
+<l>select_shape_std (ConnectedRegions1, RegionClosing, 'max_area', 70)</l>
+<c></c>
+<l>smallest_rectangle1 (RegionClosing, Row1, Col1, Row2, Col2)</l>
+<l>if (VisionProcessStep&gt;0 and VisionProcessStep&lt;9 and ImageIndex==1)  </l>
+<l>    rake (Image1, Regions1, 30, 800, 10, 1,50, 'positive', 'first',Row1+200, Col1,Row2, Col1,   ResultRow, ResultColumn)   </l>
+<l>    Col:=mean(ResultColumn)</l>
+<l>    col1:=abs(ResultColumn-Col)[&gt;]30</l>
+<l>    a:=find(col1, 1)</l>
+<l>    if (a&gt;=0)</l>
+<l>        ResultColumn[a]:=Col</l>
+<l>        Col:=mean(ResultColumn)</l>
+<l>        ResultColumn[a]:=Col </l>
+<l>    endif</l>
+<l>    gen_region_polygon (Region, [0,ResultRow,2600], [ResultColumn[0],ResultColumn,ResultColumn[|ResultColumn|-1]])</l>
+<l>    dilation_rectangle1 (Region, RegionTrans1, 40,600)</l>
+<l>    difference (Regions, RegionTrans1, Regions)</l>
+<l>endif</l>
+<c></c>
+<l>if (VisionProcessStep&gt;0 and VisionProcessStep&lt;9 and ImageIndex==0)  </l>
+<l>    rake (Image1, Regions1, 30, 800, 10, 1, 30, 'positive', 'first', Row2-20, Col2, Row1+20, Col2, ResultRow, ResultColumn)</l>
+<l>    Col:=mean(ResultColumn)</l>
+<l>    col1:=abs(ResultColumn-Col)[&gt;]30</l>
+<l>    a:=find(col1, 1)</l>
+<l>    if (a&gt;=0)</l>
+<l>        ResultColumn[a]:=Col</l>
+<l>        Col:=mean(ResultColumn)</l>
+<l>        ResultColumn[a]:=Col </l>
+<l>    endif</l>
+<l>    gen_region_polygon (Region, [0,ResultRow,2600], [ResultColumn[0],ResultColumn,ResultColumn[|ResultColumn|-1]])</l>
+<l>    dilation_rectangle1 (Region, RegionTrans1,40, 600)</l>
+<l>    difference (Regions, RegionTrans1, Regions)</l>
+<l>endif</l>
+<c></c>
+<c></c>
+<l>if (VisionProcessStep=0 and ImageIndex==1)  </l>
+<l>    rake (Image1, Regions1, 30, 800, 10, 1, 50, 'positive', 'first', Row1, Col2, Row1, Col1+100, ResultRow, ResultColumn)</l>
+<l>    gen_region_polygon (Region, ResultRow, ResultColumn)</l>
+<l>    opening_rectangle1 (Region, RegionOpening, 10, 1)</l>
+<l>    dilation_rectangle1 (RegionOpening, RegionTrans1,1500, 40)</l>
+<l>    rake (Image1, Regions1, 30, 800, 10, 1,50, 'positive', 'first',Row1+100, Col1,Row2, Col1,   ResultRow, ResultColumn)   </l>
+<l>    gen_region_polygon (Region, ResultRow, ResultColumn)</l>
+<l>    dilation_rectangle1 (Region, RegionTrans2,40, 1500)</l>
+<l>    union2 (RegionTrans1, RegionTrans2, RegionUnion)</l>
+<c>    </c>
+<l>    intersection (RegionTrans1, RegionTrans2,  RegionIntersection)</l>
+<l>    dilation_rectangle1 (RegionIntersection, RegionDilation, 500, 500)</l>
+<c>    </c>
+<l>    difference (Regions, RegionDilation, RegionDifference)</l>
+<c>    </c>
+<l>    intersection (RegionDilation, Regions, RegionIntersection1)</l>
+<l>    opening_rectangle1 (RegionIntersection1, RegionOpening2, 8, 8)</l>
+<l>    union2 (RegionDifference, RegionOpening2, RegionUnion3)</l>
+<c>    </c>
+<l>    difference (RegionUnion3, RegionUnion, Regions) </l>
+<l>endif</l>
+<c></c>
+<c></c>
+<l>if (VisionProcessStep=0 and ImageIndex==0)  </l>
+<l>    rake (Image1, Regions1, 30, 800, 10, 1, 30, 'positive', 'first', Row1, Col2-300, Row1, Col1, ResultRow, ResultColumn)    </l>
+<l>    gen_region_polygon (Region, ResultRow, ResultColumn)</l>
+<l>    dilation_rectangle1 (Region, RegionTrans1,1000, 40)</l>
+<l>    rake (Image1, Regions1, 30, 800, 10, 1, 30, 'positive', 'first',Row2, Col2, Row1+300, Col2,  ResultRow, ResultColumn)   </l>
+<l>    gen_region_polygon (Region, ResultRow, ResultColumn)</l>
+<l>    dilation_rectangle1 (Region, RegionTrans2,40,1000)</l>
+<l>    union2 (RegionTrans1, RegionTrans2, RegionUnion)</l>
+<c>    </c>
+<l>    intersection (RegionTrans1, RegionTrans2,  RegionIntersection)</l>
+<l>    dilation_rectangle1 (RegionIntersection, RegionDilation, 500, 500)</l>
+<c>    </c>
+<l>    difference (Regions, RegionDilation, RegionDifference)</l>
+<c>    </c>
+<l>    intersection (RegionDilation, Regions, RegionIntersection1)</l>
+<l>    opening_rectangle1 (RegionIntersection1, RegionOpening2, 8, 8)</l>
+<l>    union2 (RegionDifference, RegionOpening2, RegionUnion3)</l>
+<c>    </c>
+<l>    difference (RegionUnion3, RegionUnion, Regions)     </l>
+<l>endif</l>
+<c></c>
+<c></c>
+<l>if (VisionProcessStep=9 and ImageIndex==1)  </l>
+<l>    rake (Image1, Regions1, 30, 800, 10, 1, 30, 'positive', 'first',Row2, Col1+200, Row2, Col2,  ResultRow, ResultColumn)</l>
+<l>    gen_region_polygon (Region, ResultRow, ResultColumn)</l>
+<c>    </c>
+<l>    dilation_rectangle1 (Region, RegionTrans1,1000, 40)</l>
+<l>    rake (Image1, Regions1, 30, 800, 10, 1, 30, 'positive', 'first',Row1, Col1,Row2-200, Col1,   ResultRow, ResultColumn)       </l>
+<l>    gen_region_polygon (Region, ResultRow, ResultColumn)</l>
+<l>    dilation_rectangle1 (Region, RegionTrans2,40, 1000)</l>
+<l>    union2 (RegionTrans1, RegionTrans2, RegionUnion)</l>
+<c>    </c>
+<l>    intersection (RegionTrans1, RegionTrans2,  RegionIntersection)</l>
+<l>    dilation_rectangle1 (RegionIntersection, RegionDilation, 500, 500)</l>
+<c>    </c>
+<l>    difference (Regions, RegionDilation, RegionDifference)</l>
+<c>    </c>
+<l>    intersection (RegionDilation, Regions, RegionIntersection1)</l>
+<l>    opening_rectangle1 (RegionIntersection1, RegionOpening2, 8, 8)</l>
+<l>    union2 (RegionDifference, RegionOpening2, RegionUnion3)</l>
+<c>    </c>
+<l>    difference (RegionUnion3, RegionUnion, Regions)    </l>
+<l>endif</l>
+<c></c>
+<l>if (VisionProcessStep=9 and ImageIndex==0)  </l>
+<l>    rake (Image1, Regions1, 30, 800, 10, 1, 30, 'positive', 'first', Row2, Col1,Row2, Col2-500,  ResultRow, ResultColumn)</l>
+<l>    gen_region_polygon (Region, ResultRow, ResultColumn)</l>
+<l>    dilation_rectangle1 (Region, RegionTrans1,1500, 40)</l>
+<l>    rake (Image1, Regions1, 30, 800, 10, 1, 30, 'positive', 'first',Row2-500, Col2, Row1, Col2,  ResultRow, ResultColumn)   </l>
+<l>    gen_region_polygon (Region, ResultRow, ResultColumn)</l>
+<l>    dilation_rectangle1 (Region, RegionTrans2,40, 1500)</l>
+<l>    union2 (RegionTrans1, RegionTrans2, RegionUnion)</l>
+<c>    </c>
+<c>    </c>
+<l>    intersection (RegionTrans1, RegionTrans2,  RegionIntersection)</l>
+<l>    dilation_rectangle1 (RegionIntersection, RegionDilation, 500, 500)</l>
+<c>    </c>
+<l>    difference (Regions, RegionDilation, RegionDifference)</l>
+<c>    </c>
+<l>    intersection (RegionDilation, Regions, RegionIntersection1)</l>
+<l>    opening_rectangle1 (RegionIntersection1, RegionOpening2, 8, 8)</l>
+<l>    union2 (RegionDifference, RegionOpening2, RegionUnion3)</l>
+<c>    </c>
+<c>    </c>
+<l>    difference (RegionUnion3, RegionUnion, Regions)  </l>
+<l>endif</l>
+<c></c>
+<l>connection (Regions, ConnectedRegions)</l>
+<l>select_shape (ConnectedRegions, SiyiRoi, ['rect2_len1','rect2_len2','area'], 'and', [1570.55,509.52,685890], [5000,2000,5e+06])</l>
+<c></c>
+<c>               </c>
+<l>count_obj (SiyiRoi, Number)</l>
+<l>if (Number==0)</l>
+<l>    gen_empty_obj (DetectRoi)</l>
+<l>    return ()</l>
+<l>endif</l>
+<c></c>
+<c></c>
+<l>closing_rectangle1 (SiyiRoi, SiyiRoi1, 200, 1)</l>
+<c></c>
+<c></c>
+<l>closing_rectangle1 (SiyiRoi, RegionClosing1, 2000, 2000)</l>
+<l>opening_rectangle1 (RegionClosing1, RegionOpening1, 300, 300)</l>
+<l>erosion_rectangle1 (RegionOpening1, RegionOpening1, 60, 60)</l>
+<l>boundary (RegionOpening1, RegionBorder, 'inner')</l>
+<l>gen_contour_region_xld (RegionBorder, Contours, 'center')</l>
+<l>segment_contours_xld (Contours, ContoursSplit, 'lines_circles', 8, 4, 2)</l>
+<l>union_collinear_contours_xld (ContoursSplit, UnionContours, 20, 1, 20, 0.5, 'attr_keep')</l>
+<c></c>
+<l>select_shape_xld (UnionContours, SelectedXLD1, ['rect2_phi','rect2_phi'], 'or', [1.4,-1.7], [1.7,-1.4])</l>
+<l>smallest_rectangle2_xld (SelectedXLD1, Row1, Column1, Phi, Length1, Length2)</l>
+<l>a:= sort_index(Column1)</l>
+<l>b:=  inverse(a)</l>
+<l>select_obj(SelectedXLD1,VMinMaxXld, [a[0]+1,b[0]+1])</l>
+<c></c>
+<l>select_shape_xld (UnionContours, SelectedXLD2, 'rect2_phi', 'or', -0.25, 0.25)</l>
+<l>smallest_rectangle2_xld (SelectedXLD2, Row1, Column1, Phi, Length1, Length2)</l>
+<l>a:= sort_index(Row1)</l>
+<l>b:=  inverse(a)</l>
+<l>select_obj(SelectedXLD2,HMinMaxXld, [a[0]+1,b[0]+1])</l>
+<l>concat_obj (VMinMaxXld, HMinMaxXld, ObjectsConcat)</l>
+<c></c>
+<l>sort_contours_xld (ObjectsConcat, SortedContours, 'upper_left', 'true', 'row')</l>
+<l>fit_line_contour_xld (SortedContours, 'tukey', -1, 0, 5, 2, RowBegin, ColBegin, RowEnd, ColEnd, Nr, Nc, Dist)</l>
+<l>RowDffset:= inverse(sort_index( abs(RowBegin-RowEnd)))</l>
+<l>intersection_lines (RowBegin[RowDffset[0]], ColBegin[RowDffset[0]], RowEnd[RowDffset[0]],ColEnd[RowDffset[0]],\ 
+                    RowBegin[RowDffset[2]], ColBegin[RowDffset[2]], RowEnd[RowDffset[2]], ColEnd[RowDffset[2]], Row, Column, IsOverlapping)</l>
+<l>gen_region_points (Region1, Row, Column)</l>
+<c></c>
+<l>intersection_lines (RowBegin[RowDffset[0]], ColBegin[RowDffset[0]], RowEnd[RowDffset[0]],ColEnd[RowDffset[0]],\
+                    RowBegin[RowDffset[3]], ColBegin[RowDffset[3]], RowEnd[RowDffset[3]], ColEnd[RowDffset[3]], Row, Column, IsOverlapping)</l>
+<l>gen_region_points (Region2, Row, Column)</l>
+<c></c>
+<l>intersection_lines (RowBegin[RowDffset[1]], ColBegin[RowDffset[1]], RowEnd[RowDffset[1]],ColEnd[RowDffset[1]],\
+                    RowBegin[RowDffset[3]], ColBegin[RowDffset[3]], RowEnd[RowDffset[3]], ColEnd[RowDffset[3]], Row, Column, IsOverlapping)</l>
+<l>gen_region_points (Region3, Row, Column)</l>
+<c></c>
+<l>intersection_lines (RowBegin[RowDffset[1]], ColBegin[RowDffset[1]], RowEnd[RowDffset[1]],ColEnd[RowDffset[1]], \
+                    RowBegin[RowDffset[2]], ColBegin[RowDffset[2]], RowEnd[RowDffset[2]], ColEnd[RowDffset[2]], Row, Column, IsOverlapping)</l>
+<l>gen_region_points (Region4, Row, Column)</l>
+<c></c>
+<l>union2 (Region1, Region2, RegionUnion1)</l>
+<l>union2 (Region3, Region4, RegionUnion2)</l>
+<l>union2 (RegionUnion2, RegionUnion1, RegionUnion1)</l>
+<l>union2 (RegionUnion1, RegionOpening1, RegionUnion1)</l>
+<l>closing_rectangle1 (RegionUnion1, RegionClosing1, 2000, 2000)</l>
+<l>difference (RegionClosing1, SiyiRoi1, DetectRoi)</l>
+<l>closing_circle (DetectRoi, DetectRoi, 10)</l>
+<l>opening_circle (DetectRoi, DetectRoi, 20)</l>
+<l>erosion_rectangle1 (DetectRoi, DetectRoi, 10,10)</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="DetectProcess_Siyin">
+<parameters>
+<parameter id="DetectRoi"/>
+<parameter id="Hict"/>
+<parameter id="Image1"/>
+<parameter id="ImageIndex"/>
+<parameter id="SiyiRoi"/>
+<parameter id="VisionProcessStep"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

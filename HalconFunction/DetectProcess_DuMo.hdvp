@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="DetectProcess_DuMo">
+<interface>
+<io>
+<par name="Image1" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="DetectRoi" base_type="iconic" dimension="0"/>
+<par name="circularityRoi" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="Hict" base_type="ctrl" dimension="0"/>
+<par name="VisionProcessStep" base_type="ctrl" dimension="0"/>
+<par name="ImageIndex" base_type="ctrl" dimension="0"/>
+</ic>
+</interface>
+<body>
+<l>gen_empty_obj (DetectRoi)</l>
+<l>gen_empty_obj (circularityRoi)</l>
+<l>threshold (Image1, Regions, 100, 255)</l>
+<l>try  </l>
+<l>    opening_rectangle1 (Regions, RegionOpening2, 1, 80)</l>
+<l>    closing_rectangle1 (RegionOpening2, RegionClosing, 2, 500)</l>
+<l>    connection (RegionClosing, ConnectedRegions)</l>
+<l>    region_features (ConnectedRegions, 'rect2_len1', Value)</l>
+<l>    select_obj (ConnectedRegions, ObjectSelected1, sort_index(Value*-1)[0]+1)</l>
+<c>    </c>
+<l>    opening_rectangle1 (Regions, RegionOpening3, 60, 1)</l>
+<l>    closing_rectangle1 (RegionOpening3, RegionClosing1, 500, 2)</l>
+<l>    connection (RegionClosing1, ConnectedRegions1)</l>
+<l>    region_features (ConnectedRegions1, 'rect2_len1', Value)</l>
+<l>    select_obj (ConnectedRegions1, ObjectSelected2, sort_index(Value*-1)[0]+1)</l>
+<c>    </c>
+<l>    union2 (ObjectSelected1, ObjectSelected2, RegionUnion)</l>
+<l>    offset:=25</l>
+<l>    get_image_size (Image1, Width, Height)</l>
+<l>    if ((VisionProcessStep&gt;0 and VisionProcessStep&lt;9) and ImageIndex==1)   </l>
+<l>        opening_rectangle1 (RegionUnion, RegionOpening1, 1, 200)</l>
+<l>        connection (RegionOpening1, ConnectedRegions2)</l>
+<l>        region_features (ConnectedRegions2, 'rect2_len1', Value)</l>
+<l>        select_obj (ConnectedRegions2, RegionOpening1, sort_index(Value*-1)[0]+1)</l>
+<c>        </c>
+<l>        get_region_points (RegionOpening1, Rows, Columns)</l>
+<l>        R1ROW:=min(Rows)</l>
+<l>        R1Columns:=  max(Columns)</l>
+<c>        </c>
+<l>        R2ROW:=max(Rows)</l>
+<l>        R2Columns:=  max(Columns)</l>
+<c>        </c>
+<l>        intersection_lines (R1ROW, R1Columns, R2ROW, R2Columns, 0, 0, 0, Width, Row1, Column1, IsOverlapping)    </l>
+<l>        intersection_lines (R1ROW, R1Columns, R2ROW, R2Columns, Height, 0, Height, Width, Row2, Column2, IsOverlapping)    </l>
+<c>        </c>
+<l>        gen_region_points (Region, [Row1+1,Row2-1,1,Height-1], [Column1+offset,Column2+offset,Width-1,Width-1])</l>
+<l>        shape_trans (Region, DetectRoi, 'convex')</l>
+<l>        difference (DetectRoi, RegionOpening1, DetectRoi)</l>
+<c>        </c>
+<c>        </c>
+<l>    endif</l>
+<c>    </c>
+<c>    </c>
+<l>    if ((VisionProcessStep&gt;0 and VisionProcessStep&lt;9) and ImageIndex==0) </l>
+<l>        opening_rectangle1 (RegionUnion, RegionOpening1, 1, 200)</l>
+<l>        connection (RegionOpening1, ConnectedRegions2)</l>
+<l>        region_features (ConnectedRegions2, 'rect2_len1', Value)</l>
+<l>        select_obj (ConnectedRegions2, RegionOpening1, sort_index(Value*-1)[0]+1)</l>
+<c>        </c>
+<l>        get_region_points (RegionOpening1, Rows, Columns)</l>
+<l>        R1ROW:=min(Rows)</l>
+<l>        R1Columns:= min(Columns)</l>
+<c>        </c>
+<l>        R2ROW:=max(Rows)</l>
+<l>        R2Columns:= min(Columns)</l>
+<c>        </c>
+<l>        intersection_lines (R1ROW, R1Columns, R2ROW, R2Columns, 0, 0, 0, Width, Row1, Column1, IsOverlapping)    </l>
+<l>        intersection_lines (R1ROW, R1Columns, R2ROW, R2Columns, Height, 0, Height, Width, Row2, Column2, IsOverlapping)</l>
+<l>        gen_region_points (Region, [Row1+1,Row2-1,1,Height-1], [Column1-offset,Column2-offset,1,1])</l>
+<l>        shape_trans (Region, DetectRoi, 'convex')</l>
+<l>    endif  </l>
+<c>    </c>
+<c>    </c>
+<l>    if (VisionProcessStep==0 and ImageIndex==0)</l>
+<c>        </c>
+<l>        opening_rectangle1 (RegionUnion, RegionOpening1, 1, 200)</l>
+<l>        get_region_points (RegionOpening1, Rows, Columns)</l>
+<l>        R1ROW:=min(Rows)</l>
+<l>        R1Columns:=  Columns[sort_index(Rows)[0]]</l>
+<c>        </c>
+<l>        R2ROW:=max(Rows)</l>
+<l>        R2Columns:=  Columns[inverse(sort_index(Rows))[0]]</l>
+<c>        </c>
+<l>        opening_rectangle1 (RegionUnion, RegionOpening, 200, 1)</l>
+<l>        get_region_points (RegionOpening, Rows1, Columns1)</l>
+<l>        R3ROW:=   Rows1[sort_index(Columns1)[0]]</l>
+<l>        R3Columns:= min(Columns1)</l>
+<c>        </c>
+<c>        </c>
+<l>        R4ROW:=   Rows1[inverse(sort_index(Columns1))[0]]</l>
+<l>        R4Columns:= max(Columns1)</l>
+<l>        intersection_lines (R1ROW, R1Columns, R2ROW, R2Columns, R3ROW, R3Columns, R4ROW, R4Columns, R1ROW, R1Columns, IsOverlapping)    </l>
+<c>        </c>
+<l>        gen_region_points (Region, [R1ROW+offset,R2ROW,R3ROW+offset,R2ROW], [R1Columns-offset,R2Columns-offset,R3Columns,R3Columns])</l>
+<l>        shape_trans (Region, DetectRoi, 'convex')</l>
+<l>        difference (DetectRoi, RegionUnion, DetectRoi)</l>
+<c>        </c>
+<c>        </c>
+<l>    endif</l>
+<c>    </c>
+<c>    </c>
+<l>    if (VisionProcessStep==0 and ImageIndex==1)</l>
+<c>        </c>
+<l>        opening_rectangle1 (RegionUnion, RegionOpening1, 1, 200)</l>
+<l>        get_region_points (RegionOpening1, Rows, Columns)</l>
+<l>        R1ROW:=min(Rows)</l>
+<l>        R1Columns:=  Columns[sort_index(Rows)[0]]</l>
+<c>        </c>
+<l>        R2ROW:=max(Rows)</l>
+<l>        R2Columns:=  Columns[inverse(sort_index(Rows))[0]]</l>
+<c>        </c>
+<l>        opening_rectangle1 (RegionUnion, RegionOpening,200, 1)</l>
+<l>        get_region_points (RegionOpening, Rows1, Columns1)</l>
+<l>        R3ROW:=   Rows1[inverse(sort_index(Columns1))[0]]</l>
+<l>        R3Columns:= max(Columns1)</l>
+<c>        </c>
+<l>        R4ROW:=   Rows1[sort_index(Columns1)[0]]</l>
+<l>        R4Columns:= min(Columns1)</l>
+<l>        intersection_lines (R1ROW, R1Columns, R2ROW, R2Columns, R3ROW, R3Columns, R4ROW, R4Columns, R1ROW, R1Columns, IsOverlapping)    </l>
+<c>        </c>
+<l>        gen_region_points (Region, [R1ROW+offset,R2ROW,R3ROW+offset,R2ROW], [R1Columns+offset,R2Columns+offset,R3Columns,R3Columns])</l>
+<l>        shape_trans (Region, DetectRoi, 'convex')</l>
+<l>        difference (DetectRoi, RegionUnion, DetectRoi)</l>
+<l>    endif</l>
+<c>    </c>
+<c>    </c>
+<l>    if (VisionProcessStep==9 and ImageIndex==1)</l>
+<c>        </c>
+<l>        opening_rectangle1 (RegionUnion, RegionOpening1, 1, 200)</l>
+<l>        get_region_points (RegionOpening1, Rows, Columns)</l>
+<l>        R1ROW:=min(Rows)</l>
+<l>        R1Columns:=  Columns[sort_index(Rows)[0]]</l>
+<c>        </c>
+<l>        R2ROW:=max(Rows)</l>
+<l>        R2Columns:=  Columns[inverse(sort_index(Rows))[0]]</l>
+<c>        </c>
+<l>        opening_rectangle1 (RegionUnion, RegionOpening, 200, 1)</l>
+<l>        get_region_points (RegionOpening, Rows1, Columns1)</l>
+<l>        R3ROW:=   Rows1[inverse(sort_index(Columns1))[0]]</l>
+<l>        R3Columns:= max(Columns1)</l>
+<c>        </c>
+<l>        R4ROW:=   Rows1[sort_index(Columns1)[0]]</l>
+<l>        R4Columns:= min(Columns1)</l>
+<l>        intersection_lines (R1ROW, R1Columns, R2ROW, R2Columns, R3ROW, R3Columns, R4ROW, R4Columns,  R2ROW, R2Columns, IsOverlapping)    </l>
+<l>        gen_region_points (Region, [R1ROW,R2ROW-offset,R3ROW-offset,R1ROW], [R1Columns+offset,R2Columns+offset,R3Columns,R3Columns])</l>
+<l>        shape_trans (Region, DetectRoi, 'convex')</l>
+<l>        difference (DetectRoi, RegionUnion, DetectRoi)</l>
+<l>    endif</l>
+<c>    </c>
+<l>    if (VisionProcessStep==9 and ImageIndex==0)</l>
+<c>        </c>
+<l>        opening_rectangle1 (RegionUnion, RegionOpening1, 1, 200)</l>
+<l>        get_region_points (RegionOpening1, Rows, Columns)</l>
+<l>        R1ROW:=min(Rows)</l>
+<l>        R1Columns:=  Columns[sort_index(Rows)[0]]</l>
+<c>        </c>
+<l>        R2ROW:=max(Rows)</l>
+<l>        R2Columns:=  Columns[inverse(sort_index(Rows))[0]]</l>
+<c>        </c>
+<l>        opening_rectangle1 (RegionUnion, RegionOpening, 200, 1)</l>
+<l>        get_region_points (RegionOpening, Rows1, Columns1)</l>
+<l>        R3ROW:=   Rows1[sort_index(Columns1)[0]]</l>
+<l>        R3Columns:= min(Columns1)</l>
+<c>        </c>
+<l>        R4ROW:=   Rows1[inverse(sort_index(Columns1))[0]]</l>
+<l>        R4Columns:= max(Columns1)</l>
+<l>        intersection_lines (R1ROW, R1Columns, R2ROW, R2Columns, R3ROW, R3Columns, R4ROW, R4Columns,  R2ROW, R2Columns, IsOverlapping)    </l>
+<c>        </c>
+<l>        gen_region_points (Region, [R1ROW,R2ROW-offset,R3ROW-offset,R1ROW], [R1Columns-offset,R2Columns-offset,R3Columns,R3Columns])</l>
+<l>        shape_trans (Region, DetectRoi, 'convex')</l>
+<l>        difference (DetectRoi, RegionUnion, DetectRoi)</l>
+<c>        </c>
+<l>    endif</l>
+<c>    </c>
+<c>    </c>
+<l>    fill_up_shape (Regions, RegionFillUp, 'area', 10000, 20000)</l>
+<l>    difference (RegionFillUp, Regions, RegionDifference)</l>
+<l>    dilation_circle (RegionDifference, circularityRoi, 25) </l>
+<c>    </c>
+<c>    </c>
+<l>catch (Exception)</l>
+<l>    return ()</l>
+<l>endtry</l>
+<l>return ()</l>
+</body>
+<docu id="DetectProcess_DuMo">
+<parameters>
+<parameter id="DetectRoi"/>
+<parameter id="Hict"/>
+<parameter id="Image1"/>
+<parameter id="ImageIndex"/>
+<parameter id="VisionProcessStep"/>
+<parameter id="circularityRoi"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

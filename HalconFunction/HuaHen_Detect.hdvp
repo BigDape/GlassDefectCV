@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="22.05.0.0">
+<procedure name="HuaHen_Detect">
+<interface>
+<io>
+<par name="Image1" base_type="iconic" dimension="0"/>
+<par name="Image2" base_type="iconic" dimension="0"/>
+<par name="Image3" base_type="iconic" dimension="0"/>
+<par name="RegionPanel" base_type="iconic" dimension="0"/>
+<par name="DetectRoi" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="ErrImage1" base_type="iconic" dimension="0"/>
+<par name="ErrImage2" base_type="iconic" dimension="0"/>
+<par name="ErrImage3" base_type="iconic" dimension="0"/>
+<par name="ErrRoi" base_type="iconic" dimension="0"/>
+<par name="OriginalErrRoi" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+<par name="VisionProcessStep" base_type="ctrl" dimension="0"/>
+<par name="GlassPositionInf" base_type="ctrl" dimension="0"/>
+<par name="YCoordIn" base_type="ctrl" dimension="0"/>
+<par name="pixX" base_type="ctrl" dimension="0"/>
+<par name="pixY" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="ErrName" base_type="ctrl" dimension="0"/>
+<par name="ErrType" base_type="ctrl" dimension="0"/>
+<par name="ErrW" base_type="ctrl" dimension="0"/>
+<par name="ErrH" base_type="ctrl" dimension="0"/>
+<par name="ErrArea" base_type="ctrl" dimension="0"/>
+<par name="ErrX" base_type="ctrl" dimension="0"/>
+<par name="ErrY" base_type="ctrl" dimension="0"/>
+<par name="MapIndex" base_type="ctrl" dimension="0"/>
+<par name="ParIndex" base_type="ctrl" dimension="0"/>
+<par name="ErrImageIndex" base_type="ctrl" dimension="0"/>
+<par name="YCoordOut" base_type="ctrl" dimension="0"/>
+<par name="OK" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>OK:=[]</l>
+<l>try</l>
+<l>    gen_empty_obj (ErrRoi) </l>
+<l>    gen_empty_obj (ErrImage1)</l>
+<l>    gen_empty_obj (ErrImage2)</l>
+<l>    gen_empty_obj (ErrImage3)</l>
+<l>    gen_empty_obj (OriginalErrRoi)</l>
+<l>    ErrName:=[]</l>
+<l>    ErrType:=[]</l>
+<l>    ErrW:=[]</l>
+<l>    ErrH:=[]</l>
+<l>    ErrArea:=[]</l>
+<l>    ErrX:=[]</l>
+<l>    ErrY:=[]</l>
+<l>    MapIndex:=[]</l>
+<l>    ParIndex:=[]</l>
+<l>    ErrImageIndex:=[]</l>
+<l>    gen_empty_obj (XObject)</l>
+<l>    gen_empty_obj (BObject)</l>
+<l>    gen_empty_obj (VObject)</l>
+<l>    gen_empty_obj (ObjectsConcat)</l>
+<l>    gen_empty_obj (ObjectsConcat1)</l>
+<l>    gen_empty_obj (ObjectsConcat3qt)</l>
+<l>    gen_empty_obj (huahen)</l>
+<l>    gen_empty_obj (zangwu)</l>
+<l>    gen_empty_obj (qita)</l>
+<l>    gen_empty_obj (zangwuM)</l>
+<l>    reduce_domain (Image1, DetectRoi, Image1Reduced)</l>
+<l>    reduce_domain (Image2, DetectRoi, Image2Reduced)</l>
+<l>    reduce_domain (Image3, DetectRoi, Image3Reduced)</l>
+<c>    </c>
+<l>    huahenAreaThreshold:=50</l>
+<l>    zangwuAreaThreshold:=1000</l>
+<c>    </c>
+<l>    get_dict_tuple (DetectDict,'缺陷面积阈值', DefectAreaThreshold)</l>
+<l>    get_dict_tuple (DefectAreaThreshold,'划痕面积阈值', huahenAreaThreshold)</l>
+<l>    get_dict_tuple (DefectAreaThreshold,'脏污面积阈值', zangwuAreaThreshold)</l>
+<c> *脏污提取   </c>
+<l>mean_image (Image3Reduced, Image3Mean, 10, 10)</l>
+<l>threshold (Image3Mean, Region3ZW, 15, 255)</l>
+<l>closing_circle (Region3ZW, RegionClosing3ZW, 3.5)</l>
+<l>connection (RegionClosing3ZW, ConnectedRegions3ZW)</l>
+<l>select_shape (ConnectedRegions3ZW, SelectedRegions3ZW, 'area', 'and', 3000, 999999999)</l>
+<l>select_shape (SelectedRegions3ZW, zangwuM, 'circularity', 'and', 0.15, 1)</l>
+<l>region_features (zangwuM, 'circularity', CirZW)</l>
+<l>intensity (zangwuM, Image3, Mean3ZW, Deviation3ZW)</l>
+<l>count_obj (zangwuM, Numberzw)</l>
+<l>for Indexzw := 1 to Numberzw by 1</l>
+<l>    if(Mean3ZW[Indexzw-1]&lt;50 or (CirZW[Indexzw-1]&gt;0.5 and Mean3ZW[Indexzw-1]&lt;100))</l>
+<l>        select_obj (zangwuM, ObjectSelectedZW, Indexzw)</l>
+<l>        concat_obj (zangwu, ObjectSelectedZW, zangwu)</l>
+<l>    endif </l>
+<l>endfor</l>
+<l>union1 (zangwu, RegionUnionzw)</l>
+<l>connection (RegionUnionzw, ConnectedRegionszw)</l>
+<l>select_shape (ConnectedRegionszw, zangwu, 'area', 'and', zangwuAreaThreshold, 999999999)</l>
+<c>    </c>
+<c> </c>
+<l> dilation_circle (zangwu, RegionDilationzangwu, 10.5)</l>
+<l> difference (DetectRoi, RegionDilationzangwu, DetectRoi)</l>
+<l>     reduce_domain (Image1, DetectRoi, Image1Reduced)</l>
+<l>    reduce_domain (Image2, DetectRoi, Image2Reduced)</l>
+<l>    reduce_domain (Image3, DetectRoi, Image3Reduced)</l>
+<c></c>
+<c></c>
+<c>*划伤   </c>
+<c>    *透射亮场</c>
+<l>    gen_empty_obj (Selected1RegionsGry)</l>
+<l>    mean_image (Image1Reduced, Image1Mean, 1, 200)</l>
+<l>    dyn_threshold (Image1Reduced, Image1Mean, Region1DynThresh, 15, 'dark')</l>
+<l>    closing_circle (Region1DynThresh, Region1Closing, 1.5)</l>
+<l>    connection (Region1Closing, Connected1Regions)</l>
+<l>    select_shape (Connected1Regions, Selected1Regions, 'area', 'and', 10, 9999999) </l>
+<l>    select_shape (Selected1Regions, Selected1Regions, 'circularity', 'and', 0, 0.3) </l>
+<l>    select_shape (Selected1Regions, Selected1RegionsAni, 'anisometry', 'and', 5, 99999)</l>
+<l>    select_shape (Selected1Regions, Selected1RegionsArea, 'area', 'and', 150, 99999999)</l>
+<l>    intensity (Selected1Regions, Image1Reduced, Mean1, Deviation1)</l>
+<c>    </c>
+<l>   c:=Mean1[&lt;]130 </l>
+<l>   d:=find(c,1)</l>
+<l>   if(d!=-1)</l>
+<l>     select_obj (Selected1Regions, Selected1RegionsGry, d+1)</l>
+<l>   endif</l>
+<l>    union2 (Selected1RegionsGry, Selected1RegionsArea, RegionUnion1TL)</l>
+<l>    union2 (RegionUnion1TL, Selected1RegionsAni, RegionUnionTL)</l>
+<c></c>
+<c>   </c>
+<c>   </c>
+<c>    *反射亮场</c>
+<l>*     mean_image (Image2Reduced, Image2Mean, 40, 40)</l>
+<l>*     dyn_threshold (Image2Reduced, Image2Mean, Region2DynThresh, 10, 'dark')</l>
+<l>*     closing_circle (Region2DynThresh, Region2Closing, 1.5)</l>
+<l>*     connection (Region2Closing, Connected2Regions)</l>
+<l>*     select_shape (Connected2Regions, Selected2Regions, 'area', 'and', 200, 99999999)</l>
+<c></c>
+<l>*     intersection (Selected2Regions, DetectRoiErosion, Region2FL)</l>
+<c>    </c>
+<l>*     threshold (Image2Reduced, Region2, 220, 255)</l>
+<l>*     connection (Region2, Connected2Regions1)</l>
+<l>*     select_shape (Connected2Regions1, Selecte2dRegions1, 'area', 'and', 5, 99999)</l>
+<l>*    union2 (Region2Intersection, Selecte2dRegions1, RegionUnionFL)</l>
+<c>   </c>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<c>    *反射暗场</c>
+<c>*微划伤提取</c>
+<l>    erosion_circle (DetectRoi, DetectRoiErosion, 15.5)</l>
+<l>    scale_image (Image3Reduced, ImageScaled, 2, 0)</l>
+<l>    mean_image (ImageScaled, ImageMeanWHH, 20, 20)</l>
+<l>    dyn_threshold (ImageScaled, ImageMeanWHH, RegionDynThreshWHH, 5, 'light')</l>
+<l>    connection (RegionDynThreshWHH, ConnectedRegionsWHH)</l>
+<l>    select_shape (ConnectedRegionsWHH, SelectedRegionsWHH1, 'area', 'and', 20, 9999999)</l>
+<l>    select_shape (SelectedRegionsWHH1, SelectedRegionsWHH2, 'circularity', 'and', 0, 0.05) </l>
+<l>    select_shape (SelectedRegionsWHH1, SelectedRegionsWHH3, 'anisometry', 'and', 10, 999999) </l>
+<l>    union2 (SelectedRegionsWHH2, SelectedRegionsWHH3, RegionUnionWHH)</l>
+<c>    </c>
+<l>    intersection (RegionUnionWHH, DetectRoiErosion, RegionsIntersectionWHH) </l>
+<l>    union1 (RegionsIntersectionWHH, RegionUnionWHH1)</l>
+<l>    connection (RegionUnionWHH1, ConnectedRegionsWHH1)</l>
+<l>    select_shape (ConnectedRegionsWHH1, SelectedRegionsWHH, 'area', 'and', 20, 9999999)</l>
+<c>    </c>
+<c> *明划伤提取      </c>
+<l>    erosion_circle (DetectRoi, DetectRoiErosion, 3.5)</l>
+<l>    mean_image (Image3Reduced, Image3Mean, 50, 50)</l>
+<l>    dyn_threshold (Image3Reduced, Image3Mean, Region3DynThresh, 25, 'light')</l>
+<l>    closing_circle (Region3DynThresh, Region3Closing, 1.5)</l>
+<l>    connection (Region3Closing, Connected3Regions)</l>
+<l>    select_shape (Connected3Regions, Selected3Regions, 'area', 'and', 10, 99999999)</l>
+<l>    select_shape (Selected3Regions, Selected3Regions, 'circularity', 'and', 0, 0.3) </l>
+<l>    intersection (Selected3Regions, DetectRoiErosion, Selected3Regions)   </l>
+<l>    select_shape (Selected3Regions, Selected3RegionsAni, 'anisometry', 'and', 4, 99999)</l>
+<l>    select_shape (Selected3Regions, Selected3RegionsArea, 'area', 'and', 500, 99999999)</l>
+<l>    intensity (Selected3Regions, Image3Reduced, Mean3, Deviation3)</l>
+<c>    </c>
+<l>     c:=Mean3[&gt;]40 </l>
+<l>   d:=find(c,1)</l>
+<l>   if(d!=-1)</l>
+<l>     select_obj (Selected3Regions, Selected3RegionsGry, d+1)</l>
+<l>   endif</l>
+<c>    </c>
+<l>   union2 (Selected3RegionsGry, Selected3RegionsArea, RegionUnion1FA)</l>
+<l>   union2 (RegionUnion1FA, SelectedRegionsWHH, RegionUnion2FA)</l>
+<l>   union2 (RegionUnion2FA, Selected3RegionsAni, RegionUnionFA)</l>
+<c></c>
+<l>   union2 (RegionUnionFA, RegionUnionTL, RegionUnionAL)</l>
+<c></c>
+<l>   union1 (RegionUnionAL, RegionUnion)</l>
+<l>   connection (RegionUnion, ConnectedRegions)</l>
+<l>   select_shape (ConnectedRegions, SelectedRegions, 'area', 'and', 15 , 9999999)</l>
+<c>   </c>
+<l>region_features (SelectedRegions, 'circularity', CirSR)</l>
+<l>region_features (SelectedRegions, 'anisometry', AniSR)</l>
+<l>region_features (SelectedRegions, 'bulkiness', BulSR)</l>
+<l>region_features (SelectedRegions, 'contlength', ContlengthSR)</l>
+<l>region_features (SelectedRegions, 'area', AreaSR)</l>
+<l>intensity (SelectedRegions, Image1, MeanSR1, DeviationSR1)</l>
+<c></c>
+<l>intensity (SelectedRegions, Image3, MeanSR3, DeviationSR3)</l>
+<l>widthSR:=2*AreaSR/ContlengthSR</l>
+<l>ratioSR:=ContlengthSR/2.00</l>
+<c>   </c>
+<c>   </c>
+<l>   count_obj (SelectedRegions, NumberSR)</l>
+<l>   for IndexSR := 1 to NumberSR by 1</l>
+<l>       select_obj (SelectedRegions, ObjectSelectedSR, IndexSR)</l>
+<c>       </c>
+<l>       dilation_circle (ObjectSelectedSR, RegionDilationObjSR, 20.5)</l>
+<l>       difference (RegionDilationObjSR, ObjectSelectedSR, RegionDifferenceObjSR)</l>
+<l>       intensity (RegionDifferenceObjSR, Image1, Mean1ObjSR, Deviation1ObjSR)</l>
+<c>       </c>
+<l>       if(((CirSR[IndexSR-1]&lt;0.02 or AniSR[IndexSR-1]&gt;30) and (MeanSR3[IndexSR-1]&gt;35 or widthSR[IndexSR-1]&lt;4)) or (MeanSR3[IndexSR-1]&gt;80 and AniSR[IndexSR-1]&gt;3))</l>
+<l>           concat_obj (huahen, ObjectSelectedSR, huahen)</l>
+<l>       else</l>
+<l>           if(widthSR[IndexSR-1]&lt;4 and ((CirSR[IndexSR-1]&lt;0.03) or (CirSR[IndexSR-1]&lt;0.05 and AniSR[IndexSR-1]&gt;3) or (AniSR[IndexSR-1]&gt;5 and MeanSR3[IndexSR-1]&gt;30)) and (Mean1ObjSR-MeanSR1[IndexSR-1]&gt;5))</l>
+<l>               concat_obj (huahen, ObjectSelectedSR, huahen)</l>
+<l>           else</l>
+<l>               intersection (ObjectSelectedSR, Selected1Regions, RegionIntersectionObjSR)              </l>
+<l>               region_features (RegionIntersectionObjSR, 'area', AreaObjSR)</l>
+<l>               if(AreaObjSR&gt;0)</l>
+<l>                   region_features (RegionIntersectionObjSR, 'circularity', CirObjSR)</l>
+<l>                   region_features (RegionIntersectionObjSR, 'anisometry', AniObjSR)</l>
+<l>                   if((CirObjSR&lt;0.05 or AniObjSR&gt;6) and (widthSR[IndexSR-1]&lt;4 or MeanSR3[IndexSR-1]&gt;50)) </l>
+<l>                       concat_obj (huahen, ObjectSelectedSR, huahen)</l>
+<l>                   endif</l>
+<l>               endif</l>
+<c>               </c>
+<l>           endif</l>
+<l>       endif</l>
+<c>       </c>
+<c>       </c>
+<l>   endfor</l>
+<c></c>
+<l>   union1 (huahen, huahen)</l>
+<l>   closing_circle (huahen, RegionClosinghuahen, 100.5)</l>
+<l>   connection (RegionClosinghuahen, ConnectedRegionshuahen)</l>
+<l>   select_shape (ConnectedRegionshuahen, huahen, 'area', 'and', huahenAreaThreshold, 999999999)</l>
+<c>   </c>
+<l>   dyn_threshold (Image1Reduced, Image1Mean, Region1DynThreshDzhh, 30, 'dark')</l>
+<l>   difference (Region1DynThreshDzhh, RegionClosinghuahen, RegionDifferenceDzhh)</l>
+<l>   closing_rectangle1 (RegionDifferenceDzhh, RegionClosingDzhh11, 5, 50)</l>
+<l>   connection (RegionClosingDzhh11, ConnectedRegionsDzhh11)</l>
+<l>   select_shape (ConnectedRegionsDzhh11, SelectedRegionsDzhh11, 'area', 'and', 150, 99999)</l>
+<l>   select_shape (SelectedRegionsDzhh11, SelectedRegionsDzhh11, 'anisometry', 'and', 10, 99999)</l>
+<l>   closing_rectangle1 (RegionDifferenceDzhh, RegionClosingDzhh12, 50, 5)</l>
+<l>    connection (RegionClosingDzhh12, ConnectedRegionsDzhh12)</l>
+<l>   select_shape (ConnectedRegionsDzhh12, SelectedRegionsDzhh12, 'area', 'and', 150, 99999)</l>
+<l>   select_shape (SelectedRegionsDzhh12, SelectedRegionsDzhh12, 'anisometry', 'and', 10, 99999)</l>
+<c>   </c>
+<l>   union2 (SelectedRegionsDzhh11, SelectedRegionsDzhh12, RegionUnionDzhh)</l>
+<l>   count_obj (RegionUnionDzhh, NumberDzhh)</l>
+<c>   </c>
+<l>   for Index := 1 to NumberDzhh by 1</l>
+<l>       select_obj (RegionUnionDzhh, ObjectSelectedDzhh, Index)</l>
+<l>       intersection (ObjectSelectedDzhh, RegionDifferenceDzhh, RegionIntersectionObjDzhh)</l>
+<l>       connection (RegionIntersectionObjDzhh, ConnectedRegionsObjDzhh)</l>
+<l>       count_obj (ConnectedRegionsObjDzhh, NumberObjDzhh)</l>
+<l>       if(NumberObjDzhh&gt;5)</l>
+<l>           concat_obj (huahen, ObjectSelectedDzhh, huahen)</l>
+<l>       endif</l>
+<l>   endfor</l>
+<c></c>
+<l>union1 (huahen, RegionUnionhuahen)</l>
+<l>connection (RegionUnionhuahen, ConnectedUnionhuahen)</l>
+<l>select_shape (ConnectedUnionhuahen, huahen, 'area', 'and', 10, 999999999)</l>
+<c></c>
+<c></c>
+<l>            count_obj (huahen,Number)</l>
+<l>            if (Number&gt;0)</l>
+<l>                ImageIndex:=1</l>
+<l>                tuple_gen_const (Number, 1, Newtuple)</l>
+<l>                tuple_gen_const (Number, 1, TypeTuple)</l>
+<l>        GatherInfo_OkNG (huahen, Image1, Image2, Image3, RegionPanel, TransRoi, RoiImage1, RoiImage2, RoiImage3, DetectDict, DetectDict, '划伤', TypeTuple, VisionProcessStep, GlassPositionInf, Newtuple, 0, 0, 0, 0, YCoordIn, pixX, pixY, Name, Type, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK1)</l>
+<l>                if (OK1!=[])</l>
+<l>                    concat_obj (ErrImage1, RoiImage1, ErrImage1)</l>
+<l>                    concat_obj (ErrImage2, RoiImage2, ErrImage2)</l>
+<l>                    concat_obj (ErrImage3, RoiImage3, ErrImage3)</l>
+<l>                    concat_obj (ErrRoi,TransRoi,  ErrRoi)</l>
+<l>                    ErrName:=[ErrName,Name]</l>
+<l>                    ErrType:=[ErrType,Type]</l>
+<l>                    ErrW:=[ErrW,W]</l>
+<l>                    ErrH:=[ErrH,H]</l>
+<l>                    ErrArea:=[ErrArea,Area]</l>
+<l>                    ErrX:=[ErrX,X]</l>
+<l>                    ErrY:=[ErrY,Y]</l>
+<l>                    MapIndex:=[MapIndex,mapIndex]</l>
+<l>                    ParIndex:=[ParIndex,parIndex]  </l>
+<l>                    ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>                    OK:=[OK,OK1]</l>
+<l>                endif</l>
+<l>           endif</l>
+<c></c>
+<l>       count_obj (zangwu,Number)</l>
+<l>            if (Number&gt;0)</l>
+<l>                ImageIndex:=1</l>
+<l>                tuple_gen_const (Number, 1, Newtuple)</l>
+<l>                tuple_gen_const (Number, 4, TypeTuple)</l>
+<l>        GatherInfo_OkNG (zangwu, Image1, Image2, Image3, RegionPanel, TransRoi, RoiImage1, RoiImage2, RoiImage3, DetectDict, DetectDict, '脏污', TypeTuple, VisionProcessStep, GlassPositionInf, Newtuple, 0, 0, 0, 0, YCoordIn, pixX, pixY, Name, Type, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK2)</l>
+<l>                if (OK2!=[])</l>
+<l>                    concat_obj (ErrImage1, RoiImage1, ErrImage1)</l>
+<l>                    concat_obj (ErrImage2, RoiImage2, ErrImage2)</l>
+<l>                    concat_obj (ErrImage3, RoiImage3, ErrImage3)</l>
+<l>                    concat_obj (ErrRoi,TransRoi,  ErrRoi)</l>
+<l>                    ErrName:=[ErrName,Name]</l>
+<l>                    ErrType:=[ErrType,Type]</l>
+<l>                    ErrW:=[ErrW,W]</l>
+<l>                    ErrH:=[ErrH,H]</l>
+<l>                    ErrArea:=[ErrArea,Area]</l>
+<l>                    ErrX:=[ErrX,X]</l>
+<l>                    ErrY:=[ErrY,Y]</l>
+<l>                    MapIndex:=[MapIndex,mapIndex]</l>
+<l>                    ParIndex:=[ParIndex,parIndex]  </l>
+<l>                    ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>                    OK:=[OK,OK2]</l>
+<l>                endif</l>
+<l>           endif      </l>
+<c></c>
+<c>           </c>
+<l>            union2 (huahen, zangwu, RegionUnionQx)</l>
+<l>            dilation_circle (RegionUnionQx, RegionDilationQx, 10.5)</l>
+<l>            union1 (RegionDilationQx, RegionUnionQx)</l>
+<l>            concat_obj (OriginalErrRoi, RegionUnionQx, OriginalErrRoi)</l>
+<c></c>
+<l>catch (Exception )</l>
+<l>    return ()  </l>
+<l>endtry</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="HuaHen_Detect">
+<parameters>
+<parameter id="DetectDict"/>
+<parameter id="DetectRoi"/>
+<parameter id="ErrArea"/>
+<parameter id="ErrH"/>
+<parameter id="ErrImage1"/>
+<parameter id="ErrImage2"/>
+<parameter id="ErrImage3"/>
+<parameter id="ErrImageIndex"/>
+<parameter id="ErrName"/>
+<parameter id="ErrRoi"/>
+<parameter id="ErrType"/>
+<parameter id="ErrW"/>
+<parameter id="ErrX"/>
+<parameter id="ErrY"/>
+<parameter id="GlassPositionInf"/>
+<parameter id="Image1"/>
+<parameter id="Image2"/>
+<parameter id="Image3"/>
+<parameter id="MapIndex"/>
+<parameter id="OK"/>
+<parameter id="OriginalErrRoi"/>
+<parameter id="ParIndex"/>
+<parameter id="RegionPanel"/>
+<parameter id="VisionProcessStep"/>
+<parameter id="YCoordIn"/>
+<parameter id="YCoordOut"/>
+<parameter id="pixX"/>
+<parameter id="pixY"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

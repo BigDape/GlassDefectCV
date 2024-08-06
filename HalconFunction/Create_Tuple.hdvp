@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="Create_Tuple">
+<interface>
+<oc>
+<par name="ErrName1" base_type="ctrl" dimension="0"/>
+<par name="ErrName2" base_type="ctrl" dimension="0"/>
+<par name="ErrName3" base_type="ctrl" dimension="0"/>
+<par name="AlarmName1" base_type="ctrl" dimension="0"/>
+<par name="AlarmName2" base_type="ctrl" dimension="0"/>
+<par name="AlarmName3" base_type="ctrl" dimension="0"/>
+<par name="OK1" base_type="ctrl" dimension="0"/>
+<par name="OK2" base_type="ctrl" dimension="0"/>
+<par name="OK3" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<c></c>
+<l>ErrName1:=[]</l>
+<l>ErrName2:=[]</l>
+<l>ErrName3:=[]</l>
+<l>AlarmName1:=[]</l>
+<l>AlarmName2:=[]</l>
+<l>AlarmName3:=[]</l>
+<l>OK1:='OK'</l>
+<l>OK2:='OK'</l>
+<l>OK3:='OK'</l>
+<l>return ()</l>
+</body>
+<docu id="Create_Tuple">
+<parameters>
+<parameter id="AlarmName1"/>
+<parameter id="AlarmName2"/>
+<parameter id="AlarmName3"/>
+<parameter id="ErrName1"/>
+<parameter id="ErrName2"/>
+<parameter id="ErrName3"/>
+<parameter id="OK1"/>
+<parameter id="OK2"/>
+<parameter id="OK3"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

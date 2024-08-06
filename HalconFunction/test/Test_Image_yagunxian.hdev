@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>set_system ('parallelize_operators', 'true')</l>
+<l>* read_image (Image1_1, 'C:/Users/PC/Desktop/Test1/压辊线/12/1.bmp')</l>
+<l>* read_image (Image1_2,  'C:/Users/PC/Desktop/Test1/压辊线/12/2.bmp')</l>
+<l>* read_image (Image1_3, 'C:/Users/PC/Desktop/Test1/赃物/2/1.bmp')</l>
+<l>* read_image (Image1_4, 'C:/Users/PC/Desktop/Test1/赃物/1-22/2-4.bmp')</l>
+<c></c>
+<l>read_image (Image1_1,'D:/test1/压痕/1.bmp')</l>
+<l>read_image (Image1_2, 'D:/test1/压痕/2.bmp')</l>
+<l>read_image (Image1_3, 'D:/test1/压痕/1.bmp')</l>
+<l>read_image (Image1_4,'D:/test1/压痕/1.bmp')</l>
+<c></c>
+<l>read_dict ('d:/HalconFunction/wusiyin1126.hdict', [], [], DictHandle)</l>
+<l>DetectProcess_DuMo (Image1_1, DetectRoi1, circularityRoi, DictHandle,1,0)</l>
+<c></c>
+<l>gen_empty_obj (EmptyObject)</l>
+<c></c>
+<l>YaGunXian_Detect (Image1_1, Image1_2, Image1_3, Image1_4, DetectRoi1, EmptyObject,ErrRoi_Q, AlarmRoi_Q, ErrImage_Q, AlarmImage_Q,\
+Roi, DictHandle, 1,0,ErrName_Q, AlarmName_Q, ErrW_Q, ErrH_Q, ErrArea_Q, ErrX_Q,\
+ErrY_Q, AlarmW_Q, AlarmH_Q, AlarmArea_Q, AlarmX_Q, AlarmY_Q, MapIndex_Q, ParIndex_Q, x,OK8)</l>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>list_files ('3', ['files','follow_links'], ImageFiles)</l>
+<l>tuple_regexp_select (ImageFiles, ['\\.(tif|tiff|gif|bmp|jpg|jpeg|jp2|png|pcx|pgm|ppm|pbm|xwd|ima|hobj)$','ignore_case'], ImageFiles)</l>
+<l>for Index1 := 0 to |ImageFiles| - 1 by 1</l>
+<l>     read_image (ImageReducedD, ImageFiles[Index1])</l>
+<c></c>
+<l>        threshold (ImageReducedD, Regions, 30, 255)</l>
+<l>        closing_circle (Regions, RegionClosing, 1.5)</l>
+<l>        connection (RegionClosing, ConnectedRegions)</l>
+<l>        select_shape (ConnectedRegions, SelectedRegions, 'area', 'and', 30, 9999999) </l>
+<c>        </c>
+<c></c>
+<l>*         c:=Mean[&gt;=]120 </l>
+<l>*         d:= find(c, 1)</l>
+<l>*         select_obj (SelectedRegions, ObjectSelected, d+1)</l>
+<c>        </c>
+<c>        </c>
+<c>               </c>
+<c>        </c>
+<l>        select_shape (SelectedRegions, SelectedRegions, 'anisometry', 'and', 5, 99999)</l>
+<l>     *   select_shape (SelectedRegions, SelectedRegions2, 'bulkiness', 'and', 2, 99999)</l>
+<l>        select_shape (SelectedRegions, SelectedRegions, 'circularity', 'and', 0, 0.15)</l>
+<l>        intensity (SelectedRegions, ImageReducedD, Mean, Deviation)</l>
+<c>        </c>
+<l>        region_features (SelectedRegions, 'circularity', Circularity)</l>
+<l>        region_features (SelectedRegions, 'area', Area)</l>
+<l>        smallest_rectangle2 (SelectedRegions, Row, Column, Phi, Length1, Length2)</l>
+<l>        contlength (SelectedRegions, ContLength)</l>
+<l>        radio_1:=Length1/Length2</l>
+<l>        length_1:=0.5*ContLength</l>
+<l>        width_1:=2*Area/ContLength          </l>
+<l>        radio_2:=length_1/width_1</l>
+<c>        </c>
+<c>        </c>
+<c>       </c>
+<l>        count_obj (SelectedRegions, Number)</l>
+<c>        </c>
+<c>        </c>
+<l>        for Index := 1 to Number by 1</l>
+<l>          if((radio_1[Index-1]&gt;7 and radio_2[Index-1]&gt;15) and ((Mean[Index-1]&lt;60 and width_1[Index-1]&lt;3) or (Mean[Index-1]&gt;=60 and Mean[Index-1]&lt;=120 and width_1[Index-1]&lt;5)))</l>
+<l>              select_obj (SelectedRegions, ObjectSelected, Index)</l>
+<l>              concat_obj (huahen1, ObjectSelected, huahen1)</l>
+<l>          endif</l>
+<l>        endfor    </l>
+<l>endfor</l>
+<c></c>
+<c>                    </c>
+<c>     </c>
+<c></c>
+<c>        </c>
+<c>     </c>
+<c>   </c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

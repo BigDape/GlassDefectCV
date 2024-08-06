@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>set_system ('parallelize_operators', 'true')</l>
+<l>      temp:=3</l>
+<l>read_image (Image1_1, 'C:/Users/PC/Desktop/20220602/bb/2/1.bmp')</l>
+<l>read_image (Image1_2,'C:/Users/PC/Desktop/20220602/bb/2/2.bmp')</l>
+<l>read_image (Image1_3,'C:/Users/PC/Desktop/20220602/bb/2/1.bmp')</l>
+<l>read_image (Image1_4,'C:/Users/PC/Desktop/20220602/bb/2/1.bmp')</l>
+<l>* read_image (Image1_1, 'C:/Users/PC/Desktop/Test1/崩角/2-15/2.bmp')</l>
+<l>* read_image (Image1_2, 'C:/Users/PC/Desktop/Test1/崩角/2-15/2.bmp')</l>
+<l>* read_image (Image1_3, 'C:/Users/PC/Desktop/Test1/崩角/2-15/2.bmp')</l>
+<l>* read_image (Image1_4, 'C:/Users/PC/Desktop/Test1/崩角/2-15/2.bmp')</l>
+<c></c>
+<c></c>
+<c></c>
+<l>read_dict ('D:/HalconFunction/DuMo3.2.hdict', [], [], DictHandle)</l>
+<l>*  read_dict ('D:/HalconFunction/youbiansiyin.hdict', [], [], DictHandle)</l>
+<l> DetectProcess_DuMo (Image1_1, DetectRoi1, circularityRoi, DictHandle,0,1)</l>
+<c></c>
+<l>* DetectProcess_Siyin (Image1_1, SiyinRoi1, DetectRoi1, DictHandle,0,1)</l>
+<l>* reduce_domain (Image1_1, DetectRoi1, ImageReduced)</l>
+<l>* threshold (ImageReduced, Nodict, 31, 255)</l>
+<c></c>
+<l>gen_empty_obj (SiyinRoi1)</l>
+<c></c>
+<l>BengBianJiao (Image1_1, Image1_2, Image1_3, Image1_4, DetectRoi1, SiyinRoi1, ErrRoi_Q, AlarmRoi_Q, ErrImage_Q, AlarmImage_Q,\
+OriginalErrRoi, DictHandle,0,1,  ErrName_Q, AlarmName_Q, ErrW_Q, ErrH_Q, ErrArea_Q, ErrX_Q, ErrY_Q, AlarmW_Q, AlarmH_Q,\
+AlarmArea_Q, AlarmX_Q, AlarmY_Q, MapIndex_Q, ParIndex_Q,EX, OK3)</l>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

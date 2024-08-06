@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="BengBianJiao">
+<interface>
+<io>
+<par name="Image1" base_type="iconic" dimension="0"/>
+<par name="Image2" base_type="iconic" dimension="0"/>
+<par name="Image3" base_type="iconic" dimension="0"/>
+<par name="Image4" base_type="iconic" dimension="0"/>
+<par name="RoiDetect" base_type="iconic" dimension="0"/>
+<par name="NoDetect" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="ErrRoi" base_type="iconic" dimension="0"/>
+<par name="AlarmRoi" base_type="iconic" dimension="0"/>
+<par name="ErrImage" base_type="iconic" dimension="0"/>
+<par name="AlarmImage" base_type="iconic" dimension="0"/>
+<par name="OriginalErrRoi" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+<par name="VisionProcessStep" base_type="ctrl" dimension="0"/>
+<par name="ImageIndex" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="ErrName" base_type="ctrl" dimension="0"/>
+<par name="AlarmName" base_type="ctrl" dimension="0"/>
+<par name="ErrW" base_type="ctrl" dimension="0"/>
+<par name="ErrH" base_type="ctrl" dimension="0"/>
+<par name="ErrArea" base_type="ctrl" dimension="0"/>
+<par name="ErrX" base_type="ctrl" dimension="0"/>
+<par name="ErrY" base_type="ctrl" dimension="0"/>
+<par name="AlarmW" base_type="ctrl" dimension="0"/>
+<par name="AlarmH" base_type="ctrl" dimension="0"/>
+<par name="AlarmArea" base_type="ctrl" dimension="0"/>
+<par name="AlarmX" base_type="ctrl" dimension="0"/>
+<par name="AlarmY" base_type="ctrl" dimension="0"/>
+<par name="MapIndex" base_type="ctrl" dimension="0"/>
+<par name="ParIndex" base_type="ctrl" dimension="0"/>
+<par name="ErrImageIndex" base_type="ctrl" dimension="0"/>
+<par name="OK" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<c></c>
+<l>OK:=[]</l>
+<l>gen_empty_obj (ErrRoi) </l>
+<l>gen_empty_obj (AlarmRoi)</l>
+<l>gen_empty_obj (ErrImage) </l>
+<l>gen_empty_obj (AlarmImage)</l>
+<l>gen_empty_obj (OriginalErrRoi)</l>
+<l>gen_empty_obj (ErrRegion)</l>
+<l>ErrName:=[]</l>
+<l>AlarmName:=[]</l>
+<l>ErrW:=[]</l>
+<l>ErrH:=[]</l>
+<l>ErrArea:=[]</l>
+<l>ErrX:=[]</l>
+<l>ErrY:=[]</l>
+<l>AlarmW:=[]</l>
+<l>AlarmH:=[]</l>
+<l>AlarmArea:=[]</l>
+<l>AlarmX:=[]</l>
+<l>AlarmY:=[]</l>
+<l>MapIndex:=[]</l>
+<l>ParIndex:=[]</l>
+<l>ErrImageIndex := []</l>
+<l>try</l>
+<c>    *********************************************** 崩角 倒角 崩边***************************************************</c>
+<c>    </c>
+<l>    get_dict_tuple (DetectDict, '边角类',BJDict)</l>
+<c>    </c>
+<l>    get_dict_tuple (BJDict, 'BengJiao_L', BengJiao_L)</l>
+<l>    get_dict_tuple (BJDict, 'BengJiao_W', BengJiao_W) </l>
+<l>    get_dict_tuple (BJDict, 'BengBian_L', BengBian_L)</l>
+<l>    get_dict_tuple (BJDict, 'BengBian_W', BengBian_W) </l>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<l>    if (VisionProcessStep==0 or VisionProcessStep==9)  </l>
+<l>        if (VisionProcessStep==0 and ImageIndex==0)</l>
+<l>            DicName:='UpRight'</l>
+<l>        elseif (VisionProcessStep==0 and ImageIndex==1)</l>
+<l>            DicName:='UpLeft'</l>
+<l>        elseif (VisionProcessStep==9 and ImageIndex==0)   </l>
+<l>            DicName:='DownRight'</l>
+<l>        elseif (VisionProcessStep==9 and ImageIndex==1)   </l>
+<l>            DicName:='DownLeft'</l>
+<l>        endif</l>
+<c>        </c>
+<l>        Create_Detect_Area (Image1, RoiDetect, DetectArea, RegionUnionLine, DicName, CmpL, CmpW)</l>
+<c>        </c>
+<l>        BengJiaoNew (Image1, DetectArea, RegionUnionLine, RoiDetect, NoDetect, ErrRegion, DicName, DetectDict)</l>
+<l>        select_shape (ErrRegion, SelectedRegions, 'area', 'and', 1, 999999999)</l>
+<l>        count_obj (SelectedRegions,Number)</l>
+<l>        if (Number&gt;0)</l>
+<l>            tuple_gen_const (Number, 1, Newtuple)</l>
+<l>            GatherInfo_OkNG (SelectedRegions, Image1, Image2, Image3, RoiImage, TransRoi, SelectRegion, DetectDict, BJDict, '崩角', VisionProcessStep, ImageIndex, BengJiao_W, BengJiao_L, Newtuple, Name, W, H, X, Y, Area, mapIndex, parIndex, ErrImageIndex1, OK1)</l>
+<l>            if (OK1!=[])</l>
+<l>                concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                concat_obj (ErrRoi,TransRoi,  ErrRoi)</l>
+<l>                ErrName:=[ErrName,Name]</l>
+<l>                ErrW:=[ErrW,W]</l>
+<l>                ErrH:=[ErrH,H]</l>
+<l>                ErrArea:=[ErrArea,Area]</l>
+<l>                ErrX:=[ErrX,X]</l>
+<l>                ErrY:=[ErrY,Y]</l>
+<l>                MapIndex:=[MapIndex,mapIndex]</l>
+<l>                ParIndex:=[ParIndex,parIndex]  </l>
+<l>                OK:=[OK,OK1] </l>
+<l>                ErrImageIndex:=[ErrImageIndex,ErrImageIndex1]</l>
+<l>                union2 (OriginalErrRoi, SelectRegion, OriginalErrRoi)</l>
+<l>            endif</l>
+<l>        endif  </l>
+<l>        select_obj (DetectArea, ObjectSelected1, 3)</l>
+<l>        count_obj (ObjectSelected1, Number1)</l>
+<l>        if (Number1==0)</l>
+<l>            return ()     </l>
+<l>        endif</l>
+<c>        </c>
+<l>        DaoJiao (Image1, DetectArea, RoiDetect, NoDetect, ErrRegion, DicName, DetectDict)</l>
+<l>        select_shape (ErrRegion, SelectedRegions, 'area', 'and', 1, 999999999)</l>
+<l>        count_obj (SelectedRegions,Number)</l>
+<l>        if (Number&gt;0)</l>
+<l>            tuple_gen_const (Number, 1, Newtuple)</l>
+<l>            GatherInfo_OkNG (SelectedRegions, Image1, Image2, Image3, RoiImage, TransRoi, SelectRegion1, DetectDict, BJDict, '导角', VisionProcessStep, ImageIndex, 0.01, 0.01, Newtuple, Name, W, H, X, Y, Area, mapIndex, parIndex, ErrImageIndex1, OK1)</l>
+<l>            if (OK1!=[])</l>
+<l>                concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                concat_obj (ErrRoi,TransRoi,  ErrRoi)</l>
+<l>                ErrName:=[ErrName,Name]</l>
+<l>                ErrW:=[ErrW,W]</l>
+<l>                ErrH:=[ErrH,H]</l>
+<l>                ErrArea:=[ErrArea,Area]</l>
+<l>                ErrX:=[ErrX,X]</l>
+<l>                ErrY:=[ErrY,Y]</l>
+<l>                MapIndex:=[MapIndex,mapIndex]</l>
+<l>                ParIndex:=[ParIndex,parIndex]  </l>
+<l>                OK:=[OK,OK1] </l>
+<l>                ErrImageIndex:=[ErrImageIndex,ErrImageIndex1]</l>
+<l>                union2 (OriginalErrRoi, SelectRegion1, OriginalErrRoi)</l>
+<l>                return ()</l>
+<l>            endif</l>
+<l>        endif</l>
+<c>        </c>
+<l>        BengJiaoBian (Image1, Image2, Image3, DetectArea, RegionUnionLine, NoDetect, ErrRegion,\
+                      DicName, DetectDict, VisionProcessStep, ImageIndex, CmpL, CmpW, ErrImageIndexArr)</l>
+<l>        select_shape (ErrRegion, SelectedRegions, 'area', 'and', 1, 999999999)</l>
+<l>        count_obj (SelectedRegions,Number)</l>
+<l>        if (Number&gt;0)</l>
+<l>            GatherInfo_OkNG (SelectedRegions, Image1, Image2, Image3, RoiImage, TransRoi, SelectRegion2, DetectDict, BJDict, '崩边', VisionProcessStep, ImageIndex, BengBian_W, BengBian_L, ErrImageIndexArr, Name, W, H, X, Y, Area, mapIndex, parIndex, ErrImageIndex1, OK1)</l>
+<l>            if (OK1!=[])</l>
+<l>                concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                concat_obj (ErrRoi,TransRoi,  ErrRoi)</l>
+<l>                ErrName:=[ErrName,Name]</l>
+<l>                ErrW:=[ErrW,W]</l>
+<l>                ErrH:=[ErrH,H]</l>
+<l>                ErrArea:=[ErrArea,Area]</l>
+<l>                ErrX:=[ErrX,X]</l>
+<l>                ErrY:=[ErrY,Y]</l>
+<l>                MapIndex:=[MapIndex,mapIndex]</l>
+<l>                ParIndex:=[ParIndex,parIndex]  </l>
+<l>                OK:=[OK,OK1] </l>
+<l>                ErrImageIndex:=[ErrImageIndex,ErrImageIndex1]</l>
+<l>                union2 (OriginalErrRoi, SelectRegion2, OriginalErrRoi)</l>
+<l>            endif</l>
+<l>        endif</l>
+<c>        </c>
+<l>    else     </l>
+<l>        if (ImageIndex==0)</l>
+<l>            DicName:='Right'</l>
+<l>        elseif (ImageIndex==1)</l>
+<l>            DicName:='Left'</l>
+<l>        endif</l>
+<c>        </c>
+<l>        Bengbian (Image1, Image2, Image3, RoiDetect, NoDetect, ErrRegion, DicName, DetectDict,\
+                  ErrImageIndexArr)</l>
+<l>        select_shape (ErrRegion, SelectedRegions, 'area', 'and', 1, 999999999)</l>
+<l>        count_obj (SelectedRegions,Number)</l>
+<l>        if (Number&gt;0)</l>
+<l>            GatherInfo_OkNG (SelectedRegions, Image1, Image2, Image3, RoiImage, TransRoi, SelectRegion12, DetectDict, BJDict, '崩边', VisionProcessStep, ImageIndex, BengBian_W, BengBian_L, ErrImageIndexArr, Name, W, H, X, Y, Area, mapIndex, parIndex, ErrImageIndex1, OK1)</l>
+<l>            if (OK1!=[])</l>
+<l>                concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                concat_obj (ErrRoi,TransRoi,  ErrRoi)</l>
+<l>                ErrName:=[ErrName,Name]</l>
+<l>                ErrW:=[ErrW,W]</l>
+<l>                ErrH:=[ErrH,H]</l>
+<l>                ErrArea:=[ErrArea,Area]</l>
+<l>                ErrX:=[ErrX,X]</l>
+<l>                ErrY:=[ErrY,Y]</l>
+<l>                MapIndex:=[MapIndex,mapIndex]</l>
+<l>                ParIndex:=[ParIndex,parIndex]  </l>
+<l>                OK:=[OK,OK1]</l>
+<l>                ErrImageIndex:=[ErrImageIndex,ErrImageIndex1]</l>
+<l>                union2 (OriginalErrRoi, SelectRegion12, OriginalErrRoi)</l>
+<l>            endif</l>
+<l>        endif    </l>
+<l>    endif</l>
+<c>    *************************************************************************************</c>
+<l>catch (Exception )</l>
+<l>    return ()</l>
+<l>endtry</l>
+<l>return ()</l>
+</body>
+<docu id="BengBianJiao">
+<parameters>
+<parameter id="AlarmArea"/>
+<parameter id="AlarmH"/>
+<parameter id="AlarmImage"/>
+<parameter id="AlarmName"/>
+<parameter id="AlarmRoi"/>
+<parameter id="AlarmW"/>
+<parameter id="AlarmX"/>
+<parameter id="AlarmY"/>
+<parameter id="DetectDict"/>
+<parameter id="ErrArea"/>
+<parameter id="ErrH"/>
+<parameter id="ErrImage"/>
+<parameter id="ErrImageIndex"/>
+<parameter id="ErrName"/>
+<parameter id="ErrRoi"/>
+<parameter id="ErrW"/>
+<parameter id="ErrX"/>
+<parameter id="ErrY"/>
+<parameter id="Image1"/>
+<parameter id="Image2"/>
+<parameter id="Image3"/>
+<parameter id="Image4"/>
+<parameter id="ImageIndex"/>
+<parameter id="MapIndex"/>
+<parameter id="NoDetect"/>
+<parameter id="OK"/>
+<parameter id="OriginalErrRoi"/>
+<parameter id="ParIndex"/>
+<parameter id="RoiDetect"/>
+<parameter id="VisionProcessStep"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

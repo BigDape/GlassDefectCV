@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>set_system ('parallelize_operators', 'false')</l>
+<l>set_system ('clip_region', 'false')</l>
+<l>set_system ('neighborhood', 8)</l>
+<l>* read_dict ('D:/HalconFunction/wusiyin1126.hdict', [], [], DictHandle)</l>
+<l>read_image (Image1_1, 'C:/Users/PC/Desktop/20220602/huas/8.bmp')</l>
+<l>read_image (Image1_2, 'C:/Users/PC/Desktop/20220602/huas/8.bmp')</l>
+<l>read_image (Image1_3,'C:/Users/PC/Desktop/20220602/huas/8.bmp')</l>
+<l>read_image (Image1_4, 'C:/Users/PC/Desktop/20220602/huas/8.bmp')</l>
+<l>* read_image (Image1_1, 'C:/Users/PC/Desktop/Test1/崩角/2-15/2.bmp')</l>
+<l>* read_image (Image1_2, 'C:/Users/PC/Desktop/Test1/崩角/2-15/2.bmp')</l>
+<l>* read_image (Image1_3, 'C:/Users/PC/Desktop/Test1/崩角/2-15/2.bmp')</l>
+<l>* read_image (Image1_4, 'C:/Users/PC/Desktop/Test1/崩角/2-15/2.bmp')</l>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<l>read_dict ('D:/HalconFunction/DuMo3.2.hdict', [], [], DictHandle)</l>
+<l>DetectProcess_DuMo (Image1_1, DetectRoi, circularityRoi, DictHandle,1,0)</l>
+<c></c>
+<c>**************************************************************************************</c>
+<l>* DetectProcess_DuMo (Image1_1, DetectRoi, circularityRoi, DictHandle, 1,0)</l>
+<l>* DetectProcess_Siyin (Image1_1, SiyinRoi1, DetectRoi, DictHandle,1,1)</l>
+<c></c>
+<c>********************************************************************************</c>
+<c></c>
+<c></c>
+<l>get_dict_tuple (DictHandle, '系统参数', SysParadDict)</l>
+<l>get_dict_tuple (SysParadDict, 'siyinclass',siyinclass)</l>
+<c></c>
+<c></c>
+<l>get_dict_tuple (SysParadDict, 'BaiDao_threshold_Min',BaiDao_threshold_Min)</l>
+<l>get_dict_tuple (SysParadDict, 'BaiDao_threshold_Max',BaiDao_threshold_Max)</l>
+<c></c>
+<c></c>
+<l>gen_empty_obj (PBbd)</l>
+<c></c>
+<l>* reduce_domain (Image1_1, DetectRoi, ImageReduced)</l>
+<l>* threshold (ImageReduced, Regions, BaiDao_threshold_Min, BaiDao_threshold_Max)</l>
+<l>* closing_circle (Regions, RegionClosing1, 10)</l>
+<l>* opening_circle (RegionClosing1, RegionOpening1, 2)</l>
+<l>* closing_circle (RegionOpening1, RegionClosing, 30)</l>
+<l>* fill_up (RegionClosing, RegionFillUp)</l>
+<l>* opening_circle (RegionFillUp, RegionOpening, 5.5)</l>
+<l>* connection (RegionOpening, ConnectedRegions)   </l>
+<l>* select_shape (ConnectedRegions, PBbd, ['rect2_len1','rect2_len2'], 'and', [150,50], [99999,99999])</l>
+<l>* union1 (PBbd, PBbd)</l>
+<l>* region_features (PBbd, 'area', Value1)</l>
+<c></c>
+<l>* threshold (ImageReduced, Regions,90, 255)</l>
+<l>* closing_circle (Regions, RegionClosing, 40)</l>
+<l>* fill_up (RegionClosing, RegionFillUp)</l>
+<l>* opening_circle (RegionFillUp, RegionOpening, 5.5)</l>
+<l>* connection (RegionOpening, ConnectedRegions)   </l>
+<l>* select_shape (ConnectedRegions, zPBbd, ['rect2_len1','rect2_len2'], 'and', [150,50], [99999,99999])</l>
+<l>* union1 (zPBbd, zPBbd)</l>
+<l>* region_features (zPBbd, 'area', Value2)</l>
+<c></c>
+<l>* i:=Value2/Value1</l>
+<l>* if (i&gt;=0.5)</l>
+<l>*     gen_empty_obj (PBbd)</l>
+<l>* else</l>
+<l>*     shape_trans (PBbd, PBbd, 'rectangle1') </l>
+<l>* endif</l>
+<c>*************************************************************************************</c>
+<l>* get_domain (Image1_1, DetectRoi)</l>
+<l>gen_empty_obj (PBbd)</l>
+<c></c>
+<c></c>
+<l>Scratch_Detect (Image1_1, Image1_2, Image1_3, Image1_4,  DetectRoi,PBbd, ErrRoi_Q, AlarmRoi_Q, \
+                ErrImage_Q, AlarmImage_Q,EmptyObject, DictHandle,1,0, ErrName_Q, AlarmName_Q, ErrW_Q, ErrH_Q, \
+                ErrArea_Q, ErrX_Q, ErrY_Q, AlarmW_Q, AlarmH_Q, AlarmArea_Q, AlarmX_Q, AlarmY_Q, MapIndex_Q,\
+                ParIndex_Q, ss,OK2)</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

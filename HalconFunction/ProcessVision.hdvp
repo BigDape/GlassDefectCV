@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="22.05.0.0">
+<procedure name="ProcessVision">
+<interface>
+<io>
+<par name="Image1" base_type="iconic" dimension="0"/>
+<par name="Image2" base_type="iconic" dimension="0"/>
+<par name="Image3" base_type="iconic" dimension="0"/>
+<par name="GlassRegion" base_type="iconic" dimension="0"/>
+<par name="FrameRegion" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="ErrRoi" base_type="iconic" dimension="0"/>
+<par name="ErrImage1" base_type="iconic" dimension="0"/>
+<par name="ErrImage2" base_type="iconic" dimension="0"/>
+<par name="ErrImage3" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+<par name="VisionProcessStep" base_type="ctrl" dimension="0"/>
+<par name="GlassPositionInf" base_type="ctrl" dimension="0"/>
+<par name="YCoordIn" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="ResultDict" base_type="ctrl" dimension="0"/>
+<par name="YCoordOut" base_type="ctrl" dimension="0"/>
+<par name="Col_x" base_type="ctrl" dimension="0"/>
+<par name="Row_y" base_type="ctrl" dimension="0"/>
+<par name="GlassLength" base_type="ctrl" dimension="0"/>
+<par name="GlassWidth" base_type="ctrl" dimension="0"/>
+<par name="GlassAngle" base_type="ctrl" dimension="0"/>
+<par name="OK" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>try</l>
+<c>    </c>
+<c></c>
+<l>dev_update_off ()</l>
+<l>dev_update_window ('off')</l>
+<l>set_system ('clip_region', 'false')</l>
+<c></c>
+<c></c>
+<c>**********************初始化输出*****************************</c>
+<c></c>
+<l>OK:=[]</l>
+<l>gen_empty_obj (ErrRoi)</l>
+<l>gen_empty_obj (ErrImage1)</l>
+<l>gen_empty_obj (ErrImage2)</l>
+<l>gen_empty_obj (ErrImage3)</l>
+<l>* read_dict (DetectDict, [], [], DetectDict)</l>
+<c>************************创建存储对象******************</c>
+<l>Create_Obj (ErrRoi, ErrImage1, ErrImage2, ErrImage3)</l>
+<c></c>
+<c>*************************创建存储变量*************</c>
+<l>MapIndex:=[]</l>
+<l>YCoordOut:=0</l>
+<c></c>
+<l>GlassWidthOut:=[]</l>
+<l>GlassWidthOut:=[]</l>
+<l>GlassAngleOut:=[]</l>
+<l>    Create_ResultTuple (OKNG, ErrName, ErrType, DefectLevel, GlassLength, GlassWidth, GlassAngle, ErrX, ErrY, ErrW, ErrH, ErrArea, MapIndex, ParIndex)</l>
+<c></c>
+<l>* get_dict_tuple (DetectDict, '使能', EnabledDict)</l>
+<l>* get_dict_tuple (DetectDict, '系统参数', SysParadDict)</l>
+<l>    height_width_ratio (GlassRegion, Glassheight, Glasswidth, RegionRatio)</l>
+<c></c>
+<l>   get_dict_tuple (DetectDict,'尺寸测量', MersureDict)</l>
+<l>get_dict_tuple (MersureDict,'相机1像素0精度', Cam1pixSetValue)</l>
+<l>get_dict_tuple (MersureDict,'相机2与相机1精度比值', CamPixRatio)</l>
+<l>get_dict_tuple (MersureDict,'相机1像素k值', KxCam1)</l>
+<l>get_dict_tuple (MersureDict,'相机2像素k值', KxCam2)</l>
+<l>get_dict_tuple (DetectDict,'缺陷检测', detectDict)</l>
+<l>get_dict_tuple (detectDict,'玻璃厚度' , thickness)</l>
+<l>Cam1Width:=8000</l>
+<l>Cam1pixSetValue:=Cam1pixSetValue*(1457.7-(thickness-6))/1457.700</l>
+<c></c>
+<l>pixValueC1:=(2*Cam1pixSetValue+KxCam1*Cam1Width)/2.000000</l>
+<l>pixValueC2:=(2*Cam1pixSetValue*CamPixRatio+KxCam2*Cam1Width)/2.000000</l>
+<l>pixValueSetV:=(pixValueC1+pixValueC2)/2.000000</l>
+<l>pixX:=pixValueSetV</l>
+<l>get_dict_tuple (DetectDict,'编码器参数', CodeDict)</l>
+<l>get_dict_tuple (CodeDict,'编码器转数', CodeNumPr)</l>
+<l>get_dict_tuple (CodeDict,'辊道周长', RollerPer)</l>
+<l>get_dict_tuple (CodeDict,'每行对应的编码计数', CodeCountPerLine)</l>
+<l>pixYValueCal:=(RollerPer/1000.000000)/((CodeNumPr*4)/(CodeCountPerLine+0.000001))</l>
+<c></c>
+<l>get_dict_tuple (MersureDict,'Y方向精度K', Ky)</l>
+<l>get_dict_tuple (MersureDict,'Y方向精度B', By)</l>
+<c></c>
+<l>PixelAccuracyY:=Ky*pixYValueCal</l>
+<l>pixY:=PixelAccuracyY</l>
+<c></c>
+<l>    GlassLength:=Glassheight*pixY</l>
+<l>    GlassWidth:=Glasswidth*pixX</l>
+<l>   GlassAngle:=0</l>
+<l> region_features (GlassRegion, 'phi', Glassphi)</l>
+<l> tuple_abs (Glassphi, Abs)</l>
+<l> if(Glassphi&gt;0 and Abs&gt;0.785)</l>
+<l>     Glassphi:=1.5708-Glassphi</l>
+<l> else</l>
+<l>     if(Glassphi&lt;0 and Abs&gt;0.785)</l>
+<l>     Glassphi:=-(1.5708+Glassphi)</l>
+<l>     else </l>
+<l>         if(Glassphi&lt;0)</l>
+<l>             Glassphi:=Glassphi</l>
+<l>         else</l>
+<l>             Glassphi:=Glassphi</l>
+<l>         endif</l>
+<l>     endif</l>
+<l> endif</l>
+<l>smallest_rectangle1 (GlassRegion, RowRegion1, ColumnRegion1, RowRegion2, ColumnRegion2)</l>
+<l>move_region (GlassRegion, RegionMoved1, -RowRegion1, -ColumnRegion1)</l>
+<c>* // 定义缩小比例</c>
+<l>ScaleFactor1X :=GlassWidth /(Glasswidth+0.0000001)</l>
+<l>ScaleFactor1Y :=GlassLength /(Glassheight+0.0000001)</l>
+<c></c>
+<l>zoom_region (RegionMoved1, RegionZoom1, ScaleFactor1X, ScaleFactor1Y)</l>
+<l>area_center (RegionZoom1, Area1, Row2, Column2)</l>
+<c></c>
+<l>vector_angle_to_rigid (Row2, Column2, 0, Column2, Row2, 1.5708+Glassphi, HomMat2D)</l>
+<l>affine_trans_region (RegionZoom1, RegionAffineTrans1, HomMat2D, 'nearest_neighbor')</l>
+<l>tuple_deg (1.5708, Deg1)</l>
+<l>smallest_rectangle1 (RegionAffineTrans1, Row14, Column14, Row22, Column22)</l>
+<l>move_region (RegionAffineTrans1, RegionMoved2, -Row22, -Column14)</l>
+<c></c>
+<l>gen_contour_region_xld (RegionMoved2, GlassContours, 'border_holes')</l>
+<l>Row_y:=[]</l>
+<l>Col_x:=[]</l>
+<l>count_obj (GlassContours, NumberContours)</l>
+<l>for IndexContours := 1 to NumberContours by 1</l>
+<l>    select_obj (GlassContours, ObjectContour, IndexContours)</l>
+<l>    get_contour_xld (ObjectContour, Row_1, Col_1)</l>
+<l>    Row_y:=[Row_y,Row_1]</l>
+<l>    Col_x:=[Col_x,Col_1]</l>
+<c>    </c>
+<l>endfor</l>
+<c></c>
+<l>    Detect_Image (Image1, Image2, Image3, FrameRegion, ErrRoi, ErrImage1, ErrImage2, ErrImage3, DetectDict, VisionProcessStep, GlassPositionInf, YCoordIn, pixX, pixY, ErrName, ErrType, OK, ErrW, ErrH, ErrArea, ErrX, ErrY, MapIndex, ParIndex, SelectDisPlayImageIndex, YCoordOut)</l>
+<c>  </c>
+<l>    if(GlassPositionInf=3 or GlassPositionInf=0)</l>
+<l>        DetectSize (GlassRegion, DetectDict, GlassLenghOut, GlassWidthOut, GlassAngleOut)</l>
+<l>        GlassLength := GlassLenghOut</l>
+<l>      GlassWidth:=GlassWidthOut</l>
+<l>      GlassAngle:=GlassAngleOut</l>
+<l>   endif</l>
+<c>*************************收集数据******************************* </c>
+<l>SelectDisPlayImageIndex:=[]</l>
+<c></c>
+<l>    create_dict (ResultDict)    </l>
+<l>    set_dict_tuple (ResultDict, 'ErrName', ErrName)</l>
+<l>    set_dict_tuple (ResultDict, 'ErrType', ErrType)</l>
+<l>    set_dict_tuple (ResultDict, 'DefectLevel', OK)</l>
+<l>    set_dict_tuple (ResultDict, 'GlassLengh', GlassLength)</l>
+<l>    set_dict_tuple (ResultDict, 'GlassWidth', GlassWidth)</l>
+<l>    set_dict_tuple (ResultDict, 'GlassAngle', GlassAngle)</l>
+<l>    set_dict_tuple (ResultDict, 'ErrX', ErrX)</l>
+<l>    set_dict_tuple (ResultDict, 'ErrY', ErrY)</l>
+<l>    set_dict_tuple (ResultDict, 'ErrW', ErrW)</l>
+<l>    set_dict_tuple (ResultDict, 'ErrH', ErrH)</l>
+<l>    set_dict_tuple (ResultDict, 'ErrArea', ErrArea)</l>
+<l>    set_dict_tuple (ResultDict, 'MapIndex', MapIndex)</l>
+<l>    set_dict_tuple (ResultDict, 'ParIndex', ParIndex)</l>
+<l>    set_dict_tuple (ResultDict, 'ErrImageIndex', SelectDisPlayImageIndex)</l>
+<l>    set_dict_tuple (ResultDict, 'OKNG', 'OK')</l>
+<l>    set_dict_tuple (ResultDict, 'Row_y', Row_y)</l>
+<l>    set_dict_tuple (ResultDict, 'Col_x', Col_x)</l>
+<l>return ()</l>
+<l>catch (Exception)</l>
+<c>   </c>
+<l>endtry</l>
+</body>
+<docu id="ProcessVision">
+<parameters>
+<parameter id="Col_x"/>
+<parameter id="DetectDict"/>
+<parameter id="ErrImage1"/>
+<parameter id="ErrImage2"/>
+<parameter id="ErrImage3"/>
+<parameter id="ErrRoi"/>
+<parameter id="FrameRegion"/>
+<parameter id="GlassAngle"/>
+<parameter id="GlassLength"/>
+<parameter id="GlassPositionInf"/>
+<parameter id="GlassRegion"/>
+<parameter id="GlassWidth"/>
+<parameter id="Image1"/>
+<parameter id="Image2"/>
+<parameter id="Image3"/>
+<parameter id="OK"/>
+<parameter id="ResultDict"/>
+<parameter id="Row_y"/>
+<parameter id="VisionProcessStep"/>
+<parameter id="YCoordIn"/>
+<parameter id="YCoordOut"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="GatherInfoSiYin">
+<interface>
+<io>
+<par name="Roi" base_type="iconic" dimension="0"/>
+<par name="Globalobject" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="RoiImage" base_type="iconic" dimension="0"/>
+<par name="TransRoi" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+<par name="TypeName" base_type="ctrl" dimension="0"/>
+<par name="LLimit" base_type="ctrl" dimension="0"/>
+<par name="WLimit" base_type="ctrl" dimension="0"/>
+<par name="LD" base_type="ctrl" dimension="0"/>
+<par name="SeimeId" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="ArrName" base_type="ctrl" dimension="0"/>
+<par name="W" base_type="ctrl" dimension="0"/>
+<par name="H" base_type="ctrl" dimension="0"/>
+<par name="X" base_type="ctrl" dimension="0"/>
+<par name="Y" base_type="ctrl" dimension="0"/>
+<par name="Area" base_type="ctrl" dimension="0"/>
+<par name="MapIndex" base_type="ctrl" dimension="0"/>
+<par name="ParIndex" base_type="ctrl" dimension="0"/>
+<par name="OK" base_type="ctrl" dimension="0"/>
+<par name="ErrImageIndex" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>gen_empty_obj (RoiImage)</l>
+<l>gen_empty_obj (TransRoi)</l>
+<l>ArrName:=[]</l>
+<l>W:=[]</l>
+<l>H:=[]</l>
+<l>X:=[]</l>
+<l>Y:=[]</l>
+<l>Area:=[]</l>
+<l>pix:=0.095</l>
+<l>MapIndex:=[]</l>
+<l>ParIndex:=[]</l>
+<l>ErrImageIndex :=[]</l>
+<l>OK:=[]</l>
+<l>get_dict_tuple (DetectDict, '系统参数', SysParadDict)</l>
+<l>get_dict_tuple (SysParadDict, 'ImageHight', ImageHight)</l>
+<l>get_dict_tuple (SysParadDict, 'ImageWidth', ImageWidth)</l>
+<l>get_dict_tuple (SysParadDict, 'OffsetCol', OffsetCol)</l>
+<l>get_dict_tuple (SysParadDict, 'startCol', startCol)</l>
+<l>get_dict_tuple (SysParadDict, 'startRow', startRow)</l>
+<l>get_dict_tuple (SysParadDict, 'SaveImageMode', SaveImageMode)</l>
+<c></c>
+<c></c>
+<l>count_obj (Roi, Number)</l>
+<l>for Index := 1 to Number by 1</l>
+<l>    select_obj (Roi, ObjectSelected, Index)</l>
+<l>    smallest_rectangle2 (ObjectSelected, Row, Column, Phi, Length1, Length2)</l>
+<l>    gen_rectangle2 (Rectangle, Row, Column, 0, Length1+1000, Length2+1000)</l>
+<l>    gen_image_const (Image1, 'byte', (Length1+1000)*2, (Length2+1000)*2)</l>
+<l>    intersection (Globalobject, Rectangle, RegionIntersection1)</l>
+<l>    vector_angle_to_rigid (Row, Column, 0, Length1+1000, Length2+1000, 0, HomMat2D)</l>
+<l>    affine_trans_region (RegionIntersection1, RegionAffineTrans, HomMat2D, 'nearest_neighbor')</l>
+<l>    paint_region (RegionAffineTrans, Image1, ImageResult, 255, 'fill')</l>
+<c>    </c>
+<l>    region_features (ObjectSelected, 'area', Value)</l>
+<l>    l:=Length1*pix*2</l>
+<l>    w:=Length2*pix*2</l>
+<l>    if ((l&gt;LLimit) and (w&gt;WLimit))</l>
+<l>        compose4 (ImageResult, ImageResult, ImageResult, ImageResult, RoiImage1)</l>
+<l>        concat_obj (RoiImage, RoiImage1, RoiImage)</l>
+<l>        concat_obj (TransRoi, ObjectSelected, TransRoi)</l>
+<l>        ArrName:=[ArrName,TypeName]</l>
+<l>        area:=Value*pix</l>
+<l>        x:= (Column-startCol)*pix</l>
+<l>        y:= (Row-startRow)*pix</l>
+<l>        X:=[X,x]</l>
+<l>        Y:=[Y,y]</l>
+<l>        W:=[W,w]</l>
+<l>        H:=[H,l]</l>
+<l>        Area:=[Area,area]</l>
+<c>        </c>
+<l>        MapIndex:=[MapIndex,Length1+1000]</l>
+<l>        ParIndex:=[ParIndex,Length2+1000]</l>
+<l>        ErrImageIndex := [ErrImageIndex,SeimeId[Index-1]]</l>
+<l>        OK:=[OK,'NG']</l>
+<l>    endif </l>
+<l>endfor</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="GatherInfoSiYin">
+<parameters>
+<parameter id="Area"/>
+<parameter id="ArrName"/>
+<parameter id="DetectDict"/>
+<parameter id="ErrImageIndex"/>
+<parameter id="Globalobject"/>
+<parameter id="H"/>
+<parameter id="LD"/>
+<parameter id="LLimit"/>
+<parameter id="MapIndex"/>
+<parameter id="OK"/>
+<parameter id="ParIndex"/>
+<parameter id="Roi"/>
+<parameter id="RoiImage"/>
+<parameter id="SeimeId"/>
+<parameter id="TransRoi"/>
+<parameter id="TypeName"/>
+<parameter id="W"/>
+<parameter id="WLimit"/>
+<parameter id="X"/>
+<parameter id="Y"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

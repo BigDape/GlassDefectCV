@@ -1,0 +1,153 @@
+{
+	"7" : 
+	{
+		"0" : 
+		{
+			"DistanceHorizontal" : 220.19499999999999,
+			"DistanceVertical" : 60.785400000000003,
+			"HolesHeight" : 11.8531,
+			"HolesID" : 0,
+			"HolesLeve" : "OK",
+			"HolesWidth" : 11.8531,
+			"ImageHolesPath" : "D:/SaveDefectImage/2024-08-01/孔/2024-08-01",
+			"Time" : "15-32-54",
+			"Type" : "孔"
+		},
+		"1" : 
+		{
+			"DistanceHorizontal" : 220.602,
+			"DistanceVertical" : 220.869,
+			"HolesHeight" : 11.751799999999999,
+			"HolesID" : 1,
+			"HolesLeve" : "OK",
+			"HolesWidth" : 11.751799999999999,
+			"ImageHolesPath" : "D:/SaveDefectImage/2024-08-01/孔/2024-08-01",
+			"Time" : "15-32-54",
+			"Type" : "孔"
+		},
+		"10" : 
+		{
+			"DistanceHorizontal" : 600.01999999999998,
+			"DistanceVertical" : 16.850000000000001,
+			"HolesHeight" : 64.393100000000004,
+			"HolesID" : 10,
+			"HolesLeve" : "NG",
+			"HolesWidth" : 33.700000000000003,
+			"ImageHolesPath" : "D:/SaveDefectImage/2024-08-01/孔/2024-08-01",
+			"Time" : "15-32-54",
+			"Type" : "门夹"
+		},
+		"11" : 
+		{
+			"DistanceHorizontal" : 300.01499999999999,
+			"DistanceVertical" : 29.1785,
+			"HolesHeight" : 46.562600000000003,
+			"HolesID" : 11,
+			"HolesLeve" : "OK",
+			"HolesWidth" : 58.356999999999999,
+			"ImageHolesPath" : "D:/SaveDefectImage/2024-08-01/孔/2024-08-01",
+			"Time" : "15-32-54",
+			"Type" : "门夹"
+		},
+		"2" : 
+		{
+			"DistanceHorizontal" : 600.20500000000004,
+			"DistanceVertical" : 88.138800000000003,
+			"HolesHeight" : 16.006799999999998,
+			"HolesID" : 2,
+			"HolesLeve" : "OK",
+			"HolesWidth" : 16.006799999999998,
+			"ImageHolesPath" : "D:/SaveDefectImage/2024-08-01/孔/2024-08-01",
+			"Time" : "15-32-54",
+			"Type" : "孔"
+		},
+		"3" : 
+		{
+			"DistanceHorizontal" : 600.23900000000003,
+			"DistanceVertical" : 56.168399999999998,
+			"HolesHeight" : 16.006799999999998,
+			"HolesID" : 3,
+			"HolesLeve" : "OK",
+			"HolesWidth" : 16.006799999999998,
+			"ImageHolesPath" : "D:/SaveDefectImage/2024-08-01/孔/2024-08-01",
+			"Time" : "15-32-54",
+			"Type" : "孔"
+		},
+		"4" : 
+		{
+			"DistanceHorizontal" : 597.14999999999998,
+			"DistanceVertical" : 60.354799999999997,
+			"HolesHeight" : 13.6767,
+			"HolesID" : 4,
+			"HolesLeve" : "OK",
+			"HolesWidth" : 13.6767,
+			"ImageHolesPath" : "D:/SaveDefectImage/2024-08-01/孔/2024-08-01",
+			"Time" : "15-32-54",
+			"Type" : "孔"
+		},
+		"5" : 
+		{
+			"DistanceHorizontal" : 596.0,
+			"DistanceVertical" : 221.18600000000001,
+			"HolesHeight" : 13.5754,
+			"HolesID" : 5,
+			"HolesLeve" : "OK",
+			"HolesWidth" : 13.5754,
+			"ImageHolesPath" : "D:/SaveDefectImage/2024-08-01/孔/2024-08-01",
+			"Time" : "15-32-54",
+			"Type" : "孔"
+		},
+		"6" : 
+		{
+			"DistanceHorizontal" : 300.178,
+			"DistanceVertical" : 87.581599999999995,
+			"HolesHeight" : 14.8924,
+			"HolesID" : 6,
+			"HolesLeve" : "OK",
+			"HolesWidth" : 14.8924,
+			"ImageHolesPath" : "D:/SaveDefectImage/2024-08-01/孔/2024-08-01",
+			"Time" : "15-32-54",
+			"Type" : "孔"
+		},
+		"7" : 
+		{
+			"DistanceHorizontal" : 170.36699999999999,
+			"DistanceVertical" : 60.1541,
+			"HolesHeight" : 17.830400000000001,
+			"HolesID" : 7,
+			"HolesLeve" : "OK",
+			"HolesWidth" : 17.830400000000001,
+			"ImageHolesPath" : "D:/SaveDefectImage/2024-08-01/孔/2024-08-01",
+			"Time" : "15-32-54",
+			"Type" : "孔"
+		},
+		"8" : 
+		{
+			"DistanceHorizontal" : 169.50999999999999,
+			"DistanceVertical" : 221.57300000000001,
+			"HolesHeight" : 17.627800000000001,
+			"HolesID" : 8,
+			"HolesLeve" : "OK",
+			"HolesWidth" : 17.627800000000001,
+			"ImageHolesPath" : "D:/SaveDefectImage/2024-08-01/孔/2024-08-01",
+			"Time" : "15-32-54",
+			"Type" : "孔"
+		},
+		"9" : 
+		{
+			"DistanceHorizontal" : 300.69600000000003,
+			"DistanceVertical" : 20.885899999999999,
+			"HolesHeight" : 62.5655,
+			"HolesID" : 9,
+			"HolesLeve" : "NG",
+			"HolesWidth" : 41.771900000000002,
+			"ImageHolesPath" : "D:/SaveDefectImage/2024-08-01/孔/2024-08-01",
+			"Time" : "15-32-54",
+			"Type" : "门夹"
+		},
+		"GlassAngle" : 0.0,
+		"GlassLength" : 1200.837198156139,
+		"GlassWidth" : 499.75357666666673,
+		"ImageHolesLinePath" : "D:/SaveDefectImage/2024-08-01/孔示意图/15-32-54/1.jpg"
+	}
+}

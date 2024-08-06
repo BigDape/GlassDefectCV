@@ -1,0 +1,494 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="Detect_ZhenKong_KonhWei_ShaoKong">
+<interface>
+<io>
+<par name="Image1" base_type="iconic" dimension="0"/>
+<par name="Image2" base_type="iconic" dimension="0"/>
+<par name="Image3" base_type="iconic" dimension="0"/>
+<par name="Image4" base_type="iconic" dimension="0"/>
+<par name="DetectRoi" base_type="iconic" dimension="0"/>
+<par name="SiYinRoi" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="ErrRoi" base_type="iconic" dimension="0"/>
+<par name="AlarmRoi" base_type="iconic" dimension="0"/>
+<par name="ErrImage" base_type="iconic" dimension="0"/>
+<par name="AlarmImage" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+<par name="VisionProcessStep" base_type="ctrl" dimension="0"/>
+<par name="ImageIndex" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="ErrName" base_type="ctrl" dimension="0"/>
+<par name="AlarmName" base_type="ctrl" dimension="0"/>
+<par name="ErrW" base_type="ctrl" dimension="0"/>
+<par name="ErrH" base_type="ctrl" dimension="0"/>
+<par name="ErrArea" base_type="ctrl" dimension="0"/>
+<par name="ErrX" base_type="ctrl" dimension="0"/>
+<par name="ErrY" base_type="ctrl" dimension="0"/>
+<par name="AlarmW" base_type="ctrl" dimension="0"/>
+<par name="AlarmH" base_type="ctrl" dimension="0"/>
+<par name="AlarmArea" base_type="ctrl" dimension="0"/>
+<par name="AlarmX" base_type="ctrl" dimension="0"/>
+<par name="AlarmY" base_type="ctrl" dimension="0"/>
+<par name="MapIndex" base_type="ctrl" dimension="0"/>
+<par name="ParIndex" base_type="ctrl" dimension="0"/>
+<par name="ErrImageIndex" base_type="ctrl" dimension="0"/>
+<par name="OK" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>OK:=[]</l>
+<l>try</l>
+<c>    </c>
+<l>    gen_empty_obj (ErrRoi) </l>
+<l>    gen_empty_obj (AlarmRoi)</l>
+<l>    gen_empty_obj (ErrImage) </l>
+<l>    gen_empty_obj (AlarmImage)</l>
+<l>    ErrName:=[]</l>
+<l>    ErrW:=[]</l>
+<l>    ErrH:=[]</l>
+<l>    ErrArea:=[]</l>
+<l>    ErrX:=[]</l>
+<l>    ErrY:=[]</l>
+<l>    AlarmName:=[]</l>
+<l>    AlarmW:=[]</l>
+<l>    AlarmH:=[]</l>
+<l>    AlarmArea:=[]</l>
+<l>    AlarmX:=[]</l>
+<l>    AlarmY:=[]</l>
+<l>    MapIndex:=[]</l>
+<l>    ParIndex:=[]</l>
+<l>    ErrImageIndex:=[]</l>
+<l>    global object GlobalobjectImage1_1</l>
+<l>    global object GlobalobjectImage1_3 </l>
+<l>    global object GlobalobjectImage2_1</l>
+<l>    global object GlobalobjectImage2_3 </l>
+<l>    global object GlobalobjectImage1_2</l>
+<l>    global object GlobalobjectImage2_2 </l>
+<c>    </c>
+<c>    </c>
+<l>    global def object GlobalobjectSiYins1</l>
+<l>    global def object GlobalobjectSiYins2 </l>
+<l>    global tuple Count1</l>
+<l>    global tuple Count2</l>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<l>    get_dict_tuple (DetectDict,'丝印' , SiYinDict)</l>
+<l>    get_dict_tuple (SiYinDict, 'DetectImageIndex1', DetectImageIndex1)</l>
+<l>    get_dict_tuple (SiYinDict, 'DetectImageIndex2', DetectImageIndex2)</l>
+<c>    </c>
+<c>    </c>
+<l>    get_dict_tuple (DetectDict,'钻孔偏位' , ZuanKongPianWeiDict)</l>
+<l>    get_dict_tuple (ZuanKongPianWeiDict, 'HoleOffsetMinDistance', HoleOffsetMinDistance)</l>
+<c>    </c>
+<l>    get_dict_tuple (DetectDict,'针孔' , ZhenKongDict)    </l>
+<l>    get_dict_tuple (ZhenKongDict, 'ZhenKong_threshold_Min', ZhenKong_threshold_Min)</l>
+<l>    get_dict_tuple (ZhenKongDict, 'ZhenKong_threshold_Max', ZhenKong_threshold_Max)</l>
+<l>    get_dict_tuple (ZhenKongDict, 'ZhenKong_W', ZhenKong_W)</l>
+<l>    get_dict_tuple (ZhenKongDict, 'ZhenKong_L', ZhenKong_L)</l>
+<c>    </c>
+<l>    get_dict_tuple (DetectDict,'钻孔数量' , ZuanKongCountDict)    </l>
+<l>    get_dict_tuple (ZuanKongCountDict, 'HoleCouunt', HoleCouunt)</l>
+<c>    </c>
+<c>    </c>
+<l>    get_dict_tuple (DetectDict,'钻孔崩' , ZuanKongBeng)    </l>
+<l>    get_dict_tuple (ZuanKongBeng, 'ZuanKong_W', ZuanKong_W)</l>
+<l>    get_dict_tuple (ZuanKongBeng, 'ZuanKong_L', ZuanKong_L)</l>
+<l>    get_dict_tuple (ZuanKongBeng, 'ZuanKong_threshold_Min', ZuanKong_threshold_Min)</l>
+<l>    get_dict_tuple (ZuanKongBeng, 'ZuanKong_threshold_Max', ZuanKong_threshold_Max)</l>
+<c>    </c>
+<l>    get_dict_tuple (DetectDict, '使能', EnabledDict)</l>
+<c>    </c>
+<l>    set_system ('clip_region', 'false')   </l>
+<c>    </c>
+<c>    </c>
+<c>    ********************************无丝印***************************************************</c>
+<l>    get_dict_tuple (EnabledDict, 'LouYing_Enabled', LouYing_Enabled)</l>
+<l>    if (LouYing_Enabled)</l>
+<l>        region_features (SiYinRoi, 'area', Value)</l>
+<l>        if (Value&lt;99999)</l>
+<l>            gen_image_const (RoiImage, 'byte', 2000, 2000)</l>
+<l>            compose4 (Image1, Image2, Image3, Image4, RoiImage1)</l>
+<l>            concat_obj (ErrImage, RoiImage1, ErrImage)</l>
+<l>            gen_rectangle1 (ErrRoi1, 0, 0, 2000, 2000)</l>
+<l>            concat_obj (ErrRoi, ErrRoi1, ErrRoi)</l>
+<l>            ErrName:=[ErrName,'无丝印']</l>
+<l>            ErrX:=[ErrX,0]</l>
+<l>            ErrY:=[ErrY,0]</l>
+<l>            ErrW:=[ErrW,0]</l>
+<l>            ErrH:=[ErrH,0]</l>
+<l>            ErrArea:=[ErrArea,0]</l>
+<l>            MapIndex:=[MapIndex,0]</l>
+<l>            ParIndex:=[ParIndex,0]</l>
+<l>            ErrImageIndex:=[ErrImageIndex,1]</l>
+<l>            OK:=[OK,'NG']</l>
+<l>        endif </l>
+<c>        </c>
+<l>    endif</l>
+<c>    ****************************************针孔****************************************************   </c>
+<l>    get_dict_tuple (EnabledDict, 'ZhenKong_Enabled', ZhenKong_Enabled)  </l>
+<l>    if (ZhenKong_Enabled)</l>
+<l>        opening_rectangle1 (SiYinRoi, RegionOpening3, 1, 250)</l>
+<l>        connection (RegionOpening3, ConnectedRegions2)</l>
+<l>        region_features (ConnectedRegions2, 'rect2_len1', Value1)</l>
+<l>        D:= Value1[&gt;](max(Value1)-500)</l>
+<l>        select_mask_obj (ConnectedRegions2, SelectedObjects1, D)</l>
+<c></c>
+<l>        opening_rectangle1 (SiYinRoi, RegionOpening4, 250, 1)</l>
+<l>        connection (RegionOpening4, ConnectedRegions6)</l>
+<l>        region_features (ConnectedRegions6, 'rect2_len1', Value1)</l>
+<l>        D:= Value1[&gt;](max(Value1)-500)</l>
+<l>        select_mask_obj (ConnectedRegions6, SelectedObjects2, D)</l>
+<c>        </c>
+<c></c>
+<l>        union2 (SelectedObjects1, SelectedObjects2, SiYinRoik)</l>
+<l>        union1 (SiYinRoik, SiYinRoik)</l>
+<l>        opening_rectangle1 (SiYinRoik, SiYinRoik, 30, 30)</l>
+<l>        closing_rectangle1 (SiYinRoik, SiYinRoik, 20, 20)</l>
+<c>        </c>
+<c>        </c>
+<l>        connection (SiYinRoik, ConnectedRegions4)</l>
+<l>        select_shape_std (ConnectedRegions4, SelectedRegions7, 'max_area', 70)</l>
+<l>        erosion_rectangle1 (SelectedRegions7, RegionErosion, 15, 15)</l>
+<l>        reduce_domain (Image2, RegionErosion, ImageReduced)</l>
+<l>        threshold (ImageReduced, Regions1, ZhenKong_threshold_Min, ZhenKong_threshold_Max)</l>
+<l>        connection (Regions1, ConnectedRegions1) </l>
+<l>        select_shape (ConnectedRegions1, SelectedRegions2, 'area', 'and', 1, 999999)</l>
+<l>        count_obj (SelectedRegions2, Number2)</l>
+<c></c>
+<l>        if (Number2&gt;0)</l>
+<l>            tuple_gen_const (Number2, 2, Newtuple)</l>
+<l>            GatherInfo_OkNG (SelectedRegions2, Image1, Image2, Image3, RoiImage, TransRoi, SelectRegion, DetectDict, ZhenKongDict, '针孔', VisionProcessStep, ImageIndex, ZhenKong_W, ZhenKong_L, Newtuple, Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK1)</l>
+<l>            if (OK1!=[])</l>
+<l>                concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                concat_obj (ErrRoi,TransRoi,  ErrRoi)</l>
+<l>                ErrName:=[ErrName,Name]</l>
+<l>                ErrW:=[ErrW,W]</l>
+<l>                ErrH:=[ErrH,H]</l>
+<l>                ErrArea:=[ErrArea,Area]</l>
+<l>                ErrX:=[ErrX,X]</l>
+<l>                ErrY:=[ErrY,Y]</l>
+<l>                MapIndex:=[MapIndex,mapIndex]</l>
+<l>                ParIndex:=[ParIndex,parIndex]  </l>
+<l>                ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>                OK:=[OK,OK1]</l>
+<l>            endif </l>
+<l>        endif</l>
+<c>        </c>
+<l>    endif</l>
+<c>    *************************************************************************************************************            </c>
+<c>    </c>
+<l>    if (VisionProcessStep==(DetectImageIndex1-1))</l>
+<l>        if (ImageIndex==0)</l>
+<l>            gen_empty_obj (GlobalobjectImage1_1)</l>
+<l>            gen_empty_obj (GlobalobjectImage1_3)</l>
+<l>            GlobalobjectImage1_1:=Image1</l>
+<l>            GlobalobjectImage1_3:=Image3</l>
+<l>            GlobalobjectImage1_2:=Image2</l>
+<l>            Count1:=0</l>
+<l>        endif</l>
+<l>        if (ImageIndex==1)</l>
+<l>            gen_empty_obj (GlobalobjectImage2_1)</l>
+<l>            gen_empty_obj (GlobalobjectImage2_3) </l>
+<l>            GlobalobjectImage2_1:=Image1</l>
+<l>            GlobalobjectImage2_3:=Image3</l>
+<l>            GlobalobjectImage2_2:=Image2</l>
+<l>            Count2:=0</l>
+<l>        endif</l>
+<c>        </c>
+<l>        if (ImageIndex==0)</l>
+<l>            gen_empty_obj (GlobalobjectSiYins1)</l>
+<l>            GlobalobjectSiYins1:=SiYinRoi</l>
+<l>        endif</l>
+<l>        if (ImageIndex==1)</l>
+<l>            gen_empty_obj (GlobalobjectSiYins2)</l>
+<l>            GlobalobjectSiYins2:=SiYinRoi</l>
+<l>        endif   </l>
+<l>    endif</l>
+<c>    </c>
+<l>    if (VisionProcessStep==(DetectImageIndex2-1))</l>
+<l>        get_image_size (Image1, Width, Height)</l>
+<l>        if (ImageIndex==0)            </l>
+<l>            crop_part (Image1, ImagePart, 100, 0, Width, Height)</l>
+<l>            concat_obj (GlobalobjectImage1_1, ImagePart, ObjectsConcat)</l>
+<l>            tile_images (ObjectsConcat, TiledImage1, 1, 'vertical')</l>
+<c>            </c>
+<l>            crop_part (Image3, ImagePart, 100, 0, Width, Height)</l>
+<l>            concat_obj (GlobalobjectImage1_3, ImagePart, ObjectsConcat)</l>
+<l>            tile_images (ObjectsConcat, TiledImage3, 1, 'vertical')</l>
+<c>            </c>
+<l>            crop_part (Image2, ImagePart, 100, 0, Width, Height)</l>
+<l>            concat_obj (GlobalobjectImage1_2, ImagePart, ObjectsConcat)</l>
+<l>            tile_images (ObjectsConcat, TiledImage2, 1, 'vertical')</l>
+<c>            </c>
+<c>            </c>
+<l>        endif</l>
+<l>        if (ImageIndex==1)</l>
+<l>            crop_part (Image1, ImagePart, 100, 0, Width, Height)</l>
+<l>            concat_obj (GlobalobjectImage2_1, ImagePart, ObjectsConcat)</l>
+<l>            tile_images (ObjectsConcat, TiledImage1, 1, 'vertical')</l>
+<c>            </c>
+<l>            crop_part (Image3, ImagePart, 100, 0, Width, Height)</l>
+<l>            concat_obj (GlobalobjectImage2_3, ImagePart, ObjectsConcat)</l>
+<l>            tile_images (ObjectsConcat, TiledImage3, 1, 'vertical')</l>
+<c>            </c>
+<l>            crop_part (Image2, ImagePart, 100, 0, Width, Height)</l>
+<l>            concat_obj (GlobalobjectImage2_2, ImagePart, ObjectsConcat)</l>
+<l>            tile_images (ObjectsConcat, TiledImage2, 1, 'vertical')</l>
+<l>        endif</l>
+<c>        </c>
+<l>        if (ImageIndex==0)            </l>
+<l>            move_region (SiYinRoi, RegionMoved, 2500, 0)</l>
+<l>            union2 (GlobalobjectSiYins1, RegionMoved, RegionUnion) </l>
+<l>        endif</l>
+<l>        if (ImageIndex==1)</l>
+<l>            move_region (SiYinRoi, RegionMoved, 2500, 0)</l>
+<l>            union2 (GlobalobjectSiYins2, RegionMoved, RegionUnion)</l>
+<l>        endif </l>
+<c>        </c>
+<c>***********************************孔大******************************        </c>
+<l>        threshold (TiledImage3, Regions1, 81, 255)</l>
+<l>        closing_circle (Regions1, RegionClosing2,5.5)</l>
+<l>        fill_up (RegionClosing2, RegionFillUp2)</l>
+<l>        difference (RegionFillUp2, RegionClosing2, RegionDifference)</l>
+<l>        opening_circle (RegionDifference, RegionOpening7, 3.5)</l>
+<l>        connection (RegionOpening7, ConnectedRegions1)</l>
+<l>        count_obj (ConnectedRegions1, Number5)</l>
+<l>        if (Number5)</l>
+<l>            for Index2 := 1 to Number5 by 1</l>
+<l>                select_obj (ConnectedRegions1, ObjectSelected2, Index2)</l>
+<l>                region_features (ObjectSelected2, 'area', Value3)</l>
+<l>                k:=Value3[&gt;]15000</l>
+<l>                if (k==1)</l>
+<l>                    tuple_gen_const (1, 3, Newtuple)</l>
+<l>                    GatherInfoUnion_OkNG (ObjectSelected2, TiledImage1, TiledImage1, TiledImage3, TiledImage3, RoiImage, TransRoi, SelectRegion, \
+                                          DetectDict,ZuanKongCountDict, '漏孔', VisionProcessStep-1, ImageIndex, 0.01, 0.01, Newtuple, Name,\
+                                          W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK1)                        </l>
+<l>                    if (OK1!=[])</l>
+<l>                        concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                        concat_obj (ErrRoi,TransRoi,  ErrRoi)</l>
+<l>                        ErrName:=[ErrName,Name]</l>
+<l>                        ErrW:=[ErrW,W]</l>
+<l>                        ErrH:=[ErrH,H]</l>
+<l>                        ErrArea:=[ErrArea,Area]</l>
+<l>                        ErrX:=[ErrX,X]</l>
+<l>                        ErrY:=[ErrY,Y] </l>
+<l>                        MapIndex:=[MapIndex,mapIndex]</l>
+<l>                        ParIndex:=[ParIndex,parIndex]  </l>
+<l>                        ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>                        OK:=[OK,OK1]</l>
+<l>                        return ()</l>
+<l>                    endif</l>
+<l>                endif</l>
+<l>            endfor</l>
+<l>        endif</l>
+<c>*******************************************************************************************        </c>
+<l>        opening_circle (RegionUnion, RegionOpening2, 5.5)</l>
+<l>        connection (RegionOpening2, ConnectedRegions3)</l>
+<l>        select_shape_std (ConnectedRegions3, SelectedRegions6, 'max_area', 70)</l>
+<l>        fill_up_shape (SelectedRegions6, RegionFillUp, 'area', 16000, 30000)</l>
+<l>        difference (RegionFillUp, SelectedRegions6, RegionDifference1)</l>
+<l>        connection (RegionDifference1, ConnectedRegions5)</l>
+<l>        select_shape (ConnectedRegions5, SelectedRegions3, 'area', 'and', 16000, 50000)</l>
+<c>        </c>
+<l>        get_dict_tuple (EnabledDict, 'HoleEnadle', HoleEnadle)  </l>
+<l>        get_dict_tuple (EnabledDict, 'KongBengBian_Enabled', KongBengBian_Enabled)  </l>
+<c>        </c>
+<c>        </c>
+<c>        *****************************************孔偏移***************************************************         </c>
+<l>        get_dict_tuple (EnabledDict, 'HoleOffsetEnadle', HoleOffsetEnadle)  </l>
+<l>        if (HoleOffsetEnadle) </l>
+<l>            count_obj (SelectedRegions3, Number)</l>
+<l>            if (Number&gt;0)</l>
+<l>                for Index := 1 to Number by 1</l>
+<l>                    try</l>
+<l>                        select_obj (SelectedRegions3, ObjectSelected, Index)</l>
+<l>                        boundary (ObjectSelected, RegionBorder1, 'inner')</l>
+<l>                        gen_contour_region_xld (RegionBorder1, Contours1, 'border')</l>
+<l>                        fit_circle_contour_xld (Contours1, 'atukey', -1, 0, 0, 3, 5, Row3, Column3, Radius1, StartPhi1, EndPhi1, PointOrder1)</l>
+<l>                        gen_circle (Circle1, Row3, Column3, Radius1)</l>
+<c>                        </c>
+<c>                        </c>
+<l>                        reduce_domain (TiledImage1, Circle1, ImageReduced2)</l>
+<l>                        threshold (ImageReduced2, Regions, 120, 255)</l>
+<l>                        connection (Regions, ConnectedRegions7)</l>
+<l>                        select_shape_std (ConnectedRegions7, SelectedRegions8, 'max_area', 70)</l>
+<l>                        fill_up (SelectedRegions8, RegionFillUp3)</l>
+<l>                        boundary (RegionFillUp3, RegionBorder3, 'outer')</l>
+<l>                        gen_contour_region_xld (RegionBorder3, Contours2, 'border')</l>
+<l>                        fit_circle_contour_xld (Contours2, 'atukey', -1, 0, 0, 3, 5, Row4, Column4, Radius2, StartPhi2, EndPhi2, PointOrder2)</l>
+<l>                        gen_circle (Circle2, Row4, Column4, Radius2)</l>
+<c>                        </c>
+<l>                        difference (Circle2, Circle1, RegionDifference5)</l>
+<l>                        region_features (RegionDifference5, 'area', Value2)                      </l>
+<c>                        </c>
+<l>                        if (Value2&gt;20)</l>
+<l>                            tuple_gen_const (Number, 1, Newtuple)</l>
+<l>                            GatherInfoUnion_OkNG (ObjectSelected, TiledImage1, TiledImage1, TiledImage3, TiledImage3, RoiImage, TransRoi, SelectRegion, \
+                                                  DetectDict,ZuanKongPianWeiDict, '孔偏移', VisionProcessStep-1, ImageIndex, 0.01, 0.01, Newtuple, Name,\
+                                                  W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK1)</l>
+<l>                            if (OK1!=[])</l>
+<l>                                concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                                concat_obj (ErrRoi,TransRoi,  ErrRoi)</l>
+<l>                                ErrName:=[ErrName,Name]</l>
+<l>                                ErrW:=[ErrW,W]</l>
+<l>                                ErrH:=[ErrH,H]</l>
+<l>                                ErrArea:=[ErrArea,Area]</l>
+<l>                                ErrX:=[ErrX,X]</l>
+<l>                                ErrY:=[ErrY,Y] </l>
+<l>                                MapIndex:=[MapIndex,mapIndex]</l>
+<l>                                ParIndex:=[ParIndex,parIndex]  </l>
+<l>                                ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>                                OK:=[OK,OK1]     </l>
+<l>                            endif</l>
+<l>                        endif  </l>
+<l>                    catch (Exception)</l>
+<l>                    endtry</l>
+<l>                endfor</l>
+<l>            endif</l>
+<l>        endif  </l>
+<c>                </c>
+<l>        count_obj (SelectedRegions3, Number1)</l>
+<l>        for Index1 := 1 to Number1 by 1</l>
+<l>            select_obj (SelectedRegions3, ObjectSelected1, Index1)               </l>
+<c>             *************************************漏孔******************************               </c>
+<l>            if (HoleEnadle) </l>
+<l>                reduce_domain (TiledImage3, ObjectSelected1, ImageReduced1)</l>
+<l>                threshold (ImageReduced1, Regions1, 0, 40)</l>
+<l>                opening_circle (Regions1, RegionOpening, 5.5)</l>
+<l>                select_shape (RegionOpening, SelectedRegions, 'area', 'and', 6000, 30000)</l>
+<l>                select_shape (SelectedRegions, SelectedRegions1, 'circularity', 'and', 0.6, 2)</l>
+<l>                count_obj (SelectedRegions1, Number3)</l>
+<l>                if (Number3&lt;1)</l>
+<l>                    tuple_gen_const (1, 3, Newtuple)</l>
+<l>                    GatherInfoUnion_OkNG (ObjectSelected1, TiledImage1, TiledImage1, TiledImage3, TiledImage3, RoiImage, TransRoi, SelectRegion, \
+                                          DetectDict,ZuanKongCountDict, '漏孔', VisionProcessStep-1, ImageIndex, 0.01, 0.01, Newtuple, Name,\
+                                          W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK1)                        </l>
+<l>                    if (OK1!=[])</l>
+<l>                        concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                        concat_obj (ErrRoi,TransRoi,  ErrRoi)</l>
+<l>                        ErrName:=[ErrName,Name]</l>
+<l>                        ErrW:=[ErrW,W]</l>
+<l>                        ErrH:=[ErrH,H]</l>
+<l>                        ErrArea:=[ErrArea,Area]</l>
+<l>                        ErrX:=[ErrX,X]</l>
+<l>                        ErrY:=[ErrY,Y] </l>
+<l>                        MapIndex:=[MapIndex,mapIndex]</l>
+<l>                        ParIndex:=[ParIndex,parIndex]  </l>
+<l>                        ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>                        OK:=[OK,OK1]</l>
+<l>                        return ()</l>
+<l>                    endif</l>
+<l>                endif</l>
+<l>            endif </l>
+<c>            </c>
+<c>            </c>
+<c>            *************************************孔崩******************************   </c>
+<l>            try</l>
+<l>                if (KongBengBian_Enabled)</l>
+<l>                    erosion_circle (ObjectSelected1, RegionErosion1,1.5)</l>
+<l>                    reduce_domain (TiledImage1, RegionErosion1, ImageReduced1)</l>
+<l>                    threshold (ImageReduced1, Region, ZuanKong_threshold_Min, ZuanKong_threshold_Max)</l>
+<l>                    connection (Region, ConnectedRegions)</l>
+<l>                    select_shape_std (ConnectedRegions, SelectedRegions4, 'max_area', 70)</l>
+<l>                    fill_up (SelectedRegions4, RegionFillUp1)</l>
+<l>                    opening_circle (RegionFillUp1, RegionClosing,60)</l>
+<l>                    difference (RegionFillUp1,RegionClosing,  RegionDifference2)</l>
+<l>                    connection (RegionDifference2, ConnectedRegions8)</l>
+<l>                    select_shape_std (ConnectedRegions8, SelectedRegions5, 'max_area', 70)</l>
+<c>                    </c>
+<c>                    </c>
+<l>                    difference (RegionFillUp1, SelectedRegions4, RegionDifference3)</l>
+<l>                    closing_circle (RegionDifference3, RegionClosing1, 200)</l>
+<l>                    difference (RegionClosing1, RegionDifference3, RegionDifference4)</l>
+<l>                    connection (RegionDifference4, ConnectedRegions9)</l>
+<l>                    select_shape_std (ConnectedRegions9, SelectedRegions9, 'max_area', 70)</l>
+<c>                    </c>
+<l>                    union2 (SelectedRegions5, SelectedRegions9, RegionUnion1)</l>
+<l>                    closing_circle (RegionUnion1, RegionClosing3, 10)</l>
+<l>                    connection (RegionClosing3, ConnectedRegions10)</l>
+<c>                 </c>
+<l>                    reduce_domain (TiledImage2, RegionErosion1, ImageReduced1)</l>
+<l>                    binary_threshold (ImageReduced1, Region1, 'max_separability', 'dark', UsedThreshold)</l>
+<l>                    fill_up (Region1, RegionFillUp4)</l>
+<l>                    opening_circle (RegionFillUp4, RegionClosing,60)</l>
+<l>                    difference (RegionFillUp4,RegionClosing,  RegionDifference6)</l>
+<l>                    connection (RegionDifference6, ConnectedRegions11)</l>
+<l>                    select_shape_std (ConnectedRegions11, SelectedRegions11, 'max_area', 70)</l>
+<c>                    </c>
+<c>                    </c>
+<l>                    concat_obj (ConnectedRegions10, SelectedRegions11, ObjectsConcat1)</l>
+<l>                    count_obj (ObjectsConcat1, Number4)</l>
+<l>                    if (Number4&gt;0)</l>
+<l>                        tuple_gen_const (Number4, 1, Newtuple)</l>
+<l>                        GatherInfoUnion_OkNG (ObjectsConcat1, TiledImage1, TiledImage1, TiledImage3, TiledImage3, RoiImage, TransRoi, SelectRegion, \
+                                              DetectDict,ZuanKongBeng, '孔崩边', VisionProcessStep-1, ImageIndex, ZuanKong_W, ZuanKong_L, Newtuple, Name,\
+                                              W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK1)                        </l>
+<l>                        if (OK1!=[])</l>
+<l>                            concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                            concat_obj (ErrRoi,TransRoi,  ErrRoi)</l>
+<l>                            ErrName:=[ErrName,Name]</l>
+<l>                            ErrW:=[ErrW,W]</l>
+<l>                            ErrH:=[ErrH,H]</l>
+<l>                            ErrArea:=[ErrArea,Area]</l>
+<l>                            ErrX:=[ErrX,X]</l>
+<l>                            ErrY:=[ErrY,Y] </l>
+<l>                            MapIndex:=[MapIndex,mapIndex]</l>
+<l>                            ParIndex:=[ParIndex,parIndex]  </l>
+<l>                            ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>                            OK:=[OK,OK1]</l>
+<l>                        endif</l>
+<l>                    endif</l>
+<l>                endif   </l>
+<l>            catch (Exception)</l>
+<l>            endtry               </l>
+<l>        endfor   </l>
+<l>    endif  </l>
+<c>    **************************************************************************************  </c>
+<c>    </c>
+<l>catch (Exception )</l>
+<c>    </c>
+<l>endtry</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="Detect_ZhenKong_KonhWei_ShaoKong">
+<parameters>
+<parameter id="AlarmArea"/>
+<parameter id="AlarmH"/>
+<parameter id="AlarmImage"/>
+<parameter id="AlarmName"/>
+<parameter id="AlarmRoi"/>
+<parameter id="AlarmW"/>
+<parameter id="AlarmX"/>
+<parameter id="AlarmY"/>
+<parameter id="DetectDict"/>
+<parameter id="DetectRoi"/>
+<parameter id="ErrArea"/>
+<parameter id="ErrH"/>
+<parameter id="ErrImage"/>
+<parameter id="ErrImageIndex"/>
+<parameter id="ErrName"/>
+<parameter id="ErrRoi"/>
+<parameter id="ErrW"/>
+<parameter id="ErrX"/>
+<parameter id="ErrY"/>
+<parameter id="Image1"/>
+<parameter id="Image2"/>
+<parameter id="Image3"/>
+<parameter id="Image4"/>
+<parameter id="ImageIndex"/>
+<parameter id="MapIndex"/>
+<parameter id="OK"/>
+<parameter id="ParIndex"/>
+<parameter id="SiYinRoi"/>
+<parameter id="VisionProcessStep"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

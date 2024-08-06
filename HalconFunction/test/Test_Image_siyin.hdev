@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>set_system ('parallelize_operators', 'false')</l>
+<l>set_system ('clip_region', 'false')</l>
+<l>set_system ('neighborhood', 8)</l>
+<l>read_dict ('d:/HalconFunction/youbiansiyin.hdict', [], [], DictHandle)</l>
+<l>v:=0</l>
+<l>for Index := 1 to 10 by 1</l>
+<l>    read_image (Image1_1,'f:/sy/1/'+Index+'.bmp')</l>
+<l>    read_image (Image2_1,'f:/sy/2/'+Index+'.bmp')</l>
+<l>    DetectProcess_Siyin (Image1_1, SiyinRoi1,  DetectRoi, DictHandle,Index-1,0)</l>
+<l>    DetectProcess_Siyin (Image2_1, SiyinRoi2, DetectRoi, DictHandle,Index-1,1)</l>
+<c>    </c>
+<l>    Detect_SiYin (SiyinRoi1, SiyinRoi2,  SiYinErrRoi, SiYinAlarmRoi,\
+                  SiYinErrImage, SiYinAlarmImage, DictHandle, v, SiYinErrName, SiYinAlarmName, SiYinErrW, SiYinErrH,\
+                  SiYinErrArea, SiYinErrX, SiYinErrY, SiYinAlarmW, SiYinAlarmH, SiYinAlarmArea, SiYinAlarmX, SiYinAlarmY,\
+                  MapIndexSiYin, ParIndexSiYin, ex,SiYinOK)</l>
+<l>    v:=v+1</l>
+<l>endfor</l>
+<c>      </c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

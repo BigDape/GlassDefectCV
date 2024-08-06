@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="22.05.0.0">
+<procedure name="inspectMJ_cap">
+<interface>
+<io>
+<par name="rImage" base_type="iconic" dimension="0"/>
+<par name="RegionROI" base_type="iconic" dimension="0"/>
+<par name="RegionMoBan" base_type="iconic" dimension="0"/>
+</io>
+<ic>
+<par name="ModelID" base_type="ctrl" dimension="0"/>
+<par name="VariationID" base_type="ctrl" dimension="0"/>
+<par name="RowModel" base_type="ctrl" dimension="0"/>
+<par name="ColumnModel" base_type="ctrl" dimension="0"/>
+<par name="BackgroundGVModel" base_type="ctrl" dimension="0"/>
+<par name="ForegroundGVModel" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="BackgroundGVal" base_type="ctrl" dimension="0"/>
+<par name="ForegroundGVal" base_type="ctrl" dimension="0"/>
+<par name="OKmenjia" base_type="ctrl" dimension="0"/>
+<par name="NumMatchResult" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<c>* </c>
+<c>* Find the shape model in the input image.</c>
+<l>count_seconds (StartSeconds)</l>
+<l>find_generic_shape_model (rImage, ModelID, MatchResultID, NumMatchResult)</l>
+<l>count_seconds (EndSeconds)</l>
+<l>TimeObjSearch := EndSeconds - StartSeconds</l>
+<l>OK:=[]</l>
+<l>OKmenjia:=0</l>
+<c>* </c>
+<l>if (NumMatchResult &gt; 0)</l>
+<c>   </c>
+<l>     get_generic_shape_model_result (MatchResultID, 'best', 'row', Row)</l>
+<l>    get_generic_shape_model_result (MatchResultID, 'best', 'column', Column)</l>
+<l>    get_generic_shape_model_result (MatchResultID, 'best', 'angle', Angle)</l>
+<l>    vector_angle_to_rigid (Row, Column, Angle, RowModel[0], ColumnModel[0], 0, HomMat2DImage)</l>
+<l>    affine_trans_image (rImage, ImageAffineTrans, HomMat2DImage, 'constant', 'false')</l>
+<l>    get_grayval_range (ImageAffineTrans, RegionROI, RegionForegroundImage, RegionBackgroundImage, BackgroundImage, ForegroundImage)</l>
+<c></c>
+<l>    fill_up (RegionMoBan, RegionFillUp)</l>
+<l>    difference (RegionFillUp, RegionMoBan, RegionMoBan)</l>
+<c>    </c>
+<l>    height_width_ratio (RegionForegroundImage, Height1, Width1, Ratio1)</l>
+<l>    height_width_ratio (RegionMoBan, Height2, Width2, Ratio2)</l>
+<c>    * // 定义缩小比例</c>
+<l>ScaleFactorX := 1</l>
+<l>ScaleFactorY := 1</l>
+<c>* // 50% 缩小，你可以根据需要调整这个比例</c>
+<c></c>
+<c>* // 计算缩小后的尺寸</c>
+<l>NewWidth := Width1 * ScaleFactorX</l>
+<l>NewHeight := Height1 * ScaleFactorY</l>
+<l>zoom_region (RegionForegroundImage, RegionZoom, ScaleFactorX, ScaleFactorY)</l>
+<c></c>
+<l>smallest_rectangle1 (RegionZoom, Row1, Column1, Row2, Column2)</l>
+<l>gen_rectangle1 (Rectangle1, Row1, Column1, Row2, Column2)</l>
+<l>area_center (Rectangle1, Area1, Row3, Column3)</l>
+<l>smallest_rectangle1 (RegionMoBan, Row11, Column11, Row21, Column21)</l>
+<l>gen_rectangle1 (Rectangle2, Row11, Column11, Row21, Column21)</l>
+<l>area_center (Rectangle2, Area2, Row4, Column4)</l>
+<c></c>
+<l>vector_angle_to_rigid (Row3, Column3, 0, Row4, Column4, 0, HomMat2D)</l>
+<l>affine_trans_region (RegionZoom, RegionAffineTrans, HomMat2D, 'nearest_neighbor')</l>
+<l>    dilation_circle (RegionAffineTrans, RegionDilation, 1.5)</l>
+<l>    difference (RegionMoBan,RegionDilation,  RegionDifferenceQS)</l>
+<l>    opening_circle (RegionDifferenceQS, RegionOpeningQS, 5)</l>
+<c>    </c>
+<l>    connection (RegionOpeningQS, RegionsDeficiencyQS)</l>
+<c>    </c>
+<l>dilation_circle (RegionMoBan, RegionDilation, 1.5)</l>
+<l>    difference (RegionAffineTrans, RegionDilation, RegionDifferenceDY)</l>
+<l>    opening_circle (RegionDifferenceDY, RegionOpeningDY, 10)</l>
+<c>    </c>
+<l>    connection (RegionOpeningDY, RegionsDeficiencyDY)  </l>
+<c></c>
+<c>    </c>
+<l>    concat_obj (RegionsDeficiencyQS, RegionsDeficiencyDY, RegionsDeficiency)</l>
+<l>    paint_region (RegionForegroundImage, ImageAffineTrans, ImageAffineTrans, 155, 'fill')</l>
+<c>    * </c>
+<c>    * Scale image to the model's gray value range.</c>
+<l>    Mult := (ForegroundGVModel - BackgroundGVModel) / (ForegroundImage - BackgroundImage)</l>
+<l>    Add := ForegroundGVModel - Mult * ForegroundImage</l>
+<l>    reduce_domain (ImageAffineTrans, RegionROI, ImageReduced)</l>
+<l>    scale_image (ImageReduced, ImageScaled, Mult, Add)</l>
+<c>    * </c>
+<c>    * Apply the variation model for print inspection.</c>
+<l>    count_seconds (StartSeconds)</l>
+<l>    compare_ext_variation_model (ImageReduced, RegionDiff, VariationID, 'absolute')</l>
+<l>    count_seconds (EndSeconds)</l>
+<c>    * Analyze the bright and dark defect regions.</c>
+<l>    dev_display (rImage)</l>
+<l>    select_shape (RegionsDeficiency, SelectedRegions, 'area', 'and', 3000, 999999)</l>
+<l>    count_obj (SelectedRegions, NumberRegionDiff)</l>
+<l>    if(NumberRegionDiff&gt;0)</l>
+<l>        OKmenjia:=0</l>
+<c>       </c>
+<l>    else</l>
+<c>       </c>
+<l>        OKmenjia:=1</l>
+<l>    endif</l>
+<c></c>
+<l>*     for I := 1 to NumberRegionDiff by 1</l>
+<l>*         select_obj (SelectedRegions, RegionDiffSelected, I)</l>
+<l>*         opening_circle (RegionDiffSelected, RegionOpening, 2.5)</l>
+<l>*         connection (RegionOpening, ConnectedRegions)</l>
+<l>*         select_shape (ConnectedRegions, DefectRegions, 'height', 'and', 20, 99999)</l>
+<c>        * </c>
+<c>        * Transform the regions to the original position in the</c>
+<c>        * input image.</c>
+<l>*         hom_mat2d_invert (HomMat2DImage, HomMat2DInvert)</l>
+<l>*         affine_trans_region (RegionDiffSelected, DefectRegionsTrans, HomMat2DInvert, 'nearest_neighbor')</l>
+<l>*         closing_circle (DefectRegionsTrans, DefectRegionsClosing, 1.5)</l>
+<c>        * </c>
+<c>        * Display the bright and dark defects using different</c>
+<c>        * colors.</c>
+<l>*         dev_set_line_width (2)</l>
+<l>*         dev_set_draw ('fill')</l>
+<l>*         if (I == 1)</l>
+<l>*             dev_set_color ('red')</l>
+<l>*         else</l>
+<l>*             dev_set_color ('orange')</l>
+<l>*         endif</l>
+<l>*         dev_display (DefectRegionsClosing)</l>
+<c>        * </c>
+<c>        * Emphasize the defect regions.</c>
+<l>*         dev_set_color ('magenta')</l>
+<l>*         dev_set_draw ('margin')</l>
+<l>*         union1 (DefectRegionsClosing, RegionUnion)</l>
+<l>*         closing_circle (RegionUnion, RegionClosing, 10)</l>
+<l>*         connection (RegionClosing, DefectRegionEnlarged)</l>
+<l>*         elliptic_axis (DefectRegionEnlarged, Ra, Rb, Phi)</l>
+<l>*         if (|Phi|)</l>
+<l>*             area_center (DefectRegionEnlarged, Area, RowEllipse, ColumnEllipse)</l>
+<l>*             gen_ellipse (Ellipse, RowEllipse, ColumnEllipse, Phi, Ra * 2, Rb * 2)</l>
+<l>*             dev_display (Ellipse)</l>
+<l>*         endif</l>
+<l>*     endfor</l>
+<l>*     dev_set_line_width (1)</l>
+<l>*     dev_set_color ('green')</l>
+<l>*     get_generic_shape_model_result_object (ModelContoursFound, MatchResultID, 'best', 'contours')</l>
+<l>*     dev_display (ModelContoursFound)</l>
+<c>    * </c>
+<l>*     TimePrintInspect := EndSeconds - StartSeconds</l>
+<l>*     disp_message (WindowHandle, OK+' Inspection Time: ' + ((TimeObjSearch + TimePrintInspect) * 1000.0)$'.02' + ' ms', 'window', 12, 12, 'green', 'true')</l>
+<l>else</l>
+<l>*     disp_message (WindowHandle, 'No shape model found', 'window', 12, 12, 'red', 'true')</l>
+<l>endif</l>
+<c>* </c>
+<l>return ()</l>
+</body>
+<docu id="inspectMJ_cap">
+<parameters>
+<parameter id="BackgroundGVModel"/>
+<parameter id="BackgroundGVal"/>
+<parameter id="ColumnModel"/>
+<parameter id="ForegroundGVModel"/>
+<parameter id="ForegroundGVal"/>
+<parameter id="ModelID"/>
+<parameter id="NumMatchResult"/>
+<parameter id="OKmenjia"/>
+<parameter id="RegionMoBan"/>
+<parameter id="RegionROI"/>
+<parameter id="RowModel"/>
+<parameter id="VariationID"/>
+<parameter id="rImage"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

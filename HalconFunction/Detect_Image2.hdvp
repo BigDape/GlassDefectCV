@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="Detect_Image2">
+<interface>
+<io>
+<par name="Image" base_type="iconic" dimension="0"/>
+<par name="SiyiRoi" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="ErrRoi" base_type="iconic" dimension="0"/>
+<par name="AlarmRoi" base_type="iconic" dimension="0"/>
+<par name="ErrImage" base_type="iconic" dimension="0"/>
+<par name="AlarmImage" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+<par name="VisionProcessStep" base_type="ctrl" dimension="0"/>
+<par name="ImageIndex" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="ErrName" base_type="ctrl" dimension="0"/>
+<par name="AlarmName" base_type="ctrl" dimension="0"/>
+<par name="OK" base_type="ctrl" dimension="0"/>
+<par name="ErrW" base_type="ctrl" dimension="0"/>
+<par name="ErrH" base_type="ctrl" dimension="0"/>
+<par name="ErrArea" base_type="ctrl" dimension="0"/>
+<par name="ErrX" base_type="ctrl" dimension="0"/>
+<par name="ErrY" base_type="ctrl" dimension="0"/>
+<par name="AlarmW" base_type="ctrl" dimension="0"/>
+<par name="AlarmH" base_type="ctrl" dimension="0"/>
+<par name="AlarmArea" base_type="ctrl" dimension="0"/>
+<par name="AlarmX" base_type="ctrl" dimension="0"/>
+<par name="AlarmY" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<c></c>
+<c>*********************************缺陷名关键字********************************************开口泡 = 0;</c>
+<c>*开口泡 开口泡_A 线泡  线泡_A 圆泡 圆泡_A 结石 结石_A 划伤 划伤_A 裂纹 裂纹_A 脏污 脏污_A  凹凸 凹凸_A 压痕 压痕_A 辊伤 辊伤_A;</c>
+<c>*凉印 凉印_A 崩边 崩边_A 崩角 崩角_A 导角 导角_A 边裂纹 边裂纹_A ;</c>
+<c>*膜脏污 膜脏污_A 漏镀膜 漏镀膜_A 辊印 辊印_A 拉丝 拉丝_A 溅液点 溅液点_A 异色 异色_A ;</c>
+<c>*漏印 漏印_A 针孔 针孔_A 孔崩边 孔崩边_A</c>
+<c></c>
+<c>*************************参数设置关键字*******************************</c>
+<c>*'Type', </c>
+<c>* 'BiKouPao_W',  'BiKouPao_L','BiKouPao_Enabled','BiKouPao_threshold_Max','KaiKouPao_W','KaiKouPao_L', 'KaiKouPao_Enabled','YuanPao_Dia'</c>
+<c>*'YuanPao_W','YuanPao_Enabled','JieShi_L','JieShi_W','JieShi_Enabled','HuaShang_L','HuaShang_W','HuaShang_Enabled'</c>
+<c>*'LieWen_L',  'LieWen_W','LieWen_Enabled','ZangWu_L','ZangWu_W',  'ZangWu_Enabled','AoTu_L', 'AoTu_W'</c>
+<c>*'AoTu_Enabled','YaHeng_L','YaHeng_W','YaHeng_Enabled',KongBengBian_L','KongBengBian_W','KongBengBian_Enabled'</c>
+<c></c>
+<c></c>
+<c>*'BengBian_L','BengBian_W', 'BengBian_Enabled','BengJiao_L','BengJiao_W','BengJiao_Enabled'</c>
+<c>*'DaoJiao_L','DaoJiao_W', 'DaoJiao_Enabled','LiangBian_L','LiangBian_W','LiangBian_Enabled','BianLieWen_L'</c>
+<c>*'BianLieWen_W','BianLieWen_Enabled',</c>
+<c></c>
+<c>*MoZangWu_L','MoZangWu_W','MoZangWu_Enabled','LoDuMo_L','LoDuMo_W','LoDuMo_Enabled','MoMianGunYing_L'</c>
+<c>*'MoMianGunYing_W','MoMianGunYing_Enabled','LaSi_L','LaSi_W','LaSi_Enabled','DuMoSeCha_L'</c>
+<c>*'DuMoSeCha_W','DuMoSeCha_Enabled','JianYeDian_L','JianYeDian_W','JianYeDian_Enabled','LouYing_L'</c>
+<c></c>
+<c></c>
+<c>*'ZhenKong_L','ZhenKong_W','ZhenKong_Enabled','LouYing_W','LouYing_Enabled',</c>
+<c>*****************************************************************************************************</c>
+<c></c>
+<l>get_dict_tuple (DetectDict, 'HuaShang_L', HuaShang_L)</l>
+<l>try</l>
+<l>    OK:='OK'</l>
+<l>    gen_empty_obj (ErrRoi) </l>
+<l>    gen_empty_obj (AlarmRoi)</l>
+<l>    gen_empty_obj (ErrImage) </l>
+<l>    gen_empty_obj (AlarmImage)</l>
+<l>    gen_empty_obj (kaikoupao)</l>
+<l>    gen_empty_obj (bikoupao)</l>
+<l>    ErrName:=[]</l>
+<l>    AlarmName:=[]</l>
+<l>        ErrW:=[]</l>
+<l>    ErrH:=[]</l>
+<l>    ErrArea:=[]</l>
+<l>    ErrX:=[]</l>
+<l>    ErrY:=[]</l>
+<l>    AlarmW:=[]</l>
+<l>    AlarmH:=[]</l>
+<l>    AlarmArea:=[]</l>
+<l>    AlarmX:=[]</l>
+<l>    AlarmY:=[]</l>
+<c>    ***********************************************************************************   </c>
+<l>    get_dict_tuple (DetectDict,'ThresholdValue' , ThresholdValue)</l>
+<l>    threshold (Image, Region, ThresholdValue[0], ThresholdValue[1])</l>
+<l>    connection (Region, ConnectedRegions1)</l>
+<l>    select_shape (ConnectedRegions1, Selectedstd1, 'area', 'and',2000, 9999999)</l>
+<l>    closing_circle (Selectedstd1, RegionClosing, 50)</l>
+<l>    reduce_domain (Image, RegionClosing, ImageReduced) </l>
+<c>    </c>
+<c>    ***********************************************逻辑1***************************************************</c>
+<c></c>
+<l>    get_dict_tuple (DetectDict, 'KaiKouPao_Enabled', KaiKouPao_Enabled)  </l>
+<l>    get_dict_tuple (DetectDict, 'BiKouPao_Enabled', BiKouPao_Enabled) </l>
+<l>    get_dict_tuple (DetectDict, 'BiKouPao_threshold_Min', BiKouPao_threshold_Min) </l>
+<l>    get_dict_tuple (DetectDict, BiKouPao_threshold_Max, BiKouPao_threshold_Max) </l>
+<c>    </c>
+<l>    if (KaiKouPao_Enabled and BiKouPao_Enabled)</l>
+<l>        mean_image (ImageReduced, ImageMean, 1, 5)</l>
+<l>        emphasize (ImageMean, ImageEmphasize,5,5, 1)</l>
+<l>        threshold (ImageEmphasize, Regions, BiKouPao_threshold_Min, BiKouPao_threshold_Max)</l>
+<l>        connection (Regions, ConnectedRegions)</l>
+<l>        select_shape (ConnectedRegions, SelectedRegions, 'anisometry', 'and',20, 50)</l>
+<c>        </c>
+<c>        </c>
+<l>        smallest_rectangle2 (SelectedRegions, Row, Column, Phi, Length1, Length2) </l>
+<l>        AngleDetect:=abs(abs(Phi)-1.57)[&lt;]0.05</l>
+<l>        AngleFind:=  find(AngleDetect,1)</l>
+<c>        </c>
+<l>        if (AngleFind&gt;-1)</l>
+<l>            select_obj (SelectedRegions, qipao,AngleFind+1)  </l>
+<l>            closing_circle (qipao, qipaoClosing, 5.5) </l>
+<l>            skeleton (qipaoClosing, Skeleton)</l>
+<l>            region_features (Skeleton, 'area', Value1)</l>
+<l>            region_features (qipaoClosing, 'area', Value2)</l>
+<c>            </c>
+<c>            </c>
+<l>            a:= Value2/Value1</l>
+<l>            c:= a[&gt;]3 and a[&lt;]6 </l>
+<l>            d:= find(c,1)</l>
+<c>            </c>
+<l>            if (d&gt;-1)</l>
+<l>                select_obj (qipao, qipao, d+1)</l>
+<l>                select_obj (qipaoClosing, qipaoClosing, d+1)</l>
+<c>                </c>
+<l>                region_features (qipaoClosing, 'area', Value2)</l>
+<l>                region_features (qipao, 'area', Value3)</l>
+<l>                a:= Value2/(Value3*1.0)</l>
+<l>                c:= a[&lt;]1.1</l>
+<l>                d:= find(c,1)</l>
+<l>                if (d&gt;-1)</l>
+<l>                    select_obj (qipao,kaikoupao, d+1)  </l>
+<l>                endif</l>
+<c>                </c>
+<l>                c:= a[&gt;]1.2</l>
+<l>                d:= find(c,1)</l>
+<l>                if (d&gt;-1)</l>
+<l>                    select_obj (qipao, bikoupao , d+1)   </l>
+<l>                endif</l>
+<c>                </c>
+<c>                </c>
+<l>                if (KaiKouPao_Enabled)</l>
+<l>                    count_obj (bikoupao, Number)</l>
+<l>                    if (Number&gt;0)</l>
+<l>                        OK:='NG'</l>
+<l>                        GatherInfo (kaikoupao, Image, RoiImage, TransRoi, DetectDict, 50, '开口泡', VisionProcessStep, ImageIndex, ArrName, W, H, X, Y, Area)</l>
+<l>                        concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                        concat_obj (ErrRoi,TransRoi,  ErrRoi)</l>
+<l>                        ErrName:=[ErrName,ArrName]</l>
+<l>                    endif </l>
+<c>                    </c>
+<l>                endif</l>
+<c>                </c>
+<l>                if (BiKouPao_Enabled)</l>
+<l>                    count_obj (kaikoupao, Number)</l>
+<l>                    if (Number&gt;0)</l>
+<l>                        OK:='NG'</l>
+<l>                        GatherInfo (bikoupao, Image, RoiImage, TransRoi, DetectDict, 50, '闭口泡', VisionProcessStep, ImageIndex, ArrName, W1, H1, X1, Y1, Area1)</l>
+<l>                        concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                        concat_obj (ErrRoi,TransRoi,  ErrRoi)</l>
+<l>                        ErrName:=[ErrName,ArrName]</l>
+<l>                    endif</l>
+<l>                endif</l>
+<l>            endif</l>
+<c>            </c>
+<l>        endif  </l>
+<l>    endif</l>
+<c>    </c>
+<c>   </c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c>  </c>
+<c>  **************************************************************************************</c>
+<c></c>
+<c>  </c>
+<c></c>
+<c>  </c>
+<c>  </c>
+<c>  </c>
+<c>  </c>
+<c>  </c>
+<c>  </c>
+<c>  </c>
+<c></c>
+<c>  </c>
+<l>catch (Exception )</l>
+<l>endtry</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="Detect_Image2">
+<parameters>
+<parameter id="AlarmArea"/>
+<parameter id="AlarmH"/>
+<parameter id="AlarmImage"/>
+<parameter id="AlarmName"/>
+<parameter id="AlarmRoi"/>
+<parameter id="AlarmW"/>
+<parameter id="AlarmX"/>
+<parameter id="AlarmY"/>
+<parameter id="DetectDict"/>
+<parameter id="ErrArea"/>
+<parameter id="ErrH"/>
+<parameter id="ErrImage"/>
+<parameter id="ErrName"/>
+<parameter id="ErrRoi"/>
+<parameter id="ErrW"/>
+<parameter id="ErrX"/>
+<parameter id="ErrY"/>
+<parameter id="Image"/>
+<parameter id="ImageIndex"/>
+<parameter id="OK"/>
+<parameter id="SiyiRoi"/>
+<parameter id="VisionProcessStep"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

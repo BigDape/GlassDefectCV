@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>set_system ('parallelize_operators', 'false')</l>
+<l>set_system ('clip_region', 'false')</l>
+<c></c>
+<l>dev_update_off ()</l>
+<c></c>
+<l>* a:='D:/线泡/x2.bmp'</l>
+<l>* read_image (Image1_1,a)</l>
+<l>* read_image (Image1_2,a)</l>
+<l>* read_image (Image1_3,a)</l>
+<l>* read_image (Image1_4,a)</l>
+<c></c>
+<c></c>
+<l>*  a:='F:/test1/qipao/test/q4/zq41.bmp'</l>
+<l>* read_image (Image1_1,a)</l>
+<l>* read_image (Image1_2,a)</l>
+<l>* read_image (Image1_3,a)</l>
+<l>* read_image (Image1_4,a)</l>
+<c></c>
+<l>read_image (Image1_1,'G:/test1/qipao/530/1.bmp')</l>
+<l>read_image (Image1_2,'g:/test1/qipao/530/1.bmp')</l>
+<l>read_image (Image1_3,'g:/test1/qipao/530/1.bmp')</l>
+<l>read_image (Image1_4,'g:/test1/qipao/530/1.bmp')</l>
+<c></c>
+<c></c>
+<l>* read_image (Image1_1, 'C:/Users/PC/Desktop/Test1/崩角/2-15/2.bmp')</l>
+<l>* read_image (Image1_2, 'C:/Users/PC/Desktop/Test1/崩角/2-15/2.bmp')</l>
+<l>* read_image (Image1_3, 'C:/Users/PC/Desktop/Test1/崩角/2-15/2.bmp')</l>
+<l>* read_image (Image1_4, 'C:/Users/PC/Desktop/Test1/崩角/2-15/2.bmp')</l>
+<c></c>
+<l>* read_image (Image1_1,'C:/Users/Administrator/Desktop/22318jjjjjjjjj.bmp')</l>
+<l>* read_image (Image1_2,'C:/Users/Administrator/Desktop/22318jjjjjjjjj.bmp')</l>
+<l>* read_image (Image1_3,'C:/Users/Administrator/Desktop/22318jjjjjjjjj.bmp')</l>
+<l>* read_image (Image1_4,'C:/Users/Administrator/Desktop/22318jjjjjjjjj.bmp')</l>
+<c></c>
+<c></c>
+<l>* read_image (Image1_1,'D:/test1/qipao/3-7/q42.bmp')</l>
+<l>* read_image (Image1_2,'D:/test1/qipao/3-7/q42.bmp')</l>
+<l>* read_image (Image1_3,'D:/test1/qipao/3-7/q42.bmp')</l>
+<l>* read_image (Image1_4,'D:/test1/qipao/3-7/q42.bmp')</l>
+<c></c>
+<l>* read_image (Image1_1,'E:/test1/3.19采集/气泡/Z1.bmp')</l>
+<l>* read_image (Image1_2,'E:/test1/3.19采集/气泡/Z1.bmp')</l>
+<l>* read_image (Image1_3,'E:/test1/3.19采集/气泡/Z1.bmp')</l>
+<l>* read_image (Image1_4,'E:/test1/3.19采集/气泡/Z1.bmp')</l>
+<c></c>
+<c></c>
+<l>* read_image (Image1_1,'e:/test1/qipao/3-7/q47.bmp')</l>
+<l>* read_image (Image1_2,'e:/test1/qipao/3-7/q47.bmp')</l>
+<l>* read_image (Image1_3,'e:/test1/qipao/3-7/q47.bmp')</l>
+<l>* read_image (Image1_4,'e:/test1/qipao/3-7/q47.bmp')</l>
+<c></c>
+<l>* read_image (Image1_1,'E:/test1/qipao/3-19/3-19/q416.bmp')</l>
+<l>* read_image (Image1_2,'E:/test1/qipao/3-19/3-19/q415.bmp')</l>
+<l>* read_image (Image1_3,'E:/test1/qipao/3-19/3-19/q415.bmp')</l>
+<l>* read_image (Image1_4,'E:/test1/qipao/3-19/3-19/q415.bmp')</l>
+<c></c>
+<c></c>
+<l>* read_image (Image1_1,'C:/Users/Administrator/Desktop/test1/气泡/2-24/新建文件夹/1/1.bmp')</l>
+<l>* read_image (Image1_2,'C:/Users/Administrator/Desktop/test1/气泡/2-24/新建文件夹/1/1.bmp')</l>
+<l>* read_image (Image1_3,'C:/Users/Administrator/Desktop/test1/气泡/2-24/新建文件夹/1/1.bmp')</l>
+<l>* read_image (Image1_4,'C:/Users/Administrator/Desktop/test1/气泡/2-24/新建文件夹/1/1.bmp')</l>
+<c></c>
+<l>* read_image (Image1_1,'C:/Users/Administrator/Desktop/test1/气泡/2-24/新建文件夹/3/1.bmp')</l>
+<l>* read_image (Image1_2,'C:/Users/Administrator/Desktop/test1/气泡/2-24/新建文件夹/3/1.bmp')</l>
+<l>* read_image (Image1_3,'C:/Users/Administrator/Desktop/test1/气泡/2-24/新建文件夹/3/1.bmp')</l>
+<l>* read_image (Image1_4,'C:/Users/Administrator/Desktop/test1/气泡/2-24/新建文件夹/3/1.bmp')</l>
+<c></c>
+<c></c>
+<l>* read_image (Image1_1,'E:/test1/qipao/test/1/1.bmp')</l>
+<l>* read_image (Image1_2,'E:/test1/qipao/test/1/1.bmp')</l>
+<l>* read_image (Image1_3,'E:/test1/qipao/test/1/1.bmp')</l>
+<l>* read_image (Image1_4,'E:/test1/qipao/test/1/1.bmp')</l>
+<c></c>
+<c></c>
+<l>* read_image (Image1_1,'E:/线泡/x3.bmp')</l>
+<l>* read_image (Image1_2,'E:/线泡/x3.bmp')</l>
+<l>* read_image (Image1_3,'E:/线泡/x3.bmp')</l>
+<l>* read_image (Image1_4,'E:/线泡/x3.bmp')</l>
+<c></c>
+<c></c>
+<l>* read_image (Image1_1,'E:/test1/qipao/test/1-29/zheng2.bmp')</l>
+<l>* read_image (Image1_2,'E:/test1/qipao/test/1-29/zheng2.bmp')</l>
+<l>* read_image (Image1_3,'E:/test1/qipao/test/1-29/zheng2.bmp')</l>
+<l>* read_image (Image1_4,'E:/test1/qipao/test/1-29/zheng2.bmp')</l>
+<c></c>
+<c></c>
+<l>* read_dict ('d:/HalconFunction/wusiyin1126.hdict', [], [], DictHandle)</l>
+<l>read_dict ('D:/HalconFunction/DuMo3.2.hdict', [], [], DictHandle)</l>
+<l>DetectProcess_DuMo (Image1_1, DetectRoi1, circularityRoi, DictHandle,3,1)</l>
+<c></c>
+<l>* DetectProcess_Siyin (Image1_1, SiyinRoi1,DetectRoi1, DictHandle,0,0)</l>
+<c></c>
+<c></c>
+<c></c>
+<l>* DetectProcess_DuMo (Image1_1, DetectRoi1, circularityRoi, DictHandle,9,1)</l>
+<c></c>
+<c>* Detect_JieShi(Image1_1, Image1_2, Image1_3, Image1_4, DetectRoi1, ErrRoi_Q, AlarmRoi_Q, ErrImage_Q, AlarmImage_Q,\
+OriginalErrRoi,DictHandle, 0, 0,  ErrName_Q, AlarmName_Q, ErrW_Q, ErrH_Q, ErrArea_Q, ErrX_Q,\
+ErrY_Q, AlarmW_Q, AlarmH_Q, AlarmArea_Q, AlarmX_Q, AlarmY_Q, MapIndex_Q, ParIndex_Q, OK5)</c>
+<c></c>
+<l>* DetectRoi1:=Image1_1</l>
+<l> gen_empty_obj (OriginalErrRoi)</l>
+<l>* get_domain (Image1_4, DetectRoi1)</l>
+<c></c>
+<l>QiPao_Detect (Image1_1, Image1_2, Image1_3, Image1_4, DetectRoi1, OriginalErrRoi, ErrRoi_Q, AlarmRoi_Q, \
+ErrImage_Q, AlarmImage_Q, OriginalErrRoi, DictHandle,3,1, ErrName_Q, AlarmName_Q, ErrW_Q, ErrH_Q, \
+ErrArea_Q, ErrX_Q, ErrY_Q, AlarmW_Q, AlarmH_Q, AlarmArea_Q, AlarmX_Q, AlarmY_Q, MapIndex_Q, ParIndex_Q,ex, OK5)</l>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

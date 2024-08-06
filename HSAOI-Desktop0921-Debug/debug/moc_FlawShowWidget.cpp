@@ -24,7 +24,7 @@ QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_FlawShowWidget_t {
     QByteArrayData data[25];
-    char stringdata0[330];
+    char stringdata0[324];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -42,31 +42,31 @@ QT_MOC_LITERAL(5, 70, 9), // "FlawPoint"
 QT_MOC_LITERAL(6, 80, 9), // "flawpoint"
 QT_MOC_LITERAL(7, 90, 11), // "slot_resize"
 QT_MOC_LITERAL(8, 102, 17), // "slot_GetGlassSize"
-QT_MOC_LITERAL(9, 120, 10), // "GLASSINFO*"
-QT_MOC_LITERAL(10, 131, 4), // "info"
-QT_MOC_LITERAL(11, 136, 18), // "slot_GetFlawPoints"
-QT_MOC_LITERAL(12, 155, 17), // "QList<FlawPoint>*"
-QT_MOC_LITERAL(13, 173, 15), // "n_FlawPointList"
-QT_MOC_LITERAL(14, 189, 19), // "slot_ChangeFlawShow"
-QT_MOC_LITERAL(15, 209, 19), // "slot_GetGlassResult"
-QT_MOC_LITERAL(16, 229, 11), // "ResultINFO*"
-QT_MOC_LITERAL(17, 241, 7), // "ResInfo"
-QT_MOC_LITERAL(18, 249, 23), // "slot_ButtonClearClicked"
-QT_MOC_LITERAL(19, 273, 15), // "slot_PlotPicker"
-QT_MOC_LITERAL(20, 289, 3), // "pos"
-QT_MOC_LITERAL(21, 293, 18), // "slot_LegendChecked"
-QT_MOC_LITERAL(22, 312, 8), // "itemInfo"
-QT_MOC_LITERAL(23, 321, 2), // "on"
-QT_MOC_LITERAL(24, 324, 5) // "index"
+QT_MOC_LITERAL(9, 120, 6), // "length"
+QT_MOC_LITERAL(10, 127, 5), // "width"
+QT_MOC_LITERAL(11, 133, 18), // "slot_GetFlawPoints"
+QT_MOC_LITERAL(12, 152, 16), // "QList<FlawPoint>"
+QT_MOC_LITERAL(13, 169, 15), // "n_FlawPointList"
+QT_MOC_LITERAL(14, 185, 19), // "slot_ChangeFlawShow"
+QT_MOC_LITERAL(15, 205, 19), // "slot_GetGlassResult"
+QT_MOC_LITERAL(16, 225, 13), // "SummaryResult"
+QT_MOC_LITERAL(17, 239, 3), // "res"
+QT_MOC_LITERAL(18, 243, 23), // "slot_ButtonClearClicked"
+QT_MOC_LITERAL(19, 267, 15), // "slot_PlotPicker"
+QT_MOC_LITERAL(20, 283, 3), // "pos"
+QT_MOC_LITERAL(21, 287, 18), // "slot_LegendChecked"
+QT_MOC_LITERAL(22, 306, 8), // "itemInfo"
+QT_MOC_LITERAL(23, 315, 2), // "on"
+QT_MOC_LITERAL(24, 318, 5) // "index"
 
     },
     "FlawShowWidget\0sig_updatePreGlassRes\0"
     "\0sig_ClearDate\0sig_sendFlawPoint\0"
     "FlawPoint\0flawpoint\0slot_resize\0"
-    "slot_GetGlassSize\0GLASSINFO*\0info\0"
-    "slot_GetFlawPoints\0QList<FlawPoint>*\0"
+    "slot_GetGlassSize\0length\0width\0"
+    "slot_GetFlawPoints\0QList<FlawPoint>\0"
     "n_FlawPointList\0slot_ChangeFlawShow\0"
-    "slot_GetGlassResult\0ResultINFO*\0ResInfo\0"
+    "slot_GetGlassResult\0SummaryResult\0res\0"
     "slot_ButtonClearClicked\0slot_PlotPicker\0"
     "pos\0slot_LegendChecked\0itemInfo\0on\0"
     "index"
@@ -93,13 +93,13 @@ static const uint qt_meta_data_FlawShowWidget[] = {
 
  // slots: name, argc, parameters, tag, flags
        7,    0,   76,    2, 0x0a /* Public */,
-       8,    1,   77,    2, 0x0a /* Public */,
-      11,    1,   80,    2, 0x0a /* Public */,
-      14,    0,   83,    2, 0x0a /* Public */,
-      15,    1,   84,    2, 0x0a /* Public */,
-      18,    0,   87,    2, 0x0a /* Public */,
-      19,    1,   88,    2, 0x0a /* Public */,
-      21,    3,   91,    2, 0x0a /* Public */,
+       8,    2,   77,    2, 0x0a /* Public */,
+      11,    1,   82,    2, 0x0a /* Public */,
+      14,    0,   85,    2, 0x0a /* Public */,
+      15,    1,   86,    2, 0x0a /* Public */,
+      18,    0,   89,    2, 0x0a /* Public */,
+      19,    1,   90,    2, 0x0a /* Public */,
+      21,    3,   93,    2, 0x0a /* Public */,
 
  // signals: parameters
     QMetaType::Void, QMetaType::Bool,    2,
@@ -108,7 +108,7 @@ static const uint qt_meta_data_FlawShowWidget[] = {
 
  // slots: parameters
     QMetaType::Void,
-    QMetaType::Void, 0x80000000 | 9,   10,
+    QMetaType::Void, QMetaType::Double, QMetaType::Double,    9,   10,
     QMetaType::Void, 0x80000000 | 12,   13,
     QMetaType::Void,
     QMetaType::Void, 0x80000000 | 16,   17,
@@ -129,10 +129,10 @@ void FlawShowWidget::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _
         case 1: _t->sig_ClearDate(); break;
         case 2: _t->sig_sendFlawPoint((*reinterpret_cast< const FlawPoint(*)>(_a[1]))); break;
         case 3: _t->slot_resize(); break;
-        case 4: _t->slot_GetGlassSize((*reinterpret_cast< GLASSINFO*(*)>(_a[1]))); break;
-        case 5: _t->slot_GetFlawPoints((*reinterpret_cast< QList<FlawPoint>*(*)>(_a[1]))); break;
+        case 4: _t->slot_GetGlassSize((*reinterpret_cast< double(*)>(_a[1])),(*reinterpret_cast< double(*)>(_a[2]))); break;
+        case 5: _t->slot_GetFlawPoints((*reinterpret_cast< QList<FlawPoint>(*)>(_a[1]))); break;
         case 6: _t->slot_ChangeFlawShow(); break;
-        case 7: _t->slot_GetGlassResult((*reinterpret_cast< ResultINFO*(*)>(_a[1]))); break;
+        case 7: _t->slot_GetGlassResult((*reinterpret_cast< SummaryResult(*)>(_a[1]))); break;
         case 8: _t->slot_ButtonClearClicked(); break;
         case 9: _t->slot_PlotPicker((*reinterpret_cast< const QPointF(*)>(_a[1]))); break;
         case 10: _t->slot_LegendChecked((*reinterpret_cast< const QVariant(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2])),(*reinterpret_cast< int(*)>(_a[3]))); break;

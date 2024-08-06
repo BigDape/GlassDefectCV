@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="Detect_ZangWu">
+<interface>
+<io>
+<par name="Image1" base_type="iconic" dimension="0"/>
+<par name="Image2" base_type="iconic" dimension="0"/>
+<par name="DetectRoi" base_type="iconic" dimension="0"/>
+<par name="NoDetectRoi" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="ErrImage" base_type="iconic" dimension="0"/>
+<par name="ErrRoi" base_type="iconic" dimension="0"/>
+<par name="OriginalErrRoi" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="ErrName" base_type="ctrl" dimension="0"/>
+<par name="ErrW" base_type="ctrl" dimension="0"/>
+<par name="ErrH" base_type="ctrl" dimension="0"/>
+<par name="ErrArea" base_type="ctrl" dimension="0"/>
+<par name="ErrX" base_type="ctrl" dimension="0"/>
+<par name="ErrY" base_type="ctrl" dimension="0"/>
+<par name="MapIndex" base_type="ctrl" dimension="0"/>
+<par name="ParIndex" base_type="ctrl" dimension="0"/>
+<par name="ErrImageIndex" base_type="ctrl" dimension="0"/>
+<par name="OK" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>OK:=[]</l>
+<l>try</l>
+<c>    </c>
+<l>    gen_empty_obj (ErrRoi) </l>
+<l>    gen_empty_obj (ErrImage) </l>
+<l>    gen_empty_obj (OriginalErrRoi)</l>
+<l>    gen_empty_obj (zangwu1)</l>
+<l>    gen_empty_obj (zangwu2)</l>
+<l>    gen_empty_obj (shuidi1)</l>
+<l>    ErrName:=[]</l>
+<l>    ErrW:=[]</l>
+<l>    ErrH:=[]</l>
+<l>    ErrArea:=[]</l>
+<l>    ErrX:=[]</l>
+<l>    ErrY:=[]</l>
+<l>    MapIndex:=[]</l>
+<l>    ParIndex:=[]</l>
+<l>    ErrImageIndex:=[]</l>
+<c>    </c>
+<c>    </c>
+<l>   * get_dict_tuple (DetectDict,'结石' , JieShiDict)</l>
+<l>  *  get_dict_tuple (JieShiDict, 'JieShi_threshold_Min1', JieShi_threshold_Min1) </l>
+<c>   </c>
+<c>    </c>
+<l>    get_dict_tuple (DetectDict,'使能' , EnabledDict)</l>
+<l>*    get_dict_tuple (EnabledDict,'脏污Pass显示' , ZWpass_enable)</l>
+<l>    get_dict_tuple (EnabledDict,'水滴Pass显示' , SDpass_enable)</l>
+<l>    get_dict_tuple (DetectDict,'脏污' , ZangWuDict)</l>
+<l>  *  get_dict_tuple (EnabledDict, 'JieShi2_Enabled', JieShi_Enabled2)  </l>
+<l>   get_dict_tuple (EnabledDict, '脏污', zangwu_Enabled)  </l>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<l>    get_dict_tuple (DetectDict,'系统参数', EnabledDict)</l>
+<l>   * get_dict_tuple (EnabledDict,'siyinclass' , siyinclass)  </l>
+<c>   </c>
+<l>  *  erosion_rectangle1 (DetectRoi, RegionErosion, 10, 10)</l>
+<l>    difference (DetectRoi, NoDetectRoi, RegionErosion)    </l>
+<l>    reduce_domain (Image1, RegionErosion, ImageReduced1)   </l>
+<l>    reduce_domain (Image2, RegionErosion, ImageReduced2)</l>
+<c>    </c>
+<c>    ****************************************水滴******************************************</c>
+<l>mean_image (ImageReduced2, ImageMean, 3, 3)</l>
+<l>threshold (ImageMean, Region, 220, 255)</l>
+<l>dilation_circle (Region, RegionDilation, 3.5)</l>
+<l>threshold (ImageMean, Region1, 0, 100)</l>
+<l>dilation_circle (Region1, RegionDilation1, 3.5)</l>
+<l>union2 (RegionDilation, RegionDilation1, RegionUnion)</l>
+<l>closing_rectangle1 (RegionUnion, RegionClosing, 5, 70)</l>
+<l>connection (RegionClosing, ConnectedRegions)</l>
+<l>select_shape (ConnectedRegions, SelectedRegions, 'compactness', 'and', 0, 5)</l>
+<l>select_shape (SelectedRegions, SelectedRegions1, 'area', 'and', 200, 9999999)</l>
+<l>select_shape (SelectedRegions1, SelectedRegions2, 'circularity', 'and', 0.1, 1)</l>
+<l>count_obj (SelectedRegions2, Number)</l>
+<l>for Index := 1 to Number by 1</l>
+<l>    select_obj (SelectedRegions2, ObjectSelected, Index)</l>
+<l>    region_features (ObjectSelected, 'area', Obj_Area)  </l>
+<l>    reduce_domain (ImageReduced2, ObjectSelected, ImageReduced)</l>
+<c>    *亮的部分</c>
+<l>    threshold (ImageReduced, Region2, 250, 255)</l>
+<l>    closing_circle (Region2, RegionClosing3, 3.5)</l>
+<l>    connection (RegionClosing3, ConnectedRegions1)</l>
+<l>    count_obj (ConnectedRegions1, Number_1)</l>
+<l>    select_shape_std (ConnectedRegions1, SelectedRegions3, 'max_area', 70)</l>
+<l>    region_features (SelectedRegions3, 'area', Val1)</l>
+<c>    *黑的部分</c>
+<l>    threshold (ImageReduced, Region3, 0, 80)</l>
+<l>    closing_circle (Region3, RegionClosing2, 3.5)</l>
+<l>    connection (RegionClosing2, ConnectedRegions2)  </l>
+<l>    count_obj (ConnectedRegions2, Number_2)  </l>
+<c>     *判断黑中是否有白</c>
+<l>    Number_12:=0</l>
+<l>    if(Number_2=1 and Number_1=1)</l>
+<l>        fill_up (ConnectedRegions2, RegionFillUp_2)</l>
+<l>        intersection (RegionFillUp_2, SelectedRegions3, RegionIntersection_12)   </l>
+<l>        select_shape (RegionIntersection_12, SelectedRegions12, 'area', 'and', 1, 99999)</l>
+<l>        count_obj (SelectedRegions12, Number_12)        </l>
+<l>    endif</l>
+<c>    </c>
+<c>    </c>
+<l>    select_shape_std (ConnectedRegions2, SelectedRegions4, 'max_area', 70)</l>
+<l>    region_features (SelectedRegions4, 'area', Val2)</l>
+<l>    intensity (SelectedRegions4, ImageReduced, Mean, Deviation)</l>
+<l>    ratio_area:= Val1/(Val2+0.01)</l>
+<l>    union2 (SelectedRegions3, SelectedRegions4, RegionUnion1)</l>
+<c>     * 判断黑白的紧密度</c>
+<l>    closing_circle (RegionUnion1, RegionClosing4, 1)</l>
+<l>    connection (RegionClosing4, ConnectedRegions4)</l>
+<l>    count_obj (ConnectedRegions4, Number2)</l>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<l>    closing_circle (RegionUnion1, RegionClosing1, 2.5)</l>
+<l>    connection (RegionClosing1, ConnectedRegions3)</l>
+<l>    select_shape (ConnectedRegions3, SelectedRegions5, 'area', 'and', 10, 99999)</l>
+<l>    count_obj (SelectedRegions5, Number1)</l>
+<l>     if(Number1=1)</l>
+<l>        region_features (SelectedRegions5, 'roundness', Roundness_Val)</l>
+<l>    endif</l>
+<c>    </c>
+<l> if(Obj_Area&gt;1500)</l>
+<c>    </c>
+<l>    if(Number1=1 and ratio_area&gt;0 and ratio_area&lt;10)</l>
+<c>        *气泡可能性</c>
+<l>        a:=1</l>
+<l>    else</l>
+<c>        *水滴</c>
+<l>        concat_obj (shuidi1, ObjectSelected, shuidi1) </l>
+<l>    endif</l>
+<l> else</l>
+<l>      if(((Number_1=1 and Number_2=1 and ratio_area&gt;0.9 and ratio_area&lt;10 ) or (Mean&gt;55)) and Number1&gt;1 and Number_12=0 and Number2&gt;1 )</l>
+<c>     </c>
+<c>          *shuidi</c>
+<l>         concat_obj (shuidi1, ObjectSelected, shuidi1) </l>
+<l>      endif</l>
+<l> endif</l>
+<c>                    </c>
+<l>endfor</l>
+<l>if(SDpass_enable=1 or SDpass_enable=true)</l>
+<l>select_shape (shuidi1, shuidi1, 'area', 'and', 1, 9999999999)</l>
+<l>    count_obj (shuidi1,Number2)</l>
+<l>    if (Number2&gt;0)</l>
+<c>                </c>
+<c>                    *Newtuple缺陷显示图序号</c>
+<l>                    tuple_gen_const (Number2, 2, Newtuple)   </l>
+<c>             </c>
+<l>            GatherInfo_OkNG (shuidi1, Image1, Image2, RoiImage, TransRoi, DetectDict, ZangWuDict, '水滴', Newtuple, 100, 100, 255, 10000, Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK2)</l>
+<l>                    if (OK2!=[])                        </l>
+<l>                        concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                        concat_obj (ErrRoi, TransRoi, ErrRoi)</l>
+<l>                        ErrName:=[ErrName,Name]</l>
+<l>                        ErrW:=[ErrW,W]</l>
+<l>                        ErrH:=[ErrH,H]</l>
+<l>                        ErrArea:=[ErrArea,Area]</l>
+<l>                        ErrX:=[ErrX,X]</l>
+<l>                        ErrY:=[ErrY,Y]</l>
+<l>                        MapIndex:=[MapIndex,mapIndex]</l>
+<l>                        ParIndex:=[ParIndex,parIndex]</l>
+<l>                        ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>                        OK:=[OK,OK2]                     </l>
+<l>                    endif                            </l>
+<l>            endif </l>
+<l>endif        </l>
+<c>            </c>
+<l>        union2 (NoDetectRoi, shuidi1, NoDetectRoi)</l>
+<l>        difference (DetectRoi, NoDetectRoi, RegionErosion)    </l>
+<l>        reduce_domain (Image1, RegionErosion, ImageReduced1)   </l>
+<l>        reduce_domain (Image2, RegionErosion, ImageReduced2)</l>
+<c>    </c>
+<c>*****************************脏污1************************************************</c>
+<l>         if (zangwu_Enabled=1 or zangwu_Enabled=true)  </l>
+<l>        threshold (ImageReduced1, Regions, 30, 255)       </l>
+<l>        closing_circle (Regions, RegionClosing, 2.5)               </l>
+<l>        connection (RegionClosing, ConnectedRegions1)</l>
+<l>        select_shape (ConnectedRegions1, SelectedRegions, 'area', 'and', 500, 9999999999)</l>
+<l>        intensity (SelectedRegions, ImageReduced1, Mean, Deviation)</l>
+<l>        region_features (SelectedRegions, 'circularity', Circularity)</l>
+<l>        region_features (SelectedRegions, 'area', Area)</l>
+<l>        smallest_rectangle2 (SelectedRegions, Row, Column, Phi, Length1, Length2)</l>
+<l>        contlength (SelectedRegions, ContLength)</l>
+<l>        ratio:=Length1/(Length2+0.01)</l>
+<l>        length_1:=0.5*ContLength</l>
+<l>        width_1:=2*Area/(ContLength+0.01)  </l>
+<l>        count_obj (SelectedRegions, Number)</l>
+<l>        for Index := 1 to Number by 1</l>
+<l>             select_obj (SelectedRegions, ObjectSelected11, Index)  </l>
+<c>          </c>
+<l>            if( width_1[Index-1]&gt;6 and Mean[Index-1]&lt;150 and Circularity[Index-1]&gt;0.2 and ratio[Index-1]&lt;4)</l>
+<c>            ***zangwu</c>
+<l>                 dilation_circle (ObjectSelected11, RegionDilation2, 15)</l>
+<l>                 reduce_domain (ImageReduced2,RegionDilation2, ImageReduced11)</l>
+<l>                 threshold (ImageReduced11, Region12, 0, 90)                  </l>
+<l>                 region_features ( Region12, 'area', RegionUnion_Area)                                                                                  </l>
+<l>                 ratio11:=RegionUnion_Area/Area[Index-1]</l>
+<l>                    if(ratio11&lt;0.1 )                                                                   </l>
+<l>                   concat_obj (zangwu2, ObjectSelected11, zangwu2)                           </l>
+<l>                    endif</l>
+<l>            endif</l>
+<l>        endfor          </l>
+<l>select_shape (zangwu2, zangwu2, 'area', 'and', 1, 9999999999)</l>
+<l>    count_obj (zangwu2,Number3)</l>
+<l>    if (Number3&gt;0)</l>
+<c>                </c>
+<c>                    *Newtuple缺陷显示图序号</c>
+<l>                    tuple_gen_const (Number3, 1, Newtuple)   </l>
+<l>             get_dict_tuple (ZangWuDict,'脏污宽度最小值' , Pass_W)</l>
+<l>              get_dict_tuple (ZangWuDict,'脏污长度最小值' , Pass_L)</l>
+<l>              get_dict_tuple (ZangWuDict,'脏污灰度最小值' , Pass_Gray)</l>
+<c>          </c>
+<l>        GatherInfo_OkNG (zangwu2, Image1, Image2, RoiImage, TransRoi, DetectDict, ZangWuDict, '脏污1', Newtuple, Pass_L, Pass_W, Pass_Gray, 10000, Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK3)</l>
+<l>                    if (OK3!=[])                        </l>
+<l>                        concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                        concat_obj (ErrRoi, TransRoi, ErrRoi)</l>
+<l>                        ErrName:=[ErrName,Name]</l>
+<l>                        ErrW:=[ErrW,W]</l>
+<l>                        ErrH:=[ErrH,H]</l>
+<l>                        ErrArea:=[ErrArea,Area]</l>
+<l>                        ErrX:=[ErrX,X]</l>
+<l>                        ErrY:=[ErrY,Y]</l>
+<l>                        MapIndex:=[MapIndex,mapIndex]</l>
+<l>                        ParIndex:=[ParIndex,parIndex]</l>
+<l>                        ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>                        OK:=[OK,OK3]                     </l>
+<l>                    endif                            </l>
+<l>            endif </l>
+<c></c>
+<c> ******脏污**********************************************************   </c>
+<c>   </c>
+<l>        threshold (ImageReduced1, Regions, 30, 255)</l>
+<c>        </c>
+<l>        closing_circle (Regions, RegionClosing, 15.5)</l>
+<c>        </c>
+<c>        </c>
+<l>       connection (RegionClosing, ConnectedRegions1)</l>
+<l>        select_shape (ConnectedRegions1, SelectedRegions, 'area', 'and', 5000, 9999999999)</l>
+<l>        intensity (SelectedRegions, ImageReduced1, Mean, Deviation)</l>
+<l>        region_features (SelectedRegions, 'circularity', Circularity)</l>
+<l>        region_features (SelectedRegions, 'area', Area)</l>
+<l>        smallest_rectangle2 (SelectedRegions, Row, Column, Phi, Length1, Length2)</l>
+<c>      </c>
+<l>        radio_1:=Length1/Length2                </l>
+<l>         count_obj (SelectedRegions, Number)</l>
+<l>        for Index := 1 to Number by 1</l>
+<l>            select_obj (SelectedRegions, ObjectSelected11, Index)  </l>
+<l>            smallest_rectangle1 (ObjectSelected11, Row1, Column1, Row2, Column2)</l>
+<l>            gen_rectangle1 (Rectangle, Row1, Column1, Row2, Column2)</l>
+<c>            </c>
+<l>            reduce_domain (ImageReduced1,Rectangle, ImageReduced11)</l>
+<c>            </c>
+<l>            threshold (ImageReduced11, Region11, 30, 255) </l>
+<l>            region_features (Region11, 'area', Area11)</l>
+<l>            closing_circle (Region11, RegionClosing1, 1.5)           </l>
+<l>            connection (RegionClosing1, ConnectedRegions11) </l>
+<l>            count_obj (ConnectedRegions11, Number1)            </l>
+<l>            ratio11:=Area11/Area[Index-1]</l>
+<c>            **团状脏污**点状脏污**长条形脏污***</c>
+<l>            if(Length2[Index-1]&gt;50 and radio_1[Index-1]&lt;5 and Circularity[Index-1]&gt;0.05 and Number1&gt;20 and ratio11&lt;0.3) </l>
+<l>                concat_obj (zangwu1, ObjectSelected11, zangwu1)</l>
+<l>            endif</l>
+<l>        endfor        </l>
+<c></c>
+<l>    select_shape (zangwu1, zangwu1, 'area', 'and', 1, 9999999999)</l>
+<l>    count_obj (zangwu1,Number13)</l>
+<l>    if (Number13&gt;0)</l>
+<c>                </c>
+<c>                    *Newtuple缺陷显示图序号</c>
+<l>                    tuple_gen_const (Number13, 1, Newtuple)   </l>
+<l>              get_dict_tuple (ZangWuDict,'脏污宽度最小值' , Pass_W)</l>
+<l>              get_dict_tuple (ZangWuDict,'脏污长度最小值' , Pass_L)</l>
+<l>              get_dict_tuple (ZangWuDict,'脏污灰度最小值' , Pass_Gray)</l>
+<l>            GatherInfo_OkNG (zangwu1, Image1, Image2, RoiImage, TransRoi, DetectDict, ZangWuDict, '脏污', Newtuple, Pass_L, Pass_W, Pass_Gray, 10000, Name, W, H, X, Y, Area, mapIndex, parIndex, SelectDisPlayImageIndex, OK1)</l>
+<l>                    if (OK1!=[])                        </l>
+<l>                        concat_obj (ErrImage, RoiImage, ErrImage)</l>
+<l>                        concat_obj (ErrRoi, TransRoi, ErrRoi)</l>
+<l>                        ErrName:=[ErrName,Name]</l>
+<l>                        ErrW:=[ErrW,W]</l>
+<l>                        ErrH:=[ErrH,H]</l>
+<l>                        ErrArea:=[ErrArea,Area]</l>
+<l>                        ErrX:=[ErrX,X]</l>
+<l>                        ErrY:=[ErrY,Y]</l>
+<l>                        MapIndex:=[MapIndex,mapIndex]</l>
+<l>                        ParIndex:=[ParIndex,parIndex]</l>
+<l>                        ErrImageIndex := [ErrImageIndex,SelectDisPlayImageIndex]</l>
+<l>                        OK:=[OK,OK1]                     </l>
+<l>                    endif                            </l>
+<l>            endif            </l>
+<c>         </c>
+<l>    endif</l>
+<l>       union2 (shuidi1, zangwu2, RegionUnion12)</l>
+<l>       union2 (RegionUnion12, zangwu1, RegionUnion2)</l>
+<l>       dilation_circle (RegionUnion2, RegionDilation3, 10.5)</l>
+<c>       </c>
+<l>       OriginalErrRoi:=RegionDilation3</l>
+<c>                           </c>
+<c>    **************************************************************************************</c>
+<l>catch (Exception )</l>
+<l>endtry</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="Detect_ZangWu">
+<parameters>
+<parameter id="DetectDict"/>
+<parameter id="DetectRoi"/>
+<parameter id="ErrArea"/>
+<parameter id="ErrH"/>
+<parameter id="ErrImage"/>
+<parameter id="ErrImageIndex"/>
+<parameter id="ErrName"/>
+<parameter id="ErrRoi"/>
+<parameter id="ErrW"/>
+<parameter id="ErrX"/>
+<parameter id="ErrY"/>
+<parameter id="Image1"/>
+<parameter id="Image2"/>
+<parameter id="MapIndex"/>
+<parameter id="NoDetectRoi"/>
+<parameter id="OK"/>
+<parameter id="OriginalErrRoi"/>
+<parameter id="ParIndex"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

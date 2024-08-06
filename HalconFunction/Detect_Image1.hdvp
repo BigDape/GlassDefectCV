@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="22.05.0.0">
+<procedure name="Detect_Image1">
+<interface>
+<io>
+<par name="Image_dark" base_type="iconic" dimension="0"/>
+<par name="Image_light" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="ErrRoi" base_type="iconic" dimension="0"/>
+<par name="ErrImage_dark" base_type="iconic" dimension="0"/>
+<par name="ErrImage_light" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="ErrName" base_type="ctrl" dimension="0"/>
+<par name="OK" base_type="ctrl" dimension="0"/>
+<par name="ErrW" base_type="ctrl" dimension="0"/>
+<par name="ErrH" base_type="ctrl" dimension="0"/>
+<par name="ErrArea" base_type="ctrl" dimension="0"/>
+<par name="ErrX" base_type="ctrl" dimension="0"/>
+<par name="ErrY" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<c>*********************************缺陷名关键字********************************************</c>
+<c>*刮伤 划痕 气泡 结石 脏污 印记 上崩边 下崩边 左崩边 右崩边;</c>
+<c>*左上崩角 右上崩角 左下崩角 右下崩角 左上倒角异常 右上倒角异常 左下倒角异常 右下倒角异常;</c>
+<c></c>
+<c></c>
+<c></c>
+<c>*****************************************************************************************************</c>
+<c></c>
+<l>try</l>
+<l>    OK:='OK'</l>
+<l>    gen_empty_obj (ErrRoi)</l>
+<l>    gen_empty_obj (ErrImage_dark)</l>
+<l>    gen_empty_obj (ErrImage_light)</l>
+<c>    </c>
+<c></c>
+<c>    *倒角异常</c>
+<l>    gen_empty_obj (chamferAbnormal) </l>
+<l>    gen_empty_obj (chamferAbnormal_RT)  </l>
+<l>    gen_empty_obj (chamferAbnormal_RB)</l>
+<l>    gen_empty_obj (chamferAbnormal_LT)</l>
+<l>    gen_empty_obj (chamferAbnormal_LB)</l>
+<c>    </c>
+<l>    gen_empty_obj (chipping)</l>
+<l>    gen_empty_obj (chipping_T)</l>
+<l>    gen_empty_obj (chipping_B)</l>
+<l>    gen_empty_obj (chipping_L)    </l>
+<l>    gen_empty_obj (chipping_R)</l>
+<c></c>
+<l>   gen_empty_obj (OriginalErrRoi)</l>
+<c>   </c>
+<l>    ErrName:=[]</l>
+<l>    ErrW:=[]</l>
+<l>    ErrH:=[]</l>
+<l>    ErrArea:=[]</l>
+<l>    ErrX:=[]</l>
+<l>    ErrY:=[]</l>
+<l>    MapIndex:=[]</l>
+<l>    ParIndex:=[]</l>
+<c>    </c>
+<c></c>
+<c>***********************************亮边提取******************************************** </c>
+<c>  </c>
+<l>threshold (Image_dark, Region, 128, 255)</l>
+<l>opening_circle (Region, RegionOpening, 3.5)</l>
+<l>connection (RegionOpening, ConnectedRegions_Edge)</l>
+<l>select_shape_std (ConnectedRegions_Edge, SelectedRegions_Edge, 'max_area', 70)</l>
+<c>*********************************************************************************** </c>
+<c></c>
+<c>**********************************面内区域提取开始********************************************************</c>
+<l>get_image_size (Image_dark, Width_image, Height_image)</l>
+<l>closing_rectangle1 (SelectedRegions_Edge, RegionClosing, 3, 5000)</l>
+<l>closing_rectangle1 (RegionClosing, RegionClosing1, 5000, 3)</l>
+<l>fill_up (RegionClosing1, RegionFillUp)</l>
+<l>smallest_rectangle2 (RegionClosing1, Row_Glass, Column_Glass, Phi_Glass, Length_w_Glass, Length_h_Glass)</l>
+<c>*Rectangle用于查找4个角位置</c>
+<l>gen_rectangle2 (Rectangle, Row_Glass, Column_Glass, Phi_Glass, Length_w_Glass, Length_h_Glass)</l>
+<l>set_system ('clip_region', 'false')</l>
+<l>a:=(2*Length_w_Glass-5/0.02+20)/(2*Length_w_Glass)</l>
+<l>b:=(2*Length_h_Glass-5/0.02+20)/(2*Length_h_Glass)</l>
+<l>zoom_region (RegionFillUp, RegionZoom,a, b)</l>
+<l>area_center (RegionFillUp, Area, Row, Column)</l>
+<l>area_center (RegionZoom, Area1, Row1, Column1)</l>
+<l>move_region (RegionZoom, Region_Panel, Row - Row1, Column - Column1)</l>
+<l>stop()</l>
+<c>*********************************面内区域提取结束********************************************************</c>
+<c></c>
+<c></c>
+<c></c>
+<l>* gen_contour_region_xld (RegionMoved, Contours, 'border')</l>
+<l>* test_closed_xld (Contours, IsClosed) </l>
+<l>* if (IsClosed = 1)</l>
+<l>* smallest_rectangle2_xld (Contours, Row3, Column3, Phi1, Length11, Length21)</l>
+<l>* gen_region_contour_xld (Contours, Region1, 'filled')</l>
+<l>* endif</l>
+<c></c>
+<c>*提取左右边*************************************************************</c>
+<l>opening_rectangle1 (SelectedRegions_Edge, RegionOpening2, 2, 100)</l>
+<l>connection (RegionOpening2, ConnectedRegions)</l>
+<l>select_shape (ConnectedRegions, SelectedRegions_LR, 'area', 'and', 15000, 9999999)</l>
+<c></c>
+<l>area_center (SelectedRegions_LR, Area_LR, Row_LR, Column_LR)</l>
+<l>tuple_min (Column_LR, Min)</l>
+<l>   c:=Column_LR[=]Min</l>
+<l>   d:= find(c, 1)</l>
+<l>select_obj (SelectedRegions_LR, Region_EdgeL, d+1)</l>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<l>smallest_rectangle2 (Region_EdgeL, Row_EdgeL, Column_EdgeL, Phi_EdgeL, Length_w_EdgeL, Length_h_EdgeL)</l>
+<c>*提取左边矩形</c>
+<l>gen_rectangle2 (Rectangle_EdgeL, Row_EdgeL, Column_EdgeL, Phi_EdgeL, Length_w_EdgeL-50, Length_h_EdgeL+50)</l>
+<l>reduce_domain (Image_dark, Rectangle_EdgeL, ImageReduced_EdgeL_d)</l>
+<l>reduce_domain (Image_light, Rectangle_EdgeL, ImageReduced_EdgeL_l)</l>
+<c></c>
+<l>d:= find(c, 0)</l>
+<l>select_obj (SelectedRegions_LR, Region_EdgeR, d+1)</l>
+<l>smallest_rectangle2 (Region_EdgeR, Row_EdgeR, Column_EdgeR, Phi_EdgeR, Length_w_EdgeR, Length_h_EdgeR)</l>
+<c>*提取右边矩形</c>
+<l>gen_rectangle2 (Rectangle_EdgeR, Row_EdgeR, Column_EdgeR, Phi_EdgeR, Length_w_EdgeR-50, Length_h_EdgeR+50)</l>
+<l>reduce_domain (Image_dark, Rectangle_EdgeR, ImageReduced_EdgeR_d)</l>
+<l>reduce_domain (Image_light, Rectangle_EdgeR, ImageReduced_EdgeR_l)</l>
+<c></c>
+<c></c>
+<c>*提取上下边*****************************************************************************************</c>
+<l>opening_rectangle1 (SelectedRegions_Edge, RegionOpening3, 100, 2)</l>
+<l>connection (RegionOpening3, ConnectedRegions1)</l>
+<l>select_shape (ConnectedRegions1, SelectedRegions_TB, 'area', 'and', 15000, 9999999)</l>
+<l>area_center (SelectedRegions_TB, Area_TB, Row_TB, Column_TB)</l>
+<l>tuple_min (Row_TB, Min)</l>
+<l>   c:=Row_TB[=]Min</l>
+<l>   d:= find(c, 1)</l>
+<l>select_obj (SelectedRegions_TB, Region_EdgeT, d+1)</l>
+<c></c>
+<l>smallest_rectangle2 (Region_EdgeT, Row_EdgeT, Column_EdgeT, Phi_EdgeT, Length_w_EdgeT, Length_h_EdgeT)</l>
+<c>*提取上边矩形</c>
+<l>gen_rectangle2 (Rectangle_EdgeT, Row_EdgeT, Column_EdgeT, Phi_EdgeT, Length_w_EdgeT-50, Length_h_EdgeT+50)</l>
+<c></c>
+<l>reduce_domain (Image_dark, Rectangle_EdgeT, ImageReduced_EdgeT_d)</l>
+<l>reduce_domain (Image_light, Rectangle_EdgeT, ImageReduced_EdgeT_l)</l>
+<c></c>
+<l>d:= find(c, 0)</l>
+<l>select_obj (SelectedRegions_TB, Region_EdgeB, d+1)</l>
+<l>smallest_rectangle2 (Region_EdgeB, Row_EdgeB, Column_EdgeB, Phi_EdgeB, Length_w_EdgeB, Length_h_EdgeB)</l>
+<c>*提取下边矩形</c>
+<l>gen_rectangle2 (Rectangle_EdgeB, Row_EdgeB, Column_EdgeB, Phi_EdgeB, Length_w_EdgeB-50, Length_h_EdgeB+50)</l>
+<c></c>
+<l>reduce_domain (Image_dark, Rectangle_EdgeB, ImageReduced_EdgeB_d)</l>
+<l>reduce_domain (Image_light, Rectangle_EdgeB, ImageReduced_EdgeB_l)</l>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c>          </c>
+<c>  ****************************************************崩角倒角判断************************************************************</c>
+<l>GatherDetect_Chamfer (Image_dark, Image_light,SelectedRegions_Edge,Rectangle,chamferAbnormal, DetectDict,Phi_Glass,Length_w_Glass,Length_h_Glass)</l>
+<c>           </c>
+<c>              *面内</c>
+<l>            *  gen_rectangle1 (Rectangle_Panel, Panel_row_y_1, Panel_col_x_1, Panel_row_y_2, Panel_col_x_2) </l>
+<c></c>
+<l>reduce_domain (Image_dark, Region_Panel, ImageReduced_inPlane_d)</l>
+<l>reduce_domain (Image_light, Region_Panel, ImageReduced_inPlane_l)</l>
+<c>                        </c>
+<c>       </c>
+<c>   </c>
+<l>get_dict_tuple (DetectDict, '使能', EnabledDict)</l>
+<l>get_dict_tuple (DetectDict, '系统参数', SysParadDict)</l>
+<c></c>
+<l>get_dict_tuple (EnabledDict, '上崩边', TopEdge_Enabled)          </l>
+<l>   get_dict_tuple (EnabledDict, '下崩边', BottomEdge_Enabled)           </l>
+<l>       get_dict_tuple (EnabledDict, '左崩边', LeftEdge_Enabled)       </l>
+<l>         get_dict_tuple (EnabledDict, '右崩边', RightEdge_Enabled)     </l>
+<c>             **************************************边检****************************************************************** </c>
+<c>              </c>
+<c></c>
+<l>              if(TopEdge_Enabled)</l>
+<l>                GatherDetect_Edge (ImageReduced_EdgeT_d, ImageReduced_EdgeT_l, chipping_T, DetectDict, 2*Length_w_EdgeT, 50, 300, 3, 1, 3)</l>
+<l>                count_obj (chipping_T, Number)                </l>
+<l>                if (Number&gt;0)</l>
+<l>                        OK:='NG'</l>
+<l>                        concat_obj (chipping, chipping_T, chipping)</l>
+<l>                    endif</l>
+<l>                endif</l>
+<l>              if(BottomEdge_Enabled)</l>
+<c>    </c>
+<l>                GatherDetect_Edge (ImageReduced_EdgeB_d, ImageReduced_EdgeB_l, chipping_B, DetectDict, 2*Length_w_EdgeB, 50, 300, 3, 1, 3)</l>
+<l>                count_obj (chipping_B, Number)</l>
+<l>                    if (Number&gt;0)</l>
+<l>                        OK:='NG'</l>
+<l>                        concat_obj (chipping, chipping_B, chipping)</l>
+<l>                    endif</l>
+<l>              endif</l>
+<l>              if(LeftEdge_Enabled)</l>
+<c>    </c>
+<l>                GatherDetect_Edge (ImageReduced_EdgeL_d, ImageReduced_EdgeL_l, chipping_L, DetectDict, 2*Length_w_EdgeL, 50, 3, 300, 3, 1)</l>
+<l>                count_obj (chipping_L, Number)</l>
+<l>                    if (Number&gt;0)</l>
+<l>                        OK:='NG'</l>
+<l>                        concat_obj (chipping, chipping_L, chipping)</l>
+<l>                    endif</l>
+<l>              endif</l>
+<l>              if(RightEdge_Enabled)</l>
+<c>    </c>
+<l>                GatherDetect_Edge (ImageReduced_EdgeR_d, ImageReduced_EdgeR_l, chipping_R, DetectDict, 2*Length_w_EdgeR, 50, 3, 300, 3, 1)</l>
+<l>                count_obj (chipping_R, Number)</l>
+<l>                    if (Number&gt;0)</l>
+<l>                        OK:='NG'</l>
+<l>                        concat_obj (chipping, chipping_R, chipping)</l>
+<l>                    endif</l>
+<l>              endif</l>
+<c></c>
+<c>             </c>
+<c>             </c>
+<c>              **************************************面检******************************************************************</c>
+<c></c>
+<c>   </c>
+<l>GatherDetect_inPlane (ImageReduced_inPlane_d, ImageReduced_inPlane_l, scratchDefectBright, scratchDefect, imprintDefect, pointDefect, dirtyDefect, dirtyDefectRegiment, DetectDict)</l>
+<c>             </c>
+<c></c>
+<c> ************************************凹凸********************************************</c>
+<l>*union2 (Union_ziji_YaGunXian__Bjiao_Bian_Yiwu_zangwu_Scratch, OriginalErrRoi_jie_shi, Union_ziji_YaGunXian__Bjiao_Bian_jieshi)</l>
+<l>get_dict_tuple (EnabledDict, '气泡',QiPao_Enabled)</l>
+<l>if (QiPao_Enabled)</l>
+<l>    Detect_JieShi (Image_dark, Image_light, Region_Panel, OriginalErrRoi, ErrRoi_Q,  ErrImage_Q,  Roi, DetectDict, ErrName_Q,\
+                  ErrW_Q, ErrH_Q, ErrArea_Q, ErrX_Q, ErrY_Q, MapIndex_Q, ParIndex_Q, selectDisplayimageIndex, OK10)</l>
+<l>    if (OK10!=[])</l>
+<l>        concat_obj (ErrImage, ErrImage_Q, ErrImage)</l>
+<l>        concat_obj (ErrRoi,ErrRoi_Q,  ErrRoi)</l>
+<l>        ErrName:=[ErrName,ErrName_Q]</l>
+<l>        ErrW:=[ErrW,ErrW_Q]</l>
+<l>        ErrH:=[ErrH,ErrH_Q]</l>
+<l>        ErrArea:=[ErrArea,ErrArea_Q]</l>
+<l>        ErrX:=[ErrX,ErrX_Q]</l>
+<l>        ErrY:=[ErrY,ErrY_Q]</l>
+<l>        MapIndex:=[MapIndex,MapIndex_Q]</l>
+<l>        ParIndex:=[ParIndex,ParIndex_Q]</l>
+<l>        ErrImageIndex := [ErrImageIndex,selectDisplayimageIndex]</l>
+<l>        OK:=[OK,OK10]</l>
+<l>    endif   </l>
+<l>endif                     </l>
+<c>              </c>
+<c>   </c>
+<c>          </c>
+<c>    ************************************缺陷信息***********************************************  </c>
+<c></c>
+<c>            </c>
+<c></c>
+<c>   </c>
+<c>    ************************************缺陷信息*********************************************** </c>
+<c>                        </c>
+<c>    **************************************************************************************</c>
+<l>catch (Exception )</l>
+<l>endtry</l>
+<l>return ()</l>
+</body>
+<docu id="Detect_Image1">
+<parameters>
+<parameter id="DetectDict"/>
+<parameter id="ErrArea"/>
+<parameter id="ErrH"/>
+<parameter id="ErrImage_dark"/>
+<parameter id="ErrImage_light"/>
+<parameter id="ErrName"/>
+<parameter id="ErrRoi"/>
+<parameter id="ErrW"/>
+<parameter id="ErrX"/>
+<parameter id="ErrY"/>
+<parameter id="Image_dark"/>
+<parameter id="Image_light"/>
+<parameter id="OK"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

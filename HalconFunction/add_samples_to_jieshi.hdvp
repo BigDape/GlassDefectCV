@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="add_samples_to_jieshi">
+<interface>
+<ic>
+<par name="ClassNames" base_type="ctrl" dimension="0"/>
+<par name="ClassHandle" base_type="ctrl" dimension="0"/>
+<par name="ReadPath" base_type="ctrl" dimension="0"/>
+</ic>
+</interface>
+<body>
+<l>for ClassNumber := 0 to |ClassNames| - 1 by 1</l>
+<l>    list_files (ReadPath + ClassNames[ClassNumber], 'files', Files)</l>
+<l>    Selection := regexp_select(Files,'.*[.]bmp')</l>
+<l>    for Index := 0 to |Selection| - 1 by 1</l>
+<l>        read_image (Image, Selection[Index])</l>
+<l>        get_domain (Image, Domain)</l>
+<l>        calculate_features_JieShi (Domain, Image, Features)</l>
+<l>        add_sample_class_mlp (ClassHandle, Features, ClassNumber)</l>
+<l>    endfor  </l>
+<l>endfor</l>
+<l>return ()</l>
+<c></c>
+<c></c>
+</body>
+<docu id="add_samples_to_jieshi">
+<parameters>
+<parameter id="ClassHandle"/>
+<parameter id="ClassNames"/>
+<parameter id="ReadPath"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

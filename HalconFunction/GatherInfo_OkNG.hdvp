@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="22.05.0.0">
+<procedure name="GatherInfo_OkNG">
+<interface>
+<io>
+<par name="Roi" base_type="iconic" dimension="0"/>
+<par name="Image1" base_type="iconic" dimension="0"/>
+<par name="Image2" base_type="iconic" dimension="0"/>
+<par name="Image3" base_type="iconic" dimension="0"/>
+<par name="RegionPanel" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="TransRoi" base_type="iconic" dimension="0"/>
+<par name="RoiImage1" base_type="iconic" dimension="0"/>
+<par name="RoiImage2" base_type="iconic" dimension="0"/>
+<par name="RoiImage3" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DetectDict" base_type="ctrl" dimension="0"/>
+<par name="FenDict" base_type="ctrl" dimension="0"/>
+<par name="TypeName" base_type="ctrl" dimension="0"/>
+<par name="TypeTuple" base_type="ctrl" dimension="0"/>
+<par name="VisionProcessStep" base_type="ctrl" dimension="0"/>
+<par name="GlassPositionInf" base_type="ctrl" dimension="0"/>
+<par name="DisPlayImageIndex" base_type="ctrl" dimension="0"/>
+<par name="Pass_L" base_type="ctrl" dimension="0"/>
+<par name="Pass_W" base_type="ctrl" dimension="0"/>
+<par name="Pass_Gray" base_type="ctrl" dimension="0"/>
+<par name="Pass_Num" base_type="ctrl" dimension="0"/>
+<par name="YCoordIn" base_type="ctrl" dimension="0"/>
+<par name="pixX" base_type="ctrl" dimension="0"/>
+<par name="pixY" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="ErrName" base_type="ctrl" dimension="0"/>
+<par name="ErrType" base_type="ctrl" dimension="0"/>
+<par name="W" base_type="ctrl" dimension="0"/>
+<par name="H" base_type="ctrl" dimension="0"/>
+<par name="X" base_type="ctrl" dimension="0"/>
+<par name="Y" base_type="ctrl" dimension="0"/>
+<par name="Area" base_type="ctrl" dimension="0"/>
+<par name="MapIndex" base_type="ctrl" dimension="0"/>
+<par name="ParIndex" base_type="ctrl" dimension="0"/>
+<par name="ErrImageIndex" base_type="ctrl" dimension="0"/>
+<par name="OK" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>gen_empty_obj (RoiImage1)</l>
+<l>gen_empty_obj (RoiImage2)</l>
+<l>gen_empty_obj (RoiImage3)</l>
+<l>gen_empty_obj (TransRoi)</l>
+<l>ErrName := []</l>
+<l>ErrType := []</l>
+<l>W:=[]</l>
+<l>H:=[]</l>
+<l>X:=[]</l>
+<l>Y:=[]</l>
+<l>Area:=[]</l>
+<l>MapIndex:=[]</l>
+<l>ParIndex:=[]</l>
+<l>ErrImageIndex:=[]</l>
+<l>* pixY:=0.1</l>
+<l>* pixX:=0.1</l>
+<l>offsetRow := 0</l>
+<l>columns:=0</l>
+<c></c>
+<l>OK:=[]</l>
+<l>get_image_size (Image1, Width, Height)</l>
+<l>region_features (RegionPanel, 'height', Panelheight)</l>
+<l>region_features (RegionPanel, 'column1', Xstart)</l>
+<l>Ystart:=Height-Panelheight</l>
+<c></c>
+<l>count_obj (Roi, Number)</l>
+<l>a:=0</l>
+<l>b:=0</l>
+<l>*set_system ('clip_region', 'false')</l>
+<l>for Index := 1 to Number by 1</l>
+<l>    if(Index&lt;200)</l>
+<l>    select_obj (Roi, ObjectSelected,Index)             </l>
+<l>    smallest_rectangle1 (ObjectSelected, Row1, Column1, Row2, Column2)</l>
+<l>    smallest_rectangle2 (ObjectSelected,Row21, Column21, Phi, Length1, Length2)     </l>
+<l>    intensity (ObjectSelected, Image1, Mean, Deviation)</l>
+<l>    tuple_int (Mean, MeanInt)</l>
+<c>     </c>
+<l>    h:=Length1*pixY*2</l>
+<l>    w:=Length2*pixX*2    </l>
+<c>    </c>
+<l>    row1y:=Row21-299   </l>
+<l>    row2y:=Row21+300</l>
+<l>    Column1x:=Column21-299</l>
+<l>    Column2x:=Column21+300</l>
+<c>    </c>
+<l>    if(row1y&lt;0)</l>
+<l>        row1y:=0</l>
+<l>        row2y:=599</l>
+<l>    endif</l>
+<l>    if(row2y-Height&gt;0)</l>
+<l>        row1y:=Height-599</l>
+<l>        row2y:=Height-1</l>
+<l>    endif</l>
+<c>   </c>
+<l>    if(Column1x&lt;0)</l>
+<l>        Column1x:=0</l>
+<l>        Column2x:=599</l>
+<l>    endif</l>
+<l>    if(Column1x&gt;Width)</l>
+<l>        Column1x:=Width-599</l>
+<l>        Column2x:=Width-1</l>
+<l>    endif</l>
+<c>   </c>
+<c>    </c>
+<c>    </c>
+<l>*     row1y:=Row1-200</l>
+<l>*     row2y:=Row2+200</l>
+<l>*     Column1x:=Column1-200</l>
+<l>*     Column2x:=Column2+200</l>
+<c>    </c>
+<l>*     if(Row1&lt;200)</l>
+<l>*         row1y:=Row1-(Row1-1)</l>
+<l>*         row2y:=Row2+200+200-(Row1-1)</l>
+<l>*     endif</l>
+<l>*     if(Height-Row2&lt;200)</l>
+<l>*         row1y:=Row1-200-(200-(Height-Row2-1))</l>
+<l>*         row2y:=Row2+(Height-Row2-1)</l>
+<l>*     endif</l>
+<l>*     if(Height-Row2&lt;200 and Row1&lt;200)</l>
+<l>*         row1y:=Row1-(Row1-1)</l>
+<l>*         row2y:=Row2+(Height-Row2-1)</l>
+<l>*     endif</l>
+<l>*     if(Column1&lt;200)</l>
+<l>*         Column1x:=Column1-(Column1-1)</l>
+<l>*         Column2x:=Column2+200+200-(Column1-1)</l>
+<l>*     endif</l>
+<l>*     if(Width-Column2&lt;200)</l>
+<l>*         Column1x:=Column1-200-(200-(Width-Column2-1))</l>
+<l>*         Column2x:=Column2+(Width-Column2-1)</l>
+<l>*     endif</l>
+<l>*     if(Column1&lt;200 and Width-Column2&lt;200)</l>
+<l>*         Column1x:=Column1-(Column1-1)</l>
+<l>*         Column2x:=Column2+(Width-Column2-1)</l>
+<l>*     endif</l>
+<c>    </c>
+<c>        </c>
+<c>        </c>
+<c>    </c>
+<c>    </c>
+<l>            crop_rectangle1 (Image1, ImagePart1, row1y, Column1x, row2y, Column2x)</l>
+<l>            crop_rectangle1 (Image2, ImagePart2, row1y, Column1x, row2y, Column2x)</l>
+<l>            crop_rectangle1 (Image3, ImagePart3, row1y, Column1x, row2y, Column2x)</l>
+<c>          </c>
+<c>            </c>
+<l>    if((w&gt;=Pass_W and h&gt;=Pass_L and MeanInt&gt;=Pass_Gray) or Number&gt;Pass_Num) </l>
+<l>         OK:=[OK,'NG']</l>
+<l>         a:=a+1   </l>
+<l>        concat_obj (TransRoi, ObjectSelected, TransRoi)</l>
+<l>            concat_obj (RoiImage1, ImagePart1, RoiImage1)</l>
+<l>             concat_obj (RoiImage2, ImagePart2, RoiImage2)</l>
+<l>              concat_obj (RoiImage3, ImagePart3, RoiImage3)</l>
+<l>        region_features (ObjectSelected, 'area', Value)      </l>
+<l>        area:=Value*pixX*pixY</l>
+<l>        ErrName := [ErrName,TypeName]</l>
+<l>        W:=[W,w]</l>
+<l>        H:=[H,h]</l>
+<c>        *计算实际坐标后续添加</c>
+<l>        x:= (Column21-Xstart)*pixX</l>
+<l>        if(VisionProcessStep=1)</l>
+<l>            y:= (Row21-Ystart)*pixY </l>
+<l>        else</l>
+<l>            if(GlassPositionInf=3)</l>
+<l>                 y:= (Row21+YCoordIn-1000)*pixY</l>
+<l>            else</l>
+<l>                 y:= (Row21+YCoordIn)*pixY</l>
+<l>            endif</l>
+<c>          </c>
+<l>        endif</l>
+<c>        </c>
+<c>        *计算实际坐标</c>
+<l>        X:=[X,x]</l>
+<l>        Y:=[Y,y]</l>
+<l>        Area:=[Area,area]</l>
+<l>        MapIndex:=[MapIndex,Row21]</l>
+<l>        ParIndex:=[ParIndex,Column21]     </l>
+<c>        </c>
+<l>        ErrImageIndex := [ErrImageIndex,DisPlayImageIndex[Index-1]]  </l>
+<l>        ErrType := [ErrType,TypeTuple[Index-1]]  </l>
+<l>        if (a&gt;=200)</l>
+<l>            return ()</l>
+<l>        endif</l>
+<l>    else  </l>
+<l>      if(b&lt;200)</l>
+<l>             OK:=[OK,'Pass']</l>
+<l>             b:=b+1            </l>
+<l>        concat_obj (TransRoi, ObjectSelected, TransRoi)</l>
+<l>            concat_obj (RoiImage1, ImagePart1, RoiImage1)</l>
+<l>             concat_obj (RoiImage2, ImagePart2, RoiImage2)</l>
+<l>              concat_obj (RoiImage3, ImagePart3, RoiImage3)</l>
+<l>        region_features (ObjectSelected, 'area', Value)     </l>
+<l>        area:=Value*pixX</l>
+<l>ErrName := [ErrName,TypeName]</l>
+<l>        W:=[W,w]</l>
+<l>        H:=[H,h]</l>
+<c>        *计算实际坐标后续添加</c>
+<l>        x:= (Column21-Xstart)*pixX</l>
+<l>        if(VisionProcessStep=1)</l>
+<l>            y:= (Row21-Ystart)*pixY </l>
+<l>        else</l>
+<l>           if(GlassPositionInf=3)</l>
+<l>                 y:= (Row21+YCoordIn-1000)*pixY</l>
+<l>            else</l>
+<l>                 y:= (Row21+YCoordIn)*pixY</l>
+<l>            endif</l>
+<l>        endif</l>
+<c>        *计算实际坐标</c>
+<l>        X:=[X,x]</l>
+<l>        Y:=[Y,y]</l>
+<l>        Area:=[Area,area]</l>
+<l>        MapIndex:=[MapIndex,Row21]</l>
+<l>        ParIndex:=[ParIndex,Column21]             </l>
+<l>        ErrImageIndex := [ErrImageIndex,DisPlayImageIndex[Index-1]] </l>
+<l>        ErrType := [ErrType,TypeTuple[Index-1]]  </l>
+<l>      endif  </l>
+<l>    endif</l>
+<l>    endif</l>
+<l>endfor</l>
+<l>return ()</l>
+</body>
+<docu id="GatherInfo_OkNG">
+<parameters>
+<parameter id="Area"/>
+<parameter id="DetectDict"/>
+<parameter id="DisPlayImageIndex"/>
+<parameter id="ErrImageIndex"/>
+<parameter id="ErrName"/>
+<parameter id="ErrType"/>
+<parameter id="FenDict"/>
+<parameter id="GlassPositionInf"/>
+<parameter id="H"/>
+<parameter id="Image1"/>
+<parameter id="Image2"/>
+<parameter id="Image3"/>
+<parameter id="MapIndex"/>
+<parameter id="OK"/>
+<parameter id="ParIndex"/>
+<parameter id="Pass_Gray"/>
+<parameter id="Pass_L"/>
+<parameter id="Pass_Num"/>
+<parameter id="Pass_W"/>
+<parameter id="RegionPanel"/>
+<parameter id="Roi"/>
+<parameter id="RoiImage1"/>
+<parameter id="RoiImage2"/>
+<parameter id="RoiImage3"/>
+<parameter id="TransRoi"/>
+<parameter id="TypeName"/>
+<parameter id="TypeTuple"/>
+<parameter id="VisionProcessStep"/>
+<parameter id="W"/>
+<parameter id="X"/>
+<parameter id="Y"/>
+<parameter id="YCoordIn"/>
+<parameter id="pixX"/>
+<parameter id="pixY"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

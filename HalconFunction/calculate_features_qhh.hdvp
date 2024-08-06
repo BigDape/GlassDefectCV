@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="19.11.0.0">
+<procedure name="calculate_features_qhh">
+<interface>
+<io>
+<par name="Region" base_type="iconic" dimension="0"/>
+<par name="Image1" base_type="iconic" dimension="0"/>
+</io>
+<oc>
+<par name="Features" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>Features := []</l>
+<l>try  </l>
+<l>           eccentricity (Region, Anisometry, Bulkiness, StructureFactor)</l>
+<l>smallest_rectangle2 (Region, Row, Column, Phi, Length1, Length2)</l>
+<l>    cooc_feature_image (Region,Image1,  6, 0, Energy, Correlation, Homogeneity, Contrast)</l>
+<l>       region_features (Region, 'area', Area)</l>
+<l>       compactness (Region, Compactness)  		</l>
+<c>* 	*	moments_region_central_invar (Region, PSI1, PSI2, PSI3, PSI4)</c>
+<l>		region_features (Region, 'circularity', Circularity)</l>
+<l>	    intensity (Region, Image1, Mean, Deviation)</l>
+<c></c>
+<l>     threshold (Image1, Region1, Mean, 255)</l>
+<l>     closing_circle (Region1, RegionClosing, 1.5)</l>
+<l>     connection (RegionClosing, ConnectedRegions)</l>
+<l>     select_shape_std (ConnectedRegions, SelectedRegions, 'max_area', 70)</l>
+<l>     eccentricity (SelectedRegions, Anisometry11, Bulkiness11, StructureFactor11)</l>
+<l>     intensity (SelectedRegions, Image1, Mean11, Deviation11)</l>
+<l>     region_features (SelectedRegions, 'area', Area11)</l>
+<l>     smallest_rectangle2 (SelectedRegions, Row, Column, Phi11, Length11, Length12)</l>
+<l>        contlength (SelectedRegions, ContLength11)</l>
+<l>        radio11:=Length11/(Length12+0.001)</l>
+<l>        length11:=0.5*ContLength11</l>
+<l>        width11:=2*Area11/(ContLength11+0.001)          </l>
+<l>        radio12:=length11/(width11+0.001)</l>
+<c>        </c>
+<l>        closing_circle (SelectedRegions, RegionClosing1, 10.5)</l>
+<l>        connection (RegionClosing1, ConnectedRegions1)</l>
+<l>        select_shape_std (ConnectedRegions1, SelectedRegions1, 'max_area', 70)</l>
+<l>        region_features (SelectedRegions1, 'area', Area21)</l>
+<l>     smallest_rectangle2 (SelectedRegions1, Row, Column, Phi21, Length21, Length22)</l>
+<l>        contlength (SelectedRegions1, ContLength21)</l>
+<l>        radio21:=Length21/(Length22+0.001)</l>
+<l>        length21:=0.5*ContLength21</l>
+<l>        width21:=2*Area21/(ContLength21+0.001)          </l>
+<l>        radio22:=length21/(width21+0.001)</l>
+<c>        </c>
+<c>        </c>
+<c>        </c>
+<c>        </c>
+<c></c>
+<c>            </c>
+<c>     </c>
+<c></c>
+<l> Features:=real([Anisometry11, Bulkiness11, StructureFactor11, Mean11, Deviation11,Area11,width11,Area21,width21, Mean,Deviation,Area,Phi, Length1, Length2,Anisometry,Bulkiness,StructureFactor,Energy, Correlation, Homogeneity, Contrast])</l>
+<c></c>
+<c></c>
+<c>*     Features:=real([Area,Compactness,PSI1,PSI2,PSI3,PSI4,Convexity,Mean,Deviation，radio_Area,ContLength, Anisometry,Bulkiness,StructureFactor,Energy, Correlation, Homogeneity, Contrast])</c>
+<l>catch (Exception )</l>
+<l>endtry</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="calculate_features_qhh">
+<parameters>
+<parameter id="Features"/>
+<parameter id="Image1"/>
+<parameter id="Region"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>
