@@ -161,10 +161,11 @@ void FlawShowWidget::drawGlass(double x_length, double y_length)
     rectangleItem->attach(m_plot);
 #endif
     int count = Global::courtourMapXY.size();
-    qDebug()<<"Global::courtourMapXY.size() ="<<count;
+    qDebug()<<QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss:zzz")<<"Global::courtourMapXY.size() ="<<count;
     for (int i =0; i < count; ++i) {
         QwtPlotMarker* m = new QwtPlotMarker();
         m->setSymbol(new QwtSymbol(QwtSymbol::Rect, QBrush(Qt::green), QPen(Qt::green), QSize(4, 4)));
+        qDebug()<<"drawGlass ("<<i<<") =>{x:"<<Global::courtourMapXY[i].x<<",y="<<Global::courtourMapXY[i].y<<"}";
         m->setValue(Global::courtourMapXY[i].x.toDouble(), -Global::courtourMapXY[i].y.toDouble());//y值都为负值
         m->attach(m_plot);
     }
@@ -294,7 +295,7 @@ void FlawShowWidget::slot_PlotPicker(const QPointF &pos)
         QPointF flawpt(flawPoints.x,flawPoints.y);
         double distance = QLineF(flawpt,pos).length();
         if(distance<10){
-            qDebug()<<"鼠标点击缺陷=>("<<flawpt.x()<<","<<flawpt.y()<<"}";
+            qDebug()<<"鼠标点击缺陷=>("<<flawpt.x()<<","<<flawpt.y()<<")";
             emit sig_sendFlawPoint(flawPoints);
         }
     }

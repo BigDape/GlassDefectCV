@@ -34,16 +34,18 @@ public:
 
 public:
     void VisionProcess(ImageUnit imageQueue, HoleUnit holeunit);
-    void DetectSiYin(HoleUnit holeunit,ProcessHolesAlgorithmResults& procesHoleResult);
+    void saveHoleImage(HoleUnit holeunit);
     void SummaryResults(GlassDataBaseInfo baseinfo);
     void SummaryFailResult();
-    void DetectData2Json(DefeteResult result,QString jsonFullPath);
-    void HolesData2Json(ProcessHolesAlgorithmResults& procesHoleResult,HoleResult& holeresult);
     void Glassinfo(ProcessVisionAlgorithmResults result, GlassDataBaseInfo& baseinfo);
-    void saveErrImage(ProcessVisionAlgorithmResults result, DefeteResult& defect);
-    void funcSaveErrImage();
-    void writeHoleDataToJsonfile(HoleResult holeresult);
+    void saveErrImage(ProcessVisionAlgorithmResults result);
     bool isExistDir(QString dirpath);
+    void writeImage(HalconCpp::HObject imag1,
+                                         HalconCpp::HObject imag2,
+                                         HalconCpp::HObject imag3,
+                                         QString ImageNGPath1,
+                                         QString ImageNGPath2,
+                                         QString ImageNGPath3);
 
 public:
     virtual void run() override;
@@ -78,13 +80,10 @@ private:
      QString engine_path;               //算法检出地址
      HTuple YCoordIn;
      HTuple YCoordOut;
-
-     SafeQueue<std::tuple<QString, HObject>> threadQueue; //线程安全的缺陷小图队列
-
      bool onceCall;                 //只调用一次
      SummaryResult summaryResult; //玻璃总的结果
      HTuple aaa;
-
+    GlassDataBaseInfo baseinfo;//总结数据
 };
 
 #endif // PROCESS_DETECT_H

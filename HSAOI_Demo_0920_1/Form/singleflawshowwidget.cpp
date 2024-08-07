@@ -55,12 +55,10 @@ SingleFlawShowWidget::SingleFlawShowWidget(Qt::Orientation ori,
 
 void SingleFlawShowWidget::showFlawImage(QTableWidgetItem* item)
 {
-    qDebug()<<__FUNCTION__<<"item ="<<item;
     if (item) {
         int row = item->row();
         Json::Value root;
         QFile file(jsonFileName);
-        qDebug()<<__FUNCTION__<<"jsonFullPath="<<jsonFileName;
         if (file.exists()) {
             std::ifstream ifs;
             ifs.open(jsonFileName.toStdString().c_str()); // Windows自己注意路径吧
@@ -81,9 +79,6 @@ void SingleFlawShowWidget::showFlawImage(QTableWidgetItem* item)
             QString ImagePath1 = defect["ImageNGPath"].asString().data() + QString("/1.jpg");
             QString ImagePath2 = defect["ImageNGPath"].asString().data() + QString("/2.jpg");
             QString ImagePath3 = defect["ImageNGPath"].asString().data() + QString("/3.jpg");
-            qDebug()<<__FUNCTION__<<"ImagePath1"<<ImagePath1;
-            qDebug()<<__FUNCTION__<<"ImagePath2"<<ImagePath2;
-            qDebug()<<__FUNCTION__<<"ImagePath3"<<ImagePath3;
             QImage img1(ImagePath1);
             QImage img2(ImagePath2);
             QImage img3(ImagePath3);
@@ -221,20 +216,19 @@ void SingleFlawShowWidget::PickerCheckData(const FlawPoint &flawpoint)
     int rowcou=ui->tableWidget->rowCount();
     int col1=4;
     int col2=5;
-    for(int row=0;row<rowcou;row++){
-        QTableWidgetItem*Item1=ui->tableWidget->item(row,col1);
-        QTableWidgetItem*Item2=ui->tableWidget->item(row,col2);
-        if(col1&&col2){
-            QString data1=Item1->text();
-            QString data2=Item2->text();
-            QString checkdata1=QString::number(flawpoint.y);
-            QString checkdata2=QString::number(flawpoint.x);
-            if(data1==checkdata1&&data2==checkdata2){
+    for(int row=0;row<rowcou;row++) {
+        QTableWidgetItem* Item1=ui->tableWidget->item(row,col1);
+        QTableWidgetItem* Item2=ui->tableWidget->item(row,col2);
+        if (Item1 != nullptr && Item2 != nullptr) {
+            QString data1 = Item1->text();
+            QString data2 = Item2->text();
+            QString checkdata1 = QString::number(flawpoint.y,'f',2);
+            QString checkdata2 = QString::number(flawpoint.x, 'f',2);
+            if( data1 == checkdata1 && data2 == checkdata2 ) {
                 showFlawImage(ui->tableWidget->item(row,0));
                 ui->tableWidget->setCurrentItem(ui->tableWidget->item(row,0));
                 break;
             }
-
         }
     }
 }

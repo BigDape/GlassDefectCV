@@ -355,6 +355,25 @@ struct GlassDataBaseInfo{
     int zanwuNumber;        // 脏污数量
     int liewenNumber;       // 裂纹数量
     int qitaNumber;         // 其它数量
+    GlassDataBaseInfo(){
+        id =0;
+        time = "0";
+        OKorNG = "OK";
+        sizeOKorNG = "OK";
+        length =0;
+        width =0;
+        duijiaoxian1 = 0;
+        duijiaoxian2 =0;
+        defectNumber = 0;
+        defectOKorNG = "OK";
+        huashanNumber = 0;
+        qipaoNumber = 0;
+        jieshiNumber = 0;
+        benbianNumber = 0;
+        zanwuNumber = 0;
+        liewenNumber = 0;
+        qitaNumber = 0;
+    }
 };
 //数据总的统计结果
 struct SummaryResult {

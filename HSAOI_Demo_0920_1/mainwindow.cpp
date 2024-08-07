@@ -491,14 +491,12 @@ GLASSINFO* newInfo = new GLASSINFO();
 QList<FlawPoint>* FlawPointList = new QList<FlawPoint>();
 QList<QRectF>* rectangles = new QList<QRectF>();
 
-
+//鼠标点击，更新小图
 void MainWindow::slot_SendPoint(const FlawPoint &flawpoint)
 {
+    qDebug()<<__FUNCTION__<<"x="<<flawpoint.x<<",y="<<flawpoint.y;
     if(m_GlassStatisticTable->tableWidget->item(0, 0) != nullptr) {
-        m_SingleFlawShow->slot_RecieveID(flawpoint.DefectJsonFullPath, flawpoint.glassid);      //更新缺陷小图
         m_SingleFlawShow->PickerCheckData(flawpoint);                                           //更新缺陷小图
-//        m_SingleSizeShow->slot_RecieveID(flawpoint.HoleJsonFullPath,flawpoint.glassid);         //更新尺寸信息
-//        m_SingleSizeShow->showSizeDiagramImage(flawpoint.HoleJsonFullPath,flawpoint.glassid);   //更新尺寸轮廓图
         Dock_SingleFlawShowView->raise();
     }
 }

@@ -110,7 +110,7 @@ void ProcessTile::TileImageProcess()
         Global::FrameSignal = 0;
         GetDictTuple(Global::RecipeDict,"自定义参数",&UserDefinedDict);
         qDebug() << "FieldNumber :" <<FieldNumber;
-
+        qDebug()<<"mosaickthread start:"<<QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss:zzz");
         for (int i = 0; i < FieldNumber; i++) {
             qDebug() << "FieldNumber :" <<FieldNumber;
             if(i<FieldNumber-1) {
@@ -136,7 +136,7 @@ void ProcessTile::TileImageProcess()
             mosaickthread[j].wait();
             mosaickthread[j].CameraImageList.clear();
         }
-
+        qDebug()<<"mosaickthread end:"<<QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss:zzz");
     } //if(allCamerasStarted && allCameraIsNotEmpty)
 
     qDebug() << "end :" << QDateTime::currentDateTime().toString("HH:mm:ss.zzz");
@@ -184,7 +184,9 @@ void ProcessTile::TileImageProcess()
         m_Cameras[j]->m_AcquireImage->ImageQueue.dequeue();
         Global::GlobalLock.unlock();
     }
+    qDebug()<<"ProcessTile::PreProceeTile start:"<<QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss:zzz");
     ProcessTile::PreProceeTile();
+    qDebug()<<"ProcessTile::PreProceeTile end:"<<QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss:zzz");
 }
 
 void ProcessTile::PreProceeTile()
@@ -549,6 +551,7 @@ void ProcessTile::PreProceeTile()
         if(hasStopThread.load()) return;
         _args.holeunit=holeunit;
         _args.imageunit = imageunit;
+        qDebug()<<"ProcessTile::PreProceeTile Function end:"<<QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss:zzz");
         preImageQueue.inqueue(_args);
 
         for(int i=0;i<FieldNumber;i++) {
