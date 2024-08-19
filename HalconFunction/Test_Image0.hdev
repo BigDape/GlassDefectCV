@@ -9,11 +9,11 @@
 <l>* read_image (Image1, 'D:/3#玻璃/240402  10：04缺陷131/tile1.jpg')</l>
 <l>* read_image (Image2, 'D:/3#玻璃/240402  10：04缺陷131/tile2.jpg')</l>
 <l>* read_image (Image3, 'D:/3#玻璃/240402  10：04缺陷131/tile3.jpg')</l>
-<l>read_image (Image1, 'D:/DTFile/2024-07-10_13-47-24/tile1.jpg')</l>
-<l>read_image (Image2, 'D:/DTFile/2024-07-10_13-47-24/tile2.jpg')</l>
-<l>read_image (Image3, 'D:/DTFile/2024-07-10_13-47-24/tile3.jpg')</l>
-<l>read_image (Image4, 'D:/DTFile/2024-07-10_13-47-24/tile4.jpg')</l>
-<l>read_dict ('D:/0704/DTcode/HSAOI-Desktop0921-Debug/Recipes/8mm.json', [], [], DictHandle)</l>
+<l>read_image (Image1, 'D:/test1/tile1.jpg')</l>
+<l>read_image (Image2, 'D:/test1/tile2.jpg')</l>
+<l>read_image (Image3, 'D:/test1/tile3.jpg')</l>
+<l>read_image (Image4, 'D:/test1/tile4.jpg')</l>
+<l>read_dict ('D:/GlassDefectCV/HSAOI-Desktop0921-Debug/Recipes/8mm.json', [], [], DictHandle)</l>
 <l>gen_empty_region (GlassRegion)</l>
 <c></c>
 <c></c>
@@ -118,7 +118,7 @@
 <l>*      read_image (Image2, 'E:/0326/tp/3/tile2.jpg')</l>
 <l>*       read_image (Image3, 'E:/0326/tp/3/tile3.jpg')</l>
 <l>*        read_image (Image4, 'E:/0326/tp/3/tile4.jpg')</l>
-<l>       read_dict ('D:/0704/DTcode/HSAOI-Desktop0921-Debug/Recipes/8mm.json', [], [], DictHandle)</l>
+<l>       read_dict ('D:/GlassDefectCV/HSAOI-Desktop0921-Debug/Recipes/8mm.json', [], [], DictHandle)</l>
 <l>ProcessHoles (Image1, Image2, Image3, Image4, OutLineImage, HolesImage, GlassContours, DictHandle, Cam1pixs, Cam1Width, Tile2Column1, ResultDictRoles)</l>
 <c></c>
 <c>   </c>

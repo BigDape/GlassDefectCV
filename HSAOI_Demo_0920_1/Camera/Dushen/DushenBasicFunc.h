@@ -24,8 +24,6 @@ class DushenBasicFunc : public QObject {
     Q_OBJECT
 public:
     explicit DushenBasicFunc(QObject* parent = nullptr, int CameraNum = 999, JsonParse2Map* recipe = nullptr);
-
-    //    JsonRecipeParse* CameraParamFromRecipe;
     JsonParse2Map* m_recipe;
 
     QImageAcquisition* m_AcquireImage; //图像采集线程对象的指针

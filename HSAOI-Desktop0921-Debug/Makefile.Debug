@@ -1700,14 +1700,6 @@ debug\moc_mosaickimage.cpp: ..\HSAOI_Demo_0920_1\Camera\Dushen\mosaickimage.h \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\QObject \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\QThread \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\qthread.h \
-		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\QThreadPool \
-		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\qthreadpool.h \
-		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\qrunnable.h \
-		..\HSAOI_Demo_0920_1\FlawDefine.h \
-		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\QString \
-		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\QDateTime \
-		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\qdatetime.h \
-		..\HSAOI_Demo_0920_1\HalconLib\include\hdevengine\HDevEngineCpp.h \
 		debug\moc_predefs.h \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\moc.exe
 	C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\moc.exe $(DEFINES) --compiler-flavor=msvc --include D:/GlassDefectCV/HSAOI-Desktop0921-Debug/debug/moc_predefs.h -IC:/Qt/Qt5.14.2/5.14.2/msvc2017_64/mkspecs/win32-msvc -ID:/GlassDefectCV/HSAOI_Demo_0920_1 -ID:/GlassDefectCV/HSAOI_Demo_0920_1/lib_x86_64 -ID:/GlassDefectCV/HSAOI_Demo_0920_1/HalconLib/include -ID:/GlassDefectCV/HSAOI_Demo_0920_1/HalconLib/include/halconcpp -ID:/GlassDefectCV/HSAOI_Demo_0920_1/HalconLib/include/hdevengine -IC:/Qt/Qt5.14.2/5.14.2/msvc2017_64/include -IC:/Qt/Qt5.14.2/5.14.2/msvc2017_64/include/QtWidgets -IC:/Qt/Qt5.14.2/5.14.2/msvc2017_64/include/QtGui -IC:/Qt/Qt5.14.2/5.14.2/msvc2017_64/include/QtANGLE -IC:/Qt/Qt5.14.2/5.14.2/msvc2017_64/include/QtNetwork -IC:/Qt/Qt5.14.2/5.14.2/msvc2017_64/include/QtXml -IC:/Qt/Qt5.14.2/5.14.2/msvc2017_64/include/QtSql -IC:/Qt/Qt5.14.2/5.14.2/msvc2017_64/include/QtCore -I. -I"C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Tools\MSVC\14.16.27023\ATLMFC\include" -I"C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Tools\MSVC\14.16.27023\include" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\ucrt" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\shared" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\um" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\winrt" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\cppwinrt" ..\HSAOI_Demo_0920_1\Camera\Dushen\mosaickimage.h -o debug\moc_mosaickimage.cpp
@@ -5775,9 +5767,6 @@ debug\moc_processtile.cpp: ..\HSAOI_Demo_0920_1\ImageProcess\processtile.h \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\QElapsedTimer \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\qelapsedtimer.h \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtGui\QImage \
-		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\QThreadPool \
-		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\qthreadpool.h \
-		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\qrunnable.h \
 		..\HSAOI_Demo_0920_1\Global.h \
 		..\HSAOI_Demo_0920_1\Parameter\XmlParse.h \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\QHash \
@@ -5818,6 +5807,9 @@ debug\moc_processtile.cpp: ..\HSAOI_Demo_0920_1\ImageProcess\processtile.h \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\Qwt\qwt_transform.h \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\Qwt\qwt_interval.h \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\QtDebug \
+		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\QThreadPool \
+		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\qthreadpool.h \
+		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\qrunnable.h \
 		debug\moc_predefs.h \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\moc.exe
 	C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\moc.exe $(DEFINES) --compiler-flavor=msvc --include D:/GlassDefectCV/HSAOI-Desktop0921-Debug/debug/moc_predefs.h -IC:/Qt/Qt5.14.2/5.14.2/msvc2017_64/mkspecs/win32-msvc -ID:/GlassDefectCV/HSAOI_Demo_0920_1 -ID:/GlassDefectCV/HSAOI_Demo_0920_1/lib_x86_64 -ID:/GlassDefectCV/HSAOI_Demo_0920_1/HalconLib/include -ID:/GlassDefectCV/HSAOI_Demo_0920_1/HalconLib/include/halconcpp -ID:/GlassDefectCV/HSAOI_Demo_0920_1/HalconLib/include/hdevengine -IC:/Qt/Qt5.14.2/5.14.2/msvc2017_64/include -IC:/Qt/Qt5.14.2/5.14.2/msvc2017_64/include/QtWidgets -IC:/Qt/Qt5.14.2/5.14.2/msvc2017_64/include/QtGui -IC:/Qt/Qt5.14.2/5.14.2/msvc2017_64/include/QtANGLE -IC:/Qt/Qt5.14.2/5.14.2/msvc2017_64/include/QtNetwork -IC:/Qt/Qt5.14.2/5.14.2/msvc2017_64/include/QtXml -IC:/Qt/Qt5.14.2/5.14.2/msvc2017_64/include/QtSql -IC:/Qt/Qt5.14.2/5.14.2/msvc2017_64/include/QtCore -I. -I"C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Tools\MSVC\14.16.27023\ATLMFC\include" -I"C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Tools\MSVC\14.16.27023\include" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\ucrt" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\shared" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\um" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\winrt" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\cppwinrt" ..\HSAOI_Demo_0920_1\ImageProcess\processtile.h -o debug\moc_processtile.cpp
@@ -11567,14 +11559,6 @@ debug\mosaickimage.obj: ..\HSAOI_Demo_0920_1\Camera\Dushen\mosaickimage.cpp ..\H
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\QObject \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\QThread \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\qthread.h \
-		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\QThreadPool \
-		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\qthreadpool.h \
-		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\qrunnable.h \
-		..\HSAOI_Demo_0920_1\FlawDefine.h \
-		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\QString \
-		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\QDateTime \
-		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\qdatetime.h \
-		..\HSAOI_Demo_0920_1\HalconLib\include\hdevengine\HDevEngineCpp.h \
 		..\HSAOI_Demo_0920_1\Global.h \
 		..\HSAOI_Demo_0920_1\Camera\DushenSample\DVPCamera.h \
 		..\HSAOI_Demo_0920_1\Parameter\XmlParse.h \
@@ -11582,12 +11566,15 @@ debug\mosaickimage.obj: ..\HSAOI_Demo_0920_1\Camera\Dushen\mosaickimage.cpp ..\H
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\qfile.h \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\qfiledevice.h \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\QHash \
+		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\QString \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\QTextStream \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtXml\QDomDocument \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtXml\qdom.h \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtXml\qtxmlglobal.h \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtXml\qtxml-config.h \
 		..\HSAOI_Demo_0920_1\log_singleton.h \
+		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\QDateTime \
+		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\qdatetime.h \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtWidgets\QListWidget \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtWidgets\qlistwidget.h \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtWidgets\qtwidgetsglobal.h \
@@ -16690,9 +16677,6 @@ debug\processtile.obj: ..\HSAOI_Demo_0920_1\ImageProcess\processtile.cpp ..\HSAO
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\QElapsedTimer \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\qelapsedtimer.h \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtGui\QImage \
-		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\QThreadPool \
-		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\qthreadpool.h \
-		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\qrunnable.h \
 		..\HSAOI_Demo_0920_1\Global.h \
 		..\HSAOI_Demo_0920_1\Parameter\XmlParse.h \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\QHash \
@@ -16732,7 +16716,10 @@ debug\processtile.obj: ..\HSAOI_Demo_0920_1\ImageProcess\processtile.cpp ..\HSAO
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\Qwt\qwt_scale_map.h \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\Qwt\qwt_transform.h \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\Qwt\qwt_interval.h \
-		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\QtDebug
+		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\QtDebug \
+		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\QThreadPool \
+		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\qthreadpool.h \
+		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtCore\qrunnable.h
 
 debug\Jianbo_db.obj: ..\HSAOI_Demo_0920_1\Jianbo_db.cpp ..\HSAOI_Demo_0920_1\Jianbo_db.h \
 		..\HSAOI_Demo_0920_1\log_singleton.h \
@@ -22170,7 +22157,9 @@ debug\main.obj: ..\HSAOI_Demo_0920_1\main.cpp ..\HSAOI_Demo_0920_1\MainForm.h \
 		..\HSAOI_Demo_0920_1\Form\SingleSizeShowWidget.h \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtWidgets\QApplication \
 		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtWidgets\qapplication.h \
-		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtWidgets\qdesktopwidget.h
+		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\QtWidgets\qdesktopwidget.h \
+		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\vld.h \
+		C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\include\vld_def.h
 
 debug\mainwindow.obj: ..\HSAOI_Demo_0920_1\mainwindow.cpp ..\HSAOI_Demo_0920_1\mainwindow.h \
 		..\HSAOI_Demo_0920_1\Camera\Dushen\DushenBasicFunc.h \

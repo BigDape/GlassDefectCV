@@ -136,7 +136,7 @@
 <c>    </c>
 <l>endfor</l>
 <c></c>
-<l>    Detect_Image (Image1, Image2, Image3, FrameRegion, ErrRoi, ErrImage1, ErrImage2, ErrImage3, DetectDict, VisionProcessStep, GlassPositionInf, YCoordIn, pixX, pixY, ErrName, ErrType, OK, ErrW, ErrH, ErrArea, ErrX, ErrY, MapIndex, ParIndex, SelectDisPlayImageIndex, YCoordOut)</l>
+<l>    Detect_Image (Image1, Image2, Image3, FrameRegion, FrameRegion, ErrRoi, ErrImage1, ErrImage2, ErrImage3, DetectDict, VisionProcessStep, GlassPositionInf, YCoordIn, pixX, pixY, ErrName, ErrType, OK, ErrW, ErrH, ErrArea, ErrX, ErrY, MapIndex, ParIndex, SelectDisPlayImageIndex, YCoordOut)</l>
 <c>  </c>
 <l>    if(GlassPositionInf=3 or GlassPositionInf=0)</l>
 <l>        DetectSize (GlassRegion, DetectDict, GlassLenghOut, GlassWidthOut, GlassAngleOut)</l>

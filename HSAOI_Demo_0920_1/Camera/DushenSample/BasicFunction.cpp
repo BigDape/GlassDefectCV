@@ -314,7 +314,6 @@ void QBasicFunction::InitAETarget()
 void QBasicFunction::InitTrigger()
 {
     dvpStatus status;
-    //    bool IsTriggered;
     if (IsValidHandle(m_handle)) {
         status = dvpGetTriggerState(m_handle, &SoftTriggerFlag);
         if (status != DVP_STATUS_OK) {

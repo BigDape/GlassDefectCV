@@ -46,6 +46,7 @@ public:
                                          QString ImageNGPath1,
                                          QString ImageNGPath2,
                                          QString ImageNGPath3);
+    void sortHole();
 
 public:
     virtual void run() override;

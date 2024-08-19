@@ -40,11 +40,10 @@
 <l>Phi11X:=0</l>
 <l>Phi12X:=0</l>
 <l>Abs:=0</l>
-<l>     typeSiYin:=[]</l>
-<l>     SiYinOK:=[]</l>
-<l>     SiYinDistanceHorizontal:=[]</l>
-<l>     SiYinDistanceVertical:=[]</l>
-<c> </c>
+<l>typeSiYin:=[]</l>
+<l>SiYinOK:=[]</l>
+<l>SiYinDistanceHorizontal:=[]</l>
+<l>SiYinDistanceVertical:=[]</l>
 <l>siyinWidth:=[]</l>
 <l>siyinHeight:=[]</l>
 <l>pingjieposition:=0 </l>
@@ -58,12 +57,9 @@
 <l>QKHeight:=[]</l>
 <l>siyinRow:=[]</l>
 <l>siyinColumn:=[]</l>
-<c></c>
 <l>Type:=[]</l>
 <l>DistanceHorizontal:=[]</l>
 <l>DistanceVertical:=[]</l>
-<c>            </c>
-<c></c>
 <l>siyinRowM:=[]</l>
 <l>siyinColumnM:=[]</l>
 <l>siyinWidthM:=[]</l>
@@ -80,14 +76,8 @@
 <l>gen_empty_obj (siyinrImage)</l>
 <l>gen_empty_obj (menjiarImage)</l>
 <l>gen_empty_obj (rImage)</l>
-<c></c>
-<c></c>
-<c></c>
 <l>get_image_size (Image3, Width_Image, Height_Image)</l>
 <l>pixValueBottom:=0.102796558</l>
-<c></c>
-<c></c>
-<c></c>
 <l>Cam1pixSetValue:=0</l>
 <l>Cam2pixSetValue:=0</l>
 <c>*0.10226235</c>
@@ -100,14 +90,11 @@
 <l>get_dict_tuple (detectDict,'玻璃厚度' , thickness)</l>
 <l>get_dict_tuple (detectDict,'丝印离辊道距离' , siyindistance)</l>
 <l>Cam1Width:=8000</l>
-<c></c>
 <l>Cam1pixSetValue:=Cam1pixSetValue*(1457.7-(thickness-6))/1457.700</l>
 <l>pixValueC1:=(2*Cam1pixSetValue+KxCam1*Cam1Width)/2.000000</l>
 <l>pixValueC2:=(2*Cam1pixSetValue*CamPixRatio+KxCam2*Cam1Width)/2.000000</l>
 <l>pixValueSetV:=(pixValueC1+pixValueC2)/2.000000</l>
 <l>Cam2pixSetValue:=CamPixRatio*Cam1pixSetValue</l>
-<c></c>
-<c></c>
 <c></c>
 <l>get_dict_tuple (DetectDict,'编码器参数', CodeDict)</l>
 <l>get_dict_tuple (CodeDict,'编码器转数', CodeNumPr)</l>
@@ -137,7 +124,6 @@
 <l>select_shape_std (ConnectedRegionsFL, SelectedRegionsFL, 'max_area', 70)</l>
 <l>closing_rectangle1 (SelectedRegionsFL, SelectedRegionsFL, 1, 10)</l>
 <c></c>
-<c></c>
 <l>region_features (SelectedRegionsFL, 'width', RegionsWidth)</l>
 <l>erosion_circle (SelectedRegionsFL, RegionErosionFL, 20.5)</l>
 <l>difference (SelectedRegionsFL, RegionErosionFL, RegionDifferenceFL)</l>
@@ -156,24 +142,6 @@
 <c>*反射亮场和透射亮region拼接</c>
 <l>union2 (SelectedRegionsTL, SelectedRegionsFL, RegionUnionFT1)</l>
 <l>union1 (RegionUnionFT1, RegionUnionFT1)</l>
-<c></c>
-<c>****************************** 测试**************************</c>
-<l>* height_width_ratio (RegionUnionFT1, Height1, Width1, Ratio1)</l>
-<l>* region_features (RegionUnionFT1, 'column1', ValueColumn1)</l>
-<l>* region_features (RegionUnionFT1, 'row2', ValueRow2)</l>
-<l>* numW:=Width1/10</l>
-<l>* height_Region:=[]</l>
-<l>* for i := 1 to 9 by 1</l>
-<l>*     gen_region_line (RegionLinesH1, 0, numW*i+ValueColumn1, ValueRow2+1000, numW*i+ValueColumn1)</l>
-<l>*     intersection (RegionLinesH1, RegionUnionFT1, RegionIntersectionH1)</l>
-<l>*     region_features (RegionIntersectionH1, 'area', Value1)</l>
-<l>*     height_Region:=[height_Region,Value1]</l>
-<c>    </c>
-<l>* endfor</l>
-<c></c>
-<c></c>
-<c>****************************** 测试**************************</c>
-<c></c>
 <l>closing_circle (RegionUnionFT1, RegionClosingFT, 13.5)</l>
 <c></c>
 <c></c>
@@ -184,14 +152,13 @@
 <l>reduce_domain (Image2, RegionFilled, ImageReduced2)</l>
 <c></c>
 <c></c>
-<c></c>
 <l>threshold (ImageReduced2, RegionH, 0, 60)</l>
 <l>connection (RegionH, ConnectedRegionsH)</l>
 <l>select_shape (ConnectedRegionsH, SelectedRegionsH, 'area', 'and', 5000, 999999)</l>
 <l>select_shape (SelectedRegionsH, SelectedRegionsH, 'roundness', 'and', 0.8, 1)</l>
 <l>fill_up (SelectedRegionsH, RegionFillUpH)</l>
-<l>opening_circle (RegionFillUpH, RegionOpeningH, 1.5)</l>
-<l>union1 (RegionOpeningH, RegionUnionH)</l>
+<c></c>
+<l>union1 (RegionFillUpH, RegionUnionH)</l>
 <l>difference (RegionClosingFT, RegionUnionH, RegionUnionFT)</l>
 <c></c>
 <l>PixelAccuracyX:=pixValue</l>
@@ -320,6 +287,179 @@
 <l>* select_shape (SelectedHolesT, SelectedHolesT, 'roundness', 'and', 0.8, 1)</l>
 <l>select_shape (SelectedHolesT, SelectedHolesT, 'roundness', 'and', 0.86, 1)</l>
 <l>concat_obj (SelectedRegionsMJ, SelectedHolesT, SelectedRegionsQK)</l>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c>*** 0715：提取门夹的中心坐标和尺寸 ************** </c>
+<c></c>
+<l>* edges_image (Image1, ImaAmp, ImaDir, 'canny', 1, 'nms', 20, 40)</l>
+<l>* threshold (ImaDir, Region1, 0, 250)</l>
+<l>* closing_circle (Region1, RegionClosing1, 10)</l>
+<l>* fill_up (RegionClosing1, RegionFillUp1)</l>
+<c></c>
+<l>sobel_amp (Image1, EdgeAmplitude, 'sum_abs', 3)</l>
+<l>threshold (EdgeAmplitude, Region1, 15, 250)</l>
+<l>connection (Region1, ConnectedRegions9)</l>
+<l>select_shape (ConnectedRegions9, SelectedRegions8, 'area', 'and', 50, 1.0e6)</l>
+<l>union1 (SelectedRegions8, RegionUnion2)</l>
+<l>closing_circle (RegionUnion2, RegionClosing1, 10)</l>
+<l>fill_up (RegionClosing1, RegionFillUp1)</l>
+<c></c>
+<l>* gen_contour_region_xld (RegionFillUp1, Contours1, 'border')</l>
+<c></c>
+<c></c>
+<c>* 缺点：玻璃存在角度时偏差较大</c>
+<l>* closing_rectangle1 (RegionFillUp1, RegionClosing, 3, 1000)</l>
+<l>* gen_contour_region_xld (RegionClosing, Contours2, 'border')</l>
+<c></c>
+<l>* area_center (RegionClosing, Area2, Row3, Column3)</l>
+<l>* region_features (RegionClosing, 'phi', Rad)</l>
+<l>* RadV := deg(Rad)</l>
+<l>* RadH := RadV - 90</l>
+<l>* difference (RegionClosing, RegionFillUp1, RegionDifference)</l>
+<c></c>
+<l>* connection (RegionDifference, ConnectedRegions3)</l>
+<l>* select_shape (ConnectedRegions3, SelectedRegions1, 'area', 'and', 1.0e3, 1.0e7)</l>
+<l>* opening_rectangle1 (SelectedRegions1, RegionOpening, 200, 1)</l>
+<l>* opening_rectangle1 (RegionOpening, RegionOpening1, 1, 300)</l>
+<l>* count_obj (RegionOpening1, NumberMJ)</l>
+<c></c>
+<l>* gen_contour_region_xld (RegionOpening1, Contours1, 'border')</l>
+<l>* fit_rectangle2_contour_xld (Contours1, 'regression', -1, 0, 0, 3, 2, Row4, Column4, Phi2, Length1, Length2, PointOrder)</l>
+<l>* gen_rectangle2_contour_xld (Rectangle2, Row4, Column4, Phi2, Length1, Length2)</l>
+<c>* 计算中心坐标</c>
+<l>* area_center_points_xld (Rectangle2, Area4, Row6, Column6)</l>
+<l>* gen_cross_contour_xld (Cross, Row6, Column6, 300, Phi2)</l>
+<c></c>
+<l>* X_MJ := []</l>
+<l>* Y_MJ := []</l>
+<l>* for I := 0 to NumberMJ - 1 by 1</l>
+<l>*     if( abs(Rad - Phi2[I]) &gt; rad(5) )</l>
+<l>*         X_MJ := [X_MJ, Length1[I]]</l>
+<l>*         Y_MJ := [Y_MJ, Length2[I]]</l>
+<l>*     else</l>
+<l>*         X_MJ := [X_MJ, Length2[I]]</l>
+<l>*         Y_MJ := [Y_MJ, Length1[I]]</l>
+<l>*     endif</l>
+<l>* endfor</l>
+<c></c>
+<c></c>
+<c></c>
+<c>* 方法二：筛选轮廓，生成最似矩形</c>
+<l>shape_trans (RegionFillUp1, RegionTrans, 'convex')</l>
+<l>gen_contour_region_xld (RegionTrans, Contours2, 'border')</l>
+<l>area_center (RegionTrans, AreaGlass, RowGlassCentre, ColumnGlassCentre)</l>
+<l>region_features (RegionTrans, 'phi', Rad)</l>
+<l>RadV := deg(Rad)</l>
+<l>RadH := RadV - 90</l>
+<c></c>
+<l>difference (RegionTrans, RegionFillUp1, RegionDifference)</l>
+<l>opening_rectangle1 (RegionDifference, RegionOpening, 20, 1)</l>
+<l>connection (RegionOpening, ConnectedRegions3)</l>
+<l>select_shape (ConnectedRegions3, SelectedRegions1, 'area', 'and', 1.0e3, 1.0e7)</l>
+<l>select_shape (SelectedRegions1, SelectedRegions2, 'height', 'and', 150, 99999)</l>
+<l>count_obj (SelectedRegions2, NumberMJ)</l>
+<l>sort_region (SelectedRegions2, SortedRegions, 'first_point', 'true', 'row')</l>
+<c></c>
+<c></c>
+<c>* </c>
+<l>X_MJ := []</l>
+<l>Y_MJ := []</l>
+<l>Rows_MJ := []</l>
+<l>Columns_MJ := []</l>
+<l>for I := 1 to NumberMJ by 1</l>
+<l>    select_obj (SortedRegions, ObjectSelected3, I)</l>
+<l>    gen_contour_region_xld (ObjectSelected3, Contours1, 'border')</l>
+<l>    area_center (ObjectSelected3, AreaMJ, RowMJCentre, ColumnMJCentre)</l>
+<c>    </c>
+<c>*     轮廓分割，角度筛选，共线连接</c>
+<l>    segment_contours_xld (Contours1, ContoursSplit1, 'lines', 1, 1, 2)</l>
+<c>    </c>
+<c>    * 竖边</c>
+<l>    select_contours_xld (ContoursSplit1, SelectedContoursV, 'direction', rad(RadV - 5), rad(RadV + 5), -0.5, 0.5)</l>
+<c>*     共线连接:合并具有相似方向的相邻直线轮廓</c>
+<l>    union_collinear_contours_xld (SelectedContoursV, UnionContoursV, 50, 10, 10, rad(5), 'attr_keep')</l>
+<l>    select_contours_xld (UnionContoursV, SelectedContoursV, 'contour_length', 40, 1.0e5, -0.5, 0.5)</l>
+<l>    if (ColumnGlassCentre &gt; ColumnMJCentre)</l>
+<l>        sort_contours_xld (SelectedContoursV, SortedContoursV, 'upper_left', 'true', 'column')</l>
+<l>    else</l>
+<l>        sort_contours_xld (SelectedContoursV, SortedContoursV, 'upper_left', 'false', 'column')</l>
+<l>    endif</l>
+<l>    select_obj (SortedContoursV, ContourV1, 1)</l>
+<l>    select_obj (SortedContoursV, ContourV2, 2)</l>
+<l>    concat_obj (ContourV1, ContourV2, ContourV)</l>
+<c>    </c>
+<c>    * 横边</c>
+<l>    select_contours_xld (ContoursSplit1, SelectedContoursH, 'direction', rad(RadH - 5), rad(RadH + 5), -0.5, 0.5)</l>
+<l>    union_collinear_contours_xld (SelectedContoursH, UnionContoursH, 50, 10, 10, rad(5), 'attr_keep')</l>
+<l>    select_contours_xld (UnionContoursH, SelectedContoursH, 'contour_length', 100, 1.0e5, -0.5, 0.5)</l>
+<c>    </c>
+<c>    </c>
+<l>    concat_obj (ContourV, SelectedContoursH, ObjectsConcat)</l>
+<c>    *合并终点连接在一起的轮廓</c>
+<l>    union_adjacent_contours_xld (ObjectsConcat, UnionContours1, 500, 1, 'attr_keep')</l>
+<c>    </c>
+<l>*     union2_closed_contours_xld (UnionContours1, ObjectsConcat, ContoursUnion)</l>
+<l>    fit_rectangle2_contour_xld (UnionContours1, 'regression', -1, 0, 0, 3, 2, Row8, Column8, Phi4, Length13, Length23, PointOrder1)</l>
+<l>    gen_rectangle2_contour_xld (Rectangle4, Row8, Column8, Phi4, Length13, Length23)</l>
+<c>    </c>
+<l>    if( abs(abs(Rad) - abs(Phi4)) &gt; rad(5) )</l>
+<l>        X_MJ := [X_MJ, Length13 * 2]</l>
+<l>        Y_MJ := [Y_MJ, Length23 * 2]</l>
+<l>    else</l>
+<l>        X_MJ := [X_MJ, Length23 * 2]</l>
+<l>        Y_MJ := [Y_MJ, Length13 * 2]</l>
+<l>    endif</l>
+<c>    </c>
+<l>    area_center_points_xld (Rectangle4, Area2, Row3, Column3)</l>
+<c>    </c>
+<l>    Rows_MJ := [Rows_MJ, Row3]</l>
+<l>    Columns_MJ := [Columns_MJ, Column3]</l>
+<l>endfor</l>
+<l>gen_cross_contour_xld (Cross_MJ, Rows_MJ, Columns_MJ, 300, 0)</l>
+<c>* 门夹几何中心：(Rows_MJ, Columns_MJ)</c>
+<c>* 尺寸：X_MJ，Y_MJ</c>
+<c></c>
+<l>segment_contours_xld (Contours2, ContoursSplit2, 'lines_circles', 5, 4, 2)</l>
+<l>select_contours_xld (ContoursSplit2, SelectedContours, 'direction', rad(RadH - 5), rad(RadH + 5), -0.5, 0.5)</l>
+<l>union_collinear_contours_xld (SelectedContours, UnionContours1, 50, 10, 10, rad(5), 'attr_keep')</l>
+<l>sort_contours_xld (UnionContours1, SortedFrameContoursH, 'upper_left', 'true', 'row')</l>
+<l>select_obj (SortedFrameContoursH, ObjectSelectedTop, 1)</l>
+<l>select_obj (SortedFrameContoursH, ObjectSelectedBtm, 2)</l>
+<c></c>
+<l>select_contours_xld (ContoursSplit2, SelectedContours, 'direction', rad(RadV - 5), rad(RadV + 5), -0.5, 0.5)</l>
+<l>union_collinear_contours_xld (SelectedContours, UnionContours2, 50, 10, 10, rad(5), 'attr_keep')</l>
+<l>sort_contours_xld (UnionContours2, SortedFrameContoursV, 'upper_left', 'true', 'column')</l>
+<l>select_obj (SortedFrameContoursV, ObjectSelectedLeft, 1)</l>
+<l>select_obj (SortedFrameContoursV, ObjectSelectedRight, 2)</l>
+<l>fit_rectangle2_contour_xld (Contours2, 'regression', -1, 0, 0, 3, 2, Row4, Column4, Phi3, Length12, Length22, PointOrder)</l>
+<l>gen_rectangle2_contour_xld (Rectangle2, Row4, Column4, Phi3, Length12, Length22)</l>
+<l>DX_MJ := []</l>
+<l>DY_MJ := []</l>
+<l>for I := 0 to NumberMJ - 1 by 1</l>
+<l>    distance_pc (ObjectSelectedTop, Rows_MJ[I], Columns_MJ[I], DistanceMinT, DistanceMax)</l>
+<l>    distance_pc (ObjectSelectedBtm, Rows_MJ[I], Columns_MJ[I], DistanceMinB, DistanceMax)</l>
+<l>    distance_pc (ObjectSelectedLeft, Rows_MJ[I], Columns_MJ[I], DistanceMinL, DistanceMax)</l>
+<l>    distance_pc (ObjectSelectedRight, Rows_MJ[I], Columns_MJ[I], DistanceMinR, DistanceMax)</l>
+<l>    if(DistanceMinT &lt; DistanceMinB)</l>
+<l>        DY_MJ := [DY_MJ, DistanceMinT]</l>
+<l>    else</l>
+<l>        DY_MJ := [DY_MJ, DistanceMinB]</l>
+<l>    endif</l>
+<l>    if(DistanceMinL &lt; DistanceMinR)</l>
+<l>        DX_MJ := [DX_MJ, DistanceMinL]</l>
+<l>    else</l>
+<l>        DX_MJ := [DX_MJ, DistanceMinR]</l>
+<l>    endif</l>
+<l>endfor</l>
+<c></c>
+<c></c>
+<l>* stop()</l>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
 <c></c>
 <c>***外围轮廓提取************** </c>
 <l>opening_circle (TransformedRegion, RegionContour, 3.5)</l>
@@ -552,7 +692,7 @@
 <l>        siyinColumnM:=[siyinColumnM,ColumnSiyin]</l>
 <l>        siyinWidthM:=[siyinWidthM,WidthSiyin]</l>
 <l>        siyinHeightM:=[siyinHeightM,HeightSiyin]</l>
-<l>*         count:=30+Index+1</l>
+<l>*         count:=40+Index+1</l>
 <l>*         write_image (rImage, 'png', 0, 'D:/HalconFunction/siyinMoBan/'+count+'.bmp')</l>
 <l>    endif</l>
 <l>endfor</l>
@@ -575,7 +715,7 @@
 <l>threshold (ImagePart2, Region5, 0, 254)</l>
 <l>paint_region (Region5, ImagePart2, ImageResult, 0, 'fill')</l>
 <l>concat_obj (menjiarImage, ImageResult, menjiarImage)</l>
-<l>*     count:=Index6+30    </l>
+<l>*     count:=Index6+40    </l>
 <l>*     write_image (ImageResult, 'png', 0, 'D:/HalconFunction/menjiaMoBan/'+count+'.bmp')</l>
 <l>endfor</l>
 <c>           </c>
@@ -762,14 +902,19 @@
 <l>* width_Holes:=2*HolesSizeM</l>
 <l>* height_Holes:=2*HolesSizeM</l>
 <l>* dev_display(SelectedRegionsHoles)</l>
+<c></c>
+<c></c>
 <l>QKWidth:=[QKWidth,width_Holes*pixValue]</l>
 <l>QKHeight:=[QKHeight,height_Holes*pixValue]</l>
 <c></c>
 <c></c>
 <l>region_features (RegionMJ, 'width', width_MJ)</l>
 <l>region_features (RegionMJ, 'height', height_MJ)</l>
-<l>QKWidth:=[QKWidth,width_MJ*pixValue]</l>
-<l>QKHeight:=[QKHeight,height_MJ*pixValue]</l>
+<l>K := 1.07883347</l>
+<l>* QKWidth:=[QKWidth,width_MJ*pixValue]</l>
+<l>* QKHeight:=[QKHeight,height_MJ*pixValue]</l>
+<l>QKWidth:=[QKWidth,X_MJ*pixValue]</l>
+<l>QKHeight:=[QKHeight,Y_MJ*pixValue  * K]</l>
 <c></c>
 <c>**水平方向距离</c>
 <l>dis_min1:=[]</l>
@@ -789,6 +934,10 @@
 <l>DistanceHorizontal:=dismin_horn*pixValue</l>
 <c>***dismin_horn水平距离结果</c>
 <c></c>
+<c></c>
+<l>* count_obj (TransSelectedRegionsTL, LengthQK)</l>
+<l>* TopDistance := DistanceMin1[0 : LengthQK - 1]</l>
+<c></c>
 <c>**SIYINX***</c>
 <l>tuple_length (siyinRow, Length)</l>
 <l>if(Length&gt;0)</l>
@@ -807,6 +956,7 @@
 <l>    dismin_horn:=[dismin_horn,Min2]</l>
 <l>endfor</l>
 <l>SiYinDistanceHorizontal:=dismin_horn*pixValue</l>
+<c></c>
 <c></c>
 <c>**SIYINY***</c>
 <l>dis_min1:=[]</l>
@@ -843,6 +993,20 @@
 <l>    dismin_ver:=[dismin_ver,Min2]  </l>
 <l>endfor</l>
 <l>DistanceVertical:=dismin_ver*pixValue</l>
+<c>*****门夹边距值替换</c>
+<l>mjcount:=|X_MJ|</l>
+<l>if (mjcount&gt;0)</l>
+<c>    ****边距Y******</c>
+<l>    DHCount:=|DistanceVertical|</l>
+<l>    tuple_select_range(DistanceVertical,0,DHCount-mjcount-1,ArraySelect) </l>
+<l>    newDHmjDistance := X_MJ*pixValue/2</l>
+<l>    tuple_concat(ArraySelect,newDHmjDistance,DistanceVertical)</l>
+<c>    ****边距X******</c>
+<l>    tuple_select_range(DistanceHorizontal,0,DHCount-mjcount-1,ArraySelect2)</l>
+<l>    newmjDistanceHorizontal := DY_MJ * PixelAccuracyY</l>
+<l>    tuple_concat(ArraySelect2,newmjDistanceHorizontal,DistanceHorizontal)</l>
+<l>endif</l>
+<c></c>
 <l>endif</l>
 <c>* // 定义缩小比例</c>
 <l>ScaleFactor1X :=GlassWidth /(width_Mean+0.0000001)</l>
@@ -876,53 +1040,8 @@
 <l>for Index3 := 1 to NumberH by 1</l>
 <l>    QKOK:=[QKOK,'OK']</l>
 <l>endfor</l>
-<c>*****匹配CAD设计图</c>
-<l>* ModelPath := 'D:/HalconFunction/model/'</l>
-<c>*读取dxf格式文件</c>
-<l>* read_contour_xld_dxf(CADContours, 'D:/HalconFunction/glass.dxf',[],[],DxfStatus)</l>
-<l>* count_obj(CADContours,CADContoursNumber)</l>
-<l>* for indexCAD2:= 0 to CADContoursNumber by 1</l>
-<c>    </c>
-<l>* endfor</l>
-<c>    </c>
-<c>*阈值</c>
-<l>*threshold(CADContours, thresRegions,0,122)</l>
-<c>*连通区域分块</c>
-<l>*connection(thresRegions,connectionThresRegions)</l>
-<l>*fill_up(CADContours,RegionFillUp)</l>
-<l>* select_shape (CADContours, SelectedCAD, 'area', 'and', 1000, 999999)</l>
-<l>* select_shape (SelectedCAD, SelectedCADT, 'roundness', 'and', 0.9, 1)</l>
-<l>* dilation_circle(SelectedCADT,DilationCADT,3.5)</l>
-<l>* reduce_domain(CADContours,DilationCADT,CADReduceImage)</l>
-<c>*监视模板</c>
-<l>* inspect_shape_model(CADReduceImage,modelImages,modelRegions,1,40)</l>
-<c>*创建形状模板</c>
-<l>* create_scaled_shape_model(modelImages, 'auto', Phi12X, Phi12X, Phi12X, 0.9, 1.1, 'auto', 'auto', 'use_polarity', 'auto', 'auto', ModelID2)</l>
-<l>* for indexModel:=0 to |ModelID2|-1 by 1</l>
-<l>*     tuple_string(indexModel,'0',StringIndex)</l>
-<c>    *保存模板</c>
-<l>*     write_shape_model(ModelID2[indexModel],ModelPath+'Shape_hole'+StringIndex+'.shm')</l>
-<l>* endfor</l>
-<c>* 清除模板</c>
-<l>* clear_shape_model(ModelID2)</l>
-<c>*************模板匹配开始****************</c>
-<l>* for ImageHoleIndex := 0 to NumberH-1 by 1</l>
-<c>    *读取形状模板</c>
-<l>*     list_files(ModelPath, 'files', Models)</l>
-<l>*     ModelRegs :=regexp_select(Models,'')</l>
-<l>*     resultOK := 'OK'</l>
-<l>*     for ModelIndex2:= 1 to |ModelRegs| -1 by 1</l>
-<l>*         read_shape_model(ModelRegs[ModelIndex2],ModelID1)</l>
-<c>        *模板匹配</c>
-<l>*         find_scaled_shape_model(Image1,ModelID1,rad(-45),rad(90),0.8,1.0,0.5,0,0.5,'least_squares',5,0.8,Row,Col,Angle,Scale,Score)</l>
-<c>        *判断结果是否符合</c>
-<l>*         if (Score &lt; 0.8)</l>
-<l>*              resultOK := 'NG'   </l>
-<l>*         endif</l>
-<l>*     endfor</l>
-<l>*     QKOK:=[QKOK,resultOK ]</l>
-<l>* endfor</l>
-<c>*************模板匹配结束****************</c>
+<c></c>
+<c></c>
 <l>QKOK:=[QKOK,MJOK]</l>
 <c></c>
 <c>*****dismin_ver垂直距离</c>
@@ -936,6 +1055,18 @@
 <l>             QKWidth:=[QKWidth,siyinWidth*pixValuesiyin]</l>
 <l>             QKHeight:=[QKHeight,siyinHeight*pixValue]</l>
 <c>*****************************************************************************************************</c>
+<l>tuple_length (siyinColumn, Length3)</l>
+<l>if (Length3 !=0 )</l>
+<l>      gen_region_points (Regionsiyin, siyinRow*ScaleFactorY, siyinColumn)</l>
+<l>      concat_obj (ObjectsConcatQK, Regionsiyin, ObjectsConcatQK)</l>
+<l>endif</l>
+<c></c>
+<l>move_region (ObjectsConcatQK, RegionMovedQK, -RowRegion1, -ColumnRegion1)</l>
+<l>zoom_region (RegionMovedQK, RegionZoomQK, ScaleFactor1X, ScaleFactor1Y)</l>
+<l>affine_trans_region (RegionZoomQK, RegionAffineTransQK, HomMat2D, 'nearest_neighbor')</l>
+<l>move_region (RegionAffineTransQK, RegionMoved2QK, Row14-Row22, -Column14)        </l>
+<l>area_center (RegionMoved2QK, Area1QK, Row2QK, Column2QK)</l>
+<c></c>
 <c></c>
 <c></c>
 <c></c>
@@ -953,6 +1084,8 @@
 <l>set_dict_tuple (ResultDictHoles, 'HolesHeight', QKHeight)</l>
 <l>set_dict_tuple (ResultDictHoles, 'Col_x', Col_x)</l>
 <l>set_dict_tuple (ResultDictHoles, 'Row_y', Row_y)</l>
+<l>set_dict_tuple (ResultDictHoles, 'Column2QK',Column2QK)</l>
+<l>set_dict_tuple (ResultDictHoles, 'Row2QK', Row2QK)</l>
 <l>return ()</l>
 <l>catch (Exception)</l>
 <l>   create_dict (ResultDictHoles)</l>

@@ -7,6 +7,7 @@
 <par name="Image2" base_type="iconic" dimension="0"/>
 <par name="Image3" base_type="iconic" dimension="0"/>
 <par name="FrameRegion" base_type="iconic" dimension="0"/>
+<par name="RegionPanel" base_type="iconic" dimension="0"/>
 </io>
 <oo>
 <par name="ErrRoi" base_type="iconic" dimension="0"/>
@@ -345,6 +346,7 @@
 <parameter id="MapIndex"/>
 <parameter id="OK"/>
 <parameter id="ParIndex"/>
+<parameter id="RegionPanel"/>
 <parameter id="VisionProcessStep"/>
 <parameter id="YCoordIn"/>
 <parameter id="YCoordOut"/>

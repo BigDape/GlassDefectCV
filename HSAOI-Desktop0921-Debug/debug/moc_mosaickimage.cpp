@@ -21,25 +21,25 @@
 QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
-struct qt_meta_stringdata_MosaickImage_t {
+struct qt_meta_stringdata_ThreadDo_t {
     QByteArrayData data[1];
-    char stringdata0[13];
+    char stringdata0[9];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
-    qptrdiff(offsetof(qt_meta_stringdata_MosaickImage_t, stringdata0) + ofs \
+    qptrdiff(offsetof(qt_meta_stringdata_ThreadDo_t, stringdata0) + ofs \
         - idx * sizeof(QByteArrayData)) \
     )
-static const qt_meta_stringdata_MosaickImage_t qt_meta_stringdata_MosaickImage = {
+static const qt_meta_stringdata_ThreadDo_t qt_meta_stringdata_ThreadDo = {
     {
-QT_MOC_LITERAL(0, 0, 12) // "MosaickImage"
+QT_MOC_LITERAL(0, 0, 8) // "ThreadDo"
 
     },
-    "MosaickImage"
+    "ThreadDo"
 };
 #undef QT_MOC_LITERAL
 
-static const uint qt_meta_data_MosaickImage[] = {
+static const uint qt_meta_data_ThreadDo[] = {
 
  // content:
        8,       // revision
@@ -55,7 +55,7 @@ static const uint qt_meta_data_MosaickImage[] = {
        0        // eod
 };
 
-void MosaickImage::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
+void ThreadDo::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
     Q_UNUSED(_o);
     Q_UNUSED(_id);
@@ -63,32 +63,32 @@ void MosaickImage::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id
     Q_UNUSED(_a);
 }
 
-QT_INIT_METAOBJECT const QMetaObject MosaickImage::staticMetaObject = { {
-    QMetaObject::SuperData::link<QObject::staticMetaObject>(),
-    qt_meta_stringdata_MosaickImage.data,
-    qt_meta_data_MosaickImage,
+QT_INIT_METAOBJECT const QMetaObject ThreadDo::staticMetaObject = { {
+    QMetaObject::SuperData::link<QThread::staticMetaObject>(),
+    qt_meta_stringdata_ThreadDo.data,
+    qt_meta_data_ThreadDo,
     qt_static_metacall,
     nullptr,
     nullptr
 } };
 
 
-const QMetaObject *MosaickImage::metaObject() const
+const QMetaObject *ThreadDo::metaObject() const
 {
     return QObject::d_ptr->metaObject ? QObject::d_ptr->dynamicMetaObject() : &staticMetaObject;
 }
 
-void *MosaickImage::qt_metacast(const char *_clname)
+void *ThreadDo::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
-    if (!strcmp(_clname, qt_meta_stringdata_MosaickImage.stringdata0))
+    if (!strcmp(_clname, qt_meta_stringdata_ThreadDo.stringdata0))
         return static_cast<void*>(this);
-    return QObject::qt_metacast(_clname);
+    return QThread::qt_metacast(_clname);
 }
 
-int MosaickImage::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
+int ThreadDo::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 {
-    _id = QObject::qt_metacall(_c, _id, _a);
+    _id = QThread::qt_metacall(_c, _id, _a);
     return _id;
 }
 QT_WARNING_POP
