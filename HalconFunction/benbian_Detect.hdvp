@@ -91,9 +91,9 @@
 <l>    dilation_circle (RegionDifference1, RegionDilation3, 10)</l>
 <l>    difference (Region, RegionDilation3, ErrROI)</l>
 <c>     </c>
-<l>*     Create_Obj (ErrImage1C, ErrImage2C, ErrImage3C)</l>
+<c>*     Create_Obj (ErrImage1C, ErrImage2C, ErrImage3C)</c>
 <c>    </c>
-<l>*     Create_ResultTuple (OKC, ErrNameC, ErrTypeC, DefectLevelC, ErrXC, ErrYC, ErrWC, ErrHC, ErrAreaC, GrayTLC, GrayFLC, GrayFAC, MapIndexC, ParIndexC, ErrImageIndexC)</l>
+<c>*     Create_ResultTuple (OKC, ErrNameC, ErrTypeC, DefectLevelC, ErrXC, ErrYC, ErrWC, ErrHC, ErrAreaC, GrayTLC, GrayFLC, GrayFAC, MapIndexC, ParIndexC, ErrImageIndexC)</c>
 <c></c>
 <c>    *面内区域缺口区域提取  </c>
 <l>    fill_up(RegionPanel,RegionPanel)</l>
@@ -187,11 +187,11 @@
 <l>    opening_rectangle1 (RegionPanelQuekou, RegionPanelopening2, 1, 100)</l>
 <l>    concat_obj (RegionPanelopening1, RegionPanelopening2, ObjectsConcat4)</l>
 <l>    difference (RegionPanelQuekou, ObjectsConcat4, RegionDifference5)</l>
-<l>    opening_rectangle1 (RegionDifference5, RegionPanelQuekouS, 5, 1)</l>
-<l>    opening_rectangle1 (RegionPanelQuekouS, RegionPanelQuekouS, 1, 5)</l>
+<l>    opening_rectangle1 (RegionDifference5, RegionPanelQuekouS, 10, 1)</l>
+<l>    opening_rectangle1 (RegionPanelQuekouS, RegionPanelQuekouS, 1, 10)</l>
 <c>    *大缺口</c>
-<l>    opening_rectangle1 (RegionPanelQuekou, RegionPanelQuekouD, 10, 1)</l>
-<l>    opening_rectangle1 (RegionPanelQuekouD, RegionPanelQuekouD, 1, 10)</l>
+<l>    opening_rectangle1 (RegionPanelQuekou, RegionPanelQuekouD, 20, 1)</l>
+<l>    opening_rectangle1 (RegionPanelQuekouD, RegionPanelQuekouD, 1, 20)</l>
 <l>    concat_obj (RegionPanelQuekouS, RegionPanelQuekouD, RegionPanelQuekouU)</l>
 <c></c>
 <c> *玻璃缺口区域提取   </c>
@@ -245,7 +245,7 @@
 <l>        connection (QuekouClosing, ConnectedRegions2)</l>
 <l>        opening_rectangle1 (ConnectedRegions2, QuekouOpening1, 1, 14)</l>
 <l>        opening_rectangle1(QuekouOpening1,QuekouOpening2,14,1)</l>
-<l>        select_shape (QuekouOpening2, Quekou, 'area', 'and', 200, 999999999)</l>
+<l>        select_shape (QuekouOpening2, Quekou, 'area', 'and', 300, 999999999)</l>
 <l>        select_shape (Quekou, Quekou, 'circularity', 'and', 0.01, 1)</l>
 <c>        </c>
 <c>        </c>
@@ -259,7 +259,8 @@
 <l>        opening_rectangle1(RegionsPanelOpening1,RegionsPanelOpening2,14,1)</l>
 <l>        select_shape (RegionsPanelOpening2, SelectedMJRegions, 'area', 'and', 5000, 999999999)</l>
 <l>        select_shape (SelectedMJRegions, SelectedMJRegions, 'anisometry', 'and', 0, 10)</l>
-<l>        dilation_rectangle1 (SelectedMJRegions, MJDilation1, 40, 40)</l>
+<l>        dilation_rectangle1 (SelectedMJRegions, MJDilation1, 50, 50)</l>
+<c>        </c>
 <c>        *Quekou去除门夹 </c>
 <l>        difference(Quekou,MJDilation1, benbian)</l>
 <l>        select_shape (benbian, SelectedRegions, 'area', 'and', 1, 99999999)</l>
