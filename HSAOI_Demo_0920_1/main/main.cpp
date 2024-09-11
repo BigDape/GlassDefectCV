@@ -1,13 +1,11 @@
-﻿#include "MainForm.h"
-#include "mainwindow.h"
-#include <QApplication>
+﻿#include <QApplication>
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
 #include <log.h>
 #include <database.h>
-
-using namespace std;
+#include "MainForm.h"
+#include "mainwindow.h"
 
 #pragma execution_character_set("utf-8")
 
@@ -39,8 +37,6 @@ LONG ApplicationCrashHandler(EXCEPTION_POINTERS *pException)
 
 int main(int argc, char* argv[])
 {
-    Log ab;
-    DataBase::GetInstance();
     //注册异常处理函数,使用VS打开D盘的dmp文件，查看崩溃在哪一行
     SetUnhandledExceptionFilter((LPTOP_LEVEL_EXCEPTION_FILTER)ApplicationCrashHandler);
     QApplication a(argc, argv);

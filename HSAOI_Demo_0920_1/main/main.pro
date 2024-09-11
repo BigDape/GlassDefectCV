@@ -32,109 +32,53 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # In order to do so, uncomment the following line.
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
-SOURCES +=  ./Camera/Dushen/DushenBasicFunc.cpp \
-            ./Camera/Dushen/DushenCameraWidget.cpp \
-            ./Camera/Dushen/mosaickimage.cpp \
-            ./Camera/DushenSample/BasicFunction.cpp \
-            ./Camera/DushenSample/ImageAcquisition.cpp \
-            ./Camera/DushenSample/MyGraphicsitem.cpp \
-            ./Form/CamerasWidget.cpp \
-            ./Form/FlawShowWidget.cpp \
-            ./Form/TitleBar.cpp \
-            ./Form/glassstatictablewidget.cpp \
-            ./Form/msvlcdnumclockwidget.cpp \
-            ./Form/singleflawshowwidget.cpp \
-            ./Form/singlesizeshowwidget.cpp \
-            ./Global.cpp \
-            ./ImageProcess/processdetect.cpp \
-            ./ImageProcess/processtile.cpp \
-            ./LightControl/LightControl.cpp \
-            ./LightControl/ParamComm.cpp \
-            ./LightControl/RegParasComm.cpp \
-            ./LightControl/SignalControlData.cpp \
-            ./LightControl/Tcp.cpp \
-            ./LightControl/TcpPackComm.cpp \
-            ./MainForm.cpp \
-            ./NavigationBar/CNavDelegate.cpp \
-            ./NavigationBar/CNavModel.cpp \
-            ./NavigationBar/CNavView.cpp \
-            ./Parameter/CameraParamsWidget.cpp \
-            ./Parameter/JsonParse2Map.cpp \
-            ./Parameter/JsonRecipeWidget.cpp \
-            ./Parameter/JsonResultParse.cpp \
-            ./Parameter/XmlParse.cpp \
-            ./Parameter/json_reader.cpp \
-            ./Parameter/json_value.cpp \
-            ./Parameter/json_writer.cpp \
-            ./SystemSettingForm.cpp \
-            ./common_func.cpp \
-            ./log_singleton.cpp \
-            ./main.cpp \
-            ./mainwindow.cpp \
+SOURCES += \
+           Form/FlawShowWidget.cpp \
+           Form/glassstatictablewidget.cpp \
+           Form/msvlcdnumclockwidget.cpp \
+           Form/singleflawshowwidget.cpp \
+           Form/singlesizeshowwidget.cpp \
+           Form/LightControl.cpp \
+           Form/cameraslayout.cpp \
+           Form/DushenCameraWidget.cpp \
+           Form/TitleBar.cpp \
+           Form/MyGraphicsitem.cpp \
+           MainForm.cpp \
+           common_func.cpp \
+           log_singleton.cpp \
+           main.cpp \
+           mainwindow.cpp \
+           Global.cpp \
+           HsListener.cpp
 
 HEADERS += \
-        ./Camera/Dushen/DushenBasicFunc.h \
-        ./Camera/Dushen/DushenCameraWidget.h \
-        ./Camera/Dushen/mosaickimage.h \
-        ./Camera/DushenSample/BasicFunction.h \
-        ./Camera/DushenSample/DVPCamera.h \
-        ./Camera/DushenSample/ImageAcquisition.h \
-        ./Camera/DushenSample/MyGraphicsitem.h \
-        ./FlawDefine.h \
-        ./Form/CamerasWidget.h \
-        ./Form/FlawShowWidget.h \
-        ./Form/SingleSizeShowWidget.h \
-        ./Form/TitleBar.h \
-        ./Form/glassstatictablewidget.h \
-        ./Form/msvlcdnumclockwidget.h \
-        ./Form/singleflawshowwidget.h \
-        ./Global.h \
-        ./ImageProcess/processdetect.h \
-        ./ImageProcess/processtile.h \
-        ./LightControl/ElemMatch.h \
-        ./LightControl/LightControl.h \
-        ./LightControl/ParamComm.h \
-        ./LightControl/RegParasComm.h \
-        ./LightControl/SignalControlData.h \
-        ./LightControl/Tcp.h \
-        ./LightControl/TcpPackComm.h \
-        ./MainForm.h \
-        ./NavigationBar/CNavDelegate.h \
-        ./NavigationBar/CNavModel.h \
-        ./NavigationBar/CNavView.h \
-        ./Parameter/CameraParamsWidget.h \
-        ./Parameter/JsonParse2Map.h \
-        ./Parameter/JsonRecipeWidget.h \
-        ./Parameter/JsonResultParse.h \
-        ./Parameter/XmlParse.h \
-        ./Parameter/allocator.h \
-        ./Parameter/assertions.h \
-        ./Parameter/config.h \
-        ./Parameter/forwards.h \
-        ./Parameter/json.h \
-        ./Parameter/json_features.h \
-        ./Parameter/json_tool.h \
-        ./Parameter/reader.h \
-        ./Parameter/value.h \
-        ./Parameter/version.h \
-        ./Parameter/writer.h \
-        ./SystemSettingForm.h \
-        ./common_func.h \
-        ./log_singleton.h \
-        ./mainwindow.h \
+        Form/LightControl.h \
+        Form/cameraslayout.h \
+        Form/DushenCameraWidget.h \
+        Form/FlawShowWidget.h \
+        Form/SingleSizeShowWidget.h \
+        Form/glassstatictablewidget.h \
+        Form/msvlcdnumclockwidget.h \
+        Form/singleflawshowwidget.h \
+        Form/TitleBar.h \
+        Form/MyGraphicsitem.h \
+        MainForm.h \
+        common_func.h \
+        log_singleton.h \
+        mainwindow.h \
+        Global.h \
+        HsListener.h \   
+        FlawDefine.h
 
 FORMS += \
-        ./Camera/Dushen/DushenCameraWidget.ui \
-        ./Camera/DushenSample/BasicFunction.ui \
-        ./Form/CamerasWidget.ui \
-        ./Form/SingleSizeShowWidget.ui \
-        ./Form/msvlcdnumclockwidget.ui \
-        ./Form/singleflawshowwidget.ui \
-        ./LightControl/LightControl.ui \
-        ./MainForm.ui \
-        ./Parameter/JsonRecipeWidget.ui \
-        ./SystemSettingForm.ui \
-        ./mainwindow.ui
+        Form/SingleSizeShowWidget.ui \
+        Form/msvlcdnumclockwidget.ui \
+        Form/singleflawshowwidget.ui \
+        Form/LightControl.ui \
+        Form/DushenCameraWidget.ui \
+        Form/cameraslayout.ui\
+        MainForm.ui \
+        mainwindow.ui
 
 TRANSLATIONS += \
     HSAOI_zh_CN.ts
@@ -199,3 +143,4 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../DataBase/debug/ 
 
 INCLUDEPATH += $$PWD/../DataBase
 DEPENDPATH += $$PWD/../DataBase
+

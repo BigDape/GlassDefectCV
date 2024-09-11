@@ -18,13 +18,13 @@
 #include <QString>
 #include <fstream>
 #include <QTextStream>
+#include "jsoncpp.h"
 
 #pragma execution_character_set("utf-8")
 
-FlawShowWidget::FlawShowWidget(QWidget* parent, JsonParse2Map* m_recipe)
+FlawShowWidget::FlawShowWidget(QWidget* parent)
     : QWidget(parent)
 {
-    RECIPE = m_recipe;
     m_plot = new QwtPlot(this);
     Global::m_plot = m_plot;
 
@@ -250,14 +250,11 @@ void FlawShowWidget::slot_GetFlawPoints(QList<FlawPoint> n_FlawPointList)
 
 void FlawShowWidget::slot_ChangeFlawShow()
 {
-    QString Keyword4Length = "尺寸测量.长度";
-    QString Keyword4Width = "尺寸测量.宽度";
-    double length;
-    RECIPE->getParameter(Keyword4Length, length);
-    double width;
-    RECIPE->getParameter(Keyword4Width, width);
-    int MaxLength = length * 1.1;
-    int MaxWidth = width * 1.1;
+    QString RecipePath = "Recipes/" + Global::CurrentRecipe + ".json";  //配置文件地址
+    WorkOrder order;
+    Jsoncpp::GetInstance()->readWorkOrderFromJson(RecipePath, order);
+    double Maxlength = order.DMParam.length * 1.1;
+    double Maxwidth = order.DMParam.width * 1.1;
     m_plot->setAxisScale(QwtPlot::xBottom, 0, MaxWidth);
     m_plot->setAxisScale(QwtPlot::yLeft, 0, MaxLength);
 }

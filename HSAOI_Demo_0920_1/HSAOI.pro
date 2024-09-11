@@ -8,7 +8,12 @@
 TEMPLATE = subdirs
 
 SUBDIRS += log \
-           DataBase
+           DataBase \
+    algorithm \
+    camera \
+    communication \
+    hstool \
+           jsoncpp \
 
 SUBDIRS += main
 

@@ -7,6 +7,10 @@ class LOG_EXPORT Log
 {
 public:
     Log();
+
+public:
+    virtual void test();
+
 };
 
 #endif // LOG_H

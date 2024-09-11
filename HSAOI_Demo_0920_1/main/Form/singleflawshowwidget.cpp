@@ -11,93 +11,73 @@
 #include <QString>
 #include <fstream>
 #include <QTextStream>
-#include "Parameter/json.h"
 #include <iostream>
 #include <fstream>
 #include <algorithm>
 #include "Global.h"
+
 #pragma execution_character_set("utf-8")
 
 SingleFlawShowWidget::SingleFlawShowWidget(Qt::Orientation ori,
                                            Qt::Orientation pic_ori,
                                            QWidget* parent)
-    : QWidget(parent), ui(new Ui::SingleFlawShowWidget) {
+    : QWidget(parent),
+      ui(new Ui::SingleFlawShowWidget)
+{
     LastGlassID=-1;
-  m_orientation = ori;
-  m_pic_orientation = pic_ori;
-  ui->setupUi(this);
+    m_orientation = ori;
+    m_pic_orientation = pic_ori;
+    ui->setupUi(this);
 
+    scene=new QGraphicsScene();
+    loadedPixmapItem = new MyGraphicsItem();
+    ui->graphicsView->setScene(scene);
+    scene->addItem(loadedPixmapItem);
 
-  scene=new QGraphicsScene();
-  loadedPixmapItem = new MyGraphicsItem();
-  ui->graphicsView->setScene(scene);
-  scene->addItem(loadedPixmapItem);
+    scene2=new QGraphicsScene();
+    loadedPixmapItem2 = new MyGraphicsItem();
+    ui->graphicsView_2->setScene(scene2);
+    scene2->addItem(loadedPixmapItem2);
 
-  scene2=new QGraphicsScene();
-  loadedPixmapItem2 = new MyGraphicsItem();
-  ui->graphicsView_2->setScene(scene2);
-  scene2->addItem(loadedPixmapItem2);
+    scene3=new QGraphicsScene();
+    loadedPixmapItem3 = new MyGraphicsItem();
+    ui->graphicsView_3->setScene(scene3);
+    scene3->addItem(loadedPixmapItem3);
 
-  scene3=new QGraphicsScene();
-  loadedPixmapItem3 = new MyGraphicsItem();
-  ui->graphicsView_3->setScene(scene3);
-  scene3->addItem(loadedPixmapItem3);
+    connect(ui->tableWidget, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(onItemDoubleClicked(QTableWidgetItem*)));
+    connect(ui->tableWidget, &QTableWidget::itemDoubleClicked, this, &SingleFlawShowWidget::showFlawImage);
+    connect(ui->tableWidget, &QTableWidget::itemClicked, this, &SingleFlawShowWidget::slot_FlawTrack);//缺陷追踪功能
+    connect(ui->buttonExport, SIGNAL(clicked()), this, SLOT(slot_ButtonExportClicked()));
 
-
-  connect(ui->tableWidget, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(onItemDoubleClicked(QTableWidgetItem*)));
-  connect(ui->tableWidget, &QTableWidget::itemDoubleClicked, this, &SingleFlawShowWidget::showFlawImage);
-  connect(ui->tableWidget, &QTableWidget::itemClicked, this, &SingleFlawShowWidget::slot_FlawTrack);//缺陷追踪功能
-  connect(ui->buttonExport, SIGNAL(clicked()), this, SLOT(slot_ButtonExportClicked()));
-
-  initLayout();
-
+    initLayout();
 }
 
 void SingleFlawShowWidget::showFlawImage(QTableWidgetItem* item)
 {
     if (item) {
         int row = item->row();
-        Json::Value root;
-        QFile file(jsonFileName);
-        if (file.exists()) {
-            std::ifstream ifs;
-            ifs.open(jsonFileName.toStdString().c_str()); // Windows自己注意路径吧
-            if (ifs.is_open()) {
-                Json::Reader reader;
-                // 解析到root，root将包含Json里所有子元素
-                reader.parse(ifs, root, false);
-                ifs.close();
-            } else {
-                qDebug()<<__FUNCTION__<<" ifs.is_open() =  false";
-            }
-        } else {
-            qDebug()<<__FUNCTION__<<jsonFileName<<" is not exit.";
-        }
-        if(!root.empty()) {
-            Json::Value glass = root[QString::number(GlassID).toStdString().c_str()];
-            Json::Value defect = glass[QString::number(row).toStdString().c_str()];
-            QString ImagePath1 = defect["ImageNGPath"].asString().data() + QString("/1.jpg");
-            QString ImagePath2 = defect["ImageNGPath"].asString().data() + QString("/2.jpg");
-            QString ImagePath3 = defect["ImageNGPath"].asString().data() + QString("/3.jpg");
-            QImage img1(ImagePath1);
-            QImage img2(ImagePath2);
-            QImage img3(ImagePath3);
+        QString ImagePath1;
+        QString ImagePath2;
+        QString ImagePath3;
+//        Jsoncpp::GetInstance()->getFlawImageFromJson(jsonFileName,GlassID,row,ImagePath1,ImagePath2,ImagePath3);
+        QImage img1(ImagePath1);
+        QImage img2(ImagePath2);
+        QImage img3(ImagePath3);
 
-            loadedPixmapItem->loadImage(img1);
-            int nwidth = ui->graphicsView->width(), nheight = ui->graphicsView->height();
-            loadedPixmapItem->setQGraphicsViewWH(nwidth, nheight);
-            ui->graphicsView->setSceneRect((QRectF(-(nwidth / 2), -(nheight / 2), nwidth, nheight)));
+        loadedPixmapItem->loadImage(img1);
+        int nwidth = ui->graphicsView->width(), nheight = ui->graphicsView->height();
+        loadedPixmapItem->setQGraphicsViewWH(nwidth, nheight);
+        ui->graphicsView->setSceneRect((QRectF(-(nwidth / 2), -(nheight / 2), nwidth, nheight)));
 
-            loadedPixmapItem2->loadImage(img2);
-            int nwidth2 = ui->graphicsView_2->width(), nheight2 = ui->graphicsView_2->height();
-            loadedPixmapItem2->setQGraphicsViewWH(nwidth, nheight);
-            ui->graphicsView_2->setSceneRect((QRectF(-(nwidth2 / 2), -(nheight2 / 2), nwidth2, nheight2)));
+        loadedPixmapItem2->loadImage(img2);
+        int nwidth2 = ui->graphicsView_2->width(), nheight2 = ui->graphicsView_2->height();
+        loadedPixmapItem2->setQGraphicsViewWH(nwidth, nheight);
+        ui->graphicsView_2->setSceneRect((QRectF(-(nwidth2 / 2), -(nheight2 / 2), nwidth2, nheight2)));
 
-            loadedPixmapItem3->loadImage(img3);
-            int nwidth3 = ui->graphicsView_3->width(), nheight3 = ui->graphicsView_3->height();
-            loadedPixmapItem3->setQGraphicsViewWH(nwidth, nheight);
-            ui->graphicsView_3->setSceneRect((QRectF(-(nwidth3 / 2), -(nheight3 / 2), nwidth3, nheight3)));
-        }
+        loadedPixmapItem3->loadImage(img3);
+        int nwidth3 = ui->graphicsView_3->width(), nheight3 = ui->graphicsView_3->height();
+        loadedPixmapItem3->setQGraphicsViewWH(nwidth, nheight);
+        ui->graphicsView_3->setSceneRect((QRectF(-(nwidth3 / 2), -(nheight3 / 2), nwidth3, nheight3)));
     }
 }
 
@@ -124,113 +104,89 @@ void SingleFlawShowWidget::onItemDoubleClicked(QTableWidgetItem*) {
 
 void SingleFlawShowWidget::slot_RecieveID(QString jsonFullPath, int glassid)
 {
-    Global::glassidTodefectjson[glassid] = jsonFullPath; //存储glassid到jsonFullPath
-    GlassID = glassid;
-    if (LastGlassID != glassid) {
-        LastGlassID = GlassID;
-        //
-        // 将文件中已有的数据读出来
-        //
-        Json::Value root;
-        QFile file(jsonFullPath);
-        qDebug()<<"jsonFullPath="<<jsonFullPath;
-        if (file.exists()) {
-            std::ifstream ifs;
-            ifs.open(jsonFullPath.toStdString().c_str()); // Windows自己注意路径吧
-            if (ifs.is_open()) {
-                Json::Reader reader;
-                // 解析到root，root将包含Json里所有子元素
-                reader.parse(ifs, root, false);
-                ifs.close();
-            } else {
-                qDebug()<<"[SingleFlawShowWidget::slot_RecieveID] ifs.is_open() =  false";
-            }
-        } else {
-            qDebug()<<"[SingleFlawShowWidget::slot_RecieveID] "<<jsonFullPath<<" is not exit.";
-        }
-        if(!root.empty()) {
-            Json::Value glass = root[QString::number(glassid).toStdString().c_str()];
-            int count = glass.size() - 3;
-            qDebug()<<"count =" <<count;
-            ui->tableWidget->setRowCount(count);
-            ui->tableWidget->setColumnCount(9);
-            for (int i = 0; i < count; i++) {
-                Json::Value defect = glass[QString::number(i).toStdString().c_str()];
-                //序号
-                QString DefectID = QString::number(defect["DefectID"].asInt());
-                QTableWidgetItem* item0 = new QTableWidgetItem(DefectID);
-                item0->setTextAlignment(Qt::AlignCenter);
-                ui->tableWidget->setItem(i, 0, item0);
-                //时间
-                QString Time = defect["Time"].asString().data();
-                QTableWidgetItem* item1 = new QTableWidgetItem(Time);
-                item1->setTextAlignment(Qt::AlignCenter);
-                ui->tableWidget->setItem(i, 1, item1);
-                //类型
-                QString DefectType = defect["DefectType"].asString().data();
-                QTableWidgetItem* item2 = new QTableWidgetItem(DefectType);
-                item2->setTextAlignment(Qt::AlignCenter);
-                ui->tableWidget->setItem(i , 2, item2);
-                //等级
-                QString DetectLeve = defect["DetectLeve"].asString().data();
-                QTableWidgetItem* item3 = new QTableWidgetItem(DetectLeve);
-                item3->setTextAlignment(Qt::AlignCenter);
-                ui->tableWidget->setItem(i, 3, item3);
-                //坐标X
-                QString X = QString::number(defect["X"].asDouble(),'f', 2);
-                QTableWidgetItem* item4 = new QTableWidgetItem(X);
-                item4->setTextAlignment(Qt::AlignCenter);
-                ui->tableWidget->setItem(i, 4, item4);
-                //坐标Y
-                QString Y = QString::number(defect["Y"].asDouble(),'f', 2);
-                QTableWidgetItem* item5 = new QTableWidgetItem(Y);
-                item5->setTextAlignment(Qt::AlignCenter);
-                ui->tableWidget->setItem(i, 5, item5);
-                //长
-                QString Lenth = QString::number(defect["Lenth"].asDouble(),'f', 2);
-                QTableWidgetItem* item6 = new QTableWidgetItem(Lenth);
-                item6->setTextAlignment(Qt::AlignCenter);
-                ui->tableWidget->setItem(i, 6, item6);
-                //宽
-                QString Width = QString::number(defect["Width"].asDouble(),'f', 2);
-                QTableWidgetItem* item7 = new QTableWidgetItem(Width);
-                item7->setTextAlignment(Qt::AlignCenter);
-                ui->tableWidget->setItem(i, 7, item7);
-                //区域
-                QString Area = QString::number(defect["Area"].asDouble(),'f', 2);
-                QTableWidgetItem* item8 = new QTableWidgetItem(Area);
-                item8->setTextAlignment(Qt::AlignCenter);
-                ui->tableWidget->setItem(i, 8, item8);
-                //插入坐标到map中，用于追踪缺陷
-                rowMapXY[i - 1] = std::make_pair(X,Y);
-            }
-            //emit sig_test(); //不显示问题
-        } else {
-            qDebug()<<"root.empty()";
-        }
-    }
+//    Global::glassidTodefectjson[glassid] = jsonFullPath; //存储glassid到jsonFullPath
+//    GlassID = glassid;
+//    if (LastGlassID != glassid) {
+//        LastGlassID = GlassID;
+////        std::vector<DefectData> results;
+////        Jsoncpp::GetInstance()->getDefectSFromJson(jsonFullPath,glassid,results);
+//        int count = results.size();
+//        if(count > 0) {
+//            ui->tableWidget->setRowCount(count);
+//            ui->tableWidget->setColumnCount(9);
+//            for (int i = 0; i < count; i++) {
+//                //序号
+//                QString DefectID = QString::number(results[i].DefectID);
+//                QTableWidgetItem* item0 = new QTableWidgetItem(DefectID);
+//                item0->setTextAlignment(Qt::AlignCenter);
+//                ui->tableWidget->setItem(i, 0, item0);
+//                //时间
+//                QString Time = results[i].Time;
+//                QTableWidgetItem* item1 = new QTableWidgetItem(Time);
+//                item1->setTextAlignment(Qt::AlignCenter);
+//                ui->tableWidget->setItem(i, 1, item1);
+//                //类型
+//                QString DefectType = results[i].DefectType;
+//                QTableWidgetItem* item2 = new QTableWidgetItem(DefectType);
+//                item2->setTextAlignment(Qt::AlignCenter);
+//                ui->tableWidget->setItem(i , 2, item2);
+//                //等级
+//                QString DetectLeve = results[i].DetectLeve;
+//                QTableWidgetItem* item3 = new QTableWidgetItem(DetectLeve);
+//                item3->setTextAlignment(Qt::AlignCenter);
+//                ui->tableWidget->setItem(i, 3, item3);
+//                //坐标X
+//                QString X = QString::number(results[i].X,'f', 2);
+//                QTableWidgetItem* item4 = new QTableWidgetItem(X);
+//                item4->setTextAlignment(Qt::AlignCenter);
+//                ui->tableWidget->setItem(i, 4, item4);
+//                //坐标Y
+//                QString Y = QString::number(results[i].Y,'f', 2);
+//                QTableWidgetItem* item5 = new QTableWidgetItem(Y);
+//                item5->setTextAlignment(Qt::AlignCenter);
+//                ui->tableWidget->setItem(i, 5, item5);
+//                //长
+//                QString Lenth = QString::number(results[i].Lenth,'f', 2);
+//                QTableWidgetItem* item6 = new QTableWidgetItem(Lenth);
+//                item6->setTextAlignment(Qt::AlignCenter);
+//                ui->tableWidget->setItem(i, 6, item6);
+//                //宽
+//                QString Width = QString::number(results[i].Width,'f', 2);
+//                QTableWidgetItem* item7 = new QTableWidgetItem(Width);
+//                item7->setTextAlignment(Qt::AlignCenter);
+//                ui->tableWidget->setItem(i, 7, item7);
+//                //区域
+//                QString Area = QString::number(results[i].Area,'f', 2);
+//                QTableWidgetItem* item8 = new QTableWidgetItem(Area);
+//                item8->setTextAlignment(Qt::AlignCenter);
+//                ui->tableWidget->setItem(i, 8, item8);
+//                //插入坐标到map中，用于追踪缺陷
+//                rowMapXY[i - 1] = std::make_pair(X,Y);
+//            }
+//        }
+//    }
 }
 
-void SingleFlawShowWidget::PickerCheckData(const FlawPoint &flawpoint)
+void SingleFlawShowWidget::PickerCheckData(/*const FlawPoint &flawpoint*/)
 {
-    int rowcou=ui->tableWidget->rowCount();
-    int col1=4;
-    int col2=5;
-    for(int row=0;row<rowcou;row++) {
-        QTableWidgetItem* Item1=ui->tableWidget->item(row,col1);
-        QTableWidgetItem* Item2=ui->tableWidget->item(row,col2);
-        if (Item1 != nullptr && Item2 != nullptr) {
-            QString data1 = Item1->text();
-            QString data2 = Item2->text();
-            QString checkdata1 = QString::number(flawpoint.y,'f',2);
-            QString checkdata2 = QString::number(flawpoint.x, 'f',2);
-            if( data1 == checkdata1 && data2 == checkdata2 ) {
-                showFlawImage(ui->tableWidget->item(row,0));
-                ui->tableWidget->setCurrentItem(ui->tableWidget->item(row,0));
-                break;
-            }
-        }
-    }
+//    int rowcou=ui->tableWidget->rowCount();
+//    int col1=4;
+//    int col2=5;
+//    for(int row=0;row<rowcou;row++) {
+//        QTableWidgetItem* Item1=ui->tableWidget->item(row,col1);
+//        QTableWidgetItem* Item2=ui->tableWidget->item(row,col2);
+//        if (Item1 != nullptr && Item2 != nullptr) {
+//            QString data1 = Item1->text();
+//            QString data2 = Item2->text();
+//            QString checkdata1 = QString::number(flawpoint.y,'f',2);
+//            QString checkdata2 = QString::number(flawpoint.x, 'f',2);
+//            if( data1 == checkdata1 && data2 == checkdata2 ) {
+//                showFlawImage(ui->tableWidget->item(row,0));
+//                ui->tableWidget->setCurrentItem(ui->tableWidget->item(row,0));
+//                break;
+//            }
+//        }
+//    }
 }
 
 SingleFlawShowWidget::~SingleFlawShowWidget() {
@@ -304,118 +260,101 @@ void SingleFlawShowWidget::slot_ButtonExportClicked()
 
 void SingleFlawShowWidget::slot_refrshFlaw(QString jsonFullPath,int glassid)
 {
-    Global::glassidTodefectjson[glassid] = jsonFullPath; //存储glassid到jsonFullPath
-    GlassID = glassid;
-    jsonFileName = jsonFullPath;
-    //
-    // 将文件中已有的数据读出来
-    //
-    Json::Value root;
-    QFile file(jsonFullPath);
-    qDebug()<<__FUNCTION__<<"jsonFullPath="<<jsonFullPath;
-    if (file.exists()) {
-        std::ifstream ifs;
-        ifs.open(jsonFullPath.toStdString().c_str()); // Windows自己注意路径吧
-        if (ifs.is_open()) {
-            Json::Reader reader;
-            // 解析到root，root将包含Json里所有子元素
-            reader.parse(ifs, root, false);
-            ifs.close();
-        } else {
-            qDebug()<<__FUNCTION__<<" ifs.is_open() =  false";
-        }
-    } else {
-       qDebug()<<__FUNCTION__<<jsonFullPath<<" is not exit.";
-    }
-    if(!root.empty()) {
-        Json::Value glass = root[QString::number(glassid).toStdString().c_str()];
-        int count = glass.size() - 3;
-        qDebug()<<"count =" <<count;
-        ui->tableWidget->setRowCount(count);
-        ui->tableWidget->setColumnCount(9);
-        for (int i = 0; i < count; i++) {
-            Json::Value defect = glass[QString::number(i).toStdString().c_str()];
-            //序号
-            QString DefectID = QString::number(defect["DefectID"].asInt());
-            QTableWidgetItem* item0 = new QTableWidgetItem(DefectID);
-            item0->setTextAlignment(Qt::AlignCenter);
-            ui->tableWidget->setItem(i, 0, item0);
-            //时间
-            QString Time = defect["Time"].asString().data();
-            QTableWidgetItem* item1 = new QTableWidgetItem(Time);
-            item1->setTextAlignment(Qt::AlignCenter);
-            ui->tableWidget->setItem(i, 1, item1);
-            //类型
-            QString DefectType = defect["DefectType"].asString().data();
-            QTableWidgetItem* item2 = new QTableWidgetItem(DefectType);
-            item2->setTextAlignment(Qt::AlignCenter);
-            ui->tableWidget->setItem(i , 2, item2);
-            //等级
-            QString DetectLeve = defect["DetectLeve"].asString().data();
-            QTableWidgetItem* item3 = new QTableWidgetItem(DetectLeve);
-            item3->setTextAlignment(Qt::AlignCenter);
-            ui->tableWidget->setItem(i, 3, item3);
-            //坐标X
-            QString X = QString::number(defect["X"].asDouble(),'f', 2);
-            QTableWidgetItem* item4 = new QTableWidgetItem(X);
-            item4->setTextAlignment(Qt::AlignCenter);
-            ui->tableWidget->setItem(i, 4, item4);
-            //坐标Y
-            QString Y = QString::number(defect["Y"].asDouble(),'f', 2);
-            QTableWidgetItem* item5 = new QTableWidgetItem(Y);
-            item5->setTextAlignment(Qt::AlignCenter);
-            ui->tableWidget->setItem(i, 5, item5);
-            //长
-            QString Lenth = QString::number(defect["Lenth"].asDouble(),'f', 2);
-            QTableWidgetItem* item6 = new QTableWidgetItem(Lenth);
-            item6->setTextAlignment(Qt::AlignCenter);
-            ui->tableWidget->setItem(i, 6, item6);
-            //宽
-            QString Width = QString::number(defect["Width"].asDouble(),'f', 2);
-            QTableWidgetItem* item7 = new QTableWidgetItem(Width);
-            item7->setTextAlignment(Qt::AlignCenter);
-            ui->tableWidget->setItem(i, 7, item7);
-            //区域
-            QString Area = QString::number(defect["Area"].asDouble(),'f', 2);
-            QTableWidgetItem* item8 = new QTableWidgetItem(Area);
-            item8->setTextAlignment(Qt::AlignCenter);
-            ui->tableWidget->setItem(i, 8, item8);
-            //插入坐标到map中
-            rowMapXY[i] = std::make_pair(X,Y);
-        }
-        // 更新三张小图
-        if ( ui->tableWidget->item(0, 0) != nullptr) {
-            try {
-                Json::Value firstDefect = glass[QString::number(0).toStdString().c_str()];
-                QString ImagePath = firstDefect["ImageNGPath"].asString().data();;
-                qDebug() << "imagepath = " << ImagePath;
-                QString strpath1 = ImagePath + "/1.jpg";
-                QString strpath2 = ImagePath + "/2.jpg";
-                QString strpath3 = ImagePath + "/3.jpg";
+//    Global::glassidTodefectjson[glassid] = jsonFullPath; //存储glassid到jsonFullPath
+//    GlassID = glassid;
+//    jsonFileName = jsonFullPath;
+//    std::vector<DefectData> results;
+//    Jsoncpp::GetInstance()->getDefectSFromJson(jsonFullPath,glassid,results);
+//    int count = results.size();
+//    if (count > 0) {
+//        ui->tableWidget->setRowCount(count);
+//        ui->tableWidget->setColumnCount(9);
+//        for (int i = 0; i < count; i++) {
+//            //序号
+//            QString DefectID = QString::number(results[i].DefectID);
+//            QTableWidgetItem* item0 = new QTableWidgetItem(DefectID);
+//            item0->setTextAlignment(Qt::AlignCenter);
+//            ui->tableWidget->setItem(i, 0, item0);
+//            //时间
+//            QString Time = results[i].Time;
+//            QTableWidgetItem* item1 = new QTableWidgetItem(Time);
+//            item1->setTextAlignment(Qt::AlignCenter);
+//            ui->tableWidget->setItem(i, 1, item1);
+//            //类型
+//            QString DefectType = results[i].DefectType;
+//            QTableWidgetItem* item2 = new QTableWidgetItem(DefectType);
+//            item2->setTextAlignment(Qt::AlignCenter);
+//            ui->tableWidget->setItem(i , 2, item2);
+//            //等级
+//            QString DetectLeve = results[i].DetectLeve;
+//            QTableWidgetItem* item3 = new QTableWidgetItem(DetectLeve);
+//            item3->setTextAlignment(Qt::AlignCenter);
+//            ui->tableWidget->setItem(i, 3, item3);
+//            //坐标X
+//            QString X = QString::number(results[i].X,'f', 2);
+//            QTableWidgetItem* item4 = new QTableWidgetItem(X);
+//            item4->setTextAlignment(Qt::AlignCenter);
+//            ui->tableWidget->setItem(i, 4, item4);
+//            //坐标Y
+//            QString Y = QString::number(results[i].Y,'f', 2);
+//            QTableWidgetItem* item5 = new QTableWidgetItem(Y);
+//            item5->setTextAlignment(Qt::AlignCenter);
+//            ui->tableWidget->setItem(i, 5, item5);
+//            //长
+//            QString Lenth = QString::number(results[i].Lenth,'f', 2);
+//            QTableWidgetItem* item6 = new QTableWidgetItem(Lenth);
+//            item6->setTextAlignment(Qt::AlignCenter);
+//            ui->tableWidget->setItem(i, 6, item6);
+//            //宽
+//            QString Width = QString::number(results[i].Width,'f', 2);
+//            QTableWidgetItem* item7 = new QTableWidgetItem(Width);
+//            item7->setTextAlignment(Qt::AlignCenter);
+//            ui->tableWidget->setItem(i, 7, item7);
+//            //区域
+//            QString Area = QString::number(results[i].Area,'f', 2);
+//            QTableWidgetItem* item8 = new QTableWidgetItem(Area);
+//            item8->setTextAlignment(Qt::AlignCenter);
+//            ui->tableWidget->setItem(i, 8, item8);
+//            //插入坐标到map中，用于追踪缺陷
+//            rowMapXY[i - 1] = std::make_pair(X,Y);
+//        }
+//    } else {
+//        qWarning()<<"count = 0";
+//    }
 
-                QImage img1(strpath1);
-                QImage img2(strpath2);
-                QImage img3(strpath3);
+//    // 更新三张小图
+//    if ( ui->tableWidget->item(0, 0) != nullptr) {
+//        try {
+//            QString ImagePath1;
+//            QString ImagePath2;
+//            QString ImagePath3;
+//            Jsoncpp::GetInstance()->getFlawImageFromJson(jsonFileName,GlassID,0,ImagePath1,ImagePath2,ImagePath3);
+//            qDebug() << "imagepath = " << ImagePath1;
+//            QString strpath1 = ImagePath1 + "/1.jpg";
+//            QString strpath2 = ImagePath2 + "/2.jpg";
+//            QString strpath3 = ImagePath3 + "/3.jpg";
+//            QImage img1(strpath1);
+//            QImage img2(strpath2);
+//            QImage img3(strpath3);
 
-                loadedPixmapItem->loadImage(img1);
-                int nwidth = ui->graphicsView->width(), nheight = ui->graphicsView->height();
-                loadedPixmapItem->setQGraphicsViewWH(nwidth, nheight);
-                ui->graphicsView->setSceneRect((QRectF(-(nwidth / 2), -(nheight / 2), nwidth, nheight)));
+//            loadedPixmapItem->loadImage(img1);
+//            int nwidth = ui->graphicsView->width(), nheight = ui->graphicsView->height();
+//            loadedPixmapItem->setQGraphicsViewWH(nwidth, nheight);
+//            ui->graphicsView->setSceneRect((QRectF(-(nwidth / 2), -(nheight / 2), nwidth, nheight)));
 
-                loadedPixmapItem2->loadImage(img2);
-                int nwidth2 = ui->graphicsView_2->width(), nheight2 = ui->graphicsView_2->height();
-                loadedPixmapItem2->setQGraphicsViewWH(nwidth, nheight);
-                ui->graphicsView_2->setSceneRect((QRectF(-(nwidth2 / 2), -(nheight2 / 2), nwidth2, nheight2)));
+//            loadedPixmapItem2->loadImage(img2);
+//            int nwidth2 = ui->graphicsView_2->width(), nheight2 = ui->graphicsView_2->height();
+//            loadedPixmapItem2->setQGraphicsViewWH(nwidth, nheight);
+//            ui->graphicsView_2->setSceneRect((QRectF(-(nwidth2 / 2), -(nheight2 / 2), nwidth2, nheight2)));
 
-                loadedPixmapItem3->loadImage(img3);
-                int nwidth3 = ui->graphicsView_3->width(), nheight3 = ui->graphicsView_3->height();
-                loadedPixmapItem3->setQGraphicsViewWH(nwidth, nheight);
-                ui->graphicsView_3->setSceneRect((QRectF(-(nwidth3 / 2), -(nheight3 / 2), nwidth3, nheight3)));
-            } catch (std::exception e) {
-                qDebug()<<e.what();
-            } catch(...) {
-                qDebug()<<"Unknow exception";
-            }
-         }
-    }
+//            loadedPixmapItem3->loadImage(img3);
+//            int nwidth3 = ui->graphicsView_3->width(), nheight3 = ui->graphicsView_3->height();
+//            loadedPixmapItem3->setQGraphicsViewWH(nwidth, nheight);
+//            ui->graphicsView_3->setSceneRect((QRectF(-(nwidth3 / 2), -(nheight3 / 2), nwidth3, nheight3)));
+//        } catch (std::exception e) {
+//            qDebug()<<e.what();
+//        } catch(...) {
+//            qDebug()<<"Unknow exception";
+//        }
+//   }
 }

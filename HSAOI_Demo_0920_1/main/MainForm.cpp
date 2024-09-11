@@ -1,7 +1,9 @@
 ﻿#include "MainForm.h"
 #include "Global.h"
 #include "ui_MainForm.h"
+
 #pragma execution_character_set("utf-8")
+
 MainForm::MainForm(QWidget* parent)
     : QWidget(parent)
     , ui(new Ui::MainForm)
@@ -25,10 +27,7 @@ MainForm::MainForm(QWidget* parent)
     ft.setPointSize(12);
     m_CurrentRecipeLabel->setFont(ft);
 
-    timer=new QTimer();
-    timer->setInterval(1000);
-    connect(timer,&QTimer::timeout,this,&MainForm::slot_tt);
-    timer->start();
+    connect(main_window,&MainWindow::sig_tt,this,&MainForm::slot_tt);
 
     vbox->addWidget(title_bar);
     vbox->addWidget(main_window);

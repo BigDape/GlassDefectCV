@@ -1,20 +1,18 @@
 ﻿#ifndef SINGLESIZESHOWWIDGET_H
 #define SINGLESIZESHOWWIDGET_H
 
-#include <Parameter/JsonParse2Map.h>
 #include <QDate>
 #include <QLabel>
 #include <QTableWidget>
 #include <QWidget>
-#include "Form/glassstatictablewidget.h"
-#include<Form/FlawShowWidget.h>
-#include<Camera/DushenSample/MyGraphicsitem.h>
-#include<QGraphicsScene>
+#include <Form/FlawShowWidget.h>
+#include <QGraphicsScene>
 #include <QCoreApplication>
 #include <QSettings>
 #include <QTextCodec>
 #include <QFile>
 #include <QDebug>
+#include "Form/glassstatictablewidget.h"
 
 struct holeData
 {
@@ -59,7 +57,6 @@ public:
 
     void showSizeDiagramImage(QString jsonFullPath,int glassid);
 public slots:
-    void slot_RecieveID(QString jsonFullPath,int glassid);
 
     void slot_showSizeSmallImage(QTableWidgetItem* item);
 
@@ -72,9 +69,6 @@ private:
     Ui::SingleSizeShowWidget *ui;
     Qt::Orientation m_orientation;
     Qt::Orientation m_pic_orientation;
-
-    JsonParse2Map* JSONRECIPE;
-
     MyGraphicsItem* loadedPixmapItem;
     QGraphicsScene* scene;
     MyGraphicsItem* loadedPixmapItem2;

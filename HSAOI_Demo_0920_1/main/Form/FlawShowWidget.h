@@ -38,7 +38,7 @@
 #include "Form/msvlcdnumclockwidget.h"
 #include "Global.h"
 #include "Parameter/JsonParse2Map.h"
-#include "ImageProcess/processdetect.h"
+//#include "ImageProcess/processdetect.h"
 #include "Qwt/qwt_plot_picker.h"
 #include <Qwt/qwt_plot_curve.h>
 
@@ -46,7 +46,7 @@ class FlawShowWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit FlawShowWidget(QWidget* parent = nullptr, JsonParse2Map* recipe = nullptr);
+    explicit FlawShowWidget(QWidget* parent = nullptr);
     virtual ~FlawShowWidget();
 
     enum FlawMoveWay {
@@ -61,7 +61,6 @@ private:
     int x = 10, y = 10;
     bool isGetGlassSize = false;
     bool isGetFlawPoints = false;
-    JsonParse2Map* RECIPE;
     MsvLCDNumClockWidget* clock;
     QWidget* widget;
 
