@@ -1,0 +1,8 @@
+[2024-08-27 08:41:01.620][0x0000013eb426c540][ERROR][root](:-1 in ): 12333 
+[2024-08-27 08:41:01.620][0x0000013eb426c540][DEBUG][Qt default](..\..\HSAOI_Demo_0920_1\main\main.cpp:45 in int __cdecl main(int,char *[])): mainwindow debug 
+[2024-08-27 08:41:01.620][0x0000013eb426c540][ERROR][Qt default](..\..\HSAOI_Demo_0920_1\main\main.cpp:46 in int __cdecl main(int,char *[])): mainwindow critical 
+[2024-08-27 08:41:01.629][0x0000013eb426c540][DEBUG][Qt default](..\..\HSAOI_Demo_0920_1\DataBase\database.cpp:11 in __cdecl DataBase::DataBase(void)): ("QSQLITE", "QODBC", "QODBC3", "QPSQL", "QPSQL7") 
+[2024-08-27 08:41:01.636][0x0000013eb426c540][DEBUG][Qt default](..\..\HSAOI_Demo_0920_1\DataBase\database.cpp:29 in bool __cdecl DataBase::openDataBase(void)): 已连接到数据库！ 
+[2024-08-27 08:41:01.639][0x0000013eb426c540][DEBUG][Qt default](..\..\HSAOI_Demo_0920_1\DataBase\database.cpp:56 in bool __cdecl DataBase::openDataBase(void)): 成功创建glass_table或者已经存�? 
+[2024-08-27 08:41:01.639][0x0000013eb426c540][DEBUG][Qt default](..\..\HSAOI_Demo_0920_1\DataBase\database.cpp:62 in bool __cdecl DataBase::openDataBase(void)): 成功创建glass_defect或者已经存�? 
+[2024-08-27 08:41:01.639][0x0000013eb426c540][DEBUG][Qt default](..\..\HSAOI_Demo_0920_1\DataBase\database.cpp:68 in bool __cdecl DataBase::openDataBase(void)): 成功创建glass_sizeinfo或者已经存�? 
