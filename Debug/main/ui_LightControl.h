@@ -1290,7 +1290,7 @@ public:
 
         retranslateUi(LightControl);
 
-        tab3->setCurrentIndex(2);
+        tab3->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(LightControl);

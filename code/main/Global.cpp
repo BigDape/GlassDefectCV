@@ -3,7 +3,8 @@
 #include <fstream>
 #include <string>
 #include <sstream>
-#pragma execution_character_set("utf-8")
+#include <QSettings>
+#include <QFile>
 
 GlobalParamter::GlobalParamter()
     :CurrentRecipe(""),
@@ -111,30 +112,26 @@ GlobalParamter& GlobalParamter::getInstance()
 
 QString GlobalParamter::GetParamterFromIniFile(QString fullpath, QString key)
 {
-    QString result;
-    std::ifstream configFile(fullpath.toStdString());
-    std::string line;
-    std::map<std::string, std::string> config;
-    assert(configFile.is_open());
-
-    while (getline(configFile, line)) {
-        std::istringstream is_line(line);
-        std::string key;
-        if (getline(is_line, key, '=')) {
-            std::string value;
-            if (getline(is_line, value)) {
-                config[key] = value;
+    QString result = "default";
+    try{
+        QSettings settings(fullpath, QSettings::IniFormat);
+        // 检查文件是否存在
+        if (QFile::exists(settings.fileName())) {
+            result = settings.value(key, "default").toString();
+            if (result == "default") {
+                qDebug() << "Key not found in config file. Using default value.";
+            } else {
+                qDebug() << "Value from config file: " << result;
             }
         }
-    }
-
-    configFile.close();
-    // 打印读取的配置
-    for (const auto& pair : config) {
-        //std::cout << pair.first << " = " << pair.second << std::endl;
-        if (pair.first == key.toStdString()) {
-          result = pair.second.data();
-        }
+    } catch (const std::bad_alloc& e) {
+        qDebug()<<"内存分配失败：" << e.what();
+    } catch (const std::runtime_error& e) {
+        qDebug()<<"运行时错误：" << e.what();
+    } catch (const std::exception& e) {
+        qDebug()<<"异常错误：" << e.what();
+    } catch (...) {
+        qDebug()<<"未知错误";
     }
     return result;
 }

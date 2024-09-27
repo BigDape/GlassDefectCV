@@ -17,23 +17,11 @@ LightControl::LightControl( QWidget* parent)
     , ui(new Ui::LightControl)
 {
     ui->setupUi(this);
-    // 初始化输入框类型
-    LightControl::initLineEditInputType();
-    // connect按键绑定
-    connect(ui->AllSet,SIGNAL(clicked()),this,SLOT(slotAllSet()));              // 下发
-    connect(ui->AllGet,SIGNAL(clicked()),this,SLOT(slotAllGet()));              // 获取
-    connect(ui->AllSave,SIGNAL(clicked()),this,SLOT(slotAllSave()));            // 保存
-    connect(ui->CreateRecipe,SIGNAL(clicked()),this, SLOT(slotCreateRecipe())); // 创建工单
-    connect(ui->TestConnectBT,SIGNAL(clicked()), this, SLOT(slotTestConnect()));// 测试连接
-    connect(ui->Trigger,SIGNAL(clicked()), this, SLOT(slotTrigger()));          // 触发
-    connect(ui->RecipeCB, SIGNAL(currentIndexChanged(int)), this, SLOT(slotChangeRecipe(int)));// 切换工单
 
-    // 加载当前的工单
-    // 读取工单参数，给每个输入框赋值
-    LightControl::InitLightControl();
-    // 获取通讯处理模块
-    SocketObjectPtr = SocketNameSpace::createSocketObject();
-    SocketObjectPtr->InitRegs(m_signalctrl,m_signalctrl.ServerIP,m_signalctrl.ServerPort);
+    LightControl::initWidget();// 初始化窗口
+    LightControl::initLoadRecipe();// 加载工单
+    LightControl::initSocket(); //连接控制板
+    LightControl::initConnect(); //
 }
 
 //析构函数
@@ -43,8 +31,17 @@ LightControl::~LightControl()
 }
 
 // 初始化输入框输入类型
-void LightControl::initLineEditInputType()
+void LightControl::initWidget()
 {
+    // 初始化工单下拉框
+    QString recipeDir = QDir::currentPath() + QString("/") + "Recipes";
+    qDebug()<<"recipeDir ="<<recipeDir;
+    QDir dir(recipeDir);
+    QFileInfoList fileList = dir.entryInfoList(QStringList() << "*.json");
+    ui->RecipeCB->clear();
+    for(auto fileInfo:fileList) {
+        ui->RecipeCB->addItem(fileInfo.baseName());
+    }
     //输入框确定类型
     QDoubleValidator* lineDouble = new QDoubleValidator(0, 100000, 3, nullptr);
     QIntValidator* lineInt = new QIntValidator(0, 1000000000, nullptr);
@@ -138,36 +135,42 @@ void LightControl::initLineEditInputType()
 
 
 
-bool LightControl::InitLightControl()
+void LightControl::initLoadRecipe()
 {
-    QString needLoadJsonFile = PARAM.GetParamterFromIniFile(SYSTEM_PATH,"recipe");//需要加载的工单名称recipe=8nm.json
-    QDir dir(RECIPE_FULLPATH);
-    QFileInfoList fileList = dir.entryInfoList(QStringList() << "*.json");
-    if (fileList.size() == 0) { //没有找到任何json工单
-        QString current_date = QDateTime::currentDateTime().toString("yyyy_MM_dd_hh_mm_ss");
-        QString recipeFileName = current_date + QString(".json");
-        Jsoncpp::GetInstance()->writeEmptyRecipeToJson(recipeFileName);  //创建空白名单
-        LightControl::readRecipeToTable(recipeFileName.toStdString());
-        ui->RecipeCB->addItem(recipeFileName);
-        ui->RecipeCB->setCurrentText(recipeFileName);
-        return true;
-    } else {                    //找到了json工单
-        ui->RecipeCB->clear();//清除工单里面所有items
-        //遍历文件夹
-        for(auto fileInfo:fileList) {
-            ui->RecipeCB->addItem(fileInfo.fileName());
-        }
-        int ret = ui->RecipeCB->findText(needLoadJsonFile);
-        if (ret == -1) {
-            QString message = "Not find " + needLoadJsonFile + " in RecipeCB Items!";
-//            INFOMATION.criticalMessageBox(this,message);
-            return false;
-        } else {
-            ui->RecipeCB->setCurrentText(needLoadJsonFile);
-            LightControl::readRecipeToTable(needLoadJsonFile.toStdString());
-            return true;
-        }
+    QString iniPath = QDir::currentPath() + QString("/") + SYSTEMNAME;
+    qDebug()<<"iniPath ="<<iniPath;
+    QString needLoadJsonFile = PARAM.GetParamterFromIniFile(iniPath,"system/recipe");//需要加载的工单名称system模块的recipe配置文件
+    qDebug()<<"needLoadJsonFile ="<<needLoadJsonFile;
+    if (ui->RecipeCB->findText(needLoadJsonFile) != -1) { //找到json工单
+        ui->RecipeCB->setCurrentText(needLoadJsonFile);
+        LightControl::readRecipeToTable(needLoadJsonFile.toStdString());
+    } else { //未找到
+        QString message = tr("Not find  in RecipeCB Items =>")+ needLoadJsonFile;
+        INFOMATION.criticalMessageBox(this,message);
     }
+}
+
+void LightControl::initSocket()
+{
+    // 获取通讯处理模块
+    if (SocketObjectPtr == NULL) {
+        SocketObjectPtr = SocketNameSpace::createSocketObject();
+    }
+    QString iniPath = QDir::currentPath() + QString("/") + SYSTEMNAME;
+    QString IP = PARAM.GetParamterFromIniFile(iniPath,"system/serverIp");
+    QString Port = PARAM.GetParamterFromIniFile(iniPath,"system/RegParaPort");
+    SocketObjectPtr->InitRegs(IP,Port.toUInt());
+}
+
+void LightControl::initConnect()
+{
+    connect(ui->AllSet,SIGNAL(clicked()),this,SLOT(slotAllSet()));                              // 下发
+    connect(ui->AllGet,SIGNAL(clicked()),this,SLOT(slotAllGet()));                              // 获取
+    connect(ui->AllSave,SIGNAL(clicked()),this,SLOT(slotAllSave()));                            // 保存
+    connect(ui->CreateRecipe,SIGNAL(clicked()),this, SLOT(slotCreateRecipe()));                 // 创建工单
+    connect(ui->TestConnectBT,SIGNAL(clicked()), this, SLOT(slotTestConnect()));                // 测试连接
+    connect(ui->Trigger,SIGNAL(clicked()), this, SLOT(slotTrigger()));                          // 触发
+    connect(ui->RecipeCB, SIGNAL(currentIndexChanged(int)), this, SLOT(slotChangeRecipe(int))); // 切换工单
 }
 
 // 读取json工单到表单中
@@ -265,6 +268,9 @@ void LightControl::readRecipeToTable(std::string filePath)
     ui->SignalSwitchLE->setText(QString::number(m_signalctrl.temp36));
     ui->RowSignalSelectedLE->setText(QString::number(m_signalctrl.temp37));
 
+    //
+    // 初始化全局变量
+    //
     PARAM.SystemName = m_signalctrl.systemName;
     PARAM.camDefineNum = m_signalctrl.CamareNumber;
     PARAM.Camera0Name = m_signalctrl.Camare0Name;
@@ -358,7 +364,7 @@ void LightControl::slotAllSet()
 void LightControl::slotAllSave()
 {
     QString filename = ui->RecipeCB->currentText();
-    QString dirPath = QDir::currentPath() + QString(RECIPE_FULLPATH) + "/" +filename;
+    QString dirPath = QDir::currentPath() + QString("/") + "Recipes";
     Jsoncpp::GetInstance()->writeRecipeToJson(dirPath,m_signalctrl);
 }
 
@@ -369,25 +375,13 @@ void LightControl::slotCreateRecipe()
     QString current_date = current_date_time.toString("yyyy_MM_dd_hh_mm_ss");
     QString defaultRecipeFileName = current_date + QString(".json");
     QString newRecipeFileName = INFOMATION.inputMessageBox(this,"新建工单","请输入新建工单名称",defaultRecipeFileName);
-    //
-    // 处理逻辑：将当前的json文件重新复制一份且重命名。
-    //
-    QString sourceFilePath = ui->RecipeCB->currentText();
-    QString destinationFilePath = newRecipeFileName;
-    QFile sourceFile(sourceFilePath);
-    QFile destinationFile(destinationFilePath);
 
-    if (sourceFile.open(QIODevice::ReadOnly)) {
-        if (destinationFile.open(QIODevice::WriteOnly)) {
-            destinationFile.write(sourceFile.readAll());
-            destinationFile.close();
-        } else {
-            qDebug() << "Failed to open destination file for writing.";
-        }
-        sourceFile.close();
-    } else {
-        qDebug() << "Failed to open source file for reading.";
-    }
+    QString recipeFileName = QDir::currentPath() + QString("/Recipes/") + newRecipeFileName + QString(".json");
+    Jsoncpp::GetInstance()->writeEmptyRecipeToJson(recipeFileName);  //创建空白名单
+    LightControl::readRecipeToTable(recipeFileName.toStdString());
+    ui->RecipeCB->addItem(recipeFileName);
+    ui->RecipeCB->setCurrentText(recipeFileName);
+    INFOMATION.informationMessageBox(this,tr("information"),QString("Create recipe success."));
 }
 
 void LightControl::slotAllGet()
@@ -413,12 +407,12 @@ void LightControl::slotTrigger()
 
 void LightControl::slotChangeRecipe(int index)
 {
-    qDebug()<<"index ="<<index;
-    QString needLoadJsonFile = QDir::currentPath() + QString(RECIPE_FULLPATH) + "/" + ui->RecipeCB->currentText();//需要加载的工单名称recipe=8nm.json
-    QDir dir(QDir::currentPath() + QString(RECIPE_FULLPATH));
+    (void)index;
+    QString needLoadJsonFile = QDir::currentPath() + QString("/Recipes/") + ui->RecipeCB->currentText();//需要加载的工单名称recipe=8nm.json
+    QDir dir(QDir::currentPath() + QString(QDir::currentPath() + QString("/Recipes/")));
     QFileInfoList fileList = dir.entryInfoList(QStringList() << "*.json");
     if (fileList.size() == 0) { //没有找到任何json工单
-        INFOMATION.informationMessageBox(this,QString("信息"),QDir::currentPath() + QString(RECIPE_FULLPATH) + QString("目录为空或者错误"));
+        INFOMATION.informationMessageBox(this,QString("信息"),QDir::currentPath() + QString("/Recipes/") + QString("目录为空或者错误"));
     } else {                    //找到了json工单
         //遍历文件夹
         for(auto fileInfo:fileList) {

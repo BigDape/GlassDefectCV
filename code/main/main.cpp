@@ -6,10 +6,9 @@
 #include <QDir>
 #include <QTranslator>
 #include <QObject>
+#include <QProcessEnvironment>
 #include "Form/Login.h"
 #include "MainForm.h"
-#pragma execution_character_set("utf-8")
-
 #include<Windows.h>
 #include<DbgHelp.h>
 #pragma comment(lib,"DbgHelp.lib")
@@ -40,8 +39,9 @@ int main(int argc, char* argv[])
 {
     //注册异常处理函数,使用VS打开D盘的dmp文件，查看崩溃在哪一行
     SetUnhandledExceptionFilter((LPTOP_LEVEL_EXCEPTION_FILTER)ApplicationCrashHandler);
-
     QApplication a(argc, argv);
+    // 隐藏libpng warning: iCCP: known incorrect sRGB profile警告，png图像问题未彻底解决
+    qputenv("LIBPNG_WARNINGS", "0");
     // 加载国际化翻译
     QString path = QDir::currentPath() + "/../HSAOI_Demo_0920_1/HSAOI_zh_CN.qm";
     qDebug()<<"path = "<<path;

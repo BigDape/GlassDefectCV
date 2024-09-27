@@ -21,7 +21,7 @@ namespace SocketNameSpace
         /**
          * @brief InitRegs 初始化寄存器
          */
-        virtual void InitRegs(SignalControl data, QString ip, int port) = 0;
+        virtual void InitRegs(QString ip, int port) = 0;
         /**
          * @brief Trigger 调试模式下触发光源
          */

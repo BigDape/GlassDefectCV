@@ -8,9 +8,7 @@
 #include <QWidget>
 #include "hstool.h"
 
-
-#define RECIPE_FULLPATH "Recipes"
-#define SYSTEM_PATH "Recipes/system.ini"
+#define SYSTEMNAME "app.ini"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -34,14 +32,16 @@ public:
     void readRecipeToTable(std::string filePath);
 
 private:
-    // 初始化connect函数
+    /**
+     * @brief initWidget 初始化输入框类型
+     */
+    void initWidget();
+    void initLoadRecipe();
+    void initSocket();
     void initConnect();
-    // 初始化函数
-    bool InitLightControl();
     // 将当前的m_root写入到json文件中
     void writeCurrentRooterToJson();
-    // 初始化输入框输入类型
-    void initLineEditInputType();
+
 
 private slots:
     void slotAllSet();

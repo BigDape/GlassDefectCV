@@ -7,7 +7,7 @@
 *****************************************************************************/
 
 #include <memory>
-#include "../../../HSAOI_Demo_0920_1/main/MainForm.h"
+#include "../../../code/main/MainForm.h"
 #include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
@@ -23,7 +23,7 @@ QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_MainForm_t {
     QByteArrayData data[3];
-    char stringdata0[18];
+    char stringdata0[22];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -33,11 +33,11 @@ struct qt_meta_stringdata_MainForm_t {
 static const qt_meta_stringdata_MainForm_t qt_meta_stringdata_MainForm = {
     {
 QT_MOC_LITERAL(0, 0, 8), // "MainForm"
-QT_MOC_LITERAL(1, 9, 7), // "slot_tt"
-QT_MOC_LITERAL(2, 17, 0) // ""
+QT_MOC_LITERAL(1, 9, 11), // "showWindows"
+QT_MOC_LITERAL(2, 21, 0) // ""
 
     },
-    "MainForm\0slot_tt\0"
+    "MainForm\0showWindows\0"
 };
 #undef QT_MOC_LITERAL
 
@@ -55,7 +55,7 @@ static const uint qt_meta_data_MainForm[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,   19,    2, 0x08 /* Private */,
+       1,    0,   19,    2, 0x0a /* Public */,
 
  // slots: parameters
     QMetaType::Void,
@@ -69,7 +69,7 @@ void MainForm::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, vo
         auto *_t = static_cast<MainForm *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->slot_tt(); break;
+        case 0: _t->showWindows(); break;
         default: ;
         }
     }

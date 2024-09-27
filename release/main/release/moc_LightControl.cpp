@@ -7,7 +7,7 @@
 *****************************************************************************/
 
 #include <memory>
-#include "../../../HSAOI_Demo_0920_1/main/LightControl/LightControl.h"
+#include "../../../code/main/Form/LightControl.h"
 #include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
@@ -22,8 +22,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_LightControl_t {
-    QByteArrayData data[12];
-    char stringdata0[182];
+    QByteArrayData data[10];
+    char stringdata0[116];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -33,24 +33,21 @@ struct qt_meta_stringdata_LightControl_t {
 static const qt_meta_stringdata_LightControl_t qt_meta_stringdata_LightControl = {
     {
 QT_MOC_LITERAL(0, 0, 12), // "LightControl"
-QT_MOC_LITERAL(1, 13, 22), // "slot_getButton_clicked"
-QT_MOC_LITERAL(2, 36, 0), // ""
-QT_MOC_LITERAL(3, 37, 22), // "slot_setButton_clicked"
-QT_MOC_LITERAL(4, 60, 23), // "slot_saveButton_clicked"
-QT_MOC_LITERAL(5, 84, 19), // "onItemDoubleClicked"
-QT_MOC_LITERAL(6, 104, 16), // "QTreeWidgetItem*"
-QT_MOC_LITERAL(7, 121, 4), // "item"
-QT_MOC_LITERAL(8, 126, 6), // "column"
-QT_MOC_LITERAL(9, 133, 13), // "slot_InitTree"
-QT_MOC_LITERAL(10, 147, 18), // "on_Trigger_clicked"
-QT_MOC_LITERAL(11, 166, 15) // "slot_updateCode"
+QT_MOC_LITERAL(1, 13, 10), // "slotAllSet"
+QT_MOC_LITERAL(2, 24, 0), // ""
+QT_MOC_LITERAL(3, 25, 10), // "slotAllGet"
+QT_MOC_LITERAL(4, 36, 11), // "slotAllSave"
+QT_MOC_LITERAL(5, 48, 16), // "slotCreateRecipe"
+QT_MOC_LITERAL(6, 65, 15), // "slotTestConnect"
+QT_MOC_LITERAL(7, 81, 11), // "slotTrigger"
+QT_MOC_LITERAL(8, 93, 16), // "slotChangeRecipe"
+QT_MOC_LITERAL(9, 110, 5) // "index"
 
     },
-    "LightControl\0slot_getButton_clicked\0"
-    "\0slot_setButton_clicked\0slot_saveButton_clicked\0"
-    "onItemDoubleClicked\0QTreeWidgetItem*\0"
-    "item\0column\0slot_InitTree\0on_Trigger_clicked\0"
-    "slot_updateCode"
+    "LightControl\0slotAllSet\0\0slotAllGet\0"
+    "slotAllSave\0slotCreateRecipe\0"
+    "slotTestConnect\0slotTrigger\0"
+    "slotChangeRecipe\0index"
 };
 #undef QT_MOC_LITERAL
 
@@ -71,19 +68,19 @@ static const uint qt_meta_data_LightControl[] = {
        1,    0,   49,    2, 0x08 /* Private */,
        3,    0,   50,    2, 0x08 /* Private */,
        4,    0,   51,    2, 0x08 /* Private */,
-       5,    2,   52,    2, 0x08 /* Private */,
-       9,    0,   57,    2, 0x08 /* Private */,
-      10,    0,   58,    2, 0x08 /* Private */,
-      11,    0,   59,    2, 0x08 /* Private */,
+       5,    0,   52,    2, 0x08 /* Private */,
+       6,    0,   53,    2, 0x08 /* Private */,
+       7,    0,   54,    2, 0x08 /* Private */,
+       8,    1,   55,    2, 0x08 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, 0x80000000 | 6, QMetaType::Int,    7,    8,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
+    QMetaType::Void, QMetaType::Int,    9,
 
        0        // eod
 };
@@ -94,13 +91,13 @@ void LightControl::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id
         auto *_t = static_cast<LightControl *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->slot_getButton_clicked(); break;
-        case 1: _t->slot_setButton_clicked(); break;
-        case 2: _t->slot_saveButton_clicked(); break;
-        case 3: _t->onItemDoubleClicked((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
-        case 4: _t->slot_InitTree(); break;
-        case 5: _t->on_Trigger_clicked(); break;
-        case 6: _t->slot_updateCode(); break;
+        case 0: _t->slotAllSet(); break;
+        case 1: _t->slotAllGet(); break;
+        case 2: _t->slotAllSave(); break;
+        case 3: _t->slotCreateRecipe(); break;
+        case 4: _t->slotTestConnect(); break;
+        case 5: _t->slotTrigger(); break;
+        case 6: _t->slotChangeRecipe((*reinterpret_cast< int(*)>(_a[1]))); break;
         default: ;
         }
     }

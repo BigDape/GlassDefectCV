@@ -33,6 +33,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 SOURCES += \
+           Form/Calibrate.cpp \
            Form/Login.cpp \
            Form/LightControl.cpp \
            Form/cameraslayout.cpp \
@@ -46,6 +47,7 @@ SOURCES += \
            HsListener.cpp
 
 HEADERS += \
+        Form/Calibrate.h \
         Form/LightControl.h \
         Form/Login.h \
         Form/cameraslayout.h \
@@ -59,6 +61,7 @@ HEADERS += \
         HsListener.h
 
 FORMS += \
+        Form/Calibrate.ui \
         Form/Login.ui \
         Form/LightControl.ui \
         Form/DushenCameraWidget.ui \

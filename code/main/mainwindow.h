@@ -11,6 +11,7 @@
 #include "Form/cameraslayout.h"
 #include "Form/LightControl.h"
 #include "Form/MyGraphicsitem.h"
+#include "Form/Calibrate.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -96,6 +97,7 @@ public slots:
     void stopThread();
     void slot_DataSearch();
     void slot_Offline();
+    void slot_Calibrate();
     /**
      * @brief slot_GlassStaticTableInsertRowData 在玻璃统计表中插入一行数据
      * @param info 要插入的数据
@@ -133,6 +135,7 @@ private:
     QAction* m_pStop;               // 停止
     QAction* m_pDB;                 // 数据查询
     QAction* m_offline;             // 离线模式
+    QAction* m_calibrate;           // 标定
 
     MyGraphicsItem* loadedPixmapItem; // 缺陷小图光场1
     MyGraphicsItem* loadedPixmapItem2;// 缺陷小图光场2
@@ -152,5 +155,6 @@ private:
     std::shared_ptr<LightControl> m_lightControl;   // 设置界面
     QString _offlineSelectedDir;                    // 离线模式下选择的路径
     QTimer* _timer;                                 // 时钟用于更新系统时间
+    std::shared_ptr<Calibrate> calibratePtr;        // 标定界面
 };
 #endif // MAINWINDOW_H

@@ -124,6 +124,7 @@ void Tcp::OnReadyRead()
 
 void Tcp::OnSockStateChanged(QAbstractSocket::SocketState state)
 {
+    qDebug()<<"11111111111QAbstractSocket::SocketState = "<<state;
     if (QAbstractSocket::UnconnectedState == state) {
         m_bConnFlag = false;
         if (m_bAutoReConnect ) {

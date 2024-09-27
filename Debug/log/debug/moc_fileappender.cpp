@@ -7,7 +7,7 @@
 *****************************************************************************/
 
 #include <memory>
-#include "../../../HSAOI_Demo_0920_1/log/log4qt/fileappender.h"
+#include "../../../code/log/log4qt/fileappender.h"
 #include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)

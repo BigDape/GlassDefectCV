@@ -12,7 +12,7 @@ class SignalControlData : public SocketNameSpace::HSSocketInterface
 public:
     SignalControlData(){}
     virtual ~SignalControlData(){}
-    virtual void InitRegs(SignalControl data, QString ip, int port) override;
+    virtual void InitRegs(QString ip, int port) override;
     virtual void Trigger() override;
     virtual void SetAllRegs(SignalControl data) override;
     virtual void SetReg(unsigned short addr_s,

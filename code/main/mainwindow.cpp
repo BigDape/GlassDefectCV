@@ -22,7 +22,10 @@
 #include <Qwt/qwt_symbol.h>
 #include <Qwt/qwt_legend.h>
 #include <Qwt/qwt_plot_curve.h>
+#include <QtNetwork/QHostAddress>
+#include <QtNetwork/QTcpSocket>
 #include "jsoncpp.h"
+
 
 #pragma execution_character_set("utf-8")
 
@@ -39,7 +42,7 @@ MainWindow::MainWindow(QWidget* parent)
     //
     setWindowFlags(Qt::FramelessWindowHint | Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint);
 
-//    MainWindow::InitRegisterMetaType();
+    MainWindow::InitRegisterMetaType();
     MainWindow::InitToolBar();
 //    MainWindow::InitGlassStaticTableWidget();
 //    MainWindow::InitSingleFlawTableWidget();
@@ -62,6 +65,8 @@ MainWindow::~MainWindow()
 void MainWindow::InitRegisterMetaType()
 {
     //注册自定义类型，供connect调用
+    qRegisterMetaType<QAbstractSocket::SocketState>("QAbstractSocket::SocketState");
+
 //    qRegisterMetaType<GlassDataBaseInfo>("GlassDataBaseInfo");  //注册类型，否则不能调用
 //    qRegisterMetaType<QList<FlawPoint>>("QList<FlawPoint>");    //注册类型，否则不能调用
 //    qRegisterMetaType<SummaryResult>("SummaryResult");          //注册类型，否则不能调用
@@ -102,6 +107,11 @@ void MainWindow::InitToolBar()
     m_offline->setToolTip(tr("Offline."));
     m_offline->setIcon(QIcon(":/toolbar/icons/switch.png"));
     ui->toolBar->addAction(m_offline);
+    // 标定
+    m_calibrate = new QAction("&标定", this);
+    m_calibrate->setToolTip(tr("calibrate."));
+    m_calibrate->setIcon(QIcon(":/toolbar/icons/glass.png"));
+    ui->toolBar->addAction(m_calibrate);
 
     ui->toolBar->setIconSize(QSize(40, 40));
     ui->toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
@@ -117,6 +127,7 @@ void MainWindow::InitToolBar()
     connect(m_pStop, SIGNAL(triggered()), this, SLOT(slot_ActionStop()));                   //点击停止响应事件
     connect(m_pDB, SIGNAL(triggered()), this, SLOT(slot_DataSearch()));                     //点击数据查询响应事件
     connect(m_offline, SIGNAL(triggered()), this, SLOT(slot_Offline()));                    //点击离线模式响应事件
+    connect(m_calibrate, SIGNAL(triggered()), this, SLOT(slot_Calibrate()));                //点击标定响应时间
 }
 
 
@@ -199,6 +210,11 @@ void MainWindow::slot_Offline()
    } catch(...) {
       qDebug()<<"slot_ButtonExportClicked() error";
    }
+}
+
+void MainWindow::slot_Calibrate()
+{
+
 }
 
 void MainWindow::InitGlassStaticTableWidget()
