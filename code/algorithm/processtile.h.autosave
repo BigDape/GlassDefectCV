@@ -40,6 +40,7 @@ private:
                              int bottomAddition,
                              int leftAddition,
                              int rightAddition);//边部缺陷检出
+    void ScanFrameDefect(cv::Mat& frameRegion,cv::Mat& baseLine,std::vector<cv::Mat>& defectRegions);
 
 private:
     std::shared_ptr<Process_Detect> cvUnitPtr;

@@ -17,12 +17,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    HSAlgorithmInterface.cpp \
     algorithm.cpp \
     processdetect.cpp \
     processtile.cpp
 
 HEADERS += \
-    algorithm_global.h \
+    HSAlgorithmInterface.h \
     algorithm.h \
     processdetect.h \
     processtile.h
@@ -57,3 +58,17 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../jsoncpp/debug/ -
 
 INCLUDEPATH += $$PWD/../jsoncpp
 DEPENDPATH += $$PWD/../jsoncpp
+
+##OpenCV 4.5 vc15 图形库
+#win32:CONFIG(release, debug|release): LIBS += -LC:/Qt/opencv4.5/build/x64/vc15/lib/ -lopencv_world450
+#else:win32:CONFIG(debug, debug|release): LIBS += -LC:/Qt/opencv4.5/build/x64/vc15/lib/ -lopencv_world450d
+
+#INCLUDEPATH += C:/Qt/opencv4.5/build/include
+#DEPENDPATH += C:/Qt/opencv4.5/build/include
+
+
+win32:CONFIG(release, debug|release): LIBS += -LC:/Qt/opencv/build/x64/vc14/lib/ -lopencv_world454
+else:win32:CONFIG(debug, debug|release): LIBS += -LC:/Qt/opencv/build/x64/vc14/lib/ -lopencv_world454d
+
+INCLUDEPATH += C:/Qt/opencv/build/include
+DEPENDPATH += C:/Qt/opencv/build/include

@@ -1,605 +1,9 @@
 ﻿#include "processtile.h"
+#include <opencv2/imgproc.hpp>
+#include <opencv2/highgui.hpp>
 #include <QDir>
 #pragma execution_character_set("utf-8")
 
-ProcessTile::ProcessTile()
-{
-    init_ProcessTile();
-}
-
-void ProcessTile::init_ProcessTile()
-{
-//    stopFlag_Tile=false;
-//    TileStep = 0;
-//    FrameCount = 0;
-//    GlassPosition = 0;
-//    lastGlassPosition = 0;
-//    ErrFlag = false;
-//    FirstFrame = true;
-//    FieldNumber = Global::FieldNumberSet+1;
-//    TileColumn1 = HTuple();
-//    TileColumn2 = HTuple();
-//    GenEmptyObj(&TileRectangle);
-//    mosaickthread = new ThreadDo[FieldNumber];
-//    MosaickHobject = new HObject[4];
-//    GlassRegion.GenEmptyObj();
-//    RegionsFrameCrop.GenEmptyObj();
-//    RegionFrame.GenEmptyObj();
-//    ImageTile1.GenEmptyObj();
-//    ImageTile2.GenEmptyObj();
-//    ImageTile3.GenEmptyObj();
-//    ImageTile4.GenEmptyObj();
-//    ImageTile1R.GenEmptyObj();
-//    ImageTile2R.GenEmptyObj();
-//    ImageTile3R.GenEmptyObj();
-//    ImageTile4R.GenEmptyObj();
-//    hasStopThread.store(false);
-}
-
-void ProcessTile::run()
-{
-TPLOOP:
-    ProcessTile::TileImageProcess();
-    if(!hasStopThread.load())
-        goto TPLOOP;
-}
-
-//图像预处理
-void ProcessTile::TileImageProcess()
-{
-//    if (Global::isOffline == false && Global::SystemStatus == 0) return;
-//    //
-//    // 离线模式
-//    //
-//    if (Global::isOffline) {
-//        ProcessTile::OfflineTileImageProcess(Global::offlineFullPath);
-//        Global::isOffline = false;
-//        Global::offlineFullPath.clear();
-//        return;
-//    }
-//    //
-//    // 在线模式
-//    //
-//    bool allCamerasStarted = true;
-//    for (auto camera : m_Cameras) {
-//        if (!camera || !camera->IsStarted) {
-//            allCamerasStarted = false;
-//            return; //相机未全部开始，流程提前结束
-//        }
-//    }
-//    bool allCameraIsNotEmpty = true;
-//    if (allCamerasStarted) {
-//        for(auto i:m_Cameras) {
-//            std::unique_lock<std::mutex> sbguard(_mutex);
-//            if(hasStopThread.load()) return;
-//            if(i->m_AcquireImage->ImageQueue.empty()){//这里会崩溃
-//                allCameraIsNotEmpty = false;
-//                return; //相机队列为空，流程提前结束
-//            }
-//        }
-//    }
-
-//    if(allCamerasStarted && allCameraIsNotEmpty) {
-//        std::unique_lock<std::mutex> sbguard(_mutex);
-//        if(hasStopThread.load()) return;
-//        Global::GlobalLock.lock();
-//        FrameCount = m_Cameras[0]->m_AcquireImage->ImageQueue.head().FrameCount;
-//        Global::GlobalLock.unlock();
-//        if(FrameCount == 1) {
-//            Global::ImageHeight = 0;
-//            Global::ImageWidth = 0;
-//            //Err标志位
-//            ErrFlag = false;
-//        }
-//        //帧信号复位
-//        Global::FrameSignal = 0;
-//        GetDictTuple(Global::RecipeDict,"自定义参数",&UserDefinedDict);
-//        qDebug() << "FieldNumber :" <<FieldNumber;
-//        qDebug()<<"mosaickthread start:"<<QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss:zzz");
-//        for (int i = 0; i < FieldNumber; i++) {
-//            qDebug() << "FieldNumber :" <<FieldNumber;
-//            if(i<FieldNumber-1) {
-//                for(int j=0;j<Global::camDefineNum;j++) {
-//                    qDebug() << "camDefineNum :" <<Global::camDefineNum;
-//                    qDebug() << "camDefineNum i :" <<i<< "ImageList.length() :"<<m_Cameras[j]->m_AcquireImage->ImageQueue.head().ImageList.length();
-//                    mosaickthread[i].CameraImageList.append(m_Cameras[j]->m_AcquireImage->ImageQueue.head().ImageList[i]) ;
-//                }
-//                mosaickthread[i].channel=0;
-//            } else {
-//                for(int j=0;j<Global::camDefineNum;j++) {
-//                    qDebug() << "camDefineNum :" <<Global::camDefineNum;
-//                    qDebug() << "camDefineNum i :" <<i<< "ImageList.length() :"<<m_Cameras[j]->m_AcquireImage->ImageQueue.head().ImageList.length();
-//                    mosaickthread[i].CameraImageList.append(m_Cameras[j]->m_AcquireImage->ImageQueue.head().ImageList[0]) ;
-//                }
-//                mosaickthread[i].channel=1;
-//            }
-//            mosaickthread[i].start();//开启线程
-//        }
-
-//        //等待所有线程执行完成
-//        for(int j=0;j<FieldNumber;j++) {
-//            mosaickthread[j].wait();
-//            mosaickthread[j].CameraImageList.clear();
-//        }
-//        qDebug()<<"mosaickthread end:"<<QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss:zzz");
-//    } //if(allCamerasStarted && allCameraIsNotEmpty)
-
-//    qDebug() << "end :" << QDateTime::currentDateTime().toString("HH:mm:ss.zzz");
-//    HTuple isSaveOriImage;
-//    GetDictTuple(UserDefinedDict,"保存原图",&isSaveOriImage);
-//    if(isSaveOriImage==1) {
-//        //
-//        // 保存每一帧小图
-//        //
-//        try {
-//            // 获取当前时间
-//            QString formattedTime = "0";
-//            if (FrameCount == 1) {
-//                QDateTime currentDateTime1 = QDateTime::currentDateTime();
-//                formattedTime = currentDateTime1.toString("yyyy-MM-dd_HH-mm-ss");
-//                Global::currenttime = formattedTime;
-//            } else {
-//                formattedTime = Global::currenttime;
-//            }
-//            QString path = "D:/DTSmalleFile/";
-//            QString dirFileName = formattedTime;
-//            QDir dir(QDir::currentPath());
-//            dir.cd(path);
-//            if(!dir.exists(dirFileName)) {
-//                dir.mkdir(dirFileName);
-//            }
-//            std::string str0 =(path + dirFileName).toStdString();
-//            std::string str1 = (path + dirFileName+QString("/qqqqqqqqq")+QString::number(FrameCount)+QString("1")).toStdString();
-//            std::string str2 = (path + dirFileName+QString("/qqqqqqqqq")+QString::number(FrameCount)+QString("2")).toStdString();
-//            std::string str3 = (path + dirFileName+QString("/qqqqqqqqq")+QString::number(FrameCount)+QString("3")).toStdString();
-//            HTuple str11(str1.c_str());
-//            HTuple str22(str2.c_str());
-//            HTuple str33(str3.c_str());
-//            WriteImage(mosaickthread[0].MosaickResultImage,"jpg",0,str11);
-//            WriteImage(mosaickthread[1].MosaickResultImage,"jpg",0,str22);
-//            WriteImage(mosaickthread[2].MosaickResultImage,"jpg",0,str33);
-
-//        } catch(...) {
-//            qDebug()<<"exception";
-//        }
-//    }
-//    qDebug() << "mosaick success";
-//    for(int j=0;j<Global::camDefineNum;j++) {
-//        Global::GlobalLock.lock();
-//        m_Cameras[j]->m_AcquireImage->ImageQueue.dequeue();
-//        Global::GlobalLock.unlock();
-//    }
-//    ProcessTile::PreProceeTile();
-}
-
-void ProcessTile::PreProceeTile()
-{
-//    ImageUnit imageunit;    //缺陷参数
-//    HoleUnit holeunit;      //尺寸参数
-//    try {
-//        SetSystem("clip_region","false");
-//        HTuple ImageHeight;
-//        HTuple ImageWidth;
-//        HObject RegionFLPanel,RegionOpeningFL,RegionClosingFL,RegionConnectionFL,SelectedRegionsFL;
-//        HObject RegionUnion2Panel,RegionOpeningPanel,RegionConnectionPanel,RegionPanel;
-//        GetImageSize(mosaickthread[0].MosaickResultImage, &ImageWidth, &ImageHeight);//投射亮场获取图像宽和高
-//        if (FirstFrame == true) {
-//            HObject ImageP500;
-//            HObject ImageConcat;
-//            GenEmptyObj(&ImageConcat);
-//            // 从投射亮场左上角（0,0）->右上角(ImageWidth,500)截取图像
-//            CropPart(mosaickthread[0].MosaickResultImage,&ImageP500,0,0,ImageWidth,500);
-//            for (int j=1; j <= ImageHeight/500+2; j++) {
-//                ConcatObj(ImageConcat,ImageP500,&ImageConcat); //复制
-//            }
-//            TileImages(ImageConcat,&BackGroundImage,1,"vertical") ;// 拼接成背景图像
-//            FirstFrame = false ;
-//            QString info="拼图步骤"+ QString::number(FrameCount) + "亮场背景处理完成！";
-////            log_singleton::Write_Log(info, Log_Level::General);
-//        }
-//        //从拼接的背景图像上截取宽ImageWidth和长ImageHeight的背景图像
-//        CropPart(BackGroundImage,&BackGroundImage, 0, 0, ImageWidth, ImageHeight);
-//        HTuple str2 = "D:/q111";
-//        WriteImage(BackGroundImage,"jpg",0,str2);
-//        HTuple Row1,Column1,Phi1,Length1,Length2;
-//        HObject SubImage1,SubRegion1,RegionUnion1,RegionFillUp1,RegionOpening1,ConnectedRegions1,SelectedRegions1;
-//        HObject RegionLines, RegionLines1, RegionLines2;
-//        SubImage(BackGroundImage, mosaickthread[0].MosaickResultImage, &SubImage1, 1, 0);//背景图-透射场图像
-//        HTuple str3 = "D:/q222";
-//        WriteImage(SubImage1,"jpg",0,str3);
-
-//        //反射亮場
-//        Threshold(mosaickthread[1].MosaickResultImage, &RegionFLPanel, 20, 255);//Threshold(mosaickthread[1].MosaickResultImage, &RegionFLPanel, 20, 255);
-//        HTuple RegionsWidth;
-//        //反射亮場找面内區域
-//        ClosingCircle(RegionFLPanel,&RegionClosingFL,3.5);
-//        Connection(RegionClosingFL,&RegionConnectionFL);
-//        SelectShapeStd(RegionConnectionFL, &SelectedRegionsFL, "max_area", 70);
-//        RegionFeatures(SelectedRegionsFL,"width",&RegionsWidth);
-//        //透射亮场
-//        Threshold(SubImage1, &SubRegion1, 150, 255);//Threshold(SubImage1, &SubRegion1, 30, 255);
-//        OpeningRectangle1(SubRegion1,&RegionOpening1,100,1);
-//        Connection(RegionOpening1, &ConnectedRegions1);
-//        SelectShape(ConnectedRegions1,&SelectedRegions1,"width","and",0.5*RegionsWidth,2*RegionsWidth);
-
-//        ConcatObj(SelectedRegions1,SelectedRegionsFL,&RegionUnion2Panel);
-//        Union1(RegionUnion2Panel,&RegionUnion2Panel);
-
-//        ClosingCircle(RegionUnion2Panel,&RegionOpeningPanel,1.5);
-//        Connection(RegionOpeningPanel,&RegionConnectionPanel);
-//        SelectShapeStd(RegionConnectionPanel, &RegionPanel, "max_area", 70);
-//        SelectShape(RegionPanel,&RegionPanel,"area","and",100,999999999);
-
-//        HTuple RegionPanelArea;
-//        RegionFeatures(RegionPanel,"area",&RegionPanelArea);
-//        qDebug()<<"RegionPanelArea"<<RegionPanelArea.ToString().Text();
-//        HTuple Number,PanelArea,RowPanel,ColumnPanel,PhiPanel,LengthPanel1,LengthPanel2;
-//        CountObj(RegionPanel, &Number);
-//        if (Number.TupleInt() > 0) {
-//            RegionFeatures(RegionPanel,"area",&PanelArea);
-//            SmallestRectangle2(RegionPanel, &RowPanel, &ColumnPanel, &PhiPanel, &LengthPanel1, &LengthPanel2);
-//            HTuple a = 0.8*(4*LengthPanel1*LengthPanel2);
-//            HTuple Row1, Column1,Row2,Column2;
-//            SmallestRectangle1(RegionPanel,&Row1, &Column1, &Row2,&Column2);//(Row1,Column1)左上角坐标，(Row2,Column2)右下角坐标
-//            //
-//            // 玻璃位置判断和截取区域提取start
-//            //
-//            HTuple RegionRow2,QKNum;
-//            RegionFeatures(GlassRegion,"row2",&RegionRow2); // 右下角行坐标
-//            HObject RegionContours,RegionPanelMoved;
-//            RegionContours = RegionPanel;
-
-//            if((Column2 - Column1 > 3000) && Row2-Row1>500) {
-//                if(Row1>0 && Row2 < ImageHeight-1) {
-//                    //完整玻璃
-//                    GlassPosition=0;
-//                    GlassRegion.GenEmptyObj();
-//                    GlassRegion=RegionContours;
-//                } else {
-//                    if(Row1>0) {
-//                        //玻璃头部
-//                        Global::CamRowsPerField = ImageHeight;
-//                        GlassPosition=1;
-//                        GlassRegion.GenEmptyObj();
-//                        GlassRegion=RegionContours;
-//                    } else {
-//                        if(Row2<ImageHeight-1) {
-//                            //玻璃尾部
-//                            GlassPosition=3;
-//                        } else {
-//                            //玻璃中部
-//                            GlassPosition=2;
-//                        }
-//                    }
-//                }
-//            //
-//            // 完整玻璃或玻璃头部或第一帧
-//            //
-//            if(GlassPosition == 0 || GlassPosition==1 || FrameCount == 1) {
-//                if ( Column1>1000 ) {
-//                    TileColumn1 = Column1-1000;
-//                } else {
-//                    TileColumn1=0;
-//                }
-
-//                if(ImageWidth-Column2>1000) {
-//                    TileColumn2=Column2+1000;
-//                } else {
-//                    TileColumn2 = ImageWidth-1;
-//                }
-//                qDebug()<<"Column2//////////////////////////////////////////"<<Column2.ToString().Text();
-//                qDebug() <<"TileColumn1"<<TileColumn1.ToString().Text();
-//                qDebug()<<"TileColumn2"<<TileColumn2.ToString().Text();
-//                qDebug() << "ImageHeighttttt :" << ImageHeight.ToString().Text();
-//            }
-//        } else {
-//            GlassPosition=3;
-////            QString info="拼图步骤"+ QString::number(FrameCount) + "玻璃有效区域占比小！定为玻璃尾部";
-////            log_singleton::Write_Log(info, Log_Level::General);
-//        }
-
-//        //玻璃region
-//        if(GlassPosition==2 || GlassPosition==3) {
-//            if(RegionRow2>0) {
-//                MoveRegion(RegionContours,&RegionPanelMoved,RegionRow2,0);
-//                Union2(GlassRegion,RegionPanelMoved,&GlassRegion);
-//                RegionContours.Clear();
-//                RegionPanelMoved.Clear();
-//            }
-//        }
-
-//        if(GlassPosition==3) {
-//            //一次扫描结束
-//            Global::FrameSignal=1;
-//        }
-
-//        if(FrameCount == 1 && Row1 == 0) {
-////            QString info="拼图步骤"+ QString::number(FrameCount) + "玻璃头部未扫描";
-////            log_singleton::Write_Log(info, Log_Level::General);
-//        }
-//        //单帧玻璃区域矫正
-//        MoveRegion(RegionPanel,&RegionFrame,0,-TileColumn1);
-//        //截取有效区域
-//        GenRectangle1(&TileRectangle, 0, TileColumn1,ImageHeight - 1 , TileColumn2);
-//        HTuple width1;
-//        RegionFeatures(TileRectangle,"width",&width1);
-//        qDebug() << "width1 :" << width1.ToString().Text();
-//        HObject ImageReduced[4];
-//        HObject ImagePart[4];
-
-//        for(int i=0;i<FieldNumber;i++) {
-//            ReduceDomain(mosaickthread[i].MosaickResultImage, TileRectangle, &ImageReduced[i]);
-//            CropDomain(ImageReduced[i], &ImagePart[i]);
-//        }
-//        //拼整图
-//        if(GlassPosition!=0) {
-//            HTuple ImageHeight1;
-//            HTuple ImageWidth1;
-//            GetImageSize(ImagePart[0], &ImageWidth1, &ImageHeight1);
-//            //拼接前
-//            if(GlassPosition==1) {
-//                ImageTile1.GenEmptyObj();
-//                ImageTile2.GenEmptyObj();
-//                ImageTile3.GenEmptyObj();
-//                ImageTile4.GenEmptyObj();
-
-//                qDebug()<<"ImageWidth1"<<ImageWidth1.ToString().Text()<<"ImageHeight1"<<ImageHeight1.ToString().Text();
-//                HObject ho_ImagePart[4],ho_ObjectsConcat[4],ho_TiledImage[4];
-//                for(int i=0;i<FieldNumber;i++) {
-//                    CropPart(ImagePart[i], &ho_ImagePart[i], 0, 0, ImageWidth1, 200);
-//                    GenEmptyObj(&ho_ObjectsConcat[i]);
-//                    ConcatObj(ho_ImagePart[i], ImagePart[i], &ho_ObjectsConcat[i]);
-//                    TileImagesOffset(ho_ObjectsConcat[i],
-//                                     &ho_TiledImage[i],
-//                                     (HTuple(0).Append(200)), //行偏移数
-//                                     (HTuple(0).Append(0)),  //列偏移数
-//                                     (HTuple(-1).Append(-1)), //旋转角度偏移值，此处为默认不偏移角度
-//                                     (HTuple(-1).Append(-1)),//水平方向缩放因子
-//                                     (HTuple(-1).Append(-1)), //垂直方向缩放因子
-//                                     (HTuple(-1).Append(-1)), //
-//                                     ImageWidth1,               // 输出图像宽度
-//                                     ImageHeight+200);       // 输出图像高度
-//                }
-
-//                ConcatObj(ImageTile1, ho_TiledImage[0], &ImageTile1);
-//                ConcatObj(ImageTile2, ho_TiledImage[1], &ImageTile2);
-//                ConcatObj(ImageTile3, ho_TiledImage[2], &ImageTile3);
-//                ConcatObj(ImageTile4, ho_TiledImage[3], &ImageTile4);
-
-//                HTuple ImageHeight2;
-//                HTuple ImageWidth2;
-//                GetImageSize(ho_TiledImage[0], &ImageWidth2, &ImageHeight2);
-//                qDebug()<<"ImageWidth2"<<ImageWidth2.ToString().Text()<<"ImageHeight2"<<ImageHeight2.ToString().Text();
-
-//                for(int i=0;i<FieldNumber;i++){
-//                    GenEmptyObj(&ho_ImagePart[i]);
-//                    GenEmptyObj(&ho_ObjectsConcat[i]);
-//                    GenEmptyObj(&ho_TiledImage[i]);
-//                }
-//            } else {
-//                CropPart(ImagePart[0],&ImagePart[0],0,0,ImageWidth1,ImageHeight1);
-//                CropPart(ImagePart[1],&ImagePart[1],0,0,ImageWidth1,ImageHeight1);
-//                CropPart(ImagePart[2],&ImagePart[2],0,0,ImageWidth1,ImageHeight1);
-//                CropPart(ImagePart[3],&ImagePart[3],0,0,ImageWidth1,ImageHeight1);
-//                ConcatObj(ImageTile1, ImagePart[0], &ImageTile1);
-//                ConcatObj(ImageTile2, ImagePart[1], &ImageTile2);
-//                ConcatObj(ImageTile3, ImagePart[2], &ImageTile3);
-//                ConcatObj(ImageTile4, ImagePart[3], &ImageTile4);
-//            }
-//            //拼接
-//            if (GlassPosition==3) {
-//                HTuple NumTile;
-//                CountObj(ImageTile1,&NumTile);
-//                if(NumTile>0) {
-//                    Cam1pixs = ImageWidth/2 - TileColumn1;
-//                    Cam1Width = ImageWidth/2;
-//                    Tile2Column1 = TileColumn1;
-
-//                    if(Cam1pixs<0) {
-//                        Cam1pixs=0;
-//                    }
-//                    TileImages(ImageTile1, &ImageTile1R, 1, "vertical");
-//                    TileImages(ImageTile2, &ImageTile2R, 1, "vertical");
-//                    TileImages(ImageTile3, &ImageTile3R, 1, "vertical");
-//                    TileImages(ImageTile4, &ImageTile4R, 1, "vertical");
-
-////                    QString info="拼图步骤"+ QString::number(FrameCount) + "开始写入数据！";
-////                    log_singleton::Write_Log(info, Log_Level::General);
-//                    HTuple isSaveWholeImage;
-//                    GetDictTuple(UserDefinedDict,"保存整图",&isSaveWholeImage);
-//                    if(isSaveWholeImage==1) {
-//                        try {
-//                             // 获取当前时间
-//                             QDateTime currentDateTime1 = QDateTime::currentDateTime();
-//                             QString formattedTime = currentDateTime1.toString("yyyy-MM-dd_HH-mm-ss");
-//                             QString path = "D:/DTFile/";
-//                             QString dirFileName = formattedTime;
-//                             QDir dir(QDir::currentPath());
-//                             dir.cd(path);
-//                             if(!dir.exists(dirFileName)) {
-//                                 dir.mkdir(dirFileName);
-//                             }
-//                             std::string str0 =(path + dirFileName).toStdString();
-//                             std::string str1 = (path + formattedTime+QString("/tile1")).toStdString();
-//                             std::string str2 = (path + formattedTime+QString("/tile2")).toStdString();
-//                             std::string str3 = (path + formattedTime+QString("/tile3")).toStdString();
-//                             std::string str4 = (path + formattedTime+QString("/tile4")).toStdString();
-//                             HTuple str11(str1.c_str());
-//                             HTuple str22(str2.c_str());
-//                             HTuple str33(str3.c_str());
-//                             HTuple str44(str4.c_str());
-//                             WriteImage(ImageTile1R,"jpg",0,str11);
-//                             WriteImage(ImageTile2R,"jpg",0,str22);
-//                             WriteImage(ImageTile3R,"jpg",0,str33);
-//                             WriteImage(ImageTile4R,"jpg",0,str44);
-//                        } catch(...) {
-//                             WriteImage(ImageTile1R,"jpg",0,"D:/tile1");
-//                             WriteImage(ImageTile2R,"jpg",0,"D:/tile2");
-//                             WriteImage(ImageTile3R,"jpg",0,"D:/tile3");
-//                             WriteImage(ImageTile4R,"jpg",0,"D:/tile4");
-//                         }
-//                     }
-//                     GenEmptyObj(&ImageTile1);
-//                     GenEmptyObj(&ImageTile2);
-//                     GenEmptyObj(&ImageTile3);
-//                     GenEmptyObj(&ImageTile4);
-//                 }
-//            }
-//        } else {
-//            ImageTile1R = ImagePart[0];
-//            ImageTile2R = ImagePart[1];
-//            ImageTile3R = ImagePart[2];
-//            ImageTile4R = ImagePart[3];
-//        }
-//        //判断玻璃尾端
-//        qDebug() << "lastGlassPosition :" << lastGlassPosition;
-//        qDebug() << "GlassPosition :" << GlassPosition;
-//        if(GlassPosition==3 && (lastGlassPosition==2 || lastGlassPosition==1)) {
-//            HObject ObjectsConcat[3];
-//            //玻璃尾部，拼接上张图像尾部1000行
-//            HTuple ImageHeight1;
-//            HTuple ImageWidth1;
-//            GetImageSize(ImagePart[0], &ImageWidth1, &ImageHeight1);
-//            for(int i=0;i<FieldNumber-1;i++) {
-//                ConcatObj(ImageCrop[i], ImagePart[i], &ObjectsConcat[i]);
-//                TileImagesOffset(ObjectsConcat[i], &ImagePart[i], (HTuple(0).Append(1000)), (HTuple(0).Append(0)),
-//                      (HTuple(-1).Append(-1)), (HTuple(-1).Append(-1)), (HTuple(-1).Append(-1)),
-//                      (HTuple(-1).Append(-1)), ImageWidth1, ImageHeight1+1000);
-//            }
-//            HObject RegionsFrameMoved;
-//            MoveRegion(RegionFrame,&RegionsFrameMoved,1000,0);
-//            Union2(RegionsFrameMoved,RegionsFrameCrop,&RegionFrame);
-//            RegionsFrameMoved.Clear();
-//            RegionsFrameCrop.Clear();
-//            ObjectsConcat->Clear();
-//        } else {
-//            if(GlassPosition==1 || GlassPosition==2) {
-//                if(ImageHeight>1000) {
-//                    //截取图像尾部1000行
-//                    HObject CropRectangle,ImageCropRecReduced[3];
-//                    GenRectangle1(&CropRectangle, ImageHeight -1 -1000, TileColumn1,ImageHeight - 1 , TileColumn2);
-//                    for(int i=0;i<FieldNumber-1;i++) {
-//                        ReduceDomain(mosaickthread[i].MosaickResultImage, CropRectangle, &ImageCropRecReduced[i]);
-//                        CropDomain(ImageCropRecReduced[i], &ImageCrop[i]);
-//                        ImageCropRecReduced[i].Clear();
-//                    }
-//                    CropRectangle.Clear();
-//                    //截取Region尾部1000行
-//                    HTuple Row1Frame,Column1Frame,Row2Frame,Column2Frame,FrameRowVal;
-//                    HObject RegionLinesFrame,RegionDifferenceFrame,ConnectedRegionsFrame,SelectedRegionsFrame;
-
-//                    SmallestRectangle1(RegionFrame,&Row1Frame, &Column1Frame, &Row2Frame,&Column2Frame);
-//                    GenRegionLine(&RegionLinesFrame, Row2Frame-1000, Column1Frame-100, Row2Frame-1000, Column2Frame+100);
-//                    Difference(RegionFrame,RegionLinesFrame,&RegionDifferenceFrame);
-//                    Connection(RegionDifferenceFrame,&ConnectedRegionsFrame);
-//                    SelectShape(ConnectedRegionsFrame,&SelectedRegionsFrame, "row","and",Row2Frame-1000,Row2Frame);
-//                    RegionFeatures(SelectedRegionsFrame,"row1",&FrameRowVal);
-//                    MoveRegion(SelectedRegionsFrame,&RegionsFrameCrop,-FrameRowVal,0);
-//                    RegionLinesFrame.Clear();
-//                    RegionDifferenceFrame.Clear();
-//                    ConnectedRegionsFrame.Clear();
-//                    SelectedRegionsFrame.Clear();
-//                } else {
-////                    QString info="拼图步骤"+ QString::number(FrameCount) + "图像高度小于1000！";
-////                    log_singleton::Write_Log(info, Log_Level::General);
-//                }
-//            }
-//        }
-//        lastGlassPosition = GlassPosition;
-//        //
-//        // 玻璃位置判断和截取区域提取end
-//        //
-//        HTuple isSaveCropImage;
-//        GetDictTuple(UserDefinedDict,"保存裁剪图像",&isSaveCropImage);
-//        if(isSaveCropImage==1) {
-//            HTuple b= FrameCount;
-//            WriteImage(ImagePart[0], "jpg", 0, "D:/QQQ1"+b);
-//            WriteImage(ImagePart[1], "jpg", 0, "D:/QQQ2"+b);
-//            WriteImage(ImagePart[2], "jpg", 0, "D:/QQQ3"+b);
-//        }
-
-//        GenEmptyObj(&imageunit.ImageList);
-//        ConcatObj(imageunit.ImageList, ImagePart[0], &imageunit.ImageList);
-//        ConcatObj(imageunit.ImageList, ImagePart[1], &imageunit.ImageList);
-//        ConcatObj(imageunit.ImageList, ImagePart[2], &imageunit.ImageList);
-// //     ConcatObj(imageunit.ImageList, ImagePart[3], &imageunit.ImageList);
-
-//        HTuple ImageListNum;
-//        CountObj(imageunit.ImageList, &ImageListNum);
-//        qDebug() << "ImageListNum :" << ImageListNum.ToString().Text();
-//        imageunit.GlassPositionInf = GlassPosition;
-//        imageunit.ProcessStep = FrameCount;
-//        imageunit.ErrorFlag = ErrFlag;
-//        imageunit.ImageRegion = GlassRegion;
-//        imageunit.FrameRegion = RegionFrame;
-
-//        holeunit.Cam1pixs = Cam1pixs;
-//        holeunit.Cam1Width = Cam1Width;
-//        holeunit.ImageTile1R = ImageTile1R;
-//        holeunit.ImageTile2R = ImageTile2R;
-//        holeunit.ImageTile3R = ImageTile3R;
-//        holeunit.ImageTile4R = ImageTile4R;
-//        holeunit.Tile2Column1 = Tile2Column1;
-
-//        if(hasStopThread.load()) return;
-//        _args.holeunit=holeunit;
-//        _args.imageunit = imageunit;
-//        preImageQueue.inqueue(_args);
-
-//        for(int i=0;i<FieldNumber;i++) {
-//            ImageReduced[i].Clear();
-//            ImagePart[i].Clear();
-//        }
-////        QString info="拼图步骤"+ QString::number(FrameCount) + "完成！";
-////        log_singleton::Write_Log(info, Log_Level::General);
-//     } else {
-////        QString info="拼图步骤"+ QString::number(FrameCount) + "无玻璃！";
-////        log_singleton::Write_Log(info, Log_Level::General);
-//     }
-//        for(int i=0;i<FieldNumber;i++)
-//        {
-//          mosaickthread[i].MosaickResultImage.Clear();
-//        }
-//     SubImage1.Clear();
-//     SubRegion1.Clear();
-//     RegionUnion1.Clear();
-//     RegionFillUp1.Clear();
-//     RegionOpening1.Clear();
-//     ConnectedRegions1.Clear();
-//     SelectedRegions1.Clear();
-//     RegionLines.Clear();
-//     RegionLines1.Clear();
-//     RegionLines2.Clear();
-//     RegionFLPanel.Clear();
-//     RegionOpeningFL.Clear();
-//     RegionClosingFL.Clear();
-//     RegionConnectionFL.Clear();
-//     SelectedRegionsFL.Clear();
-//     RegionUnion2Panel.Clear();
-//     RegionOpeningPanel.Clear();
-//     RegionConnectionPanel.Clear();
-//     RegionPanel.Clear();
-//     TileRectangle.Clear();
-//    } catch (HalconCpp::HException& Except) {
-//     qDebug() << "HalconHalconErr:" << Except.ErrorMessage().Text();
-//     qDebug() << "拼图步骤:" << QString::number(FrameCount) + "异常！";
-//     imageunit.ProcessStep = FrameCount;
-//     imageunit.GlassPositionInf=101;
-//     ErrFlag = true;
-//     imageunit.ErrorFlag=ErrFlag;
-//     GenEmptyObj(&imageunit.ImageList);
-//     GenEmptyObj(&imageunit.ImageRegion);
-//     GenEmptyObj(&imageunit.FrameRegion);
-//     imageunit = {};
-//     ImageTile1.Clear();
-//     ImageTile2.Clear();
-//     ImageTile3.Clear();
-//     ImageTile4.Clear();
-//     mosaickResult.clear();
-////     QString info="拼图步骤"+ QString::number(FrameCount) + "异常";
-////     log_singleton::Write_Log(info, Log_Level::General);
-//    }
-}
 
 // 离线模式调用的函数
 void ProcessTile::OfflineTileImageProcess(QString fullpath)
@@ -631,5 +35,301 @@ void ProcessTile::OfflineTileImageProcess(QString fullpath)
 //    } else {
 //        qDebug() << tile1Fullpath << tile2Fullpath << tile3Fullpath << tile4Fullpath << " is not exists()";
 //    }
+}
+
+
+void ProcessTile::CV_DefectsDetected(cv::Mat image1, cv::Mat image2, cv::Mat image3)
+{
+    if (image1.rows > 0 ) {
+       cv::Mat backgroundRow = image1.row(0);
+       cv::Mat backgroundCol = image1.col(0);
+       // 去除背景
+       cv::Mat region  = image1 - (backgroundRow * backgroundCol);
+       ProcessTile::saveMatToImage("region.jpg", region);
+       // 获取region
+
+
+       std::vector<std::vector<cv::Point> > contours;
+       cv::findContours(region, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE); //找轮廓
+
+       double maxArea = 0;
+       int maxAreaContourIndex = -1;
+       for (size_t i = 0; i < contours.size(); i++) {
+           double area = cv::contourArea(contours[i]);
+           if (area > maxArea) {
+               maxArea = area;
+               maxAreaContourIndex = i;
+           }
+       }
+
+       if (maxAreaContourIndex != -1) {
+           std::vector<cv::Point> largestContour = contours[maxAreaContourIndex];
+           qDebug()<<"最大外轮廓的面积："<<maxArea;
+           // 绘制最大轮廓
+           cv::Mat drawing = cv::Mat::zeros(region.size(), CV_8UC1);
+           cv::drawContours(drawing, std::vector<std::vector<cv::Point>>{largestContour}, -1, cv::Scalar(0, 255, 0), 2);
+           //获取最大外接矩形，且向四周延伸128行
+           cv::Rect boundingRect = cv::boundingRect(largestContour);
+           int topAddition = std::min(128, boundingRect.y);
+           int bottomAddition = std::min(128, image1.rows - boundingRect.y - boundingRect.height);
+           int leftAddition = std::min(128, boundingRect.x);
+           int rightAddition = std::min(128, image1.cols - boundingRect.x - boundingRect.width);
+           boundingRect.x -= leftAddition;
+           boundingRect.y -= topAddition;
+           boundingRect.width += leftAddition + rightAddition;
+           boundingRect.height += topAddition + bottomAddition;
+           // 裁剪图像，获取面内区域
+           cv::Mat croppedImage1 = image1(boundingRect);
+           cv::Mat baseline;
+           // 获取基准矩阵
+           ProcessTile::getBaseLineFromImage(croppedImage1, baseline);
+           // 边部缺陷检出
+           std::vector<cv::Mat> edgeregions;
+           ProcessTile::edgeDefectDetection(croppedImage1,
+                                            edgeregions,
+                                            topAddition,
+                                            bottomAddition,
+                                            leftAddition,
+                                            rightAddition);
+           // 面部缺陷检出
+           cv::Rect FrameRect(256,256,croppedImage1.cols-256*2,croppedImage1.rows-256*2);
+           cv::Mat FrameImage = croppedImage1(FrameRect);
+           // 基准矩阵首尾去除掉256个元素，是边框的图像
+           cv::Rect baseRect(0,255,baseline.cols-512,1);
+           cv::Mat frameBaseLine = baseline(baseRect);
+           std::vector<cv::Mat> defectRegions;
+           ProcessTile::ScanFrameDefect(FrameImage, frameBaseLine, defectRegions);
+       }
+    }
+
+}
+
+ void ProcessTile::saveMatToImage(QString fullpath,cv::Mat& region )
+ {
+     // 将图像保存为新的文件
+     bool success = cv::imwrite(fullpath.toStdString().c_str(), region);
+     if (success) {
+         std::cout << "图像保存成功。" << std::endl;
+     } else {
+         std::cout << "图像保存失败。" << std::endl;
+     }
+ }
+
+// 左上角坐标点和右上角坐标点
+void ProcessTile::cropRectangleMat(const cv::Mat image,
+                                    cv::Mat &dst,
+                                    int row1y,
+                                    int Column1x,
+                                    int row2y,
+                                    int Column2x)
+ {
+     // 确保裁剪区域在图像范围内
+     CV_Assert(row1y >= 0 && row1y < image.rows && Column1x >= 0 && Column1x < image.cols);
+     CV_Assert(row2y >= 0 && row2y <= image.rows && Column2x >= 0 && Column2x <= image.cols);
+     CV_Assert(row1y < row2y && Column1x < Column2x);
+
+     // 创建裁剪区域的Rect对象
+     cv::Rect roi(Column1x, row1y, Column2x - Column1x, row2y - row1y);
+
+     // 使用ROI裁剪图像
+     dst = image(roi);
+ }
+
+void ProcessTile::prewittEdgeDetection(cv::Mat& src, cv::Mat& dst) {
+    cv::Mat kernelX = (cv::Mat_<int>(3, 3) << -1, 0, 1,
+                       -1, 0, 1,
+                       -1, 0, 1);
+    cv::Mat kernelY = (cv::Mat_<int>(3, 3) << -1, -1, -1,
+                       0, 0, 0,
+                       1, 1, 1);
+
+    cv::Mat gx, gy;
+    cv::filter2D(src, gx, -1, kernelX);
+    cv::filter2D(src, gy, -1, kernelY);
+
+    cv::magnitude(gx, gy, dst);
+}
+
+void ProcessTile::getBaseLineFromImage(cv::Mat& region, cv::Mat& baseline)
+{
+    if (region.rows > 0 ) {
+       cv::Mat baseLineRow1 = region.row(region.rows/4);
+       cv::Mat baseLineRow2 = region.row((region.rows/4)*2);
+       cv::Mat baseLineRow3 = region.row((region.rows/4)*3);
+       cv::Scalar meanValue1 = cv::mean(baseLineRow1);
+       double average1 = meanValue1[0];
+       cv::Scalar meanValue2 = cv::mean(baseLineRow2);
+       double average2 = meanValue2[0];
+       cv::Scalar meanValue3 = cv::mean(baseLineRow3);
+       double average3 = meanValue3[0];
+       double midAverage = 0;
+       if ((average1 <= average2 && average2 <= average3) || (average3 <= average2 && average2 <= average1)) {
+           midAverage = average2;
+           baseline = baseLineRow2;
+       } else if ((average2 <= average1 && average1 <= average3) || (average3 <= average1 && average1 <= average2)) {
+           midAverage = average1;
+           baseline = baseLineRow1;
+       } else {
+           midAverage = average3;
+           baseline = baseLineRow3;
+       }
+    }
+}
+
+void ProcessTile::edgeDefectDetection(cv::Mat& region,
+                                      std::vector<cv::Mat>& edgeregions,
+                                      int topAddition,
+                                      int bottomAddition,
+                                      int leftAddition,
+                                      int rightAddition)
+{
+    //
+    // 将边部全部切分，用来识别崩边和门夹
+    //
+    int regionRow = region.rows;
+    int regionCol = region.cols;
+    int smallRegionCount = 0;
+    //
+    // 沿着图像的最上边依次裁剪小图
+    //
+    if (topAddition != 0) {
+        for (int i =0; i < regionCol/256; ++i) {
+            cv::Rect rect(i*256, 0, 256, 256);
+            cv::Mat smallRegion = region(rect);
+            edgeregions.push_back(smallRegion);
+            ++smallRegionCount;
+            QString edgeFullpath = "./edge"+QString::number(smallRegionCount)+".jpg";
+            ProcessTile::saveMatToImage(edgeFullpath,smallRegion );
+        }
+        //不足256*256部分也截取
+        if (regionCol%256 != 0) {
+            int lastX = regionCol - (regionCol%256);
+            cv::Rect rect(lastX, 0, regionCol%256, 256);
+            cv::Mat smallRegion = region(rect);
+            edgeregions.push_back(smallRegion);
+            ++smallRegionCount;
+            QString edgeFullpath = "./edge"+QString::number(smallRegionCount)+".jpg";
+            ProcessTile::saveMatToImage(edgeFullpath,smallRegion );
+        }
+
+    }
+    //
+    // 沿着图像的最右边开始裁剪小图
+    //
+    if (rightAddition != 0) {
+        for (int i = 1; i < regionRow/256; ++i) {
+            cv::Rect rect(regionCol-256, i*256, 256, 256);
+            cv::Mat smallRegion = region(rect);
+            edgeregions.push_back(smallRegion);
+            ++smallRegionCount;
+            QString edgeFullpath = "./edge"+QString::number(smallRegionCount)+".jpg";
+            ProcessTile::saveMatToImage(edgeFullpath,smallRegion );
+        }
+        if (regionRow%256 != 0) {
+            int lastY = regionRow - (regionRow%256);
+            cv::Rect rect(regionCol-256,lastY, 256, regionRow%256);
+            cv::Mat smallRegion = region(rect);
+            edgeregions.push_back(smallRegion);
+            ++smallRegionCount;
+            QString edgeFullpath = "./edge"+QString::number(smallRegionCount)+".jpg";
+            ProcessTile::saveMatToImage(edgeFullpath,smallRegion );
+        }
+    }
+    //
+    // 沿着图像最下边缘开始裁剪小图
+    //
+    if (bottomAddition != 0) {
+        for (int i =0; i < regionCol/256 -1; ++i) {
+            cv::Rect rect(i*256, regionRow - 256, 256, 256);
+            cv::Mat smallRegion = region(rect);
+            edgeregions.push_back(smallRegion);
+            ++smallRegionCount;
+        }
+        if (regionCol%256 != 0) {
+            int lastX = regionCol - (regionCol%256) - 256;
+            cv::Rect rect(lastX, regionRow - 256, regionCol%256 , 256);
+            cv::Mat smallRegion = region(rect);
+            edgeregions.push_back(smallRegion);
+            ++smallRegionCount;
+            QString edgeFullpath = "./edge"+QString::number(smallRegionCount)+".jpg";
+            ProcessTile::saveMatToImage(edgeFullpath,smallRegion );
+        }
+    }
+    //
+    // 沿着图像的最左边开始裁剪小图
+    //
+    if (leftAddition != 0) {
+        for (int i = 1; i < regionRow/256 -1; ++i) {
+            cv::Rect rect(0, i*256, 256, 256);
+            cv::Mat smallRegion = region(rect);
+            edgeregions.push_back(smallRegion);
+            ++smallRegionCount;
+            QString edgeFullpath = "./edge"+QString::number(smallRegionCount)+".jpg";
+            ProcessTile::saveMatToImage(edgeFullpath,smallRegion );
+        }
+        if (regionRow % 256 != 0) {
+            int lastY = regionRow - (regionRow%256) - 256;
+            cv::Rect rect(0,lastY, 256, regionRow%256);
+            cv::Mat smallRegion = region(rect);
+            edgeregions.push_back(smallRegion);
+            ++smallRegionCount;
+            QString edgeFullpath = "./edge"+QString::number(smallRegionCount)+".jpg";
+            ProcessTile::saveMatToImage(edgeFullpath,smallRegion );
+        }
+    }
+}
+
+void ProcessTile::ScanFrameDefect(cv::Mat& frameRegion, cv::Mat& baseLine, std::vector<cv::Mat>& defectRegions)
+{
+    if (frameRegion.cols == baseLine.cols) {
+        for (int i=0 ; i < frameRegion.rows; ++i) {
+            cv::Mat rowLine = frameRegion.row(i);
+            frameRegion.row(i) = baseLine - rowLine;
+        }
+    }
+    //
+    // 二值化，备用threshold(rice, riceBW, 50, 255, THRESH_BINARY);
+    //
+    int rows = frameRegion.rows;
+    int cols = frameRegion.cols;
+
+    // 创建二值化后的图像矩阵
+    cv::Mat binaryImage(rows, cols, CV_8UC1);
+
+    // 进行二值化处理
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            int pixelValue = frameRegion.at<uchar>(i, j);
+            if (abs(pixelValue) > 10) {
+                binaryImage.at<uchar>(i, j) = 1;
+            } else {
+                binaryImage.at<uchar>(i, j) = 0;
+            }
+        }
+    }
+    // 将相连的域联通
+    cv::Mat labels;
+    cv::Mat stats;
+    cv::Mat centroids;
+    int numComponents = connectedComponentsWithStats(binaryImage, labels, stats, centroids);//连通域
+    int defectcount = 0;
+    qDebug()<<"numComponents =" << numComponents;
+    for (int i = 1; i < numComponents; i++) {
+        int x = stats.at<int>(i, cv::CC_STAT_LEFT);
+        int y = stats.at<int>(i, cv::CC_STAT_TOP);
+        int width = stats.at<int>(i, cv::CC_STAT_WIDTH);
+        int height = stats.at<int>(i, cv::CC_STAT_HEIGHT);
+        cv::Rect rect(x,y,width,height);
+        int area = stats.at<int>(i, cv::CC_STAT_AREA);
+        double areaX = centroids.at<double>(i, 0);
+        double areaY = centroids.at<double>(i, 1);
+        if (area > 10) {//面积大于10的缺陷会被检出
+            cv::Mat defectRegion = frameRegion(rect);
+            defectRegions.push_back(defectRegion);
+            QString edgeFullpath = "./defect"+QString::number(defectcount)+".jpg";
+            ProcessTile::saveMatToImage(edgeFullpath,defectRegion);
+            qDebug()<<"areaX = " <<areaX <<",areaY ="<<areaY;
+        }
+    }
 }
 

@@ -8,8 +8,11 @@ class Test_myClass:public QObject
 {
     Q_OBJECT
 private slots:
-    void Test(){
+    void Test1(){
         QCOMPARE(1,1);
+    }
+    void Test2(){
+        QCOMPARE(1,2);
     }
 };
 

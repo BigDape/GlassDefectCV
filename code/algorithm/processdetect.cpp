@@ -5,6 +5,7 @@
 #include <QQueue>
 #include <QDir>
 #include <QThread>
+#include <math.h>
 #include "processtile.h"
 #include "jsoncpp.h"
 
@@ -12,661 +13,938 @@
 
 Process_Detect::Process_Detect()
 {
-    ResultNotOutFlag = false;
-    ErrFlag = false;
-    baseinfo = GlassDataBaseInfo();
-    YCoordIn= 0;
-    YCoordOut = HTuple();
-    //
-    // 声明halcon脚本引擎
-    //
-    engine = new HDevEngine();
-    engine->SetEngineAttribute("docu_language", "zh_CN");
-    engine_path = "D:/GlassDefectCV/HalconFunction";
-    engine->AddProcedurePath(engine_path.toLatin1().data());
-    procedure = new HDevProcedure("ProcessVision");
-    procedurecall = new HDevProcedureCall(*procedure);
-    procedure2 = new HDevProcedure("ProcessHoles");
-    procedurecall2 = new HDevProcedureCall(*procedure2);
-    hasStopThread.store(false);
 }
 
 Process_Detect::~Process_Detect()
 {
-    delete engine;
-    engine = nullptr;
-    delete procedure;
-    procedure = nullptr;
-    delete procedurecall;
-    procedurecall = nullptr;
-    delete procedure2;
-    procedure2 = nullptr;
-    delete procedurecall2;
-    procedurecall2 = nullptr;
 }
 
-void Process_Detect::run()
+//功能：计算区域中心
+//halcon算子:area_center
+//参数：
+//  src：输入区域
+//  area：区域面积
+//  center：区域中心坐标
+//返回值：无
+void Process_Detect::area_center(cv::Mat src, int &area, cv::Point2f &center)
 {
-//PDLOOP:
-//    //条件变量
-//    if (!ProcessTile::preImageQueue.empty()) {
-//        PDArgs args;
-//        if(ProcessTile::preImageQueue.dequeue(args)) {
-//            Process_Detect::VisionProcess(args.imageunit, args.holeunit);
-//        }
-//    }
-//    if (!hasStopThread.load())
-//        goto PDLOOP;
+
+    int pixelsCount = src.rows * src.cols;
+       area = 0;
+       center = cv::Point2f(0, 0);
+       float centerX = 0;
+       float centerY = 0;
+       int mcol = src.cols;
+       for(int i=0;i<pixelsCount;i++)
+       {
+           if(src.data[i] == 255)
+           {
+               area++;
+
+               int x = i % mcol;
+               int y = i / mcol;
+
+               centerX += x;
+               centerY += y;
+           }
+       }
+       if (area > 0)
+       {
+           centerX /= area;
+           centerY /= area;
+           center = cv::Point2f(centerX, centerY);
+       }
 }
 
-//算法执行
-void Process_Detect::VisionProcess(/*ImageUnit imageunit, HoleUnit holeunit*/)
+
+
+//功能：在原图像img上绘制直线，并且筛选出特定方向的四条直线（上、下、左、右）
+//参数：
+//    img:原图像
+//    lines:待检测的直线数据
+//    rows:原图的行数
+//    cols:原图的列数
+//    scalar:绘制直线的颜色
+//    n:绘制直线的线宽
+//    linesout:检测出直线数据
+//    linepoints:直线的端点坐标
+//返回值：这些直线的端点坐标
+std::vector<cv::Point2f> Process_Detect::drawLine(cv::Mat &img,
+                                                  std::vector<cv::Vec2f> lines,
+                                                  double rows,
+                                                  double cols,
+                                                  cv::Scalar scalar,
+                                                  int n,
+                                                  std::vector<cv::Vec2f> linesout,
+                                                  std::vector<cv::Point2f> linepoints)
 {
-//    if (Global::isOffline == false && Global::SystemStatus == 0) return;
-//    //recipe切换
-//    if(Global::RecChangeSignal) {
-//        Global::RecChangeSignal = false;
-//    }
+//    cv::Point pt1, pt2;
+//    float m_rho_up=100000;
+//    float m_rho_down=0;
+//    float m_rho_left=100000;
+//    float m_rho_right=0;
 
-//    HTuple UserDefinedDict;
-//    GetDictTuple(Global::RecipeDict,"自定义参数",&UserDefinedDict);
-//    if(imageunit.ProcessStep==1 || imageunit.GlassPositionInf==1 || imageunit.GlassPositionInf==0) {//玻璃部分，1头2中3尾0完整玻璃
-//        ErrFlag = false;
-//        //判断上一片玻璃结果是否输出
-//        if(ResultNotOutFlag) {
-//            Process_Detect::SummaryFailResult();// 输出结果
-//            ResultNotOutFlag = false;
-//        }
-//        Global::AlmLightSignal = true;
-//        Global::AlmLightVal = 0;
-//    }
-//    qDebug() << "ProcessStep :" << imageunit.ProcessStep;
-
-//    //
-//    // 对一帧图像开始缺陷检测
-//    //
-//    ProcessVisionAlgorithmResults processvisionresult;//算法执行结果
-//    std::shared_ptr<std::thread> thExe = nullptr;
-//    std::shared_ptr<std::thread> thExe2 = nullptr;
-//    HTuple EnableDefect;
-//    GetDictTuple(UserDefinedDict,"缺陷检测启用",&EnableDefect);
-//    if( EnableDefect==1 ) {
-//        //图像正常执行算法or输出异常提醒
-//        if(imageunit.ImageList.CountObj() > 0 && imageunit.ErrorFlag == false) {
-//            try {
-//                HObject SelectObj1,SelectObj2,SelectObj3;
-//                SelectObj(imageunit.ImageList,&SelectObj1,1);
-//                SelectObj(imageunit.ImageList,&SelectObj2,2);
-//                SelectObj(imageunit.ImageList,&SelectObj3,3);
-
-//                procedurecall->SetInputIconicParamObject("Image1", SelectObj1);
-//                procedurecall->SetInputIconicParamObject("Image2", SelectObj2);
-//                procedurecall->SetInputIconicParamObject("Image3", SelectObj3);
-//                procedurecall->SetInputIconicParamObject("GlassRegion", imageunit.ImageRegion);
-//                procedurecall->SetInputIconicParamObject("FrameRegion", imageunit.FrameRegion);
-//                if(imageunit.GlassPositionInf==1 || imageunit.GlassPositionInf==0) {
-//                    Global::jsonTime = QDateTime::currentDateTime();//第一帧/完整玻璃的时候刷新时间
-//                    HTuple a=0;
-//                    YCoordIn= a ;
-//                } else {
-//                    YCoordIn= YCoordOut;
-//                }
-//                procedurecall->SetInputCtrlParamTuple("VisionProcessStep", imageunit.ProcessStep);
-//                procedurecall->SetInputCtrlParamTuple("GlassPositionInf", imageunit.GlassPositionInf);
-//                procedurecall->SetInputCtrlParamTuple("YCoordIn", YCoordIn);
-//                procedurecall->SetInputCtrlParamTuple("DetectDict", Global::RecipeDict);
-//                procedurecall->Execute();//耗时多
-//                qDebug()<<"VisionProcess Execute:"<<QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss:zzz");
-//                //获取算法结果
-//                processvisionresult.GlassID = Global::GlassID_INT;
-//                processvisionresult.time = Global::jsonTime.toString("yyyy-MM-dd hh:mm:ss");
-//                processvisionresult.ErrImage1 = procedurecall->GetOutputIconicParamObject("ErrImage1");
-//                processvisionresult.ErrImage2 = procedurecall->GetOutputIconicParamObject("ErrImage2");
-//                processvisionresult.ErrImage3 = procedurecall->GetOutputIconicParamObject("ErrImage3");
-//                processvisionresult.ResultDict = procedurecall->GetOutputCtrlParamTuple("ResultDict");
-//                processvisionresult.ErrName = processvisionresult.ResultDict.TupleGetDictTuple("ErrName");
-//                processvisionresult.ErrType = processvisionresult.ResultDict.TupleGetDictTuple("ErrType");
-//                processvisionresult.DefectLevel = processvisionresult.ResultDict.TupleGetDictTuple("DefectLevel");
-//                processvisionresult.ErrX = processvisionresult.ResultDict.TupleGetDictTuple("ErrX");
-//                processvisionresult.ErrY = processvisionresult.ResultDict.TupleGetDictTuple("ErrY");
-//                processvisionresult.ErrW = processvisionresult.ResultDict.TupleGetDictTuple("ErrW");
-//                processvisionresult.ErrL = processvisionresult.ResultDict.TupleGetDictTuple("ErrH");
-//                processvisionresult.ErrArea = processvisionresult.ResultDict.TupleGetDictTuple("ErrArea");
-//                processvisionresult.YCoordOut = procedurecall->GetOutputCtrlParamTuple("YCoordOut");
-//                YCoordOut = processvisionresult.YCoordOut;//用于第二帧参数，否则Y坐标获取不到
-//                processvisionresult.GlassLength = procedurecall->GetOutputCtrlParamTuple("GlassLength");
-//                processvisionresult.GlassWidth = procedurecall->GetOutputCtrlParamTuple("GlassWidth");
-//                processvisionresult.GlassAngle = procedurecall->GetOutputCtrlParamTuple("GlassAngle");
-//                processvisionresult.XValues = procedurecall->GetOutputCtrlParamTuple("Col_x");
-//                processvisionresult.YValues = procedurecall->GetOutputCtrlParamTuple("Row_y");
-//                if ( processvisionresult.XValues.Length() == processvisionresult.YValues.Length() ) {
-//                    Global::courtourMapXY.clear();
-//                    for (int ii = 0; ii < processvisionresult.XValues.Length(); ii = ii +12) {
-//                        QString xx = processvisionresult.XValues.TupleSelect(ii).ToString().Text();
-//                        QString yy = processvisionresult.YValues.TupleSelect(ii).ToString().Text();
-//                        CourTour tour;
-//                        tour.index = ii;
-//                        tour.x = xx;
-//                        tour.y = yy;
-//                        Global::courtourMapXY.push_back(tour);
-//                    }
-//                }
-//                //陷入处理线程
-//                thExe = std::make_shared<std::thread>(&Process_Detect::saveErrImage, this,processvisionresult);                              //耗时多
-//                Process_Detect::Glassinfo(processvisionresult,baseinfo);
-//                emit sendData(baseinfo); //信息统计表格中插入一行数据，每帧都刷新
-//                qDebug()<<"ProcessStep"<<imageunit.ProcessStep;
-//                qDebug()<<"m_FramesPerTri"<<Global::FramesPerTri;
-//                QString info="ProcessStep" + QString::number(imageunit.ProcessStep)  + "算法执行完成！";
-//                log_singleton::Write_Log(info, Log_Level::General);
-//            } catch (HalconCpp::HException& Except) {
-//                ErrFlag = true;
-//                qDebug() << "Hole HalconHalconErr:" << Except.ErrorMessage().Text();
-//                qDebug() << "123 Halcon error:" <<Except.ProcName().Text();
-//                QString info= "算法执行异常！";
-//                log_singleton::Write_Log(info, Log_Level::General);
-//            }//try
-//        } else { //if(imageunit.ImageList.CountObj()>0 && imageunit.ErrorFlag==false)
-//            ErrFlag=true;
-//            qDebug() << "图像为空或已出现异常！";
-//            QString info= "图像为空或已出现异常！";
-//            log_singleton::Write_Log(info, Log_Level::General);
-//        }//if(imageunit.ImageList.CountObj()>0 &&imageunit.ErrorFlag==false)
-//    }//if(EnableDefect==1)
-//    //
-//    // 尺寸測量
-//    //
-//    HoleResult holeresult;
-//    qDebug()<<"imageunit.GlassPositionInf = "<<imageunit.GlassPositionInf;
-//    if (imageunit.GlassPositionInf==0 || imageunit.GlassPositionInf==3 ) {
-//        HTuple EnableMeasure;
-//        GetDictTuple(UserDefinedDict,"尺寸测量启用",&EnableMeasure);
-//        qDebug() << "EnableMeasure :" << EnableMeasure.ToString().Text();
-//        if(EnableMeasure == 1) {
-//            thExe2 = std::make_shared<std::thread>(&Process_Detect::saveHoleImage, this,holeunit);
-//            qDebug()<<"VisionProcess saveHoleImage:"<<QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss:zzz");
-//        }
-//    }
-//    //
-//    // 处理缺陷算子结果的同时计算孔洞的数据
-//    //
-//    if(thExe!=nullptr) {//等待缺陷检测处理线程结束，获取结果
-//        if(thExe->joinable())
-//            thExe->join();
-//    }
-//    Global::GlobalLock.lock();
-//    emit sig_sendPoint(Points);                                                                 //发送显示缺陷点位置信号
-//    Global::GlobalLock.unlock();
-//    if(thExe2 != nullptr) {//等待尺寸检测处理线程结束，获取结果
-//        if(thExe2->joinable())
-//            thExe2->join();
-//    }
-//    ResultNotOutFlag = true;
-//    if (imageunit.GlassPositionInf==0 || imageunit.GlassPositionInf==3 ) {
-//        Process_Detect::SummaryResults(baseinfo);
-//        ResultNotOutFlag = false;
-//    }
-}
-
-void Process_Detect::saveHoleImage(/*HoleUnit holeunit*/)
-{
-//    HTuple NumTile;
-//    CountObj(holeunit.ImageTile1R,&NumTile);
-//    ProcessHolesAlgorithmResults procesHoleResult;
-//    if(NumTile>0) {
-//        try {
-//            procedurecall2->SetInputCtrlParamTuple("Cam1pixs", holeunit.Cam1pixs);
-//            procedurecall2->SetInputCtrlParamTuple("Cam1Width", holeunit.Cam1Width);
-//            procedurecall2->SetInputCtrlParamTuple("Tile2Column1", holeunit.Tile2Column1);
-//            procedurecall2->SetInputCtrlParamTuple("DetectDict", Global::RecipeDict);
-//            procedurecall2->SetInputIconicParamObject("Image1", holeunit.ImageTile1R);
-//            procedurecall2->SetInputIconicParamObject("Image2", holeunit.ImageTile2R);
-//            procedurecall2->SetInputIconicParamObject("Image3", holeunit.ImageTile3R);
-//            procedurecall2->SetInputIconicParamObject("Image4", holeunit.ImageTile4R);
-//            procedurecall2->Execute();
-//        } catch (HalconCpp::HException& Except) {
-//            ErrFlag = true;
-//            qDebug() << "HalconHalconErr:" << Except.ErrorMessage().Text();
-//            QString info= "算法执行异常！";
-//            log_singleton::Write_Log(info, Log_Level::General);
-//        }
-//        procesHoleResult.GlassID = Global::GlassID_INT;
-//        procesHoleResult.HolesImage.GenEmptyObj();
-//        procesHoleResult.OutLineImage.GenEmptyObj();
-//        try{
-//            ConcatObj(procesHoleResult.OutLineImage, procedurecall2->GetOutputIconicParamObject("OutLineImage"), &procesHoleResult.OutLineImage);
-//            ConcatObj(procesHoleResult.HolesImage, procedurecall2->GetOutputIconicParamObject("HolesImage"), &procesHoleResult.HolesImage);
-//            HTuple CountHoles=0;
-//            CountObj(procesHoleResult.HolesImage,&CountHoles);
-//            procesHoleResult.ResultDictHoles = procedurecall2->GetOutputCtrlParamTuple("ResultDictHoles");
-//            if( CountHoles > 0 ) {
-//                procesHoleResult.Type = procesHoleResult.ResultDictHoles.TupleGetDictTuple("Type");
-//                procesHoleResult.HolesOK = procesHoleResult.ResultDictHoles.TupleGetDictTuple("HolesOK");
-//                procesHoleResult.DistanceHorizontal = procesHoleResult.ResultDictHoles.TupleGetDictTuple("DistanceHorizontal");
-//                procesHoleResult.DistanceVertical = procesHoleResult.ResultDictHoles.TupleGetDictTuple("DistanceVertical");
-//                procesHoleResult.HolesWidth = procesHoleResult.ResultDictHoles.TupleGetDictTuple("HolesWidth");
-//                procesHoleResult.HolesHeight = procesHoleResult.ResultDictHoles.TupleGetDictTuple("HolesHeight");
+//    for (size_t i = 0; i < lines.size(); i++) {
+//        float rho = lines[i][0]; //直线距离坐标原点的距离
+//        float theta = lines[i][1]; //直线过坐标原点垂线与x轴的夹角
+//        //上
+//        if(theta>-0.2 && theta<0.2)
+//         {
+//            if(rho<m_rho_up)
+//            {
+//               m_rho_up =rho;
+//               linesout[0]=lines[i];
 //            }
-//            procesHoleResult.GlassWidth = procesHoleResult.ResultDictHoles.TupleGetDictTuple("GlassWidth");
-//            procesHoleResult.GlassLength = procesHoleResult.ResultDictHoles.TupleGetDictTuple("GlassHeight");
-//        } catch(HalconCpp::HException& Except) {
-//            procesHoleResult.GlassWidth = 0;
-//            procesHoleResult.GlassLength = 0;
-//            qDebug() << "HalconHalconErr:" << Except.ErrorMessage().Text();
-//        }
-//        qDebug() << "Current used GlassWidth ="<<procesHoleResult.GlassWidth.ToString().Text();
-//        qDebug() << "Current used GlassLenth ="<<procesHoleResult.GlassLength.ToString().Text();
-//   } else {
-//        //无测量结果
-//        qDebug() << "Error : NumTile = "<<NumTile.I();
-//   }
-//    //
-//    // 解析算法结果数据并写入json文件中
-//    //
-//    HoleResult holeresult;//解析后的结果
-//    holeresult.GlassID = procesHoleResult.GlassID;
-//    HTuple CountSK;
-//    CountObj(procesHoleResult.HolesImage, &CountSK);
-//    qDebug()<<"procesHoleResult.HolesImage count2:"<<CountSK.ToString().Text();
-//    QString folderName = QString("D:/SaveDefectImage/") + Global::jsonTime.toString("yyyy-MM-dd");
-//    for (int i = 0; i < CountSK; i++) {
-//        HoleData hole;
-//        hole.HolesID = i+1;
-//        hole.Time = Global::jsonTime.toString("hh-mm-ss");
-//        QString strType = procesHoleResult.Type.TupleSelect(i).ToString().Text();
-//        strType = strType.remove("\"");
-//        hole.Type = strType;
-//        QString strHolesOK = procesHoleResult.HolesOK.TupleSelect(i).ToString().Text();
-//        strHolesOK = strHolesOK.remove("\"");
-//        hole.HolesLeve = strHolesOK;
-//        QString strDistanceHorizontal, strDistanceVertical, strHolesWidth, strHolesHeight;
-//        if (procesHoleResult.DistanceHorizontal.Length()==CountSK
-//                && procesHoleResult.DistanceVertical.Length()==CountSK
-//                && procesHoleResult.HolesWidth.Length()==CountSK
-//                && procesHoleResult.HolesHeight.Length()==CountSK ) {
-//            QString strDistanceHorizontal = procesHoleResult.DistanceHorizontal.TupleSelect(i).ToString().Text();
-//            hole.DistanceHorizontal = strDistanceHorizontal.toDouble();
-
-//            QString strDistanceVertical = procesHoleResult.DistanceVertical.TupleSelect(i).ToString().Text();
-//            hole.DistanceVertical = strDistanceVertical.toDouble();
-
-//            QString strHolesWidth = procesHoleResult.HolesWidth.TupleSelect(i).ToString().Text();
-//            hole.HolesWidth = strHolesWidth.toDouble();
-
-//            QString strHolesHeight = procesHoleResult.HolesHeight.TupleSelect(i).ToString().Text();
-//            hole.HolesHeight = strHolesHeight.toDouble();
-//        } else {
-//            hole.DistanceHorizontal = 0;
-//            hole.DistanceVertical = 0;
-//            hole.HolesWidth = 0;
-//            hole.HolesHeight = 0;
-//        }
-
-//        QString strImageHolesPath = folderName + "/" + "孔" + "/" + Global::jsonTime.toString("yyyy-MM-dd");
-//        hole.ImageHolesPath = strImageHolesPath;
-//        holeresult.holes.push_back(hole);
-//        //存小图
-//        if( !Process_Detect::isExistDir(strImageHolesPath)) {
-//            QString errorMessage = "Faile to create " + strImageHolesPath;
-//            throw std::exception(errorMessage.toStdString().c_str());
-//        }
-//        QString ImageHolesPath2 = strImageHolesPath + "/" + QString::number(i) + ".jpg";
-//        WriteImage(procesHoleResult.HolesImage.SelectObj(i + 1), "jpg", 0, ImageHolesPath2.toUtf8().constData());
-//    }//for (int i = 0; i < CountSK; i++)
-//    holeresult.GlassWidth = procesHoleResult.GlassWidth.D();
-//    holeresult.GlassLength = procesHoleResult.GlassLength.D();
-//    holeresult.GlassAngle = 0;
-
-//    // 写入轮廓图
-//    QString strImageHolesLinePath = folderName + "/" + "孔示意图" + "/" + Global::jsonTime.toString("hh-mm-ss");
-//    if( !Process_Detect::isExistDir(strImageHolesLinePath)) {
-//        QString errorMessage = "Faile to create " + strImageHolesLinePath;
-//        throw std::exception(errorMessage.toStdString().c_str());
-//    }
-//    QString ImageHolesPath1 = strImageHolesLinePath + "/" + "1.jpg";
-//    WriteImage(procesHoleResult.OutLineImage, "jpg", 0, ImageHolesPath1.toUtf8().constData());
-//    holeresult.ImageHolesLinePath = ImageHolesPath1;
-
-//    //写入json文件的地址
-//    QString path = QDir::currentPath() + "/HolesInfJson/" + QString::number(Global::jsonTime.toTime_t()) + ".json";
-//    holeresult.jsonFullPath = path;
-//    qDebug()<<"holeresult.jsonFullPath ="<<holeresult.jsonFullPath;
-
-//    Jsoncpp::GetInstance()->writeSizeToJson(holeresult);
-
-//    emit sig_updateFlaw(procesHoleResult.GlassWidth.D(),procesHoleResult.GlassLength.D());  //画出最外围轮廓
-//    emit sig_refreshSize(holeresult.jsonFullPath,holeresult.GlassID);                       //刷新尺寸
-}
-
-void Process_Detect::slot_updateSortInfo()
-{
-//    if(summaryResult.GlassNum > 0 ) {
-//       summaryResult.unsorted = summaryResult.unsorted - 1;
-//       summaryResult.sorted = summaryResult.sorted + 1;
-//       emit sig_updateSortRes(summaryResult); //更新标题框上的检出和分拣
-//    }
-}
-
-void Process_Detect::SummaryResults(GlassDataBaseInfo baseinfo)
-{
-//    summaryResult.GlassNum = summaryResult.GlassNum + 1;
-
-//    if(baseinfo.OKorNG == "OK") {
-//        //报警灯信号输出
-//        Global::AlmLightSignal = true;
-//        Global::AlmLightVal = 4;
-//        summaryResult.okNum = summaryResult.okNum + 1;
-//        summaryResult.unsorted = summaryResult.unsorted + 1;
-//        summaryResult.currentOKorNG = true; //当前玻璃OK或者NG
-//        summaryResult.currentSort = false;   //当前玻璃是否分拣
-//        summaryResult.suceessRate = (double)summaryResult.okNum / (double)summaryResult.GlassNum;
-//    } else {
-//        //报警灯信号输出
-//        Global::AlmLightSignal=true;
-//        Global::AlmLightVal=15;
-//        summaryResult.ngNum = summaryResult.ngNum + 1;
-//        summaryResult.unsorted = summaryResult.unsorted + 1;
-//        summaryResult.exceptNum = summaryResult.exceptNum + 1;
-//        summaryResult.currentOKorNG = false; //当前玻璃OK或者NG
-//        summaryResult.currentSort = false;   //当前玻璃是否分拣
-//        summaryResult.suceessRate = (double)summaryResult.okNum / (double)summaryResult.GlassNum;
-//    }
-
-//    //检测结果刷新
-//    emit sig_UpdateResultInfo(summaryResult);
-//    Global::GlassID_INT = Global::GlassID_INT + 1; //玻璃id加1
-
-//    // 发送数据
-//    Points.clear();
-//    baseinfo = GlassDataBaseInfo();
-
-//    QString info="玻璃ID" + QString::number(baseinfo.id)  + "算法执行完成！";
-//    log_singleton::Write_Log(info, Log_Level::General);
-}
-
-
-void Process_Detect::Glassinfo(/*ProcessVisionAlgorithmResults result, GlassDataBaseInfo& baseinfo*/)
-{
-//    baseinfo.id = result.GlassID;
-//    baseinfo.time = Global::jsonTime.toString("yyyy-MM-dd hh:mm:ss");
-//    baseinfo.sizeOKorNG = "OK";//后面待修改
-//    HTuple Count;
-//    CountObj(result.ErrImage1, &Count);
-//    qDebug()<<"count:"<<Count.ToString().Text();
-//    if (Count > 0) {
-//        HTuple  hv_Indices_NG,hv_count_NG;
-//        HTuple  hv_Indices,hv_count;
-
-//        TupleFind(result.DefectLevel, "NG", &hv_Indices_NG);
-//        if (0 != (int(hv_Indices_NG!=-1))) {
-//           baseinfo.defectOKorNG = "NG";
-//        } else {
-//           baseinfo.defectOKorNG = "OK";
-//        }
-
-//        if (baseinfo.defectOKorNG == "OK" && baseinfo.sizeOKorNG == "OK") {
-//            baseinfo.OKorNG = "OK";
-//        } else {
-//            baseinfo.OKorNG = "NG";
-//        }
-
-//        baseinfo.length = result.GlassLength.D();
-//        baseinfo.width = result.GlassWidth.D();
-
-//        baseinfo.defectNumber = baseinfo.defectNumber + result.ErrName.Length();
-//        for(int i=0; i<result.ErrName.Length(); ++i) {
-//            if ( result.ErrName[i] == "划伤") {
-//                ++baseinfo.huashanNumber;
-//            } else if(result.ErrName[i] == "气泡") {
-//                ++baseinfo.qipaoNumber;
-//            } else if(result.ErrName[i] == "崩边") {
-//                ++baseinfo.benbianNumber;
-//            } else if(result.ErrName[i] == "脏污") {
-//                ++baseinfo.zanwuNumber;
-//            } else if(result.ErrName[i] == "裂纹") {
-//                ++baseinfo.liewenNumber;
-//            } else if(result.ErrName[i] == "结石") {
-//                ++baseinfo.jieshiNumber;
-//            } else if(result.ErrName[i] == "其它") {
-//                ++baseinfo.qitaNumber;
-//            }
-//        }
-//    }
-}
-
-void Process_Detect::saveErrImage(/*ProcessVisionAlgorithmResults result*/)
-{
-    //
-    // 多线程函数，注意线程安全！！！！
-    //
-//    DefeteResult defect;//解析出来的结果
-//    //玻璃ID，用于递增的
-//    defect.GlassID = Global::GlassID_INT;
-//    //
-//    // 根据当前时间构建文件名
-//    //
-//    defect.currentTime = Global::jsonTime;
-//    QString fileName = QString::number(Global::jsonTime.toTime_t()) + ".json";
-//    QString projectFolder = QDir::currentPath();// 获取当前项目文件夹路径
-//    QString jsonFilePath = projectFolder + "/DefectInfJson/" + fileName;
-//    defect.jsonFullPath = jsonFilePath;
-
-//    //保存缺陷小图
-//    HTuple Count;
-//    CountObj(result.ErrImage1, &Count);
-//    QString folderDefectImage = QString("D:/SaveDefectImage");
-//    if (!Process_Detect::isExistDir(folderDefectImage)) {
-//        QString errorMessage = "Faile to create " + folderDefectImage;
-//        throw std::exception(errorMessage.toStdString().c_str());
-//    }
-
-//    QString folderName = folderDefectImage+ "/" + Global::jsonTime.toString("yyyy-MM-dd");
-//    for (int i = 0; i < Count; i++) {
-//         DefeteData data;
-//         data.DefectID = i;
-//         data.Time = Global::jsonTime.toString("hh-mm-ss");
-//         QString strErrName = result.ErrName.TupleSelect(i).ToString().Text();
-//         data.DefectType = strErrName.remove("\"");//去除双层双引号
-//         QString strDefectLevel = result.DefectLevel.TupleSelect(i).ToString().Text();
-//         data.DetectLeve = strDefectLevel.remove("\"");;
-//         QString strErrX = result.ErrX.TupleSelect(i).ToString().Text();
-//         data.X = strErrX.toDouble();
-//         QString strErrY = result.ErrY.TupleSelect(i).ToString().Text();
-//         data.Y = strErrY.toDouble();
-//         QString strErrL = result.ErrL.TupleSelect(i).ToString().Text();
-//         data.Lenth = strErrL.toDouble();
-//         QString strErrW = result.ErrW.TupleSelect(i).ToString().Text();
-//         data.Width = strErrW.toDouble();
-//         QString strErrArea = result.ErrArea.TupleSelect(i).ToString().Text();
-//         data.Area = strErrArea.toDouble();
-//         QString strImageNGPath = folderName + "/" + strErrName + "/" + data.Time + "-" + QString::number(i + 1);
-//         data.ImageNGPath = strImageNGPath;
-//         defect.defetes.push_back(data);
-//         //
-//         // 缺陷坐标用于界面显示
-//         //
-//         FlawPoint Point;
-//         Point.x=strErrY.toDouble();
-//         Point.y=strErrX.toDouble();
-//         Point.FlawType= result.ErrType.TupleSelect(i).TupleInt();
-//         Point.HoleJsonFullPath = QDir::currentPath() + "/HolesInfJson/" + fileName;;
-//         Point.DefectJsonFullPath = jsonFilePath;
-//         Point.glassid = defect.GlassID;
-//         Global::GlobalLock.lock();
-//         Points.append(Point);
-//         Global::GlobalLock.unlock();
-//         QString strErrNameDir = folderName + "/" + strErrName;
-//         if (!Process_Detect::isExistDir(strImageNGPath)) {
-//             QString errorMessage = "Faile to create " + strImageNGPath;
-//             throw std::exception(errorMessage.toStdString().c_str());
 //         }
 
-//         HalconCpp::HObject imag1 = result.ErrImage1.SelectObj(i + 1);
-//         HalconCpp::HObject imag2 = result.ErrImage2.SelectObj(i + 1);
-//         HalconCpp::HObject imag3 = result.ErrImage3.SelectObj(i + 1);
-//         QString ImageNGPath1 = strImageNGPath + "/" + "1.jpg";
-//         QString ImageNGPath2 = strImageNGPath + "/" + "2.jpg";
-//         QString ImageNGPath3 = strImageNGPath + "/" + "3.jpg";
-//         //
-//         // 多线程写入图片，加快速度
-//         //
-//         std::thread th1(&Process_Detect::writeImage,this,imag1,imag2,imag3,ImageNGPath1,ImageNGPath2,ImageNGPath3);
-//         th1.detach();
+//        //下
+//        if(theta>-0.2 && theta<0.2)
+//         {
+//            if(rho>m_rho_down)
+//            {
+//               m_rho_down =rho;
+//               linesout[1]=lines[i];
+//            }
+//         }
+//        //左
+//        if((theta<-1.3708 && theta>-1.7708) || (theta>1.3708 && theta<1.7708))
+//         {
+//            if(rho<m_rho_left)
+//            {
+//               m_rho_left =rho;
+//               linesout[2]=lines[i];
+//            }
+//         }
+//        //右
+//         if((theta<-1.3708 && theta>-1.7708) || (theta>1.308 && theta<1.7708))
+//         {
+//            if(rho>m_rho_right)
+//            {
+//               m_rho_right =rho;
+//               linesout[3]=lines[i];
+//            }
+//         }
 //    }
-//    QString strGlassWidth = result.GlassWidth.ToString().Text();
-//    defect.GlassWidth = strGlassWidth.toDouble();
+//    for (size_t j = 0; j < linesout.size(); j++) {
+//        float rho1 = linesout[j][0]; //直线距离坐标原点的距离
+//        float theta1 = linesout[j][1]; //直线过坐标原点垂线与x轴的夹角
+//        double a = cos(theta1); //夹角的余弦值
+//        double b = sin(theta1);//夹角的正弦值
+//        double x0 = a * rho1, y0 = b * rho1;//直角与过坐标原点的垂线交点
+//        double length = std::max(rows, cols); //  图像高度的最大值、计算直线上的一点
 
-//    QString strGlassLength = result.GlassLength.ToString().Text();
-//    defect.GlassLength = strGlassLength.toDouble();
+//        pt1.x = cvRound(x0 + length * (-b));
+//        pt1.y = cvRound(y0 + length * (a));
 
-//    QString strGlassAngle = result.GlassAngle.ToString().Text();
-//    Global::RollerAngle = strGlassAngle.toDouble();
-//    defect.GlassAngle = strGlassAngle.toDouble();
+//        //计算直线上另一点
+//        pt2.x = cvRound(x0 - length * (-b));
+//        pt2.y = cvRound(y0 - length * (a));
 
-//    Jsoncpp::GetInstance()->writeDefectToJson(defect,result.GlassID);
+//        linepoints[2*j].x=pt1.x;
+//        linepoints[2*j].y=pt1.y;
+//        linepoints[2*j+1].x=pt2.x;
+//        linepoints[2*j+1].y=pt2.y;
 
-//    emit sig_updateFlaw(result.GlassWidth.D(),result.GlassLength.D());                          //画出最外围轮廓,每次都刷新
-//    emit sig_refreshFlaw(defect.jsonFullPath,defect.GlassID);                                   //更新缺陷小图
-//    qDebug()<<"result.GlassWidth.D() ="<<result.GlassWidth.D() <<"result.GlassLength.D() ="<<result.GlassLength.D();
+//        //两点绘制一条直线
+//        line(img, pt1, pt2, scalar, n);
+//    }
+    return linepoints;
+}
+
+//功能：填充区域中的孔洞，适合填充大量分散的小孔
+//halcon算子:
+//参数：
+//  src：输入图像
+//  dst：输出图像
+//返回值：无
+void Process_Detect::fill_up(cv::Mat src, cv::Mat &dst)
+{
+    dst = cv::Mat(src.size(), CV_8UC1, cv::Scalar(0));
+    std::vector<std::vector<cv::Point> > contours;
+    cv::findContours(src, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+    cv::drawContours(dst, contours, -1, cv::Scalar(255), -1);
+}
+
+//功能：填充区域中孔洞的第二种方法，适合填充很大的孔洞
+void Process_Detect::fillHole(const cv::Mat srcimage, cv::Mat &dstimage)
+{
+    cv::Size m_Size = srcimage.size();
+    cv::Mat tempImage = cv::Mat::zeros(m_Size.height + 2, m_Size.width + 2, srcimage.type()); // 延展图像
+    srcimage.copyTo(tempImage(cv::Range(1, m_Size.height + 1), cv::Range(1, m_Size.width + 1))); // 将原图复制到延展图像的中间部分
+
+    // 使用floodFill函数从左上角开始填充，填充值为白色（255）
+    cv::floodFill(tempImage, cv::Point(0, 0), cv::Scalar(255));
+
+    cv::Mat cutImg; // 裁剪延展的图像
+    tempImage(cv::Range(1, m_Size.height + 1), cv::Range(1, m_Size.width + 1)).copyTo(cutImg); // 裁剪回原图大小
+
+    // 使用按位或操作将原图与裁剪后图像的补集合并，得到填充孔洞后的图像
+    dstimage = srcimage | (~cutImg);
+}
+
+//功能：计算两条线段的最短间距
+//参数：
+//  A：输入直线1的首端坐标点
+//  B：输入直线1的尾端坐标点
+//  C：输入直线2的首端坐标点
+//  D：输入直线2的尾端坐标点
+//返回值：距离值
+float Process_Detect::line_Distance(cv::Point2f A, cv::Point2f B, cv::Point2f C, cv::Point2f D) {
+   cv::Point2f AB = B - A;
+   cv::Point2f CD = D - C;
+   cv::Point2f AC = C - A;
+
+   // 分子：向量AB和向量AC的叉积的z分量
+   float numerator = AB.x * AC.y - AB.y * AC.x;
+   // 分母：向量AB和向量CD的叉积的z分量
+   float denominator = AB.x * CD.y - AB.y * CD.x;
+
+   // 分母为零，说明两条线段平行
+   if (denominator != 0) {
+       float t = numerator / denominator;
+       float s = (AC.x + t * CD.x) / AB.x;
+       // s不在0和1之间，说明交点不在线段AB上
+       if (s >= 0 && s <= 1) {
+//           cv::Point2f intersection = A + s * AB;
+           return cv::norm(AC - s * CD);
+       }
+   }
+
+   // 平行直线不相交，返回最小距离为垂直距离
+   return cv::norm(AC - ((AC.dot(AB) / AB.dot(AB)) * AB));
+}
+
+//功能：图像裁剪
+//参数：
+//  images：图像数组
+//  rects：每个图像在合并后的大图像中的位置（矩形左上角坐标x,y,宽高width,height）
+//  要求：数组的大小相同,每个矩形与对应图像的位置相匹配,所有图像类型相同.
+//返回值：拼接后的图像
+void Process_Detect::crop_rectangle1(const cv::Mat image, cv::Mat &dst, int row1y, int Column1x, int row2y, int Column2x)
+{
+    // 确保裁剪区域在图像范围内
+    CV_Assert(row1y >= 0 && row1y < image.rows && Column1x >= 0 && Column1x < image.cols);
+    CV_Assert(row2y >= 0 && row2y <= image.rows && Column2x >= 0 && Column2x <= image.cols);
+    CV_Assert(row1y < row2y && Column1x < Column2x); // 确保裁剪区域有效
+
+    // 创建裁剪区域的Rect对象
+    cv::Rect roi(Column1x, row1y, Column2x - Column1x, row2y - row1y);
+
+    // 使用ROI裁剪图像
+    cv::Mat croppedImage = image(roi);
 
 }
 
+//功能：将多个图像合并为一个大图像
+//参数：
+//  images：图像数组
+//  rects：每个图像在合并后的大图像中的位置（矩形左上角坐标x,y,宽高width,height）
+//  要求：数组的大小相同,每个矩形与对应图像的位置相匹配,所有图像类型相同.
+//返回值：拼接后的图像
+cv::Mat Process_Detect::mergeImages(const std::vector<cv::Mat>& images, const std::vector<cv::Rect>& rects) {
+    // 计算拼接后的图像大小
+    int maxWidth = 0;
+    int totalHeight = 0;
 
-// 判断文件夹是否存在
-bool Process_Detect::isExistDir(QString dirpath)
+//    for (const cv::Rect& rect : rects)  //C++11
+    std::vector<cv::Rect>::const_iterator rect;  //C++98
+    for (rect = rects.begin(); rect != rects.end(); ++rect){
+//        maxWidth = std::max(maxWidth, rect->x + rect->width);
+//        totalHeight = std::max(totalHeight, rect->y + rect->height);
+    }
+
+    // 创建拼接后的图像
+    cv::Mat mergedImage(totalHeight, maxWidth, images[0].type(), cv::Scalar(0));
+
+    // 拷贝每个图像到对应的位置
+    for (size_t i = 0; i < images.size(); ++i) {
+        cv::Mat roi = mergedImage(rects[i]);
+        images[i].copyTo(roi);
+    }
+
+    return mergedImage;
+}
+
+
+//功能：使用局部阈值分割图像
+//参数：
+//  src：输入图像
+//  pre：包含本地阈值的图像（一般可使用均值滤波后的图像）
+//  dst：输出图像
+//  offset：灰度偏移量（-255 ≤ offset ≤ 255）
+//  type：
+//      THRESHOLD_LIGHT（明）： g_src ≥ g_pre + offset
+//      THRESHOLD_DARK（暗）： g_src ≤ g_pre - offset
+//      THRESHOLD_EQUAL（等于）： g_pre - offset ≤ g_src ≤ g_pre + offset
+//      THRESHOLD_NOT_EQUAL（不等于）： g_pre - offset > g_src || g_src > g_pre + offset
+//返回值：无
+void Process_Detect::dyn_threshold(cv::Mat src, cv::Mat pre, cv::Mat &dst, int offset, ThresholdType type)
 {
-//    QDir folderDir(dirpath);
-//    if (!folderDir.exists()) {
-//        if (!folderDir.mkpath(dirpath)) {
-//            qDebug() << "Failed to create directory"<<dirpath;
-//            return false;
-//        }
-//    }
+    dst = cv::Mat(src.size(), CV_8UC1, cv::Scalar(0));
+    int pixelsCount = src.rows * src.cols;
+
+    for(int i = 0;i < pixelsCount; i++)
+    {
+        int g_src = src.data[i];
+        int g_pre = pre.data[i];
+        if (type == THRESHOLD_LIGHT)
+        {
+            if (g_src >= g_pre + offset)
+                dst.data[i] = 255;
+        }
+        else if (type == THRESHOLD_DARK)
+        {
+            if (g_src <= g_pre - offset)
+                dst.data[i] = 255;
+        }
+        else if (type == THRESHOLD_EQUAL)
+        {
+            if (g_src >= g_pre - offset && g_src <= g_pre + offset)
+                dst.data[i] = 255;
+        }
+        else if (type == THRESHOLD_NOT_EQUAL)
+        {
+            if (g_src < g_pre - offset || g_src > g_pre + offset)
+                dst.data[i] = 255;
+        }
+    }
+}
+
+//功能：变换区域的形状
+//参数：
+//  src：输入图像
+//  dst：输出图像
+//  type：变换形状
+//返回值：无
+void Process_Detect::shape_trans(cv::Mat src, cv::Mat &dst, ShapeTransType type)
+{
+    dst = cv::Mat(src.size(), CV_8UC1, cv::Scalar(0));
+    std::vector<std::vector<cv::Point> > contours;
+    cv::findContours(src, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+    int n = contours.size();
+    for (int i = 0; i < n; i++)
+    {
+        if (type == SHAPETRANS_RECTANGLE)
+        {
+            cv::Rect rect = boundingRect(contours[i]);
+            cv::rectangle (dst, rect, cv::Scalar(255), -1);
+        }
+        else if (type == SHAPETRANS_CIRCLE)
+        {
+            cv::Point2f center;
+            float radius;
+            cv::minEnclosingCircle(contours[i], center, radius);
+            cv::circle (dst, center, radius, cv::Scalar(255), -1);
+        }
+        else if (type == SHAPETRANS_CONVER)
+        {
+            std::vector<cv::Point> conver;
+            convexHull(contours[i], conver);
+
+            std::vector<std::vector<cv::Point> > pconver;
+            pconver.push_back(conver);
+
+            cv::fillPoly(dst, pconver, cv::Scalar(255));
+            cv::drawContours(dst, pconver, -1, cv::Scalar(255), 1);
+        }
+    }
+}
+
+
+//功能：借助形状特征选择区域
+//halcon算子:select_shape(region, selected_regions, 'area', 'and', min, max)
+//参数：
+//  src：输入图像
+//  dst：输出图像
+//  types：要检查的形状特征
+//  operation：各个要素的链接类型（与、或）
+//  mins：下限值
+//  maxs：上限值
+//返回值：0/区域数量
+int Process_Detect::select_shape(cv::Mat src,
+                                 cv::Mat &dst,
+                                 std::vector<SelectShapeType> types,
+                                 SelectOperation operation,
+                                 std::vector<double> mins,
+                                 std::vector<double> maxs)
+{
+    if (!(types.size() == mins.size() && mins.size() == maxs.size()))
+            return 0;
+
+        int num = types.size();
+        dst = cv::Mat(src.size(), CV_8UC1, cv::Scalar(0));
+
+        std::vector<std::vector<cv::Point> > contours;
+        findContours(src, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+        int cnum = contours.size();
+
+        std::vector<std::vector<cv::Point> > selectContours;
+        for (int i = 0; i < cnum; i++)
+        {
+            bool isAnd = true;
+            bool isOr = false;
+            for (int j = 0; j < num; j++)
+            {
+                double mind = mins[j];
+                double maxd = maxs[j];
+                if (mind > maxd)
+                {
+                    mind = maxs[j];
+                    maxd = mins[j];
+                }
+                if (types[j] == SELECT_AREA)
+                {
+                    cv::Mat temp = cv::Mat(src.size(), CV_8UC1, cv::Scalar(0));
+                    std::vector<std::vector<cv::Point> > pconver;
+                    pconver.push_back(contours[i]);
+                    cv::drawContours(temp, pconver, -1, cv::Scalar(255), -1);
+//                    bitwise_and(src, temp, temp);
+                    int area;
+                    cv::Point2f center;
+                    area_center(temp, area, center);
+                    if (area >= mind && area <= maxd)
+                    {
+                        isAnd &= true;
+                        isOr |= true;
+                    }
+                    else
+                    {
+                        isAnd &= false;
+                        isOr |= false;
+                    }
+                }
+                else if (types[j] == SELECT_RECTANGULARITY)
+                {
+                    cv::Mat temp = cv::Mat(src.size(), CV_8UC1, cv::Scalar(0));
+                    std::vector<std::vector<cv::Point> > pconver;
+                    pconver.push_back(contours[i]);
+                    cv::drawContours(temp, pconver, -1, cv::Scalar(255), -1);
+//                    bitwise_and(src, temp, temp);
+                    int area;
+                    cv::Point2f center;
+                    area_center(temp, area, center);
+                    cv::RotatedRect rect = minAreaRect(contours[i]);
+                    double rectangularity = area / rect.size.area();
+                    if (rectangularity >= mind && rectangularity <= maxd)
+                    {
+                        isAnd &= true;
+                        isOr |= true;
+                    }
+                    else
+                    {
+                        isAnd &= false;
+                        isOr |= false;
+                    }
+                }
+                else if (types[j] == SELECT_WIDTH)
+                {
+                    cv::Rect rect = boundingRect(contours[i]);
+                    if (rect.width >= mind && rect.width <= maxd)
+                    {
+                        isAnd &= true;
+                        isOr |= true;
+                    }
+                    else
+                    {
+                        isAnd &= false;
+                        isOr |= false;
+                    }
+                }
+                else if (types[j] == SELECT_HEIGHT)
+                {
+                    cv::Rect rect = boundingRect(contours[i]);
+                    if (rect.height >= mind && rect.height <= maxd)
+                    {
+                        isAnd &= true;
+                        isOr |= true;
+                    }
+                    else
+                    {
+                        isAnd &= false;
+                        isOr |= false;
+                    }
+                }
+                else if (types[j] == SELECT_ROW)
+                {
+                    cv::Mat temp = cv::Mat(src.size(), CV_8UC1, cv::Scalar(0));
+                    std::vector<std::vector<cv::Point> > pconver;
+                    pconver.push_back(contours[i]);
+                    cv::drawContours(temp, pconver, -1, cv::Scalar(255), -1);
+//                    bitwise_and(src, temp, temp);
+                    int area;
+                    cv::Point2f center;
+                    area_center(temp, area, center);
+                    if (center.y >= mind && center.y <= maxd)
+                    {
+                        isAnd &= true;
+                        isOr |= true;
+                    }
+                    else
+                    {
+                        isAnd &= false;
+                        isOr |= false;
+                    }
+                }
+                else if (types[j] == SELECT_COLUMN)
+                {
+                    cv::Mat temp = cv::Mat(src.size(), CV_8UC1, cv::Scalar(0));
+                    std::vector<std::vector<cv::Point> > pconver;
+                    pconver.push_back(contours[i]);
+                    cv::drawContours(temp, pconver, -1, cv::Scalar(255), -1);
+//                    bitwise_and(src, temp, temp);
+                    int area;
+                    cv::Point2f center;
+                    area_center(temp, area, center);
+                    if (center.x >= mind && center.x <= maxd)
+                    {
+                        isAnd &= true;
+                        isOr |= true;
+                    }
+                    else
+                    {
+                        isAnd &= false;
+                        isOr |= false;
+                    }
+                }
+                else if (types[j] == SELECT_RECT2_LEN1)
+                {
+                    cv::RotatedRect rect = minAreaRect(contours[i]);
+                    double len = rect.size.width;
+                    if (rect.size.width < rect.size.height)
+                        len = rect.size.height;
+                    if (len / 2 >= mind && len / 2 <= maxd)
+                    {
+                        isAnd &= true;
+                        isOr |= true;
+                    }
+                    else
+                    {
+                        isAnd &= false;
+                        isOr |= false;
+                    }
+                }
+                else if (types[j] == SELECT_RECT2_LEN2)
+                {
+                    cv::RotatedRect rect = minAreaRect(contours[i]);
+                    double len = rect.size.height;
+                    if (rect.size.width < rect.size.height)
+                        len = rect.size.width;
+                    if (len / 2 >= mind && len / 2 <= maxd)
+                    {
+                        isAnd &= true;
+                        isOr |= true;
+                    }
+                    else
+                    {
+                        isAnd &= false;
+                        isOr |= false;
+                    }
+                }
+                else if (types[j] == SELECT_RECT2_PHI)
+                {
+                    cv::RotatedRect rect = minAreaRect(contours[i]);
+                    float angle = 0;
+                    if (angle < 0) angle += 180;
+                    if (rect.size.width < rect.size.height)
+                    {
+                        angle = rect.angle;
+                        angle -= 90;
+                        if (angle < 0) angle += 180;
+                    }
+                    else
+                    {
+                        angle = rect.angle;
+                    }
+                    if (angle >= mind && angle <= maxd)
+                    {
+                        isAnd &= true;
+                        isOr |= true;
+                    }
+                    else
+                    {
+                        isAnd &= false;
+                        isOr |= false;
+                    }
+                }
+                else if (types[j] == SELECT_ELLIPSE_RA)
+                {
+                    if (contours[i].size() < 5)
+                    {
+                        isAnd &= false;
+                        isOr |= false;
+                        continue;
+                    }
+                    cv::RotatedRect rect = cv::fitEllipse(contours[i]);
+                    double len = rect.size.width;
+                    if (rect.size.width < rect.size.height)
+                        len = rect.size.height;
+                    if (len / 2 >= mind && len / 2 <= maxd)
+                    {
+                        isAnd &= true;
+                        isOr |= true;
+                    }
+                    else
+                    {
+                        isAnd &= false;
+                        isOr |= false;
+                    }
+                }
+                else if (types[j] == SELECT_ELLIPSE_RB)
+                {
+                    if (contours[i].size() < 5)
+                    {
+                        isAnd &= false;
+                        isOr |= false;
+                        continue;
+                    }
+                    cv::RotatedRect rect = cv::fitEllipse(contours[i]);
+                    double len = rect.size.height;
+                    if (rect.size.width < rect.size.height)
+                        len = rect.size.width;
+                    if (len / 2 >= mind && len / 2 <= maxd)
+                    {
+                        isAnd &= true;
+                        isOr |= true;
+                    }
+                    else
+                    {
+                        isAnd &= false;
+                        isOr |= false;
+                    }
+                }
+                else if (types[j] == SELECT_ELLIPSE_PHI)
+                {
+                    if (contours[i].size() < 5)
+                    {
+                        isAnd &= false;
+                        isOr |= false;
+                        continue;
+                    }
+                    cv::RotatedRect rect = cv::fitEllipse(contours[i]);
+                    float angle = 0;
+                    if (angle < 0) angle += 180;
+                    if (rect.size.width < rect.size.height)
+                    {
+                        angle = rect.angle;
+                        angle -= 90;
+                        if (angle < 0) angle += 180;
+                    }
+                    else
+                    {
+                        angle = rect.angle;
+                    }
+                    if (angle >= mind && angle <= maxd)
+                    {
+                        isAnd &= true;
+                        isOr |= true;
+                    }
+                    else
+                    {
+                        isAnd &= false;
+                        isOr |= false;
+                    }
+                }
+            }
+            if (isAnd && operation == SELECT_AND)
+                selectContours.push_back(contours[i]);
+            if (isOr && operation == SELECT_OR)
+                selectContours.push_back(contours[i]);
+        }
+        cv::drawContours(dst, selectContours, -1, cv::Scalar(255), -1);
+//        bitwise_and(src, dst, dst);
+        return selectContours.size();
+
+}
+
+//功能：选择区域集合中的面积最大
+//halcon算子:select_shape_std
+//参数：
+//  src：输入区域集合
+//  dst：输出面积最大的区域
+//返回值：区域面积
+double Process_Detect::select_shape_std(cv::Mat src, cv::Mat &dst)
+{
+    std::vector<std::vector<cv::Point> > contours;
+    cv::findContours(src, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+
+    int cnum = contours.size();
+    double dArea;
+    double MaxArea = 0;
+    std::vector<cv::Point> selectContour = contours[0];
+    for (int i = 0; i < cnum; i++)
+    {
+        dArea = cv::contourArea(contours[i], false);
+        if(dArea > MaxArea)
+        {
+            selectContour = contours[i];
+            MaxArea = dArea;
+        }
+    }
+
+    std::vector<std::vector<cv::Point> > selectContours;
+    selectContours.push_back(selectContour);
+    dst = cv::Mat(src.size(), CV_8UC1, cv::Scalar(0));
+//    cv::fillPoly(dst, selectContours, cv::Scalar(255));
+    drawContours(dst, selectContours, -1, cv::Scalar(255), -1);
+
+    return MaxArea;
+}
+
+
+//功能：计算区域的差集
+//halcon算子:difference
+//参数：
+//  src：输入区域（减数）
+//  dst：输入区域（被减数）
+//  diff：输出区域（src - dst）
+//返回值：无
+void Process_Detect::difference(cv::Mat src, cv::Mat dst, cv::Mat &diff)
+{
+    cv::Mat mask;
+    cv::bitwise_not(dst, mask); // 计算dst的反掩膜
+    cv::bitwise_and(src, mask, diff);   // src与反掩膜的交集：即src中不含dst的部分
+}
+
+void Process_Detect::intersection(cv::Mat src, cv::Mat dst, cv::Mat &inter)
+{
+    cv::bitwise_and(src, dst, inter);
+}
+
+//功能：由区域的相对位置对区域进行排序
+//halcon算子:sort_region
+//参数：
+//  src：输入图像
+//  contours：输入图像中的轮廓组
+//  pos：已排序的轮廓索引
+//  sc：排序基准点
+//  isDue：
+//      true：从小到大进行排序
+//      false：从大到小进行排序
+//  sd：排序方向
+//返回值：true：排序成功
+//		 false：排序失败
+bool Process_Detect::sort_region(cv::Mat src,
+                                 std::vector<std::vector<cv::Point> > contours,
+                                 std::vector<int> &pos,
+                                 SortCriterion sc,
+                                 bool isDue,
+                                 SortDirection sd)
+{
+    int count = contours.size();
+    pos.resize(count);
+    std::vector<cv::Point> points;
+    for (int i = 0; i < count; i++)
+    {
+        pos[i] = i;
+        cv::Rect rect = boundingRect(contours[i]);
+        if (sc == FIRST_POINT)
+        {
+            int row = rect.y;
+            for (int col = rect.x; col <= rect.x + rect.width; col++)
+            {
+                if (src.at<uchar>(row, col) > 0)
+                {
+                    points.push_back(cv::Point(col, row));
+                    break;
+                }
+            }
+        }
+        else if (sc == LAST_POINT)
+        {
+            int row = rect.y + rect.height;
+            for (int col = rect.x + rect.width; col >= rect.x; col--)
+            {
+                if (src.at<uchar>(row, col) > 0)
+                {
+                    points.push_back(cv::Point(col, row));
+                    break;
+                }
+            }
+        }
+        else if (sc == UPPER_LEFT)
+            points.push_back(rect.tl());
+        else if (sc == UPPER_RIGHT)
+            points.push_back(cv::Point(rect.x + rect.width, rect.y));
+        else if (sc == LOWER_LEFT)
+            points.push_back(cv::Point(rect.x, rect.y + rect.height));
+        else if (sc == LOWER_RIGHT)
+            points.push_back(rect.br());
+    }
+    int np = points.size();
+    if (np != count)
+        return false;
+    if (sd == ROW)
+    {
+        for (int i = 0; i < count - 1; i++)
+        {
+            for (int j = 0; j < count - 1 - i; j++)
+            {
+                if (isDue)
+                {
+                    if (points[j].y > points[j + 1].y)
+                    {
+                        cv::Point temp = points[j];
+                        points[j] = points[j + 1];
+                        points[j + 1] = temp;
+
+                        int index = pos[j];
+                        pos[j] = pos[j + 1];
+                        pos[j + 1] = index;
+                    }
+                }
+                else
+                {
+                    if (points[j].y < points[j + 1].y)
+                    {
+                        cv::Point temp = points[j];
+                        points[j] = points[j + 1];
+                        points[j + 1] = temp;
+
+                        int index = pos[j];
+                        pos[j] = pos[j + 1];
+                        pos[j + 1] = index;
+                    }
+                }
+            }
+        }
+        for (int i = 0; i < count - 1; i++)
+        {
+            for (int j = 0; j < count - 1 - i; j++)
+            {
+                if (points[j].y == points[j + 1].y)
+                {
+                    if (isDue)
+                    {
+                        if (points[j].x > points[j + 1].x)
+                        {
+                            cv::Point temp = points[j];
+                            points[j] = points[j + 1];
+                            points[j + 1] = temp;
+
+                            int index = pos[j];
+                            pos[j] = pos[j + 1];
+                            pos[j + 1] = index;
+                        }
+                    }
+                    else
+                    {
+                        if (points[j].x < points[j + 1].x)
+                        {
+                            cv::Point temp = points[j];
+                            points[j] = points[j + 1];
+                            points[j + 1] = temp;
+
+                            int index = pos[j];
+                            pos[j] = pos[j + 1];
+                            pos[j + 1] = index;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if (sd == COLUMN)
+    {
+        for (int i = 0; i < count - 1; i++)
+        {
+            for (int j = 0; j < count - 1 - i; j++)
+            {
+                if (isDue)
+                {
+                    if (points[j].x > points[j + 1].x)
+                    {
+                        cv::Point temp = points[j];
+                        points[j] = points[j + 1];
+                        points[j + 1] = temp;
+
+                        int index = pos[j];
+                        pos[j] = pos[j + 1];
+                        pos[j + 1] = index;
+                    }
+                }
+                else
+                {
+                    if (points[j].x < points[j + 1].x)
+                    {
+                        cv::Point temp = points[j];
+                        points[j] = points[j + 1];
+                        points[j + 1] = temp;
+
+                        int index = pos[j];
+                        pos[j] = pos[j + 1];
+                        pos[j + 1] = index;
+                    }
+                }
+            }
+        }
+        for (int i = 0; i < count - 1; i++)
+        {
+            for (int j = 0; j < count - 1 - i; j++)
+            {
+                if (points[j].x == points[j + 1].x)
+                {
+                    if (isDue)
+                    {
+                        if (points[j].y > points[j + 1].y)
+                        {
+                            cv::Point temp = points[j];
+                            points[j] = points[j + 1];
+                            points[j + 1] = temp;
+
+                            int index = pos[j];
+                            pos[j] = pos[j + 1];
+                            pos[j + 1] = index;
+                        }
+                    }
+                    else
+                    {
+                        if (points[j].y < points[j + 1].y)
+                        {
+                            cv::Point temp = points[j];
+                            points[j] = points[j + 1];
+                            points[j + 1] = temp;
+
+                            int index = pos[j];
+                            pos[j] = pos[j + 1];
+                            pos[j + 1] = index;
+                        }
+                    }
+                }
+            }
+        }
+    }
     return true;
 }
 
-void Process_Detect::SummaryFailResult()
-{
-//    qDebug()<<__FUNCTION__<<" has down";
-//    //异常数据输出
-//    summaryResult.GlassNum = summaryResult.GlassNum + 1;
-//    summaryResult.ngNum = summaryResult.ngNum + 1;
-//    summaryResult.unsorted = summaryResult.unsorted + 1;
-//    summaryResult.exceptNum = summaryResult.exceptNum + 1;
-//    summaryResult.currentOKorNG = false; //当前玻璃OK或者NG
-//    summaryResult.currentSort = false;   //当前玻璃是否分拣
-//    summaryResult.suceessRate = (double)summaryResult.okNum / (double)summaryResult.GlassNum;
-//    Points.clear();
-//    baseinfo = GlassDataBaseInfo();
-//    //检测结果刷新
-//    emit sig_UpdateResultInfo(summaryResult);
-//    Global::GlassID_INT = Global::GlassID_INT + 1; //玻璃id加1
-}
 
-void Process_Detect::writeImage(HalconCpp::HObject imag1,
-                                HalconCpp::HObject imag2,
-                                HalconCpp::HObject imag3,
-                                QString ImageNGPath1,
-                                QString ImageNGPath2,
-                                QString ImageNGPath3)
+//功能：对区域的进行平移
+//halcon算子:move_region
+//参数：
+//  src：输入图像
+//  dst：输出图像
+//  dx：平移量，向右为正
+//  dy：平移量，向下为正
+//返回值：无
+void Process_Detect::move_region(cv::Mat src, cv::Mat &dst, int dx, int dy)
 {
-//    WriteImage(imag1, "jpg", 0, ImageNGPath1.toUtf8().constData());
-//    WriteImage(imag2, "jpg", 0, ImageNGPath2.toUtf8().constData());
-//    WriteImage(imag3, "jpg", 0, ImageNGPath3.toUtf8().constData());
-}
+    std::vector<std::vector<cv::Point> > contours;
+    cv::findContours(src, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+    int Sum = contours.size();
 
-void Process_Detect::sortHole()
-{
-#if false
-    int typeLength = Type.TupleLength().I();
-    int HolesOKLength =  HolesOK.TupleLength().I();
-    int DistanceHorizontalLength =  DistanceHorizontal.TupleLength().I();
-    int DistanceVerticalLength =  DistanceVertical.TupleLength().I();
-    int HolesWidthLength =  HolesWidth.TupleLength().I();
-    int HolesHeightLength =  HolesHeight.TupleLength().I();
-    int column2QKLength = Column2QK.TupleLength().I();
-    int row2QKLength = Row2QK.TupleLength().I();
-    qDebug()<<"typeLength ="<<typeLength;
-    qDebug()<<"HolesOKLength ="<<HolesOKLength;
-    qDebug()<<"DistanceHorizontalLength ="<<DistanceHorizontalLength;
-    qDebug()<<"DistanceVerticalLength ="<<DistanceVerticalLength;
-    qDebug()<<"HolesWidthLength = "<<HolesWidthLength;
-    qDebug()<<"HolesHeightLength ="<<HolesHeightLength;
-    qDebug()<<"column2QKLength ="<<column2QKLength;
-    qDebug()<<"row2QKLength ="<<row2QKLength;
- if(column2QKLength == row2QKLength
-         && column2QKLength == typeLength
-         && column2QKLength == HolesOKLength
-         && column2QKLength == DistanceHorizontalLength
-         && column2QKLength == DistanceVerticalLength
-         && column2QKLength == HolesWidthLength
-         && column2QKLength == HolesHeightLength){//数组具有一致性
-    int holeCount = 0; //统计孔的个数
-    for(int i = 0; i<Type.TupleLength(); ++i) {
-        QString type = Type.TupleSelect(i).ToString().Text();
-        qDebug()<<"type ="<<type <<"=>i="<<i;
-        if(type.contains("孔"))
-            ++holeCount;
+    std::vector<std::vector<cv::Point> > newContours;
+    for (int i = 0; i < Sum; i++)
+    {
+        std::vector<cv::Point> contourSelect, trContour;
+        contourSelect = contours[i];
+        for(int j = 0; j < contourSelect.size(); ++j)
+        {
+            trContour[j].x = contourSelect[j].x + dx;
+            trContour[j].y = contourSelect[j].y + dx;
+        }
+        newContours.push_back(trContour);
     }
-    if(holeCount != 0) {
-        HTuple holeColumn2QK = HTuple();
-        TupleSelectRange(Column2QK,0,holeCount-1,&holeColumn2QK);//孔的数组单独提取出来
-        qDebug()<<"holeColumn2QK.TupleLength() =" <<holeColumn2QK.TupleLength().I();
-        HTuple holeColumn2QKIndex = HTuple();
-        TupleSortIndex(holeColumn2QK,&holeColumn2QKIndex);//升序排好的下标
-
-        HTuple NewType = HTuple();
-        HTuple NewHolesOK =  HTuple();
-        HTuple NewDistanceHorizontal =  HTuple();
-        HTuple NewDistanceVertical =  HTuple();
-        HTuple NewHolesWidth =  HTuple();
-        HTuple NewHolesHeight =  HTuple();
-        HTuple NewColumn2QK =  HTuple();
-        HTuple NewRow2QK =  HTuple();
-        //
-        // 按照x坐标的升序排列好孔的其他属性
-        //
-        TupleSelect(Type,holeColumn2QKIndex,&NewType);
-        TupleSelect(HolesOK,holeColumn2QKIndex,&NewHolesOK);
-        TupleSelect(DistanceHorizontal,holeColumn2QKIndex,&NewDistanceHorizontal);
-        TupleSelect(DistanceVertical,holeColumn2QKIndex,&NewDistanceVertical);
-        TupleSelect(HolesWidth,holeColumn2QKIndex,&NewHolesWidth);
-        TupleSelect(HolesHeight,holeColumn2QKIndex,&HolesHeight);
-        TupleSelect(Column2QK,holeColumn2QKIndex,&NewColumn2QK);
-        TupleSelect(Row2QK,holeColumn2QKIndex,&NewRow2QK);
-
-        HTuple RemainType = HTuple();
-        HTuple RemainHolesOK =  HTuple();
-        HTuple RemainDistanceHorizontal =  HTuple();
-        HTuple RemainDistanceVertical =  HTuple();
-        HTuple RemainHolesWidth =  HTuple();
-        HTuple RemainHolesHeight =  HTuple();
-        HTuple RemainColumn2QK =  HTuple();
-        HTuple RemainRow2QK =  HTuple();
-        //
-        // 获取除了孔之外的其他坐标，暂不排序
-        //
-        TupleSelectRange(Type,holeCount,Type.TupleLength().I()-1,&RemainType);
-        TupleSelectRange(HolesOK,holeCount,HolesOK.TupleLength().I()-1,&RemainHolesOK);
-        TupleSelectRange(DistanceHorizontal,holeCount,DistanceHorizontal.TupleLength().I()-1,&RemainDistanceHorizontal);
-        TupleSelectRange(DistanceVertical,holeCount,DistanceVertical.TupleLength().I()-1,&RemainDistanceVertical);
-        TupleSelectRange(HolesWidth,holeCount,HolesWidth.TupleLength().I()-1,&RemainHolesWidth);
-        TupleSelectRange(HolesHeight,holeCount,HolesHeight.TupleLength().I()-1,&RemainHolesHeight);
-        TupleSelectRange(Column2QK,holeCount,Column2QK.TupleLength().I()-1,&RemainColumn2QK);
-        TupleSelectRange(Row2QK,holeCount,Row2QK.TupleLength().I()-1,&RemainRow2QK);
-        //
-        // 将排好序的孔+剩下的合并，赋值给原来的数组
-        //
-        TupleConcat(NewType,RemainType,&Type);
-        TupleConcat(NewHolesOK,RemainHolesOK,&HolesOK);
-        TupleConcat(NewDistanceHorizontal,RemainDistanceHorizontal,&DistanceHorizontal);
-        TupleConcat(NewDistanceVertical,RemainDistanceVertical,&DistanceVertical);
-        TupleConcat(NewHolesWidth,RemainHolesWidth,&HolesWidth);
-        TupleConcat(NewHolesHeight,RemainHolesHeight,&HolesHeight);
-        TupleConcat(NewColumn2QK,RemainColumn2QK,&Column2QK);
-        TupleConcat(NewRow2QK,RemainRow2QK,&Row2QK);
-    }//if(holeCount != 0)
-  }
-#endif
+    dst = cv::Mat(src.size(), src.type(), cv::Scalar(0));
+    cv::drawContours(dst, newContours, -1, cv::Scalar(255), 1);
 }
+
 

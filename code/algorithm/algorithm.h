@@ -1,20 +1,27 @@
 #ifndef ALGORITHM_H
 #define ALGORITHM_H
 
-#include "algorithm_global.h"
+#include "HSAlgorithmInterface.h"
+#include <opencv2/opencv.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/highgui.hpp>
+#include "processtile.h"
 
-class ALGORITHM_EXPORT Algorithm
+
+class Algorithm: public AlgorithmNamespace::HSAlgorithmInterface
 {
 public:
-    Algorithm();
-    // 初始化算法
-    void init();
-    // 执行图像算法
-    void Execu();
-    // 暂停图像算法
-    void Stop();
-    // 完成图像算法
-    void Exit();
+    Algorithm(){}
+    virtual ~Algorithm(){}
+    virtual void init() override;
+    virtual void Execu() override;
+    virtual void Stop() override;
+    virtual void Exit() override;
+
+private:
+    std::shared_ptr<ProcessTile> proPtr;
+
 };
 
 #endif // ALGORITHM_H
